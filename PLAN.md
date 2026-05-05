@@ -17,6 +17,18 @@ completed in earlier waves; their content remains below as audit trail.
 Phase 2 begins schema + registry + canonical-policy-YAML sequencing
 from the §Out of scope sections of the ten settled ADRs.
 
+**Phase 2 sequencing meta-ADR (accepted 2026-05-04):** ADR 0038
+(`docs/host-capability-substrate/adr/0038-phase-2-schema-landing-sequence.md`)
+accepts a six-phase landing order: charter v1.4.0 amendment (Phase
+2.0) → standalone Ring 0 entities (Phase 2.1, 4 PRs) → base-shape
+extensions (Phase 2.2, 3 PRs) → evidence subtypes (Phase 2.3, 4 PRs)
+→ registry consolidation (Phase 2.4) → policy YAML + trap fixtures
+(Phases 2.5 + 2.6). Accepted v2 with 3 mechanical tweaks at
+acceptance after `hcs-architect` re-review returned READY-FOR-
+ACCEPTANCE with no blocking findings. ADR 0038 sequences; it does
+not author any of the content it sequences. Phase 2 work begins at
+Phase 2.0 (charter v1.4.0 amendment ADR drafting).
+
 ### Phase 2 entry-point inventory
 
 **Schema PR** (per `.agents/skills/hcs-schema-change`): Zod source for

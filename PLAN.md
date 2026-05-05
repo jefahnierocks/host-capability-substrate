@@ -23,11 +23,27 @@ accepts a six-phase landing order: charter v1.4.0 amendment (Phase
 2.0) → standalone Ring 0 entities (Phase 2.1, 4 PRs) → base-shape
 extensions (Phase 2.2, 3 PRs) → evidence subtypes (Phase 2.3, 4 PRs)
 → registry consolidation (Phase 2.4) → policy YAML + trap fixtures
-(Phases 2.5 + 2.6). Accepted v2 with 3 mechanical tweaks at
-acceptance after `hcs-architect` re-review returned READY-FOR-
-ACCEPTANCE with no blocking findings. ADR 0038 sequences; it does
-not author any of the content it sequences. Phase 2 work begins at
-Phase 2.0 (charter v1.4.0 amendment ADR drafting).
+(Phases 2.5 + 2.6). ADR 0038 sequences; it does not author any of
+the content it sequences.
+
+**Phase 2.0 charter v1.4.0 amendment (accepted 2026-05-04):**
+ADR 0039 (`docs/host-capability-substrate/adr/0039-charter-v1-4-0-invariants-18-and-19.md`)
+adds invariants 18 (derived retrieval ≠ gate authority — Q-003 /
+ADR 0019 v3) and 19 (boundary claims freshness/execution-context-
+bound — Q-007 / ADR 0034 v2). Charter bumps v1.3.2 → v1.4.0. v2
+substantively expanded the invariant text per security review +
+abstract-vocabulary bridge per policy review + framing precision
+per ontology review + editorial folds per architect review;
+accepted with 3 mechanical tweaks at acceptance (Ont-N11
+CoordinationFact `derived_from` precision; Arch-N13 surface
+enumeration parallelism; Arch-N11 posture-commitment count
+alignment). All four reviewers returned READY-FOR-ACCEPTANCE on
+v2; 13 forward-looking non-blocking observations documented in
+ADR 0039 §Forward-looking observations for absorption at
+downstream PRs (Phase 2.1.x / 2.1.4 / 2.2.3 / 2.5 / 2.6 / wave-2
+reactive amendment / future glossary cleanup). Phase 2 work
+continues at Phase 2.1.1 (`AgentClient` Ring 0 entity per ADR 0038
+§Phase 2.1).
 
 ### Phase 2 entry-point inventory
 

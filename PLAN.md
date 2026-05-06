@@ -26,7 +26,8 @@ service-account, vault inventory, OpenTofu, broker, or runtime change may land
 from this intake before a follow-on accepted ADR or approved sequencing
 amendment authorizes the implementation lane.
 
-**Project-substrate admission standard intake (2026-05-06):** Citadel PR #37
+**Project-substrate admission standard intake (2026-05-06; proposed ADR
+0041):** Citadel PR #37
 (`The-Nash-Group/citadel-config` commit
 `46c55857427af4b887194277bac2218c20b595b6`) defines an external
 project-substrate contract/admission standard. HCS treats it as compatibility
@@ -37,14 +38,16 @@ whole project-substrate contract envelope opens Q-014 for future ADR/schema
 review. Pre-deliberation posture: compose with ADR 0036 via candidate
 `KnowledgeSource.source_kind: "project_substrate_contract"` plus typed
 validation receipts; treat contract lifecycle status and `guardian_approval`
-as evidence inputs, not HCS gate authority or `ApprovalGrant`; triage v1
-evidence shape commitments to contract validation, admission observation, and
-teardown plan/proof receipts; defer machine-identity validation to Q-013
-implementation. No contract schema, policy YAML, validator, runner, Proxmox,
-OpenTofu, machine-identity, adapter, dashboard, or runtime change may land from
-this intake before a follow-on accepted ADR or approved sequencing amendment
-authorizes the implementation lane. Q-014 implementation is a Phase 2.7 /
-Wave-2 candidate that should sequence jointly with Q-013.
+as evidence inputs, not HCS gate authority or `ApprovalGrant`; group v1
+evidence shape commitments into contract validation, admission observation,
+teardown plan receipts, and teardown completion receipts; defer
+machine-identity validation to Q-013 implementation. No contract schema, policy
+YAML, validator, runner, Proxmox, OpenTofu, machine-identity, adapter,
+dashboard, hook, project workload/provisioning, or runtime change may land from
+this intake before ADR 0041 is accepted and a follow-on implementation ADR or
+approved sequencing amendment authorizes the implementation lane. Q-014
+implementation is a Phase 2.7 / Wave-2 candidate that should sequence jointly
+with Q-013.
 
 **Phase 2 sequencing meta-ADR (accepted 2026-05-04):** ADR 0038
 (`docs/host-capability-substrate/adr/0038-phase-2-schema-landing-sequence.md`)

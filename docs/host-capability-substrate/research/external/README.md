@@ -3,8 +3,8 @@ title: HCS external research artifacts
 category: research
 component: host_capability_substrate
 status: active
-version: 1.12.0
-last_updated: 2026-05-01
+version: 1.15.0
+last_updated: 2026-05-05
 tags: [research, external, substrate-config, auth, mcp, cloudflare, cloudflared, diagnostics, rate-limit, credential-broker, coordination, knowledge-store, rag, resource-budget, ci-runners, quality-management, github, macos, codex, worktree, branch-cleanup, workspace-context, isolation]
 priority: medium
 ---
@@ -42,6 +42,9 @@ Do **not** cite these documents as authoritative first-party HCS decisions. Cite
 | `2026-04-30-hcs-evidence-planning-report-1.md` | 2026-04-30 | User-submitted HCS evidence/planning report based on Claude macOS / Opus 4.7 work. Normalized to HCS terminology during intake. Reinforces D-025/D-026/D-027/D-028 and proposes candidate HCS diagnostic surfaces, workspace manifest inputs, safe process inspection, docs cleanup classification, and claim reconciliation. SHA-256: `677b108e605580ae931f57f15f61ba1d4ddab3768a481c040f80adc5165686ae`. |
 | `2026-05-01-agentic-coding-tool-isolation-report.md` | 2026-05-01 | User-submitted system-level report comparing agentic coding tools across permission gating, worktree/file isolation, local kernel sandboxing, container/VM isolation, and remote cloud execution. Preserved as source input for Q-010; not accepted as HCS schema or policy. SHA-256: `3a54065b5511bee42990657cf29932f94fd343b58f0a8c8e1214873518870aeb`. |
 | `2026-05-01-version-control-authority-consult.md` | 2026-05-01 | Normalized source note for a user-submitted inline version-control authority consult. Strengthens Q-006 with source-control continuity, expected check source identity, branch deletion proof, Actions posture, and credential-surface split. Inline source; no byte-for-byte source hash. |
+| `2026-05-05-1password-credential-plane-research.md` | 2026-05-05 | HCS quarantine wrapper for the 1Password credential-plane research. Preserves the source as Q-013 input while explicitly marking org-specific vault names, schema candidates, policy candidates, forbidden-pattern candidates, and landing order as non-authoritative outside ADR 0040's accepted generic posture. |
+| `2026-05-05-1password-credential-plane-research.raw.md` | 2026-05-05 | Byte-for-byte copy of `/private/tmp/1password-research.md`. Source-author planning input only; not an HCS decision. SHA-256: `06abfe184c7c781ce4fc6d4ee7f18cf5c38265061a23323e22176f17ed0d9dba`. |
+| `2026-05-05-citadel-credential-plane-guidance.md` | 2026-05-05 | Normalized source note for user-provided Citadel guidance. Feeds Q-013 posture; ADR 0040 accepts the generic boundary while schema, policy, reconciler, vault, service-account, OpenTofu, broker, and runtime changes remain blocked. |
 
 ## Reconciled conclusions
 
@@ -317,6 +320,9 @@ Reports should be staged here verbatim from durable source files; do not edit th
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.15.0 | 2026-05-05 | Updated credential-plane source rows after ADR 0040 acceptance; source-specific implementation details remain non-authoritative outside the accepted generic posture. |
+| 1.14.0 | 2026-05-05 | Quarantined directive wording from the 1Password source note, preserved the byte-for-byte raw source separately, and added a citable Citadel guidance source note. |
+| 1.13.0 | 2026-05-05 | Staged the 1Password credential-plane research note, recorded SHA-256, added a synthesis link, and opened Q-013 planning posture with implementation blocked pending acceptance. |
 | 1.12.0 | 2026-05-01 | Added normalized source note and synthesis pointer for the version-control authority consult. |
 | 1.11.0 | 2026-05-01 | Added 2026-05-01 agentic coding tool isolation report and Q-010 synthesis pointer. |
 | 1.10.0 | 2026-04-30 | Staged the HCS evidence/planning report, normalized non-HCS labels during intake, recorded its SHA-256, added a synthesis link, and queued Q-009 for diagnostic surfaces and workspace manifest modeling. |

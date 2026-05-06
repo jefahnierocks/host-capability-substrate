@@ -3,9 +3,9 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.1.0
+version: 1.3.0
 last_updated: 2026-05-06
-tags: [ontology, entities, schemas, evidence, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation]
+tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation]
 priority: high
 ---
 
@@ -20,7 +20,9 @@ ADR 0021 invariant 17 (charter v1.3.0), `AgentClient` landed as Phase 2.1.1
 per ADR 0037 / ADR 0038, and `VerificationCommandSpec` landed as Phase 2.1.2
 per ADR 0036 / ADR 0038. The ADR 0019 knowledge and coordination subgraph
 landed as Phase 2.1.3 per ADR 0038, and `QualityGate` landed as Phase 2.1.4
-per ADR 0035 / ADR 0038.
+per ADR 0035 / ADR 0038. Phase 2.2.1 added `ExecutionContext` containment
+cache fields, and Phase 2.2.2 lands the canonical `OperationShape` schema with
+ADR 0036 deletion-authority fields.
 
 Canonical research plan sketch: `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md` §2 (Ontology) and §Appendix A.
 
@@ -117,11 +119,10 @@ Key fields:
 
 - `verification_command_spec_id` is the stable local identifier for the spec.
 - `workspace_context_id` binds the spec to the workspace context it verifies.
-- `command_shape` is an OperationShape-like payload local to this entity until
-  the canonical `OperationShape` schema lands. It carries
-  `operation_class: "workspace_verify"`, `mutation_scope:
-  "verify_workspace"`, a typed `argv` array, and `env_refs` entries that name
-  environment variables without values.
+- `command_shape` remains a narrowed inline OperationShape-like payload for
+  workspace verification. It carries `operation_class: "workspace_verify"`,
+  `mutation_scope: "verify_workspace"`, a typed `argv` array, and `env_refs`
+  entries that name environment variables without values.
 - `command_shape.env_refs.env_capture_mode` is `name_only` or
   `existence_only`. Secret-shaped env var references in `argv` must have an
   explicit `env_refs` entry; raw env values are not representable.
@@ -141,7 +142,8 @@ against rather than inheriting the generic new-entity `0.1.0` literal.
 
 `VerificationCommandSpec` does not add policy tiers, canonical policy YAML,
 adapter behavior, broker behavior, command execution, or the Phase 2.2.2
-`OperationShape.deletion_authority_source_ref` extension.
+cleanup operation runtime. The canonical `OperationShape` schema now carries
+the ADR 0036 `deletion_authority_source_ref` extension separately.
 
 ### `KnowledgeSource`
 
@@ -291,6 +293,62 @@ Per-gate-kind composition rules, duplicate-target checks, re-mint
 evidence-rotation materiality, `gate_evidence_acknowledgment`, and
 Decision-transition audit event shapes remain Ring 1 / canonical-policy work
 queued by ADR 0035.
+
+## Phase 2.2 Base Shape Extensions
+
+### `OperationShape`
+
+Source: `packages/schemas/src/entities/operation-shape.ts`
+
+Describes a semantic operation proposal before any command rendering. It is the
+Ring 0 upstream shape for `CommandShape`: shells, argv renderers, adapters, and
+hooks must consume typed operation intent rather than treating shell strings as
+the primary object. Phase 2.2.2 lands the narrow canonical schema plus ADR 0036
+deletion-authority fields. It does not add a gateway, renderer, cleanup
+operation, approval-grant schema, policy YAML, adapter behavior, hook behavior,
+or runtime execution endpoint.
+
+Key fields:
+
+- `operation_shape_id` is the stable local identifier for the proposed
+  operation shape.
+- `operation_class` is one of the six ADR 0029 classes
+  (`read_only_diagnostic`, `agent_internal_state`, `destructive_git`,
+  `external_control_plane_mutation`, `worktree_mutation`, `merge_or_push`) plus
+  ADR 0036 `workspace_verify`.
+- `mutation_scope` is paired with `operation_class`; `read_only_diagnostic`
+  uses `none`, `workspace_verify` uses `verify_workspace`, and the mutation
+  classes use their class-level mutation scopes until future capability
+  schemas introduce narrower per-operation scopes.
+- `execution_context_id` is required by charter invariant 17.
+- `target_ref` is a typed `{target_kind, target_id}` reference. It records the
+  primary target without embedding shell arguments or resolved secret material.
+  `target_kind: "unknown"` is valid only for read-only diagnostics; mutating
+  operations require a resolved target kind. The initial schema also applies
+  class-specific target narrowing: `agent_internal_state` targets an
+  `execution_context`, `external_control_plane_mutation` targets a
+  `provider_object` or `external_control_plane`, `destructive_git` and
+  `merge_or_push` target a `repository`, `worktree_mutation` targets a
+  `worktree`, and `workspace_verify` targets a `workspace`.
+- `deletion_authority_kind` and `deletion_authority_source_ref` are required
+  nullable fields. Set both to `null` when no deletion authority applies; when
+  deletion authority applies, both must be non-null and structurally matched.
+  `gitignore` is not a valid authority kind.
+- `deletion_authority_kind` values are
+  `filesystem_protected_paths_observation`, `coordination_fact`,
+  `human_dashboard_grant`, and `runtime_state_classification`. Each kind has a
+  matching typed source-ref shape: `boundary_observation_id`,
+  `coordination_fact_id`, `approval_grant_id`, or `evidence_id`.
+- Read-only diagnostics and workspace verification operations cannot carry
+  deletion authority.
+- `evidence_refs` is required to bind the shape to its provenance.
+
+The schema structurally validates operation/mutation pairing, resolved-target
+requirements for mutating operations, and deletion discriminator/ref
+consistency. Layer 1 mint-time validation remains responsible for resolving
+polymorphic refs and enforcing ADR 0036 grounding rules, including the
+requirement that `coordination_fact` deletion authority cite host-observation
+grounding.
 
 ## Phase 1 Shell/Env Entities
 
@@ -633,6 +691,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.3.0 | 2026-05-06 | Added the Phase 2.2.2 `OperationShape` schema docs with ADR 0036 deletion-authority fields. |
 | 1.2.0 | 2026-05-06 | Added the ADR 0037 Phase 2.2.1 `ExecutionContext` containment-cache fields and documented the legacy `sandbox` projection as read-only. |
 | 1.1.0 | 2026-05-06 | Added the ADR 0035 `QualityGate` Phase 2.1.4 schema docs and documented Evidence schema v0.4.0 subject-kind widening. |
 | 1.0.0 | 2026-05-06 | Added the ADR 0019 `KnowledgeSource`, `KnowledgeChunk`, `CoordinationFact`, and `DerivedSummary` Phase 2.1.3 schema docs and documented Evidence schema v0.3.0 subject-kind widening. |

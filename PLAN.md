@@ -82,7 +82,9 @@ reactive amendment / future glossary cleanup). Phase 2.1.1
 (`AgentClient`), Phase 2.1.2 (`VerificationCommandSpec`), and Phase 2.1.3
 (`KnowledgeSource` / `KnowledgeChunk` / `CoordinationFact` /
 `DerivedSummary`), and Phase 2.1.4 (`QualityGate`) have landed; Phase 2 work
-continues at Phase 2.2.1 (`ExecutionContext` cache refactor).
+continues after Phase 2.2.1 (`ExecutionContext` containment cache) and Phase
+2.2.2 (`OperationShape` deletion-authority fields) with Phase 2.2.3
+(`BoundaryObservation` payload bundle).
 
 ### Phase 2 entry-point inventory
 
@@ -94,10 +96,11 @@ subtypes to author: Q-005 six runner receipts (ADR 0032), Q-006 stage-1
 GitHub authority/identity records (ADR 0033), Q-007 envelope payloads
 `ToolProvenance` + `GitIdentityBinding` (ADR 0034), three remote-agent
 subtypes (ADR 0037), `ContainmentObservation` payload (ADR 0037). Plus
-`ExecutionContext` cache refactor with `kernel_sandbox_kind` pointer
-field (ADR 0037), three `filesystem_*` boundary_dimensions (ADR 0036),
-`mcp_canonical_authority` (ADR 0036), `OperationShape.deletion_authority_source_ref`
-polymorphic FK (ADR 0036).
+three `filesystem_*` boundary_dimensions (ADR 0036) and
+`mcp_canonical_authority` (ADR 0036). Base-shape extensions landed:
+`ExecutionContext` cache refactor with `kernel_sandbox_kind` pointer field
+(ADR 0037) and `OperationShape.deletion_authority_source_ref` polymorphic FK
+(ADR 0036).
 
 **Registry update PR** (`ontology-registry.md` extensions):
 producer-class allowlist (`kernel_workspace_diagnose`,

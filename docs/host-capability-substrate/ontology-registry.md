@@ -3,9 +3,9 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.3.7
+version: 0.3.9
 last_updated: 2026-05-06
-tags: [ontology, registry, boundary-observation, evidence, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
+tags: [ontology, registry, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
 priority: high
 ---
 
@@ -673,11 +673,77 @@ Source: ADR 0036 and ADR 0038 Phase 2.1.2.
 Mirror notes:
 
 - `command_shape` is an OperationShape-like payload local to
-  `VerificationCommandSpec` until the canonical `OperationShape` schema lands.
-  It carries typed argv and the ADR 0036 argv/env scrubber pattern; it does not
-  introduce a shell-string command surface.
-- The global `OperationShape.deletion_authority_source_ref` and
-  `deletion_authority_kind` extension remains Phase 2.2.2 work.
+  `VerificationCommandSpec`. The canonical `OperationShape` schema now lands
+  in Phase 2.2.2, but `VerificationCommandSpec.command_shape` remains a
+  narrowed inline shape for workspace verification because it carries typed argv
+  and the ADR 0036 argv/env scrubber pattern. It does not introduce a
+  shell-string command surface.
+
+### `OperationShape` enum mirrors
+
+Source: ADR 0029, ADR 0036, and ADR 0038 Phase 2.2.2.
+
+`OperationShape.operation_class`:
+
+- `read_only_diagnostic`
+- `agent_internal_state`
+- `destructive_git`
+- `external_control_plane_mutation`
+- `worktree_mutation`
+- `merge_or_push`
+- `workspace_verify`
+
+`OperationShape.mutation_scope`:
+
+- `none`
+- `agent_internal_state`
+- `destructive_git`
+- `external_control_plane_mutation`
+- `worktree_mutation`
+- `merge_or_push`
+- `verify_workspace`
+
+`OperationShape.target_ref.target_kind`:
+
+- `workspace`
+- `execution_context`
+- `repository`
+- `worktree`
+- `filesystem_path`
+- `tool_or_provider`
+- `provider_object`
+- `external_control_plane`
+- `unknown`
+
+`OperationShape.deletion_authority_kind`:
+
+- `filesystem_protected_paths_observation`
+- `coordination_fact`
+- `human_dashboard_grant`
+- `runtime_state_classification`
+
+Mirror notes:
+
+- `deletion_authority_source_ref` is a polymorphic FK whose object shape must
+  match `deletion_authority_kind`: `boundary_observation_id`,
+  `coordination_fact_id`, `approval_grant_id`, or `evidence_id`.
+- `unknown` target kind is valid only for read-only diagnostics; mutating
+  operations and deletion-authority operations require a resolved target kind.
+- The Phase 2.2.2 schema narrows targets by operation class:
+  `agent_internal_state` → `execution_context`,
+  `external_control_plane_mutation` → `provider_object |
+  external_control_plane`, `destructive_git | merge_or_push` →
+  `repository`, `worktree_mutation` → `worktree`, and
+  `workspace_verify` → `workspace`.
+- `deletion_authority_kind` and `deletion_authority_source_ref` are required
+  nullable fields on serialized `OperationShape` records. Use explicit `null`
+  for both when no deletion authority applies.
+- `gitignore` is intentionally not a valid deletion authority kind per D-025.
+- `filesystem_protected_paths_observation` points structurally at a
+  `BoundaryObservation`; full payload validation for
+  `boundary_dimension: filesystem_protected_paths` lands in Phase 2.2.3.
+- `coordination_fact` deletion authority requires Layer 1 host-observation
+  grounding at mint time; Zod validates only the structural ref pairing.
 
 ### Knowledge and coordination enum mirrors
 
@@ -1146,6 +1212,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.3.9 | 2026-05-06 | Added the Phase 2.2.2 `OperationShape` enum mirror for operation_class, mutation_scope, target_kind, and deletion_authority_kind. |
 | 0.3.8 | 2026-05-06 | Added the Phase 2.2.1 `ExecutionContext.latest_containment_evidence_ref` and `ExecutionContext.kernel_sandbox_kind` kernel-set containment cache fields to the authority-field registry. |
 | 0.3.7 | 2026-05-06 | Added the Phase 2.1.4 `QualityGate` enum mirror, `quality_gate` Evidence subject kind, and ADR 0035 reason_kind / required_grant_kind reservations. |
 | 0.3.6 | 2026-05-06 | Added the Phase 2.1.3 knowledge and coordination enum mirror, Evidence subject-kind extensions, `secret_pointer` security label, and ADR 0019/0031/0036 CoordinationFact vocabulary. |

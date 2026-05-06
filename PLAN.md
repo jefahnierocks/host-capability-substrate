@@ -121,7 +121,8 @@ Q-007 carry-overs).
 `system.cleanup.plan.v1` composition (ADR 0036 follow-up); cross-cutting
 derived-content subject_kind grounding rule extension (ADR 0036
 extensibility principle); project-substrate contract validation and
-admission-receipt composition (Q-014 follow-up).
+admission-receipt composition (Q-014 follow-up; lane plan:
+`docs/host-capability-substrate/research/local/2026-05-06-q-014-implementation-lane-plan.md`).
 
 ### Historical record — Phase 0b closeout / Phase 1 prep / synthesis-window
 

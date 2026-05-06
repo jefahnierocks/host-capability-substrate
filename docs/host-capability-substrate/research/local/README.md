@@ -40,12 +40,14 @@ summaries.
 | `2026-05-01-ontology-promotion-receipt-dedupe-plan.md` | 2026-05-01 | Cross-Q planning document for ontology promotion buckets, candidate receipt dedupe, naming discipline, and dependency order before additional Ring 0 schema work. Queues Q-011. |
 | `2026-05-01-codex-import-dialog-hang.md` | 2026-05-01 | Live Codex macOS app import-dialog hang investigation. Corrects stale repo-target assumptions, records app/log/process evidence, and reinforces Q-009 safe process inspection for app-managed MCP children. |
 | `2026-05-05-credential-plane-integration-synthesis.md` | 2026-05-05 | Synthesis of the 1Password credential-plane research plus Citadel guidance. Records Q-013 acceptance via ADR 0040 at posture level only, blocks implementation pending follow-on acceptance, and defines the approval contract for future HCS-side implementation. |
-| `2026-05-06-project-substrate-compatibility-synthesis.md` | 2026-05-06 | Synthesis of Citadel PR #37 project-substrate admission standard. Maps contract fields to HCS vocabulary, opens Q-014 for future contract validation, adds pre-deliberation commitments around ADR 0036 composition / evidence triage / sequencing, and blocks schema, policy, runner, Proxmox, OpenTofu, identity, adapter, dashboard, and runtime implementation until follow-on acceptance. |
+| `2026-05-06-project-substrate-compatibility-synthesis.md` | 2026-05-06 | Synthesis of Citadel PR #37 project-substrate admission standard. Maps contract fields to HCS vocabulary, records ADR 0041 accepted posture around ADR 0036 composition / evidence cohorts / sequencing, and blocks schema, policy, runner, Proxmox, OpenTofu, identity, adapter, dashboard, hook, project workload, and runtime implementation until follow-on implementation acceptance. |
+| `2026-05-06-q-014-implementation-lane-plan.md` | 2026-05-06 | Docs-only next-lane plan after ADR 0041 acceptance. Records Q-014 entry conditions, future work packages, regression-trap queue, and stop rules while keeping schema, policy, validator, adapter, hook, runner, Proxmox, OpenTofu, identity, project workload, and runtime work blocked. |
 
 ## Change Log
 
 | Version | Date | Change |
 |---|---:|---|
+| 1.10.2 | 2026-05-06 | Aligned project-substrate synthesis to accepted ADR 0041 and added the Q-014 implementation-lane plan. |
 | 1.10.1 | 2026-05-06 | Noted Q-014 pre-deliberation commitments in the project-substrate synthesis. |
 | 1.10.0 | 2026-05-06 | Added project-substrate compatibility synthesis and Q-014 planning posture. |
 | 1.9.1 | 2026-05-05 | Noted the credential-plane synthesis approval contract for future HCS-side implementation. |

@@ -74,14 +74,14 @@ The component facts mostly fit existing HCS lanes:
 - Workspace manifest and diagnostic projection posture fits Q-009.
 
 The whole project-substrate contract envelope does not fit cleanly under any
-single accepted lane. It spans workspace identity, admission lifecycle,
+single pre-existing lane. It spans workspace identity, admission lifecycle,
 resource budgets, identity references, evidence requirements, network/storage
-boundaries, teardown policy, and approval evidence. HCS should open a future
-ADR/schema decision lane before validating these contracts as first-class HCS
-inputs.
+boundaries, teardown policy, and approval evidence. ADR 0041 accepts the
+posture lane; HCS still needs a future implementation ADR/schema lane before
+validating these contracts as first-class HCS inputs.
 
-Q-014 records that future lane. The pre-deliberation commitment is to compose
-with ADR 0036 rather than invent a parallel intake model: add
+Q-014 records that lane. The accepted posture composes with ADR 0036 rather
+than inventing a parallel intake model: add
 `project_substrate_contract` as a `KnowledgeSource.source_kind` candidate,
 treat the project-owned YAML as Layer 2 input, and mint typed validation
 receipts that cite both the contract source and Layer 1 operational evidence.
@@ -124,15 +124,15 @@ reviewer dispatch.
    `boundary_dimension: "project_admission_authority"` or a narrow evidence
    subtype if the envelope is too coarse. Runtime approvals still mint their
    own HCS `ApprovalGrant` records.
-4. **Triage evidence shapes before v1 scope.** Q-014 v1 should commit only the
-   Tier 2 posture shapes listed below, while Tier 1 composes with existing ADRs
-   and Tier 3 defers to follow-on lanes.
+4. **Group evidence shapes before implementation scope.** ADR 0041 accepted
+   only the cohort-2 posture shapes listed below, while cohort 1 composes with
+   existing ADRs and cohort 3 defers to follow-on lanes.
 5. **Stop rules cite authority.** Every stop rule should cite a charter
    invariant or ADR so review remains mechanical.
 
-## Evidence Shape Triage
+## Evidence Shape Cohorts
 
-Tier 1 composes with accepted ADRs and needs no new v1 evidence subtype:
+Cohort 1 composes with accepted ADRs and needs no new Q-014 evidence subtype:
 
 - `network_profile` validation through existing or separately registered
   `BoundaryObservation` dimensions.
@@ -141,7 +141,7 @@ Tier 1 composes with accepted ADRs and needs no new v1 evidence subtype:
 - CI execution validation through Q-005/Q-006 receipts.
 - `iac_owner` no-secrets-in-state through ADR 0032 `PolicyPlanReceipt`.
 
-Tier 2 posture candidates for Q-014 v1:
+Cohort 2 posture candidates accepted by ADR 0041:
 
 - `ProjectSubstrateContractValidationReceipt` — point-in-time structural
   validation of the contract against the Citadel standard; grain:
@@ -150,10 +150,10 @@ Tier 2 posture candidates for Q-014 v1:
   observation citing contract validation plus Citadel authority evidence.
 - `ProjectTeardownPlanReceipt` — project-scope teardown plan evidence that
   composes with D-025 deletion authority.
-- `ProjectTeardownProofReceipt` — closeout evidence that teardown happened
-  within the declared project scope.
+- `ProjectTeardownCompletionReceipt` — closeout evidence that teardown
+  happened within the declared project scope.
 
-Tier 3 deferred candidates:
+Cohort 3 deferred candidates:
 
 - `MachineIdentityMappingObservation` and
   `MachineIdentityIssuanceReceipt` wait on Q-013 implementation.
@@ -186,14 +186,17 @@ Tier 3 deferred candidates:
    OpenTofu plans, generated schemas, fixtures, and audit summaries must carry
    references only, not secret material.
 
-## Future ADR Questions
+## ADR 0041 Resolution
 
-Q-014 v1 should answer:
+ADR 0041 answered:
 
-- Does Q-014 compose with ADR 0036 through
+- Q-014 composes with ADR 0036 through
   `source_kind: "project_substrate_contract"` plus typed validation receipts?
-- Which Tier 2 evidence shapes are committed at posture level for v1?
-- Is Q-014 implementation sequenced as Phase 2.7 / Wave-2 jointly with Q-013,
+- Cohort-2 evidence shapes are committed at posture level:
+  `ProjectSubstrateContractValidationReceipt`,
+  `ProjectSubstrateAdmissionObservation`, `ProjectTeardownPlanReceipt`, and
+  `ProjectTeardownCompletionReceipt`.
+- Q-014 implementation is sequenced as Phase 2.7 / Wave-2 jointly with Q-013,
   with machine-identity validation blocked until Q-013 implementation lands?
 
 Future amendments should decide backup/restore freshness, dashboard rendering,
@@ -206,13 +209,14 @@ This intake should land only as docs/planning:
 
 1. Preserve the source note in `research/external/`.
 2. Preserve this HCS synthesis in `research/local/`.
-3. Record Q-014 in `DECISIONS.md`.
+3. Record Q-014 acceptance in `DECISIONS.md`.
 4. Add a `PLAN.md` note that project-substrate validation is future work and
    is not part of the current Phase 2.1-2.6 landing train.
+5. Preserve a docs-only implementation-lane plan for the future schema ADR.
 
 Schema, policy, adapter, dashboard, hook, runtime, runner, Proxmox, GitHub,
 OpenTofu, and machine-identity changes remain blocked until a future accepted
-ADR or sequencing amendment authorizes them.
+implementation ADR or sequencing amendment authorizes them.
 
 ## Stop Rules
 
@@ -245,7 +249,7 @@ project-substrate work into Phase 2.1-2.6.
 
 Recommended sequencing:
 
-1. Q-014 v1 ADR commits posture and the commitments above.
+1. ADR 0041 commits posture and the commitments above.
 2. Phase 2.1-2.6 schema train completes per ADR 0038.
 3. Q-013 implementation lane opens and lands credential-source implementation
    evidence.
@@ -261,5 +265,6 @@ Reviewer dispatch should include `hcs-architect`, `hcs-ontology-reviewer`,
 
 | Version | Date | Change |
 |---|---:|---|
+| 0.3.0 | 2026-05-06 | Aligned the synthesis with accepted ADR 0041: cohort terminology, `ProjectTeardownCompletionReceipt`, single implementation-lane blocker, and accepted-posture wording. |
 | 0.2.0 | 2026-05-06 | Added pre-deliberation commitments: ADR 0036 composition, contract-status and guardian-approval evidence rules, evidence-shape triage, cited stop rules, and Phase 2.7/Q-013 sequencing posture. |
 | 0.1.0 | 2026-05-06 | Initial HCS synthesis of Citadel project-substrate standard; opened Q-014 planning posture and blocked implementation until follow-on acceptance. |

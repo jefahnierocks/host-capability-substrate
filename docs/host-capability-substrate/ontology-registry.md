@@ -3,9 +3,9 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.3.3
-last_updated: 2026-05-03
-tags: [ontology, registry, boundary-observation, evidence, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
+version: 0.3.4
+last_updated: 2026-05-05
+tags: [ontology, registry, boundary-observation, evidence, agent-client, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
 priority: high
 ---
 
@@ -235,8 +235,11 @@ to three independent version fields. Their names and semantics are fixed:
 
 - **`schema_version`** — names the entity, envelope, or composite schema
   itself. Required on every Ring 0 entity, evidence subtype envelope, and
-  proof composite. The current value across the Phase 1 schema slice is
-  the literal `'0.1.0'`.
+  proof composite. Schema versions are entity-local: new entities start at
+  `'0.1.0'`, while an existing entity bumps when its accepted schema contract
+  changes. For example, Phase 2.1.1 keeps new `AgentClient` at `'0.1.0'` and
+  bumps `ExecutionContext` / `CredentialSource` to `'0.2.0'` because the
+  shared `surface` enum widened to include `remote_cloud_agent`.
 - **`evidence_schema_version`** — names the version of the base `Evidence`
   contract (ADR 0023) under which component evidence references were
   composed. Required on evidence subtype envelopes and proof composites
@@ -560,6 +563,76 @@ receipt families with similar capture-vs-persistence layers. ADRs
 proposing new such receipts inherit the matrix discipline and must
 name any deviations explicitly.
 
+## Schema enum mirrors
+
+This section mirrors ontology-controlled enum values that are not
+`boundary_dimension` values. Per Registration rule 7, Zod enums and this
+registry move together when the enum carries Ring 0 ontology meaning.
+
+### `AgentClient` identity-axis enums
+
+Source: ADR 0037 and ADR 0038 Phase 2.1.1.
+
+`AgentClient.product_family`:
+
+- `claude_code`
+- `codex`
+- `cursor`
+- `copilot`
+- `devin`
+- `windsurf`
+- `augment`
+- `amp`
+- `opencode`
+- `warp`
+- `vscode_native`
+- `unknown`
+
+`AgentClient.permission_mode`:
+
+- `default`
+- `yolo`
+- `approve_all`
+- `read_only`
+- `unknown`
+
+`AgentClient.containment_mechanism`:
+
+- `terminal_no_isolation_capable`
+- `ide_host_isolation_capable`
+- `app_managed_bundle_capable`
+- `kernel_sandbox_capable`
+- `container_capable`
+- `vm_capable`
+- `remote_cloud_managed_capable`
+- `unknown`
+
+`AgentClient.agent_client_state`:
+
+- `active`
+- `retired`
+
+`ExecutionContext.surface` Phase 2.1.1 extension:
+
+- `remote_cloud_agent`
+
+`RemoteAgentSetupReceipt.secret_injection_kind`:
+
+- `env_at_setup`
+- `env_at_runtime`
+- `mounted_secret_volume`
+- `brokered_at_request`
+- `none_required`
+
+Mirror notes:
+
+- `containment_mechanism` values are capability-class values. Runtime
+  containment values are a separate future `containment_class` payload axis.
+- `unknown` remains the unsuffixed sentinel value per existing enum convention.
+- `remote_cloud_agent` is the umbrella surface value for managed cloud-agent
+  products. Per-product cloud-agent surface values remain matrix-only until a
+  future ADR accepts first-class per-product surfaces.
+
 ## Boundary dimension registry
 
 Entries are alphabetised by name. Status reflects ontology review on this
@@ -829,6 +902,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.3.4 | 2026-05-05 | Added the Phase 2.1.1 `AgentClient` identity-axis enum mirror, `remote_cloud_agent` surface extension, and `secret_injection_kind` mirror. |
 | 0.3.3 | 2026-05-03 | Two additions surfaced during the post-merge review of ADR 0029 v1 (Q-008(b) anomalous-capture blocking thresholds). §Naming suffix discipline §Sub-rule 6 amended to forbid `_code` as a discriminator suffix in addition to the existing `_class` rejection; rejection-class fields on `Decision` and required-grant-class fields on `ApprovalGrant` are `reason_kind` and `required_grant_kind` respectively (not `reason_code` / `required_grant_class`). §Sub-rule 9 codifies enum-value casing: stable enum values that appear in canonical policy YAML, schema enums, audit-chain records, and Decision/ApprovalGrant kind discriminators use `lower_snake_case`; mixed-case forms (`PascalCase`, `camelCase`, `kebab-case`) are forbidden for new enum values. The existing `evidenceAuthoritySchema` `kebab-case` exception is grandfathered for that enum only; no other enum may adopt `kebab-case`. Used as a precondition for ADR 0029 v2 revision. |
 | 0.3.2 | 2026-05-02 | Two additions surfaced during the post-merge re-review of ADR 0028 v3. §Naming suffix discipline §Sub-rule 8 codifies `_mode` as the canonical suffix for orthogonal-layer discriminators (capture-vs-persistence layers; e.g., `argv_capture_mode`); `_kind` (Sub-rule 6) remains canonical for receipt-family discriminators. Bare-noun discriminators (`mode`, `capture_status`, `observation_state`, `boundary_dimension`) are permitted when they are the receipt's central concept rather than an orthogonal-layer modifier. §Authority discipline §Producer-vs-kernel-set authority fields amended to enumerate `Evidence.producer` as kernel-set when its value names a kernel-trusted producer class; the kernel-only allowlist is `kernel_broker`, `kernel_telemetry`, `mint_api`. Producer-supplied values naming a kernel-trusted class are rejected at the mint API; agent-side / sandbox-observer values remain producer-asserted but kernel-verifiable. A follow-up schema-change PR tightens `Evidence.producer` from `z.string().min(1).optional()` to a kind-tagged shape. Used as a precondition for ADR 0028 v4 revision. |
 | 0.3.1 | 2026-05-02 | Five additions surfaced during the post-merge re-review of ADR 0027 v2 + ADR 0028 v2. §Naming suffix discipline §Sub-rule 6 codifies `_kind` as the canonical discriminator suffix; `_class` is not codified and is forbidden as a discriminator suffix (one existing exception: `containment_class` from ADR 0022 as part of an umbrella-dimension entity name). §Sub-rule 7 codifies that subject-kind enum values name the underlying subject (e.g., `tool_invocation`), not the receipt envelope (`tool_invocation_receipt`). §Cross-context enforcement layer §Layer-disagreement tiebreaker names the gateway as authoritative when layers disagree; mint-time acceptance does not bind the gateway. §Cross-context enforcement layer §Audit-chain coverage of rejections codifies that rejections at any of the three layers emit audit events with named fields (rejecting layer + rejection-class discriminator + typed Decision record), per charter inv. 4. §Redaction posture §Field-level scrubber rule codifies that when `redaction_mode != none`, every string-typed payload field passes the secret-shape scrubber; record-level redaction does not exempt fields. §Redaction posture §Capture-status × redaction-mode matrix promotes the per-ADR matrix from ADR 0028 v2 to a generic registry sub-rule applicable to any receipt family with capture-vs-persistence layers. Used as a precondition for ADR 0027 v2 acceptance and ADR 0028 v3 revision. |

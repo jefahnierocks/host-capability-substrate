@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const schemaVersionSchema = z
   .literal('0.1.0')
-  .describe('Entity schema version for the first Phase 1 Ring 0 schema slice.');
+  .describe('Entity schema version for a Ring 0 schema.');
 
 export const entityIdSchema = z
   .string()

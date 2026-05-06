@@ -43,7 +43,7 @@ describe('Phase 1 Ring 0 schemas', () => {
 
   it('keeps Codex app evidence separate from CLI shell evidence', () => {
     const context = executionContextSchema.parse({
-      schema_version: '0.1.0',
+      schema_version: '0.2.0',
       execution_context_id: 'ctx:codex-app-sandboxed:p13',
       surface: 'codex_app_sandboxed',
       kind: 'gui_app',
@@ -100,7 +100,7 @@ describe('Phase 1 Ring 0 schemas', () => {
 
   it('records credential sources as references, not secret material', () => {
     const credential = credentialSourceSchema.parse({
-      schema_version: '0.1.0',
+      schema_version: '0.2.0',
       credential_source_id: 'cred:claude-setup-token',
       source_type: 'long_lived_setup_token',
       owning_surface: 'claude_code_cli',

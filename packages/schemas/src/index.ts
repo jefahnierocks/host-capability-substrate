@@ -10,6 +10,18 @@ export {
   sha256DigestSchema,
 } from './common.ts';
 export {
+  type AgentClient,
+  type AgentClientContainmentMechanism,
+  type AgentClientPermissionMode,
+  type AgentClientProductFamily,
+  type AgentClientState,
+  agentClientContainmentMechanismSchema,
+  agentClientPermissionModeSchema,
+  agentClientProductFamilySchema,
+  agentClientSchema,
+  agentClientStateSchema,
+} from './entities/agent-client.ts';
+export {
   type BoundaryDimension,
   type BoundaryDiscrepancyClass,
   type BoundaryObservation,

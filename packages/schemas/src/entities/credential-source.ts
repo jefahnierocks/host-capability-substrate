@@ -4,9 +4,12 @@ import {
   envVariableNameSchema,
   evidenceRefSchema,
   isoDateTimeSchema,
-  schemaVersionSchema,
 } from '../common.ts';
 import { executionContextSurfaceSchema } from './execution-context.ts';
+
+const credentialSourceSchemaVersionSchema = z
+  .literal('0.2.0')
+  .describe('CredentialSource schema version after ADR 0037 surface enum extension.');
 
 export const credentialSourceTypeSchema = z
   .enum([
@@ -75,7 +78,7 @@ export const credentialHealthSchema = z
 
 export const credentialSourceSchema = z
   .object({
-    schema_version: schemaVersionSchema,
+    schema_version: credentialSourceSchemaVersionSchema,
     credential_source_id: entityIdSchema,
     source_type: credentialSourceTypeSchema,
     owning_surface: executionContextSurfaceSchema.optional(),

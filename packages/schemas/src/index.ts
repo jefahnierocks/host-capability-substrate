@@ -141,6 +141,17 @@ export {
   shellStartupFileSchema,
 } from './entities/execution-context.ts';
 export {
+  type GitIdentityBinding,
+  type GitIdentityBindingPayload,
+  type GitIdentityBindingProviderObservedVia,
+  type GitSigningFormatKind,
+  gitIdentityBindingPayloadSchema,
+  gitIdentityBindingProviderObservedViaSchema,
+  gitIdentityBindingRedactionModeSchema,
+  gitIdentityBindingSchema,
+  gitSigningFormatKindSchema,
+} from './entities/git-identity-binding.ts';
+export {
   type KnowledgeChunk,
   type KnowledgeChunkKind,
   knowledgeChunkKindSchema,
@@ -220,6 +231,21 @@ export {
   startupPhaseOrder,
   startupPhaseSchema,
 } from './entities/startup-phase.ts';
+export {
+  type ToolProvenance,
+  type ToolProvenanceInstallSourceKind,
+  type ToolProvenancePayload,
+  type ToolProvenanceProviderObservedVia,
+  type ToolProvenanceShimHop,
+  type ToolProvenanceVersionDriftKind,
+  toolProvenanceCanonicalPathSchema,
+  toolProvenanceInstallSourceKindSchema,
+  toolProvenancePayloadSchema,
+  toolProvenanceProviderObservedViaSchema,
+  toolProvenanceSchema,
+  toolProvenanceShimHopSchema,
+  toolProvenanceVersionDriftKindSchema,
+} from './entities/tool-provenance.ts';
 export {
   type VerificationCommandEnvCaptureMode,
   type VerificationCommandEnvRef,

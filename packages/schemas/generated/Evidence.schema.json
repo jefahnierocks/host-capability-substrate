@@ -8,8 +8,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.4.0",
-          "description": "Evidence schema version after ADR 0035 quality_gate subject-kind extension."
+          "const": "0.5.0",
+          "description": "Evidence schema version after ADR 0034 git_identity_binding and tool_provenance subject-kind extensions."
         },
         "evidence_id": {
           "type": "string",
@@ -67,6 +67,8 @@
                   "coordination_fact",
                   "derived_summary",
                   "quality_gate",
+                  "git_identity_binding",
+                  "tool_provenance",
                   "provider_object",
                   "external_control_plane",
                   "git_repository",
@@ -224,8 +226,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.4.0",
-          "description": "Evidence schema version after ADR 0035 quality_gate subject-kind extension."
+          "const": "0.5.0",
+          "description": "Evidence schema version after ADR 0034 git_identity_binding and tool_provenance subject-kind extensions."
         },
         "evidence_id": {
           "type": "string",
@@ -283,6 +285,8 @@
                   "coordination_fact",
                   "derived_summary",
                   "quality_gate",
+                  "git_identity_binding",
+                  "tool_provenance",
                   "provider_object",
                   "external_control_plane",
                   "git_repository",
@@ -432,8 +436,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.4.0",
-          "description": "Evidence schema version after ADR 0035 quality_gate subject-kind extension."
+          "const": "0.5.0",
+          "description": "Evidence schema version after ADR 0034 git_identity_binding and tool_provenance subject-kind extensions."
         },
         "evidence_id": {
           "type": "string",
@@ -491,6 +495,8 @@
                   "coordination_fact",
                   "derived_summary",
                   "quality_gate",
+                  "git_identity_binding",
+                  "tool_provenance",
                   "provider_object",
                   "external_control_plane",
                   "git_repository",
@@ -640,8 +646,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.4.0",
-          "description": "Evidence schema version after ADR 0035 quality_gate subject-kind extension."
+          "const": "0.5.0",
+          "description": "Evidence schema version after ADR 0034 git_identity_binding and tool_provenance subject-kind extensions."
         },
         "evidence_id": {
           "type": "string",
@@ -699,6 +705,8 @@
                   "coordination_fact",
                   "derived_summary",
                   "quality_gate",
+                  "git_identity_binding",
+                  "tool_provenance",
                   "provider_object",
                   "external_control_plane",
                   "git_repository",

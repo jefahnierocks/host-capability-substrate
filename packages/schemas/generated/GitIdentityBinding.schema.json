@@ -1,0 +1,2660 @@
+{
+  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/GitIdentityBinding.schema.json",
+  "title": "GitIdentityBinding",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "anyOf": [
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "0.5.0",
+          "description": "Evidence schema version after ADR 0034 git_identity_binding and tool_provenance subject-kind extensions."
+        },
+        "evidence_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "const": "observation"
+        },
+        "subject_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subject_kind": {
+                "type": "string",
+                "const": "git_identity_binding"
+              },
+              "subject_id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                "description": "Stable local entity identifier. It is not a secret value."
+              },
+              "relation": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "subject_kind",
+              "subject_id"
+            ],
+            "additionalProperties": false,
+            "description": "Subject reference for a GitIdentityBinding Evidence subtype."
+          }
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        "valid_until": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "authoritative",
+            "high",
+            "best-effort",
+            "stale",
+            "unknown"
+          ],
+          "description": "Confidence assigned to an observation by the producer."
+        },
+        "parser_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "producer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "host_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "workspace_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "payload": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "workspace_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "surface_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "git_user_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "git_user_email": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_observed_via": {
+                  "type": "string",
+                  "enum": [
+                    "git_config_read",
+                    "ssh_config_resolution",
+                    "1password_op_cli_introspection"
+                  ],
+                  "description": "Kernel-set provider observation method for GitIdentityBinding records."
+                },
+                "provider_verified_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                "git_signing_format_kind": {
+                  "type": "string",
+                  "const": "none"
+                },
+                "git_signing_key_id": {
+                  "type": "null"
+                },
+                "credential_source_evidence_ref": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "workspace_id",
+                "surface_id",
+                "git_user_name",
+                "git_user_email",
+                "provider_observed_via",
+                "provider_verified_at",
+                "git_signing_format_kind",
+                "git_signing_key_id",
+                "credential_source_evidence_ref"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "workspace_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "surface_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "git_user_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "git_user_email": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_observed_via": {
+                  "type": "string",
+                  "enum": [
+                    "git_config_read",
+                    "ssh_config_resolution",
+                    "1password_op_cli_introspection"
+                  ],
+                  "description": "Kernel-set provider observation method for GitIdentityBinding records."
+                },
+                "provider_verified_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                "git_signing_format_kind": {
+                  "type": "string",
+                  "const": "openpgp"
+                },
+                "git_signing_key_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "allOf": [
+                    {
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+                    },
+                    {
+                      "pattern": "^(cred|credential-source):"
+                    }
+                  ],
+                  "description": "Typed FK to a CredentialSource record; raw key identifiers are not valid."
+                },
+                "credential_source_evidence_ref": {
+                  "type": "object",
+                  "properties": {
+                    "evidence_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "description": "Reference to an Evidence record or fixture."
+                    },
+                    "source": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Human-readable source name or artifact path."
+                    },
+                    "observed_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    "valid_until": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                          "description": "RFC 3339 timestamp with an explicit UTC offset."
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "authority": {
+                      "type": "string",
+                      "enum": [
+                        "project-local",
+                        "workspace-local",
+                        "user-global",
+                        "system",
+                        "derived",
+                        "sandbox-observation",
+                        "host-observation",
+                        "vendor-doc",
+                        "installed-runtime",
+                        "human-observed"
+                      ],
+                      "description": "Authority plane for a fact or observation."
+                    },
+                    "parser_version": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "authoritative",
+                        "high",
+                        "best-effort",
+                        "stale",
+                        "unknown"
+                      ],
+                      "description": "Confidence assigned to an observation by the producer."
+                    }
+                  },
+                  "required": [
+                    "evidence_id",
+                    "source",
+                    "observed_at",
+                    "authority",
+                    "confidence"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                }
+              },
+              "required": [
+                "workspace_id",
+                "surface_id",
+                "git_user_name",
+                "git_user_email",
+                "provider_observed_via",
+                "provider_verified_at",
+                "git_signing_format_kind",
+                "git_signing_key_id",
+                "credential_source_evidence_ref"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "workspace_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "surface_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "git_user_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "git_user_email": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_observed_via": {
+                  "type": "string",
+                  "enum": [
+                    "git_config_read",
+                    "ssh_config_resolution",
+                    "1password_op_cli_introspection"
+                  ],
+                  "description": "Kernel-set provider observation method for GitIdentityBinding records."
+                },
+                "provider_verified_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                "git_signing_format_kind": {
+                  "type": "string",
+                  "const": "x509"
+                },
+                "git_signing_key_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "allOf": [
+                    {
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+                    },
+                    {
+                      "pattern": "^(cred|credential-source):"
+                    }
+                  ],
+                  "description": "Typed FK to a CredentialSource record; raw key identifiers are not valid."
+                },
+                "credential_source_evidence_ref": {
+                  "type": "object",
+                  "properties": {
+                    "evidence_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "description": "Reference to an Evidence record or fixture."
+                    },
+                    "source": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Human-readable source name or artifact path."
+                    },
+                    "observed_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    "valid_until": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                          "description": "RFC 3339 timestamp with an explicit UTC offset."
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "authority": {
+                      "type": "string",
+                      "enum": [
+                        "project-local",
+                        "workspace-local",
+                        "user-global",
+                        "system",
+                        "derived",
+                        "sandbox-observation",
+                        "host-observation",
+                        "vendor-doc",
+                        "installed-runtime",
+                        "human-observed"
+                      ],
+                      "description": "Authority plane for a fact or observation."
+                    },
+                    "parser_version": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "authoritative",
+                        "high",
+                        "best-effort",
+                        "stale",
+                        "unknown"
+                      ],
+                      "description": "Confidence assigned to an observation by the producer."
+                    }
+                  },
+                  "required": [
+                    "evidence_id",
+                    "source",
+                    "observed_at",
+                    "authority",
+                    "confidence"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                }
+              },
+              "required": [
+                "workspace_id",
+                "surface_id",
+                "git_user_name",
+                "git_user_email",
+                "provider_observed_via",
+                "provider_verified_at",
+                "git_signing_format_kind",
+                "git_signing_key_id",
+                "credential_source_evidence_ref"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "workspace_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "surface_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "git_user_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "git_user_email": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_observed_via": {
+                  "type": "string",
+                  "enum": [
+                    "git_config_read",
+                    "ssh_config_resolution",
+                    "1password_op_cli_introspection"
+                  ],
+                  "description": "Kernel-set provider observation method for GitIdentityBinding records."
+                },
+                "provider_verified_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                "git_signing_format_kind": {
+                  "type": "string",
+                  "const": "ssh"
+                },
+                "git_signing_key_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "allOf": [
+                    {
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+                    },
+                    {
+                      "pattern": "^(cred|credential-source):"
+                    }
+                  ],
+                  "description": "Typed FK to a CredentialSource record; raw key identifiers are not valid."
+                },
+                "credential_source_evidence_ref": {
+                  "type": "object",
+                  "properties": {
+                    "evidence_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "description": "Reference to an Evidence record or fixture."
+                    },
+                    "source": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Human-readable source name or artifact path."
+                    },
+                    "observed_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    "valid_until": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                          "description": "RFC 3339 timestamp with an explicit UTC offset."
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "authority": {
+                      "type": "string",
+                      "enum": [
+                        "project-local",
+                        "workspace-local",
+                        "user-global",
+                        "system",
+                        "derived",
+                        "sandbox-observation",
+                        "host-observation",
+                        "vendor-doc",
+                        "installed-runtime",
+                        "human-observed"
+                      ],
+                      "description": "Authority plane for a fact or observation."
+                    },
+                    "parser_version": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "authoritative",
+                        "high",
+                        "best-effort",
+                        "stale",
+                        "unknown"
+                      ],
+                      "description": "Confidence assigned to an observation by the producer."
+                    }
+                  },
+                  "required": [
+                    "evidence_id",
+                    "source",
+                    "observed_at",
+                    "authority",
+                    "confidence"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                }
+              },
+              "required": [
+                "workspace_id",
+                "surface_id",
+                "git_user_name",
+                "git_user_email",
+                "provider_observed_via",
+                "provider_verified_at",
+                "git_signing_format_kind",
+                "git_signing_key_id",
+                "credential_source_evidence_ref"
+              ],
+              "additionalProperties": false
+            }
+          ],
+          "description": "ADR 0034 GitIdentityBinding typed Evidence payload."
+        },
+        "redaction_mode": {
+          "type": "string",
+          "enum": [
+            "redacted",
+            "classified",
+            "hash_only",
+            "reference_only",
+            "mixed"
+          ],
+          "description": "ADR 0034 redaction floor for GitIdentityBinding records."
+        },
+        "authority": {
+          "type": "string",
+          "const": "sandbox-observation"
+        },
+        "execution_context_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        }
+      },
+      "required": [
+        "schema_version",
+        "evidence_id",
+        "evidence_kind",
+        "subject_refs",
+        "source",
+        "observed_at",
+        "valid_until",
+        "confidence",
+        "parser_version",
+        "workspace_id",
+        "payload",
+        "redaction_mode",
+        "authority",
+        "execution_context_id",
+        "source_ref"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "0.5.0",
+          "description": "Evidence schema version after ADR 0034 git_identity_binding and tool_provenance subject-kind extensions."
+        },
+        "evidence_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "const": "observation"
+        },
+        "subject_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subject_kind": {
+                "type": "string",
+                "const": "git_identity_binding"
+              },
+              "subject_id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                "description": "Stable local entity identifier. It is not a secret value."
+              },
+              "relation": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "subject_kind",
+              "subject_id"
+            ],
+            "additionalProperties": false,
+            "description": "Subject reference for a GitIdentityBinding Evidence subtype."
+          }
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        "valid_until": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "authoritative",
+            "high",
+            "best-effort",
+            "stale",
+            "unknown"
+          ],
+          "description": "Confidence assigned to an observation by the producer."
+        },
+        "parser_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "producer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "host_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "workspace_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "payload": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "workspace_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "surface_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "git_user_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "git_user_email": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_observed_via": {
+                  "type": "string",
+                  "enum": [
+                    "git_config_read",
+                    "ssh_config_resolution",
+                    "1password_op_cli_introspection"
+                  ],
+                  "description": "Kernel-set provider observation method for GitIdentityBinding records."
+                },
+                "provider_verified_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                "git_signing_format_kind": {
+                  "type": "string",
+                  "const": "none"
+                },
+                "git_signing_key_id": {
+                  "type": "null"
+                },
+                "credential_source_evidence_ref": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "workspace_id",
+                "surface_id",
+                "git_user_name",
+                "git_user_email",
+                "provider_observed_via",
+                "provider_verified_at",
+                "git_signing_format_kind",
+                "git_signing_key_id",
+                "credential_source_evidence_ref"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "workspace_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "surface_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "git_user_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "git_user_email": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_observed_via": {
+                  "type": "string",
+                  "enum": [
+                    "git_config_read",
+                    "ssh_config_resolution",
+                    "1password_op_cli_introspection"
+                  ],
+                  "description": "Kernel-set provider observation method for GitIdentityBinding records."
+                },
+                "provider_verified_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                "git_signing_format_kind": {
+                  "type": "string",
+                  "const": "openpgp"
+                },
+                "git_signing_key_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "allOf": [
+                    {
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+                    },
+                    {
+                      "pattern": "^(cred|credential-source):"
+                    }
+                  ],
+                  "description": "Typed FK to a CredentialSource record; raw key identifiers are not valid."
+                },
+                "credential_source_evidence_ref": {
+                  "type": "object",
+                  "properties": {
+                    "evidence_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "description": "Reference to an Evidence record or fixture."
+                    },
+                    "source": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Human-readable source name or artifact path."
+                    },
+                    "observed_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    "valid_until": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                          "description": "RFC 3339 timestamp with an explicit UTC offset."
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "authority": {
+                      "type": "string",
+                      "enum": [
+                        "project-local",
+                        "workspace-local",
+                        "user-global",
+                        "system",
+                        "derived",
+                        "sandbox-observation",
+                        "host-observation",
+                        "vendor-doc",
+                        "installed-runtime",
+                        "human-observed"
+                      ],
+                      "description": "Authority plane for a fact or observation."
+                    },
+                    "parser_version": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "authoritative",
+                        "high",
+                        "best-effort",
+                        "stale",
+                        "unknown"
+                      ],
+                      "description": "Confidence assigned to an observation by the producer."
+                    }
+                  },
+                  "required": [
+                    "evidence_id",
+                    "source",
+                    "observed_at",
+                    "authority",
+                    "confidence"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                }
+              },
+              "required": [
+                "workspace_id",
+                "surface_id",
+                "git_user_name",
+                "git_user_email",
+                "provider_observed_via",
+                "provider_verified_at",
+                "git_signing_format_kind",
+                "git_signing_key_id",
+                "credential_source_evidence_ref"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "workspace_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "surface_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "git_user_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "git_user_email": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_observed_via": {
+                  "type": "string",
+                  "enum": [
+                    "git_config_read",
+                    "ssh_config_resolution",
+                    "1password_op_cli_introspection"
+                  ],
+                  "description": "Kernel-set provider observation method for GitIdentityBinding records."
+                },
+                "provider_verified_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                "git_signing_format_kind": {
+                  "type": "string",
+                  "const": "x509"
+                },
+                "git_signing_key_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "allOf": [
+                    {
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+                    },
+                    {
+                      "pattern": "^(cred|credential-source):"
+                    }
+                  ],
+                  "description": "Typed FK to a CredentialSource record; raw key identifiers are not valid."
+                },
+                "credential_source_evidence_ref": {
+                  "type": "object",
+                  "properties": {
+                    "evidence_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "description": "Reference to an Evidence record or fixture."
+                    },
+                    "source": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Human-readable source name or artifact path."
+                    },
+                    "observed_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    "valid_until": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                          "description": "RFC 3339 timestamp with an explicit UTC offset."
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "authority": {
+                      "type": "string",
+                      "enum": [
+                        "project-local",
+                        "workspace-local",
+                        "user-global",
+                        "system",
+                        "derived",
+                        "sandbox-observation",
+                        "host-observation",
+                        "vendor-doc",
+                        "installed-runtime",
+                        "human-observed"
+                      ],
+                      "description": "Authority plane for a fact or observation."
+                    },
+                    "parser_version": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "authoritative",
+                        "high",
+                        "best-effort",
+                        "stale",
+                        "unknown"
+                      ],
+                      "description": "Confidence assigned to an observation by the producer."
+                    }
+                  },
+                  "required": [
+                    "evidence_id",
+                    "source",
+                    "observed_at",
+                    "authority",
+                    "confidence"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                }
+              },
+              "required": [
+                "workspace_id",
+                "surface_id",
+                "git_user_name",
+                "git_user_email",
+                "provider_observed_via",
+                "provider_verified_at",
+                "git_signing_format_kind",
+                "git_signing_key_id",
+                "credential_source_evidence_ref"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "workspace_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "surface_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "git_user_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "git_user_email": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_observed_via": {
+                  "type": "string",
+                  "enum": [
+                    "git_config_read",
+                    "ssh_config_resolution",
+                    "1password_op_cli_introspection"
+                  ],
+                  "description": "Kernel-set provider observation method for GitIdentityBinding records."
+                },
+                "provider_verified_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                "git_signing_format_kind": {
+                  "type": "string",
+                  "const": "ssh"
+                },
+                "git_signing_key_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "allOf": [
+                    {
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+                    },
+                    {
+                      "pattern": "^(cred|credential-source):"
+                    }
+                  ],
+                  "description": "Typed FK to a CredentialSource record; raw key identifiers are not valid."
+                },
+                "credential_source_evidence_ref": {
+                  "type": "object",
+                  "properties": {
+                    "evidence_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "description": "Reference to an Evidence record or fixture."
+                    },
+                    "source": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Human-readable source name or artifact path."
+                    },
+                    "observed_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    "valid_until": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                          "description": "RFC 3339 timestamp with an explicit UTC offset."
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "authority": {
+                      "type": "string",
+                      "enum": [
+                        "project-local",
+                        "workspace-local",
+                        "user-global",
+                        "system",
+                        "derived",
+                        "sandbox-observation",
+                        "host-observation",
+                        "vendor-doc",
+                        "installed-runtime",
+                        "human-observed"
+                      ],
+                      "description": "Authority plane for a fact or observation."
+                    },
+                    "parser_version": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "authoritative",
+                        "high",
+                        "best-effort",
+                        "stale",
+                        "unknown"
+                      ],
+                      "description": "Confidence assigned to an observation by the producer."
+                    }
+                  },
+                  "required": [
+                    "evidence_id",
+                    "source",
+                    "observed_at",
+                    "authority",
+                    "confidence"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                }
+              },
+              "required": [
+                "workspace_id",
+                "surface_id",
+                "git_user_name",
+                "git_user_email",
+                "provider_observed_via",
+                "provider_verified_at",
+                "git_signing_format_kind",
+                "git_signing_key_id",
+                "credential_source_evidence_ref"
+              ],
+              "additionalProperties": false
+            }
+          ],
+          "description": "ADR 0034 GitIdentityBinding typed Evidence payload."
+        },
+        "redaction_mode": {
+          "type": "string",
+          "enum": [
+            "redacted",
+            "classified",
+            "hash_only",
+            "reference_only",
+            "mixed"
+          ],
+          "description": "ADR 0034 redaction floor for GitIdentityBinding records."
+        },
+        "authority": {
+          "type": "string",
+          "const": "sandbox-observation"
+        },
+        "execution_context_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        }
+      },
+      "required": [
+        "schema_version",
+        "evidence_id",
+        "evidence_kind",
+        "subject_refs",
+        "source",
+        "observed_at",
+        "valid_until",
+        "confidence",
+        "parser_version",
+        "workspace_id",
+        "payload",
+        "redaction_mode",
+        "authority",
+        "execution_context_id",
+        "session_id"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "0.5.0",
+          "description": "Evidence schema version after ADR 0034 git_identity_binding and tool_provenance subject-kind extensions."
+        },
+        "evidence_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "const": "observation"
+        },
+        "subject_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subject_kind": {
+                "type": "string",
+                "const": "git_identity_binding"
+              },
+              "subject_id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                "description": "Stable local entity identifier. It is not a secret value."
+              },
+              "relation": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "subject_kind",
+              "subject_id"
+            ],
+            "additionalProperties": false,
+            "description": "Subject reference for a GitIdentityBinding Evidence subtype."
+          }
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        "valid_until": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "authoritative",
+            "high",
+            "best-effort",
+            "stale",
+            "unknown"
+          ],
+          "description": "Confidence assigned to an observation by the producer."
+        },
+        "parser_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "producer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "host_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "workspace_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "payload": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "workspace_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "surface_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "git_user_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "git_user_email": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_observed_via": {
+                  "type": "string",
+                  "enum": [
+                    "git_config_read",
+                    "ssh_config_resolution",
+                    "1password_op_cli_introspection"
+                  ],
+                  "description": "Kernel-set provider observation method for GitIdentityBinding records."
+                },
+                "provider_verified_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                "git_signing_format_kind": {
+                  "type": "string",
+                  "const": "none"
+                },
+                "git_signing_key_id": {
+                  "type": "null"
+                },
+                "credential_source_evidence_ref": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "workspace_id",
+                "surface_id",
+                "git_user_name",
+                "git_user_email",
+                "provider_observed_via",
+                "provider_verified_at",
+                "git_signing_format_kind",
+                "git_signing_key_id",
+                "credential_source_evidence_ref"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "workspace_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "surface_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "git_user_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "git_user_email": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_observed_via": {
+                  "type": "string",
+                  "enum": [
+                    "git_config_read",
+                    "ssh_config_resolution",
+                    "1password_op_cli_introspection"
+                  ],
+                  "description": "Kernel-set provider observation method for GitIdentityBinding records."
+                },
+                "provider_verified_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                "git_signing_format_kind": {
+                  "type": "string",
+                  "const": "openpgp"
+                },
+                "git_signing_key_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "allOf": [
+                    {
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+                    },
+                    {
+                      "pattern": "^(cred|credential-source):"
+                    }
+                  ],
+                  "description": "Typed FK to a CredentialSource record; raw key identifiers are not valid."
+                },
+                "credential_source_evidence_ref": {
+                  "type": "object",
+                  "properties": {
+                    "evidence_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "description": "Reference to an Evidence record or fixture."
+                    },
+                    "source": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Human-readable source name or artifact path."
+                    },
+                    "observed_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    "valid_until": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                          "description": "RFC 3339 timestamp with an explicit UTC offset."
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "authority": {
+                      "type": "string",
+                      "enum": [
+                        "project-local",
+                        "workspace-local",
+                        "user-global",
+                        "system",
+                        "derived",
+                        "sandbox-observation",
+                        "host-observation",
+                        "vendor-doc",
+                        "installed-runtime",
+                        "human-observed"
+                      ],
+                      "description": "Authority plane for a fact or observation."
+                    },
+                    "parser_version": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "authoritative",
+                        "high",
+                        "best-effort",
+                        "stale",
+                        "unknown"
+                      ],
+                      "description": "Confidence assigned to an observation by the producer."
+                    }
+                  },
+                  "required": [
+                    "evidence_id",
+                    "source",
+                    "observed_at",
+                    "authority",
+                    "confidence"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                }
+              },
+              "required": [
+                "workspace_id",
+                "surface_id",
+                "git_user_name",
+                "git_user_email",
+                "provider_observed_via",
+                "provider_verified_at",
+                "git_signing_format_kind",
+                "git_signing_key_id",
+                "credential_source_evidence_ref"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "workspace_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "surface_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "git_user_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "git_user_email": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_observed_via": {
+                  "type": "string",
+                  "enum": [
+                    "git_config_read",
+                    "ssh_config_resolution",
+                    "1password_op_cli_introspection"
+                  ],
+                  "description": "Kernel-set provider observation method for GitIdentityBinding records."
+                },
+                "provider_verified_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                "git_signing_format_kind": {
+                  "type": "string",
+                  "const": "x509"
+                },
+                "git_signing_key_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "allOf": [
+                    {
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+                    },
+                    {
+                      "pattern": "^(cred|credential-source):"
+                    }
+                  ],
+                  "description": "Typed FK to a CredentialSource record; raw key identifiers are not valid."
+                },
+                "credential_source_evidence_ref": {
+                  "type": "object",
+                  "properties": {
+                    "evidence_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "description": "Reference to an Evidence record or fixture."
+                    },
+                    "source": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Human-readable source name or artifact path."
+                    },
+                    "observed_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    "valid_until": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                          "description": "RFC 3339 timestamp with an explicit UTC offset."
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "authority": {
+                      "type": "string",
+                      "enum": [
+                        "project-local",
+                        "workspace-local",
+                        "user-global",
+                        "system",
+                        "derived",
+                        "sandbox-observation",
+                        "host-observation",
+                        "vendor-doc",
+                        "installed-runtime",
+                        "human-observed"
+                      ],
+                      "description": "Authority plane for a fact or observation."
+                    },
+                    "parser_version": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "authoritative",
+                        "high",
+                        "best-effort",
+                        "stale",
+                        "unknown"
+                      ],
+                      "description": "Confidence assigned to an observation by the producer."
+                    }
+                  },
+                  "required": [
+                    "evidence_id",
+                    "source",
+                    "observed_at",
+                    "authority",
+                    "confidence"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                }
+              },
+              "required": [
+                "workspace_id",
+                "surface_id",
+                "git_user_name",
+                "git_user_email",
+                "provider_observed_via",
+                "provider_verified_at",
+                "git_signing_format_kind",
+                "git_signing_key_id",
+                "credential_source_evidence_ref"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "workspace_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "surface_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "git_user_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "git_user_email": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_observed_via": {
+                  "type": "string",
+                  "enum": [
+                    "git_config_read",
+                    "ssh_config_resolution",
+                    "1password_op_cli_introspection"
+                  ],
+                  "description": "Kernel-set provider observation method for GitIdentityBinding records."
+                },
+                "provider_verified_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                "git_signing_format_kind": {
+                  "type": "string",
+                  "const": "ssh"
+                },
+                "git_signing_key_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "allOf": [
+                    {
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+                    },
+                    {
+                      "pattern": "^(cred|credential-source):"
+                    }
+                  ],
+                  "description": "Typed FK to a CredentialSource record; raw key identifiers are not valid."
+                },
+                "credential_source_evidence_ref": {
+                  "type": "object",
+                  "properties": {
+                    "evidence_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "description": "Reference to an Evidence record or fixture."
+                    },
+                    "source": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Human-readable source name or artifact path."
+                    },
+                    "observed_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    "valid_until": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                          "description": "RFC 3339 timestamp with an explicit UTC offset."
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "authority": {
+                      "type": "string",
+                      "enum": [
+                        "project-local",
+                        "workspace-local",
+                        "user-global",
+                        "system",
+                        "derived",
+                        "sandbox-observation",
+                        "host-observation",
+                        "vendor-doc",
+                        "installed-runtime",
+                        "human-observed"
+                      ],
+                      "description": "Authority plane for a fact or observation."
+                    },
+                    "parser_version": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "authoritative",
+                        "high",
+                        "best-effort",
+                        "stale",
+                        "unknown"
+                      ],
+                      "description": "Confidence assigned to an observation by the producer."
+                    }
+                  },
+                  "required": [
+                    "evidence_id",
+                    "source",
+                    "observed_at",
+                    "authority",
+                    "confidence"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                }
+              },
+              "required": [
+                "workspace_id",
+                "surface_id",
+                "git_user_name",
+                "git_user_email",
+                "provider_observed_via",
+                "provider_verified_at",
+                "git_signing_format_kind",
+                "git_signing_key_id",
+                "credential_source_evidence_ref"
+              ],
+              "additionalProperties": false
+            }
+          ],
+          "description": "ADR 0034 GitIdentityBinding typed Evidence payload."
+        },
+        "redaction_mode": {
+          "type": "string",
+          "enum": [
+            "redacted",
+            "classified",
+            "hash_only",
+            "reference_only",
+            "mixed"
+          ],
+          "description": "ADR 0034 redaction floor for GitIdentityBinding records."
+        },
+        "authority": {
+          "type": "string",
+          "const": "sandbox-observation"
+        },
+        "execution_context_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        }
+      },
+      "required": [
+        "schema_version",
+        "evidence_id",
+        "evidence_kind",
+        "subject_refs",
+        "source",
+        "observed_at",
+        "valid_until",
+        "confidence",
+        "parser_version",
+        "workspace_id",
+        "payload",
+        "redaction_mode",
+        "authority",
+        "execution_context_id",
+        "run_id"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "0.5.0",
+          "description": "Evidence schema version after ADR 0034 git_identity_binding and tool_provenance subject-kind extensions."
+        },
+        "evidence_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "const": "observation"
+        },
+        "subject_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subject_kind": {
+                "type": "string",
+                "const": "git_identity_binding"
+              },
+              "subject_id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                "description": "Stable local entity identifier. It is not a secret value."
+              },
+              "relation": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "subject_kind",
+              "subject_id"
+            ],
+            "additionalProperties": false,
+            "description": "Subject reference for a GitIdentityBinding Evidence subtype."
+          }
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        "valid_until": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "authoritative",
+            "high",
+            "best-effort",
+            "stale",
+            "unknown"
+          ],
+          "description": "Confidence assigned to an observation by the producer."
+        },
+        "parser_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "producer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "host_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "workspace_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "payload": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "workspace_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "surface_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "git_user_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "git_user_email": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_observed_via": {
+                  "type": "string",
+                  "enum": [
+                    "git_config_read",
+                    "ssh_config_resolution",
+                    "1password_op_cli_introspection"
+                  ],
+                  "description": "Kernel-set provider observation method for GitIdentityBinding records."
+                },
+                "provider_verified_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                "git_signing_format_kind": {
+                  "type": "string",
+                  "const": "none"
+                },
+                "git_signing_key_id": {
+                  "type": "null"
+                },
+                "credential_source_evidence_ref": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "workspace_id",
+                "surface_id",
+                "git_user_name",
+                "git_user_email",
+                "provider_observed_via",
+                "provider_verified_at",
+                "git_signing_format_kind",
+                "git_signing_key_id",
+                "credential_source_evidence_ref"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "workspace_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "surface_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "git_user_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "git_user_email": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_observed_via": {
+                  "type": "string",
+                  "enum": [
+                    "git_config_read",
+                    "ssh_config_resolution",
+                    "1password_op_cli_introspection"
+                  ],
+                  "description": "Kernel-set provider observation method for GitIdentityBinding records."
+                },
+                "provider_verified_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                "git_signing_format_kind": {
+                  "type": "string",
+                  "const": "openpgp"
+                },
+                "git_signing_key_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "allOf": [
+                    {
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+                    },
+                    {
+                      "pattern": "^(cred|credential-source):"
+                    }
+                  ],
+                  "description": "Typed FK to a CredentialSource record; raw key identifiers are not valid."
+                },
+                "credential_source_evidence_ref": {
+                  "type": "object",
+                  "properties": {
+                    "evidence_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "description": "Reference to an Evidence record or fixture."
+                    },
+                    "source": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Human-readable source name or artifact path."
+                    },
+                    "observed_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    "valid_until": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                          "description": "RFC 3339 timestamp with an explicit UTC offset."
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "authority": {
+                      "type": "string",
+                      "enum": [
+                        "project-local",
+                        "workspace-local",
+                        "user-global",
+                        "system",
+                        "derived",
+                        "sandbox-observation",
+                        "host-observation",
+                        "vendor-doc",
+                        "installed-runtime",
+                        "human-observed"
+                      ],
+                      "description": "Authority plane for a fact or observation."
+                    },
+                    "parser_version": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "authoritative",
+                        "high",
+                        "best-effort",
+                        "stale",
+                        "unknown"
+                      ],
+                      "description": "Confidence assigned to an observation by the producer."
+                    }
+                  },
+                  "required": [
+                    "evidence_id",
+                    "source",
+                    "observed_at",
+                    "authority",
+                    "confidence"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                }
+              },
+              "required": [
+                "workspace_id",
+                "surface_id",
+                "git_user_name",
+                "git_user_email",
+                "provider_observed_via",
+                "provider_verified_at",
+                "git_signing_format_kind",
+                "git_signing_key_id",
+                "credential_source_evidence_ref"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "workspace_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "surface_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "git_user_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "git_user_email": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_observed_via": {
+                  "type": "string",
+                  "enum": [
+                    "git_config_read",
+                    "ssh_config_resolution",
+                    "1password_op_cli_introspection"
+                  ],
+                  "description": "Kernel-set provider observation method for GitIdentityBinding records."
+                },
+                "provider_verified_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                "git_signing_format_kind": {
+                  "type": "string",
+                  "const": "x509"
+                },
+                "git_signing_key_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "allOf": [
+                    {
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+                    },
+                    {
+                      "pattern": "^(cred|credential-source):"
+                    }
+                  ],
+                  "description": "Typed FK to a CredentialSource record; raw key identifiers are not valid."
+                },
+                "credential_source_evidence_ref": {
+                  "type": "object",
+                  "properties": {
+                    "evidence_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "description": "Reference to an Evidence record or fixture."
+                    },
+                    "source": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Human-readable source name or artifact path."
+                    },
+                    "observed_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    "valid_until": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                          "description": "RFC 3339 timestamp with an explicit UTC offset."
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "authority": {
+                      "type": "string",
+                      "enum": [
+                        "project-local",
+                        "workspace-local",
+                        "user-global",
+                        "system",
+                        "derived",
+                        "sandbox-observation",
+                        "host-observation",
+                        "vendor-doc",
+                        "installed-runtime",
+                        "human-observed"
+                      ],
+                      "description": "Authority plane for a fact or observation."
+                    },
+                    "parser_version": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "authoritative",
+                        "high",
+                        "best-effort",
+                        "stale",
+                        "unknown"
+                      ],
+                      "description": "Confidence assigned to an observation by the producer."
+                    }
+                  },
+                  "required": [
+                    "evidence_id",
+                    "source",
+                    "observed_at",
+                    "authority",
+                    "confidence"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                }
+              },
+              "required": [
+                "workspace_id",
+                "surface_id",
+                "git_user_name",
+                "git_user_email",
+                "provider_observed_via",
+                "provider_verified_at",
+                "git_signing_format_kind",
+                "git_signing_key_id",
+                "credential_source_evidence_ref"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "workspace_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "surface_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "git_user_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "git_user_email": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_observed_via": {
+                  "type": "string",
+                  "enum": [
+                    "git_config_read",
+                    "ssh_config_resolution",
+                    "1password_op_cli_introspection"
+                  ],
+                  "description": "Kernel-set provider observation method for GitIdentityBinding records."
+                },
+                "provider_verified_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                "git_signing_format_kind": {
+                  "type": "string",
+                  "const": "ssh"
+                },
+                "git_signing_key_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "allOf": [
+                    {
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+                    },
+                    {
+                      "pattern": "^(cred|credential-source):"
+                    }
+                  ],
+                  "description": "Typed FK to a CredentialSource record; raw key identifiers are not valid."
+                },
+                "credential_source_evidence_ref": {
+                  "type": "object",
+                  "properties": {
+                    "evidence_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "description": "Reference to an Evidence record or fixture."
+                    },
+                    "source": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Human-readable source name or artifact path."
+                    },
+                    "observed_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    "valid_until": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                          "description": "RFC 3339 timestamp with an explicit UTC offset."
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "authority": {
+                      "type": "string",
+                      "enum": [
+                        "project-local",
+                        "workspace-local",
+                        "user-global",
+                        "system",
+                        "derived",
+                        "sandbox-observation",
+                        "host-observation",
+                        "vendor-doc",
+                        "installed-runtime",
+                        "human-observed"
+                      ],
+                      "description": "Authority plane for a fact or observation."
+                    },
+                    "parser_version": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "authoritative",
+                        "high",
+                        "best-effort",
+                        "stale",
+                        "unknown"
+                      ],
+                      "description": "Confidence assigned to an observation by the producer."
+                    }
+                  },
+                  "required": [
+                    "evidence_id",
+                    "source",
+                    "observed_at",
+                    "authority",
+                    "confidence"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                }
+              },
+              "required": [
+                "workspace_id",
+                "surface_id",
+                "git_user_name",
+                "git_user_email",
+                "provider_observed_via",
+                "provider_verified_at",
+                "git_signing_format_kind",
+                "git_signing_key_id",
+                "credential_source_evidence_ref"
+              ],
+              "additionalProperties": false
+            }
+          ],
+          "description": "ADR 0034 GitIdentityBinding typed Evidence payload."
+        },
+        "redaction_mode": {
+          "type": "string",
+          "enum": [
+            "redacted",
+            "classified",
+            "hash_only",
+            "reference_only",
+            "mixed"
+          ],
+          "description": "ADR 0034 redaction floor for GitIdentityBinding records."
+        },
+        "authority": {
+          "type": "string",
+          "enum": [
+            "project-local",
+            "workspace-local",
+            "user-global",
+            "system",
+            "derived",
+            "host-observation",
+            "vendor-doc",
+            "installed-runtime",
+            "human-observed"
+          ]
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "execution_context_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        }
+      },
+      "required": [
+        "schema_version",
+        "evidence_id",
+        "evidence_kind",
+        "subject_refs",
+        "source",
+        "observed_at",
+        "valid_until",
+        "confidence",
+        "parser_version",
+        "workspace_id",
+        "payload",
+        "redaction_mode",
+        "authority"
+      ],
+      "additionalProperties": false
+    }
+  ],
+  "description": "ADR 0034 GitIdentityBinding direct Evidence subtype."
+}

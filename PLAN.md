@@ -84,8 +84,8 @@ reactive amendment / future glossary cleanup). Phase 2.1.1
 `DerivedSummary`), and Phase 2.1.4 (`QualityGate`) have landed; Phase 2 work
 continues after Phase 2.2.1 (`ExecutionContext` containment cache) and Phase
 2.2.2 (`OperationShape` deletion-authority fields) and Phase 2.2.3
-(`BoundaryObservation` payload bundle) with Phase 2.3.1 (`ToolProvenance` +
-`GitIdentityBinding`).
+(`BoundaryObservation` payload bundle) and Phase 2.3.1 (`ToolProvenance` +
+`GitIdentityBinding`) with Phase 2.3.2 (Q-005 runner receipts).
 
 ### Phase 2 entry-point inventory
 
@@ -94,16 +94,15 @@ the entities and payloads committed across ADRs 0019-0037. Standalone Ring 0
 entities in Phase 2.1 have landed. Evidence
 subtypes to author: Q-005 six runner receipts (ADR 0032), Q-006 stage-1
 + stage-2 source-control receipts (ADR 0027 / ADR 0030), Q-006 (b)-(g)
-GitHub authority/identity records (ADR 0033), Q-007 envelope payloads
-`ToolProvenance` + `GitIdentityBinding` (ADR 0034), three remote-agent
-subtypes (ADR 0037), `ContainmentObservation` payload (ADR 0037). Plus
-the Phase 2.3 direct evidence subtypes after the `BoundaryObservation` bundle.
+GitHub authority/identity records (ADR 0033), three remote-agent
+subtypes (ADR 0037), `ContainmentObservation` payload (ADR 0037).
 Base-shape extensions landed: `ExecutionContext` cache refactor with
 `kernel_sandbox_kind` pointer field (ADR 0037),
 `OperationShape.deletion_authority_source_ref` polymorphic FK (ADR 0036), and
 typed `BoundaryObservation` payloads for `containment_class`,
 `filesystem_inheritance`, `filesystem_protected_paths`, and
-`mcp_canonical_authority` (ADR 0036 / ADR 0037).
+`mcp_canonical_authority` (ADR 0036 / ADR 0037), plus ADR 0034 direct
+Evidence subtypes `ToolProvenance` and `GitIdentityBinding`.
 
 **Registry update PR** (`ontology-registry.md` extensions):
 producer-class allowlist (`kernel_workspace_diagnose`,

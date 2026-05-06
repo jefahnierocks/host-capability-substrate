@@ -3,7 +3,7 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.4.0
+version: 1.5.0
 last_updated: 2026-05-06
 tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation]
 priority: high
@@ -24,6 +24,8 @@ per ADR 0035 / ADR 0038. Phase 2.2.1 added `ExecutionContext` containment
 cache fields, Phase 2.2.2 landed the canonical `OperationShape` schema with
 ADR 0036 deletion-authority fields, and Phase 2.2.3 landed typed
 `BoundaryObservation` payloads for the ADR 0036 / ADR 0037 boundary bundle.
+Phase 2.3.1 landed the ADR 0034 direct Evidence subtype pair:
+`GitIdentityBinding` and `ToolProvenance`.
 
 Canonical research plan sketch: `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md` §2 (Ontology) and §Appendix A.
 
@@ -43,6 +45,8 @@ OperationShape       semantic operation proposal with target + mutation scope
 CommandShape         argv vector + env profile + execution lane (rendered from Operation)
 VerificationCommandSpec producer-asserted workspace verify command spec
 Evidence             a fact with provenance, freshness, authority, confidence
+GitIdentityBinding   direct Evidence subtype for Git author/signing identity
+ToolProvenance       direct Evidence subtype for tool path/shim/version facts
 KnowledgeSource      canonical source indexed for retrieval, never gate authority
 KnowledgeChunk       display-only chunk derived from a KnowledgeSource
 CoordinationFact     promoted gateable assertion about cross-session state
@@ -493,9 +497,76 @@ Evidence schema to `0.3.0`.
 Phase 2.1.4 widens `Evidence.subject_kind` with `quality_gate`, bumping the
 Evidence schema to `0.4.0`.
 
+Phase 2.3.1 widens `Evidence.subject_kind` with `git_identity_binding` and
+`tool_provenance`, bumping the Evidence schema to `0.5.0`.
+
 The legacy `evidenceRefSchema` remains as a lightweight reference or embedded
 provenance preview for entities that have not yet been migrated to full
 Evidence records. It is not a competing fact model.
+
+## Phase 2.3 Direct Evidence Subtypes
+
+### `GitIdentityBinding`
+
+Source: `packages/schemas/src/entities/git-identity-binding.ts`
+
+Implements the ADR 0034 direct Evidence subtype for Git identity binding.
+`GitIdentityBinding` is not a `BoundaryObservation` payload. It is an
+`Evidence`-shape record with `evidence_kind: observation`,
+`subject_kind: git_identity_binding`, and a typed payload.
+
+Key fields:
+
+- `workspace_id` and payload `surface_id` bind the observation to the
+  workspace and surface where Git config was resolved.
+- `git_user_name` and `git_user_email` are observed Git config values and are
+  scrubber-eligible identity fields.
+- `git_signing_format_kind` is `openpgp`, `x509`, `ssh`, or `none`.
+- Signed bindings require `git_signing_key_id` as a typed `CredentialSource`
+  FK (`cred:*` or `credential-source:*`) plus
+  `credential_source_evidence_ref`; unsigned bindings set both fields to
+  `null`.
+- `provider_observed_via` is `git_config_read`, `ssh_config_resolution`, or
+  `1password_op_cli_introspection`; `provider_verified_at` is the freshness
+  anchor.
+- `redaction_mode` is required and cannot be `none`, preserving ADR 0034's
+  subtype-level redaction floor.
+
+This schema records identity evidence only. Cross-surface rejection, freshness
+re-check, sandbox-promotion rejection, and operation gating remain Ring 1 /
+policy responsibilities.
+
+### `ToolProvenance`
+
+Source: `packages/schemas/src/entities/tool-provenance.ts`
+
+Implements the ADR 0034 direct Evidence subtype for tool provenance.
+`ToolProvenance` is not a `BoundaryObservation` payload. It is an
+`Evidence`-shape record with `evidence_kind: observation`,
+`subject_kind: tool_provenance`, and a typed payload.
+
+Key fields:
+
+- `tool_or_provider_ref` and `execution_context_id` define the grain.
+- `installed_path` and every `shim_chain` path must be canonicalized into
+  recognized placeholder roots with a path segment (`${HOME}`, `${TMPDIR}`,
+  `${XDG_CACHE_HOME}`, `${XDG_DATA_HOME}`, `${XDG_CONFIG_HOME}`,
+  `${USERS_SHARED}`) or accepted system roots (`/usr/local`, `/opt`,
+  `/Library/Frameworks`).
+- `shim_chain` records `{shim_path, target_path}` hops; `shim_depth` must equal
+  `shim_chain.length`.
+- `install_source_kind` is `homebrew`, `mise`, `asdf`, `npm`, `pip`, `uv`,
+  `system_package_manager`, `manual`, or `unknown`.
+- `version_drift_kind` is `matches_lockfile`, `ahead_of_lockfile`,
+  `behind_lockfile`, `no_lockfile`, or `unknown`.
+- `provider_observed_via` is `which_command`, `shim_introspection`, or
+  `package_manager_query`; `provider_verified_at` is the freshness anchor.
+
+This schema records typed provenance facts only. It does not execute tools,
+query package managers, mutate PATH, or create gate authority by itself.
+Sandbox-authority records preserve the base `Evidence` trace rule and remain
+non-promotable until Ring 1 / policy re-checks supply host-authoritative
+evidence.
 
 ## Phase 1 Boundary Observation Envelope
 
@@ -680,7 +751,7 @@ Every `Evidence` record:
 
 ```json
 {
-  "schema_version": "0.4.0",
+  "schema_version": "0.5.0",
   "evidence_id": "evidence:example",
   "evidence_kind": "observation",
   "subject_refs": [
@@ -720,6 +791,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.5.0 | 2026-05-06 | Added Phase 2.3.1 `GitIdentityBinding` and `ToolProvenance` direct Evidence subtype docs and noted the Evidence schema bump to `0.5.0`. |
 | 1.4.0 | 2026-05-06 | Added Phase 2.2.3 `BoundaryObservation` typed payload docs for `containment_class`, `filesystem_inheritance`, `filesystem_protected_paths`, and `mcp_canonical_authority`, including the `BoundaryObservation.schema_version` bump to `0.2.0`. |
 | 1.3.0 | 2026-05-06 | Added the Phase 2.2.2 `OperationShape` schema docs with ADR 0036 deletion-authority fields. |
 | 1.2.0 | 2026-05-06 | Added the ADR 0037 Phase 2.2.1 `ExecutionContext` containment-cache fields and documented the legacy `sandbox` projection as read-only. |

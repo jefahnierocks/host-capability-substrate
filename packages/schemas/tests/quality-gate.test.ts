@@ -356,9 +356,9 @@ describe('QualityGate schema', () => {
     ).toBe(false);
   });
 
-  it('adds quality_gate as an Evidence subject kind with Evidence schema v0.4.0', () => {
+  it('keeps quality_gate as an Evidence subject kind with current Evidence schema', () => {
     const evidence = evidenceSchema.parse({
-      schema_version: '0.4.0',
+      schema_version: '0.5.0',
       evidence_id: 'evidence:quality-gate:merge-or-push',
       evidence_kind: 'observation',
       subject_refs: [

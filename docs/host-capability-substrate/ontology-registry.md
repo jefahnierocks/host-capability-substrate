@@ -3,7 +3,7 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.3.10
+version: 0.3.11
 last_updated: 2026-05-06
 tags: [ontology, registry, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
 priority: high
@@ -1065,6 +1065,73 @@ Mirror notes:
   sandbox-observation authority or unpromoted `CoordinationFact` /
   `DerivedSummary` records in the transitive evidence chain.
 
+### ADR 0034 direct Evidence subtype enum mirrors
+
+Source: ADR 0034 and ADR 0038 Phase 2.3.1.
+
+`Evidence.schema_version`:
+
+- `0.5.0`
+
+`Evidence.subject_kind` Phase 2.3.1 extensions:
+
+- `git_identity_binding`
+- `tool_provenance`
+
+`GitIdentityBinding.payload.git_signing_format_kind`:
+
+- `openpgp`
+- `x509`
+- `ssh`
+- `none`
+
+`GitIdentityBinding.payload.provider_observed_via`:
+
+- `git_config_read`
+- `ssh_config_resolution`
+- `1password_op_cli_introspection`
+
+`ToolProvenance.payload.install_source_kind`:
+
+- `homebrew`
+- `mise`
+- `asdf`
+- `npm`
+- `pip`
+- `uv`
+- `system_package_manager`
+- `manual`
+- `unknown`
+
+`ToolProvenance.payload.version_drift_kind`:
+
+- `matches_lockfile`
+- `ahead_of_lockfile`
+- `behind_lockfile`
+- `no_lockfile`
+- `unknown`
+
+`ToolProvenance.payload.provider_observed_via`:
+
+- `which_command`
+- `shim_introspection`
+- `package_manager_query`
+
+Mirror notes:
+
+- `GitIdentityBinding.redaction_mode` excludes `none` per ADR 0034's
+  subtype-level redaction floor.
+- `GitIdentityBinding.payload.git_signing_key_id` is a typed
+  `CredentialSource` FK, not a raw signing-key identifier.
+- `ToolProvenance.payload.installed_path` and `shim_chain` paths use canonical
+  placeholder-root-with-path or accepted system-root form; raw user paths,
+  bare placeholder roots, and temp seeds are not valid payload values.
+- The direct subtype schemas preserve the base `Evidence` sandbox-observation
+  trace rule. Sandbox-authority subtype records are observations only and do
+  not become gate authority without Ring 1 / policy re-checks.
+- These two records are direct Evidence subtypes, not `BoundaryObservation`
+  payloads.
+
 ## Boundary dimension registry
 
 Entries are alphabetised by name. Status reflects ontology review on this
@@ -1378,6 +1445,7 @@ Changes to this registry follow the schema-change workflow at
 
 - ADR 0022: `docs/host-capability-substrate/adr/0022-boundary-observation-envelope.md`
 - ADR 0023: `docs/host-capability-substrate/adr/0023-evidence-base-shape.md`
+- ADR 0034: `docs/host-capability-substrate/adr/0034-q-007-b-f-boundary-evidence-composition-quality-gate-posture.md`
 - ADR 0036: `docs/host-capability-substrate/adr/0036-q-009-workspace-manifest-projection-and-diagnostic-surface.md`
 - ADR 0037: `docs/host-capability-substrate/adr/0037-q-010-cross-agent-isolation-and-compatibility-taxonomy.md`
 - Q-011: `DECISIONS.md`
@@ -1388,6 +1456,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.3.11 | 2026-05-06 | Added Phase 2.3.1 enum mirrors for ADR 0034 `GitIdentityBinding` and `ToolProvenance` direct Evidence subtypes and recorded the Evidence schema bump to `0.5.0`. |
 | 0.3.10 | 2026-05-06 | Added Phase 2.2.3 `BoundaryObservation` payload enum mirrors and accepted registry entries for `filesystem_inheritance`, `filesystem_protected_paths`, and `mcp_canonical_authority`; updated `containment_class` to the ADR 0037 typed payload vocabulary; recorded the `BoundaryObservation.schema_version` bump to `0.2.0`. |
 | 0.3.9 | 2026-05-06 | Added the Phase 2.2.2 `OperationShape` enum mirror for operation_class, mutation_scope, target_kind, and deletion_authority_kind. |
 | 0.3.8 | 2026-05-06 | Added the Phase 2.2.1 `ExecutionContext.latest_containment_evidence_ref` and `ExecutionContext.kernel_sandbox_kind` kernel-set containment cache fields to the authority-field registry. |

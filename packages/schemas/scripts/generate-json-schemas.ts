@@ -11,11 +11,13 @@ import {
   envProvenanceSchema,
   evidenceSchema,
   executionContextSchema,
+  gitIdentityBindingSchema,
   knowledgeChunkSchema,
   knowledgeSourceSchema,
   operationShapeSchema,
   qualityGateSchema,
   startupPhaseSchema,
+  toolProvenanceSchema,
   verificationCommandSpecSchema,
 } from '../src/index.ts';
 
@@ -55,6 +57,11 @@ const schemaEntries = [
     schema: evidenceSchema,
   },
   {
+    file: 'GitIdentityBinding.schema.json',
+    title: 'GitIdentityBinding',
+    schema: gitIdentityBindingSchema,
+  },
+  {
     file: 'EnvProvenance.schema.json',
     title: 'EnvProvenance',
     schema: envProvenanceSchema,
@@ -88,6 +95,11 @@ const schemaEntries = [
     file: 'StartupPhase.schema.json',
     title: 'StartupPhase',
     schema: startupPhaseSchema,
+  },
+  {
+    file: 'ToolProvenance.schema.json',
+    title: 'ToolProvenance',
+    schema: toolProvenanceSchema,
   },
   {
     file: 'VerificationCommandSpec.schema.json',

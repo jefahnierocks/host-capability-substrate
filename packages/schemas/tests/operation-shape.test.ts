@@ -304,9 +304,9 @@ describe('OperationShape schema', () => {
     ).toBe(false);
   });
 
-  it('keeps operation_shape as an Evidence subject kind without bumping Evidence', () => {
+  it('keeps operation_shape as an Evidence subject kind with current Evidence schema', () => {
     const evidence = evidenceSchema.parse({
-      schema_version: '0.4.0',
+      schema_version: '0.5.0',
       evidence_id: 'evidence:operation-shape:delete-branch',
       evidence_kind: 'observation',
       subject_refs: [

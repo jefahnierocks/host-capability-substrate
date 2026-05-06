@@ -26,6 +26,26 @@ service-account, vault inventory, OpenTofu, broker, or runtime change may land
 from this intake before a follow-on accepted ADR or approved sequencing
 amendment authorizes the implementation lane.
 
+**Project-substrate admission standard intake (2026-05-06):** Citadel PR #37
+(`The-Nash-Group/citadel-config` commit
+`46c55857427af4b887194277bac2218c20b595b6`) defines an external
+project-substrate contract/admission standard. HCS treats it as compatibility
+input only. Component facts fit existing lanes (Q-005 runner/check evidence,
+Q-006 check-source identity, Q-007 BoundaryObservation/QualityGate posture,
+Q-009 workspace-manifest projection, Q-013 credential-plane posture), but the
+whole project-substrate contract envelope opens Q-014 for future ADR/schema
+review. Pre-deliberation posture: compose with ADR 0036 via candidate
+`KnowledgeSource.source_kind: "project_substrate_contract"` plus typed
+validation receipts; treat contract lifecycle status and `guardian_approval`
+as evidence inputs, not HCS gate authority or `ApprovalGrant`; triage v1
+evidence shape commitments to contract validation, admission observation, and
+teardown plan/proof receipts; defer machine-identity validation to Q-013
+implementation. No contract schema, policy YAML, validator, runner, Proxmox,
+OpenTofu, machine-identity, adapter, dashboard, or runtime change may land from
+this intake before a follow-on accepted ADR or approved sequencing amendment
+authorizes the implementation lane. Q-014 implementation is a Phase 2.7 /
+Wave-2 candidate that should sequence jointly with Q-013.
+
 **Phase 2 sequencing meta-ADR (accepted 2026-05-04):** ADR 0038
 (`docs/host-capability-substrate/adr/0038-phase-2-schema-landing-sequence.md`)
 accepts a six-phase landing order: charter v1.4.0 amendment (Phase
@@ -97,7 +117,8 @@ Q-007 carry-overs).
 (ADR 0037 follow-up); `AgentClient × WorkspaceContext` cardinality;
 `system.cleanup.plan.v1` composition (ADR 0036 follow-up); cross-cutting
 derived-content subject_kind grounding rule extension (ADR 0036
-extensibility principle).
+extensibility principle); project-substrate contract validation and
+admission-receipt composition (Q-014 follow-up).
 
 ### Historical record — Phase 0b closeout / Phase 1 prep / synthesis-window
 

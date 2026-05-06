@@ -3,9 +3,9 @@ title: HCS external research artifacts
 category: research
 component: host_capability_substrate
 status: active
-version: 1.15.0
-last_updated: 2026-05-05
-tags: [research, external, substrate-config, auth, mcp, cloudflare, cloudflared, diagnostics, rate-limit, credential-broker, coordination, knowledge-store, rag, resource-budget, ci-runners, quality-management, github, macos, codex, worktree, branch-cleanup, workspace-context, isolation]
+version: 1.16.0
+last_updated: 2026-05-06
+tags: [research, external, substrate-config, auth, mcp, cloudflare, cloudflared, diagnostics, rate-limit, credential-broker, coordination, knowledge-store, rag, resource-budget, ci-runners, quality-management, github, macos, codex, worktree, branch-cleanup, workspace-context, isolation, project-substrate, runner-substrate]
 priority: medium
 ---
 
@@ -45,6 +45,7 @@ Do **not** cite these documents as authoritative first-party HCS decisions. Cite
 | `2026-05-05-1password-credential-plane-research.md` | 2026-05-05 | HCS quarantine wrapper for the 1Password credential-plane research. Preserves the source as Q-013 input while explicitly marking org-specific vault names, schema candidates, policy candidates, forbidden-pattern candidates, and landing order as non-authoritative outside ADR 0040's accepted generic posture. |
 | `2026-05-05-1password-credential-plane-research.raw.md` | 2026-05-05 | Byte-for-byte copy of `/private/tmp/1password-research.md`. Source-author planning input only; not an HCS decision. SHA-256: `06abfe184c7c781ce4fc6d4ee7f18cf5c38265061a23323e22176f17ed0d9dba`. |
 | `2026-05-05-citadel-credential-plane-guidance.md` | 2026-05-05 | Normalized source note for user-provided Citadel guidance. Feeds Q-013 posture; ADR 0040 accepts the generic boundary while schema, policy, reconciler, vault, service-account, OpenTofu, broker, and runtime changes remain blocked. |
+| `2026-05-06-citadel-project-substrate-standard.md` | 2026-05-06 | Normalized source note for Citadel PR #37 project-substrate admission standard. Feeds Q-014 planning posture; records Citadel as external compatibility input while schema, policy, runner, Proxmox, OpenTofu, machine-identity, adapter, dashboard, and runtime changes remain blocked. |
 
 ## Reconciled conclusions
 

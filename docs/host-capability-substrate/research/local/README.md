@@ -3,9 +3,9 @@ title: HCS local research artifacts
 category: research
 component: host_capability_substrate
 status: active
-version: 1.9.1
-last_updated: 2026-05-05
-tags: [research, local, host-evidence, github, version-control, quality-management, codex, worktree, branch-cleanup, diagnostics, workspace-context, isolation, ontology, process-inspection]
+version: 1.10.1
+last_updated: 2026-05-06
+tags: [research, local, host-evidence, github, version-control, quality-management, codex, worktree, branch-cleanup, diagnostics, workspace-context, isolation, ontology, process-inspection, project-substrate, runner-substrate]
 priority: medium
 ---
 
@@ -40,11 +40,14 @@ summaries.
 | `2026-05-01-ontology-promotion-receipt-dedupe-plan.md` | 2026-05-01 | Cross-Q planning document for ontology promotion buckets, candidate receipt dedupe, naming discipline, and dependency order before additional Ring 0 schema work. Queues Q-011. |
 | `2026-05-01-codex-import-dialog-hang.md` | 2026-05-01 | Live Codex macOS app import-dialog hang investigation. Corrects stale repo-target assumptions, records app/log/process evidence, and reinforces Q-009 safe process inspection for app-managed MCP children. |
 | `2026-05-05-credential-plane-integration-synthesis.md` | 2026-05-05 | Synthesis of the 1Password credential-plane research plus Citadel guidance. Records Q-013 acceptance via ADR 0040 at posture level only, blocks implementation pending follow-on acceptance, and defines the approval contract for future HCS-side implementation. |
+| `2026-05-06-project-substrate-compatibility-synthesis.md` | 2026-05-06 | Synthesis of Citadel PR #37 project-substrate admission standard. Maps contract fields to HCS vocabulary, opens Q-014 for future contract validation, adds pre-deliberation commitments around ADR 0036 composition / evidence triage / sequencing, and blocks schema, policy, runner, Proxmox, OpenTofu, identity, adapter, dashboard, and runtime implementation until follow-on acceptance. |
 
 ## Change Log
 
 | Version | Date | Change |
 |---|---:|---|
+| 1.10.1 | 2026-05-06 | Noted Q-014 pre-deliberation commitments in the project-substrate synthesis. |
+| 1.10.0 | 2026-05-06 | Added project-substrate compatibility synthesis and Q-014 planning posture. |
 | 1.9.1 | 2026-05-05 | Noted the credential-plane synthesis approval contract for future HCS-side implementation. |
 | 1.9.0 | 2026-05-05 | Updated credential-plane synthesis to accepted-posture state after ADR 0040 acceptance; implementation remains blocked. |
 | 1.8.0 | 2026-05-05 | Added credential-plane integration synthesis and linked Q-013 planning posture. |

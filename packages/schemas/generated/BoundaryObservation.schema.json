@@ -2,201 +2,2667 @@
   "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/BoundaryObservation.schema.json",
   "title": "BoundaryObservation",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object",
-  "properties": {
-    "schema_version": {
-      "type": "string",
-      "const": "0.1.0",
-      "description": "Entity schema version for a Ring 0 schema."
-    },
-    "evidence_schema_version": {
-      "type": "string",
-      "minLength": 1,
-      "description": "Base Evidence schema version used by BoundaryObservation component evidence."
-    },
-    "payload_schema_version": {
-      "type": "string",
-      "minLength": 1
-    },
-    "boundary_observation_id": {
-      "type": "string",
-      "minLength": 1,
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-      "description": "Stable local entity identifier. It is not a secret value."
-    },
-    "surface_id": {
-      "type": "string",
-      "minLength": 1,
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-      "description": "Stable local entity identifier. It is not a secret value."
-    },
-    "execution_context_id": {
-      "type": "string",
-      "minLength": 1,
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-      "description": "Stable local entity identifier. It is not a secret value."
-    },
-    "workspace_id": {
-      "type": "string",
-      "minLength": 1,
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-      "description": "Stable local entity identifier. It is not a secret value."
-    },
-    "credential_source_id": {
-      "type": "string",
-      "minLength": 1,
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-      "description": "Stable local entity identifier. It is not a secret value."
-    },
-    "tool_or_provider_ref": {
-      "type": "string",
-      "minLength": 1,
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-      "description": "Stable local entity identifier. It is not a secret value."
-    },
-    "boundary_dimension": {
-      "type": "string",
-      "enum": [
-        "bundle_identity",
-        "check_source",
-        "containment_class",
-        "credential_routing",
-        "egress_observed",
-        "egress_policy",
-        "filesystem_authority",
-        "launch_context",
-        "mcp_authorization",
-        "origin_access_validation",
-        "path_coverage",
-        "runner_isolation",
-        "sandbox",
-        "tcc",
-        "volume_authority",
-        "worktree_ownership"
-      ],
-      "description": "Singular boundary dimension from ADR 0022. Registered values mirror docs/host-capability-substrate/ontology-registry.md."
-    },
-    "observed_payload": {
-      "$ref": "#/$defs/__schema0"
-    },
-    "expected_payload": {
-      "$ref": "#/$defs/__schema1"
-    },
-    "observation_state": {
-      "type": "string",
-      "enum": [
-        "proven",
-        "denied",
-        "pending",
-        "stale",
-        "contradictory",
-        "inapplicable",
-        "unknown"
-      ],
-      "description": "Seven-state boundary vocabulary from ADR 0022. unknown is not false; missing or unobservable evidence is distinct from denied."
-    },
-    "discrepancy_class": {
-      "type": "string",
-      "enum": [
-        "observed_matches_expected",
-        "observed_differs_from_expected",
-        "expected_unobservable",
-        "observed_without_expected",
-        "expected_without_observed",
-        "unknown"
-      ],
-      "description": "Optional discrepancy summary between observed_payload and expected_payload. Initial set; ontology-registry workflow may extend it."
-    },
-    "evidence_refs": {
-      "minItems": 1,
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "evidence_id": {
-            "type": "string",
-            "minLength": 1,
-            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-            "description": "Reference to an Evidence record or fixture."
-          },
-          "source": {
-            "type": "string",
-            "minLength": 1,
-            "description": "Human-readable source name or artifact path."
-          },
-          "observed_at": {
-            "type": "string",
-            "format": "date-time",
-            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
-            "description": "RFC 3339 timestamp with an explicit UTC offset."
-          },
-          "valid_until": {
-            "anyOf": [
-              {
+  "anyOf": [
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "0.2.0",
+          "description": "BoundaryObservation schema version after ADR 0036/0037 typed payload branches landed in Phase 2.2.3."
+        },
+        "evidence_schema_version": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Base Evidence schema version used by BoundaryObservation component evidence."
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "boundary_observation_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "surface_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "execution_context_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "workspace_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "credential_source_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "tool_or_provider_ref": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "observation_state": {
+          "type": "string",
+          "enum": [
+            "proven",
+            "denied",
+            "pending",
+            "stale",
+            "contradictory",
+            "inapplicable",
+            "unknown"
+          ],
+          "description": "Seven-state boundary vocabulary from ADR 0022. unknown is not false; missing or unobservable evidence is distinct from denied."
+        },
+        "discrepancy_class": {
+          "type": "string",
+          "enum": [
+            "observed_matches_expected",
+            "observed_differs_from_expected",
+            "expected_unobservable",
+            "observed_without_expected",
+            "expected_without_observed",
+            "unknown"
+          ],
+          "description": "Optional discrepancy summary between observed_payload and expected_payload. Initial set; ontology-registry workflow may extend it."
+        },
+        "evidence_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "evidence_id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                "description": "Reference to an Evidence record or fixture."
+              },
+              "source": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Human-readable source name or artifact path."
+              },
+              "observed_at": {
                 "type": "string",
                 "format": "date-time",
                 "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
                 "description": "RFC 3339 timestamp with an explicit UTC offset."
               },
-              {
-                "type": "null"
+              "valid_until": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                    "description": "RFC 3339 timestamp with an explicit UTC offset."
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "authority": {
+                "type": "string",
+                "enum": [
+                  "project-local",
+                  "workspace-local",
+                  "user-global",
+                  "system",
+                  "derived",
+                  "sandbox-observation",
+                  "host-observation",
+                  "vendor-doc",
+                  "installed-runtime",
+                  "human-observed"
+                ],
+                "description": "Authority plane for a fact or observation."
+              },
+              "parser_version": {
+                "type": "string",
+                "minLength": 1
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "authoritative",
+                  "high",
+                  "best-effort",
+                  "stale",
+                  "unknown"
+                ],
+                "description": "Confidence assigned to an observation by the producer."
               }
-            ]
-          },
-          "authority": {
-            "type": "string",
-            "enum": [
-              "project-local",
-              "workspace-local",
-              "user-global",
-              "system",
-              "derived",
-              "sandbox-observation",
-              "host-observation",
-              "vendor-doc",
-              "installed-runtime",
-              "human-observed"
+            },
+            "required": [
+              "evidence_id",
+              "source",
+              "observed_at",
+              "authority",
+              "confidence"
             ],
-            "description": "Authority plane for a fact or observation."
-          },
-          "parser_version": {
-            "type": "string",
-            "minLength": 1
-          },
-          "confidence": {
-            "type": "string",
-            "enum": [
-              "authoritative",
-              "high",
-              "best-effort",
-              "stale",
-              "unknown"
-            ],
-            "description": "Confidence assigned to an observation by the producer."
+            "additionalProperties": false,
+            "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
           }
         },
-        "required": [
-          "evidence_id",
-          "source",
-          "observed_at",
-          "authority",
-          "confidence"
-        ],
-        "additionalProperties": false,
-        "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
-      }
+        "boundary_dimension": {
+          "type": "string",
+          "const": "containment_class"
+        },
+        "observed_payload": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "network_egress_posture": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "restricted",
+                    "open",
+                    "unknown"
+                  ],
+                  "description": "Observed network egress posture for a containment_class payload."
+                },
+                "filesystem_write_scope": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "workspace_write",
+                    "full_access",
+                    "unknown"
+                  ],
+                  "description": "Observed filesystem write scope for a containment_class payload."
+                },
+                "keychain_access": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "tcc_scoped",
+                    "app_managed_bundle",
+                    "unknown"
+                  ],
+                  "description": "Observed keychain access posture for a containment_class payload."
+                },
+                "containment_kind": {
+                  "type": "string",
+                  "const": "none"
+                }
+              },
+              "required": [
+                "network_egress_posture",
+                "filesystem_write_scope",
+                "keychain_access",
+                "containment_kind"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "network_egress_posture": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "restricted",
+                    "open",
+                    "unknown"
+                  ],
+                  "description": "Observed network egress posture for a containment_class payload."
+                },
+                "filesystem_write_scope": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "workspace_write",
+                    "full_access",
+                    "unknown"
+                  ],
+                  "description": "Observed filesystem write scope for a containment_class payload."
+                },
+                "keychain_access": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "tcc_scoped",
+                    "app_managed_bundle",
+                    "unknown"
+                  ],
+                  "description": "Observed keychain access posture for a containment_class payload."
+                },
+                "containment_kind": {
+                  "type": "string",
+                  "const": "kernel_sandbox"
+                },
+                "kernel_sandbox_profile": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "seatbelt",
+                    "sandbox_exec",
+                    "workspace_write",
+                    "read_only",
+                    "full_access",
+                    "ide_host",
+                    "unknown"
+                  ],
+                  "description": "Coarse sandbox profile for the execution context."
+                }
+              },
+              "required": [
+                "network_egress_posture",
+                "filesystem_write_scope",
+                "keychain_access",
+                "containment_kind",
+                "kernel_sandbox_profile"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "network_egress_posture": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "restricted",
+                    "open",
+                    "unknown"
+                  ],
+                  "description": "Observed network egress posture for a containment_class payload."
+                },
+                "filesystem_write_scope": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "workspace_write",
+                    "full_access",
+                    "unknown"
+                  ],
+                  "description": "Observed filesystem write scope for a containment_class payload."
+                },
+                "keychain_access": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "tcc_scoped",
+                    "app_managed_bundle",
+                    "unknown"
+                  ],
+                  "description": "Observed keychain access posture for a containment_class payload."
+                },
+                "containment_kind": {
+                  "type": "string",
+                  "const": "container"
+                },
+                "container_runtime_kind": {
+                  "type": "string",
+                  "enum": [
+                    "docker",
+                    "podman",
+                    "nerdctl",
+                    "orbstack",
+                    "colima",
+                    "unknown"
+                  ],
+                  "description": "Container runtime kind for containment_class payloads."
+                }
+              },
+              "required": [
+                "network_egress_posture",
+                "filesystem_write_scope",
+                "keychain_access",
+                "containment_kind",
+                "container_runtime_kind"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "network_egress_posture": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "restricted",
+                    "open",
+                    "unknown"
+                  ],
+                  "description": "Observed network egress posture for a containment_class payload."
+                },
+                "filesystem_write_scope": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "workspace_write",
+                    "full_access",
+                    "unknown"
+                  ],
+                  "description": "Observed filesystem write scope for a containment_class payload."
+                },
+                "keychain_access": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "tcc_scoped",
+                    "app_managed_bundle",
+                    "unknown"
+                  ],
+                  "description": "Observed keychain access posture for a containment_class payload."
+                },
+                "containment_kind": {
+                  "type": "string",
+                  "const": "vm"
+                },
+                "vm_kind": {
+                  "type": "string",
+                  "enum": [
+                    "local_vm_snapshot",
+                    "local_vm_persistent",
+                    "unknown"
+                  ],
+                  "description": "VM containment kind for containment_class payloads."
+                }
+              },
+              "required": [
+                "network_egress_posture",
+                "filesystem_write_scope",
+                "keychain_access",
+                "containment_kind",
+                "vm_kind"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "network_egress_posture": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "restricted",
+                    "open",
+                    "unknown"
+                  ],
+                  "description": "Observed network egress posture for a containment_class payload."
+                },
+                "filesystem_write_scope": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "workspace_write",
+                    "full_access",
+                    "unknown"
+                  ],
+                  "description": "Observed filesystem write scope for a containment_class payload."
+                },
+                "keychain_access": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "tcc_scoped",
+                    "app_managed_bundle",
+                    "unknown"
+                  ],
+                  "description": "Observed keychain access posture for a containment_class payload."
+                },
+                "containment_kind": {
+                  "type": "string",
+                  "const": "remote_cloud_sandbox"
+                },
+                "remote_cloud_kind": {
+                  "type": "string",
+                  "enum": [
+                    "vendor_managed_vm",
+                    "vendor_managed_container",
+                    "self_hosted_runner_class",
+                    "unknown"
+                  ],
+                  "description": "Remote cloud containment kind for containment_class payloads."
+                }
+              },
+              "required": [
+                "network_egress_posture",
+                "filesystem_write_scope",
+                "keychain_access",
+                "containment_kind",
+                "remote_cloud_kind"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "network_egress_posture": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "restricted",
+                    "open",
+                    "unknown"
+                  ],
+                  "description": "Observed network egress posture for a containment_class payload."
+                },
+                "filesystem_write_scope": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "workspace_write",
+                    "full_access",
+                    "unknown"
+                  ],
+                  "description": "Observed filesystem write scope for a containment_class payload."
+                },
+                "keychain_access": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "tcc_scoped",
+                    "app_managed_bundle",
+                    "unknown"
+                  ],
+                  "description": "Observed keychain access posture for a containment_class payload."
+                },
+                "containment_kind": {
+                  "type": "string",
+                  "const": "ide_host_isolation"
+                }
+              },
+              "required": [
+                "network_egress_posture",
+                "filesystem_write_scope",
+                "keychain_access",
+                "containment_kind"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "network_egress_posture": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "restricted",
+                    "open",
+                    "unknown"
+                  ],
+                  "description": "Observed network egress posture for a containment_class payload."
+                },
+                "filesystem_write_scope": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "workspace_write",
+                    "full_access",
+                    "unknown"
+                  ],
+                  "description": "Observed filesystem write scope for a containment_class payload."
+                },
+                "keychain_access": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "tcc_scoped",
+                    "app_managed_bundle",
+                    "unknown"
+                  ],
+                  "description": "Observed keychain access posture for a containment_class payload."
+                },
+                "containment_kind": {
+                  "type": "string",
+                  "const": "terminal_no_isolation"
+                }
+              },
+              "required": [
+                "network_egress_posture",
+                "filesystem_write_scope",
+                "keychain_access",
+                "containment_kind"
+              ],
+              "additionalProperties": false
+            }
+          ],
+          "description": "ADR 0037 containment_class BoundaryObservation payload."
+        },
+        "expected_payload": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "network_egress_posture": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "restricted",
+                    "open",
+                    "unknown"
+                  ],
+                  "description": "Observed network egress posture for a containment_class payload."
+                },
+                "filesystem_write_scope": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "workspace_write",
+                    "full_access",
+                    "unknown"
+                  ],
+                  "description": "Observed filesystem write scope for a containment_class payload."
+                },
+                "keychain_access": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "tcc_scoped",
+                    "app_managed_bundle",
+                    "unknown"
+                  ],
+                  "description": "Observed keychain access posture for a containment_class payload."
+                },
+                "containment_kind": {
+                  "type": "string",
+                  "const": "none"
+                }
+              },
+              "required": [
+                "network_egress_posture",
+                "filesystem_write_scope",
+                "keychain_access",
+                "containment_kind"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "network_egress_posture": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "restricted",
+                    "open",
+                    "unknown"
+                  ],
+                  "description": "Observed network egress posture for a containment_class payload."
+                },
+                "filesystem_write_scope": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "workspace_write",
+                    "full_access",
+                    "unknown"
+                  ],
+                  "description": "Observed filesystem write scope for a containment_class payload."
+                },
+                "keychain_access": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "tcc_scoped",
+                    "app_managed_bundle",
+                    "unknown"
+                  ],
+                  "description": "Observed keychain access posture for a containment_class payload."
+                },
+                "containment_kind": {
+                  "type": "string",
+                  "const": "kernel_sandbox"
+                },
+                "kernel_sandbox_profile": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "seatbelt",
+                    "sandbox_exec",
+                    "workspace_write",
+                    "read_only",
+                    "full_access",
+                    "ide_host",
+                    "unknown"
+                  ],
+                  "description": "Coarse sandbox profile for the execution context."
+                }
+              },
+              "required": [
+                "network_egress_posture",
+                "filesystem_write_scope",
+                "keychain_access",
+                "containment_kind",
+                "kernel_sandbox_profile"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "network_egress_posture": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "restricted",
+                    "open",
+                    "unknown"
+                  ],
+                  "description": "Observed network egress posture for a containment_class payload."
+                },
+                "filesystem_write_scope": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "workspace_write",
+                    "full_access",
+                    "unknown"
+                  ],
+                  "description": "Observed filesystem write scope for a containment_class payload."
+                },
+                "keychain_access": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "tcc_scoped",
+                    "app_managed_bundle",
+                    "unknown"
+                  ],
+                  "description": "Observed keychain access posture for a containment_class payload."
+                },
+                "containment_kind": {
+                  "type": "string",
+                  "const": "container"
+                },
+                "container_runtime_kind": {
+                  "type": "string",
+                  "enum": [
+                    "docker",
+                    "podman",
+                    "nerdctl",
+                    "orbstack",
+                    "colima",
+                    "unknown"
+                  ],
+                  "description": "Container runtime kind for containment_class payloads."
+                }
+              },
+              "required": [
+                "network_egress_posture",
+                "filesystem_write_scope",
+                "keychain_access",
+                "containment_kind",
+                "container_runtime_kind"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "network_egress_posture": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "restricted",
+                    "open",
+                    "unknown"
+                  ],
+                  "description": "Observed network egress posture for a containment_class payload."
+                },
+                "filesystem_write_scope": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "workspace_write",
+                    "full_access",
+                    "unknown"
+                  ],
+                  "description": "Observed filesystem write scope for a containment_class payload."
+                },
+                "keychain_access": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "tcc_scoped",
+                    "app_managed_bundle",
+                    "unknown"
+                  ],
+                  "description": "Observed keychain access posture for a containment_class payload."
+                },
+                "containment_kind": {
+                  "type": "string",
+                  "const": "vm"
+                },
+                "vm_kind": {
+                  "type": "string",
+                  "enum": [
+                    "local_vm_snapshot",
+                    "local_vm_persistent",
+                    "unknown"
+                  ],
+                  "description": "VM containment kind for containment_class payloads."
+                }
+              },
+              "required": [
+                "network_egress_posture",
+                "filesystem_write_scope",
+                "keychain_access",
+                "containment_kind",
+                "vm_kind"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "network_egress_posture": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "restricted",
+                    "open",
+                    "unknown"
+                  ],
+                  "description": "Observed network egress posture for a containment_class payload."
+                },
+                "filesystem_write_scope": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "workspace_write",
+                    "full_access",
+                    "unknown"
+                  ],
+                  "description": "Observed filesystem write scope for a containment_class payload."
+                },
+                "keychain_access": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "tcc_scoped",
+                    "app_managed_bundle",
+                    "unknown"
+                  ],
+                  "description": "Observed keychain access posture for a containment_class payload."
+                },
+                "containment_kind": {
+                  "type": "string",
+                  "const": "remote_cloud_sandbox"
+                },
+                "remote_cloud_kind": {
+                  "type": "string",
+                  "enum": [
+                    "vendor_managed_vm",
+                    "vendor_managed_container",
+                    "self_hosted_runner_class",
+                    "unknown"
+                  ],
+                  "description": "Remote cloud containment kind for containment_class payloads."
+                }
+              },
+              "required": [
+                "network_egress_posture",
+                "filesystem_write_scope",
+                "keychain_access",
+                "containment_kind",
+                "remote_cloud_kind"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "network_egress_posture": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "restricted",
+                    "open",
+                    "unknown"
+                  ],
+                  "description": "Observed network egress posture for a containment_class payload."
+                },
+                "filesystem_write_scope": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "workspace_write",
+                    "full_access",
+                    "unknown"
+                  ],
+                  "description": "Observed filesystem write scope for a containment_class payload."
+                },
+                "keychain_access": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "tcc_scoped",
+                    "app_managed_bundle",
+                    "unknown"
+                  ],
+                  "description": "Observed keychain access posture for a containment_class payload."
+                },
+                "containment_kind": {
+                  "type": "string",
+                  "const": "ide_host_isolation"
+                }
+              },
+              "required": [
+                "network_egress_posture",
+                "filesystem_write_scope",
+                "keychain_access",
+                "containment_kind"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "network_egress_posture": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "restricted",
+                    "open",
+                    "unknown"
+                  ],
+                  "description": "Observed network egress posture for a containment_class payload."
+                },
+                "filesystem_write_scope": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "workspace_write",
+                    "full_access",
+                    "unknown"
+                  ],
+                  "description": "Observed filesystem write scope for a containment_class payload."
+                },
+                "keychain_access": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "tcc_scoped",
+                    "app_managed_bundle",
+                    "unknown"
+                  ],
+                  "description": "Observed keychain access posture for a containment_class payload."
+                },
+                "containment_kind": {
+                  "type": "string",
+                  "const": "terminal_no_isolation"
+                }
+              },
+              "required": [
+                "network_egress_posture",
+                "filesystem_write_scope",
+                "keychain_access",
+                "containment_kind"
+              ],
+              "additionalProperties": false
+            }
+          ],
+          "description": "ADR 0037 containment_class BoundaryObservation payload."
+        }
+      },
+      "required": [
+        "schema_version",
+        "evidence_schema_version",
+        "boundary_observation_id",
+        "execution_context_id",
+        "observation_state",
+        "evidence_refs",
+        "boundary_dimension",
+        "observed_payload"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "0.2.0",
+          "description": "BoundaryObservation schema version after ADR 0036/0037 typed payload branches landed in Phase 2.2.3."
+        },
+        "evidence_schema_version": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Base Evidence schema version used by BoundaryObservation component evidence."
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "boundary_observation_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "surface_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "execution_context_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "workspace_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "credential_source_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "tool_or_provider_ref": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "observation_state": {
+          "type": "string",
+          "enum": [
+            "proven",
+            "denied",
+            "pending",
+            "stale",
+            "contradictory",
+            "inapplicable",
+            "unknown"
+          ],
+          "description": "Seven-state boundary vocabulary from ADR 0022. unknown is not false; missing or unobservable evidence is distinct from denied."
+        },
+        "discrepancy_class": {
+          "type": "string",
+          "enum": [
+            "observed_matches_expected",
+            "observed_differs_from_expected",
+            "expected_unobservable",
+            "observed_without_expected",
+            "expected_without_observed",
+            "unknown"
+          ],
+          "description": "Optional discrepancy summary between observed_payload and expected_payload. Initial set; ontology-registry workflow may extend it."
+        },
+        "evidence_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "evidence_id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                "description": "Reference to an Evidence record or fixture."
+              },
+              "source": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Human-readable source name or artifact path."
+              },
+              "observed_at": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "description": "RFC 3339 timestamp with an explicit UTC offset."
+              },
+              "valid_until": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                    "description": "RFC 3339 timestamp with an explicit UTC offset."
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "authority": {
+                "type": "string",
+                "enum": [
+                  "project-local",
+                  "workspace-local",
+                  "user-global",
+                  "system",
+                  "derived",
+                  "sandbox-observation",
+                  "host-observation",
+                  "vendor-doc",
+                  "installed-runtime",
+                  "human-observed"
+                ],
+                "description": "Authority plane for a fact or observation."
+              },
+              "parser_version": {
+                "type": "string",
+                "minLength": 1
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "authoritative",
+                  "high",
+                  "best-effort",
+                  "stale",
+                  "unknown"
+                ],
+                "description": "Confidence assigned to an observation by the producer."
+              }
+            },
+            "required": [
+              "evidence_id",
+              "source",
+              "observed_at",
+              "authority",
+              "confidence"
+            ],
+            "additionalProperties": false,
+            "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+          }
+        },
+        "boundary_dimension": {
+          "type": "string",
+          "const": "filesystem_inheritance"
+        },
+        "observed_payload": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "inheritance_held": {
+                  "type": "boolean",
+                  "const": false
+                },
+                "inheritance_evidence_refs": {
+                  "default": [],
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "evidence_id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                        "description": "Reference to an Evidence record or fixture."
+                      },
+                      "source": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Human-readable source name or artifact path."
+                      },
+                      "observed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                        "description": "RFC 3339 timestamp with an explicit UTC offset."
+                      },
+                      "valid_until": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                            "description": "RFC 3339 timestamp with an explicit UTC offset."
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "authority": {
+                        "type": "string",
+                        "enum": [
+                          "project-local",
+                          "workspace-local",
+                          "user-global",
+                          "system",
+                          "derived",
+                          "sandbox-observation",
+                          "host-observation",
+                          "vendor-doc",
+                          "installed-runtime",
+                          "human-observed"
+                        ],
+                        "description": "Authority plane for a fact or observation."
+                      },
+                      "parser_version": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "confidence": {
+                        "type": "string",
+                        "enum": [
+                          "authoritative",
+                          "high",
+                          "best-effort",
+                          "stale",
+                          "unknown"
+                        ],
+                        "description": "Confidence assigned to an observation by the producer."
+                      }
+                    },
+                    "required": [
+                      "evidence_id",
+                      "source",
+                      "observed_at",
+                      "authority",
+                      "confidence"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                  }
+                }
+              },
+              "required": [
+                "inheritance_held",
+                "inheritance_evidence_refs"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "inheritance_held": {
+                  "type": "boolean",
+                  "const": true
+                },
+                "inheritance_evidence_refs": {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "evidence_id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                        "description": "Reference to an Evidence record or fixture."
+                      },
+                      "source": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Human-readable source name or artifact path."
+                      },
+                      "observed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                        "description": "RFC 3339 timestamp with an explicit UTC offset."
+                      },
+                      "valid_until": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                            "description": "RFC 3339 timestamp with an explicit UTC offset."
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "authority": {
+                        "type": "string",
+                        "enum": [
+                          "project-local",
+                          "workspace-local",
+                          "user-global",
+                          "system",
+                          "derived",
+                          "sandbox-observation",
+                          "host-observation",
+                          "vendor-doc",
+                          "installed-runtime",
+                          "human-observed"
+                        ],
+                        "description": "Authority plane for a fact or observation."
+                      },
+                      "parser_version": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "confidence": {
+                        "type": "string",
+                        "enum": [
+                          "authoritative",
+                          "high",
+                          "best-effort",
+                          "stale",
+                          "unknown"
+                        ],
+                        "description": "Confidence assigned to an observation by the producer."
+                      }
+                    },
+                    "required": [
+                      "evidence_id",
+                      "source",
+                      "observed_at",
+                      "authority",
+                      "confidence"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                  }
+                }
+              },
+              "required": [
+                "inheritance_held",
+                "inheritance_evidence_refs"
+              ],
+              "additionalProperties": false
+            }
+          ],
+          "description": "ADR 0036 filesystem_inheritance BoundaryObservation payload."
+        },
+        "expected_payload": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "inheritance_held": {
+                  "type": "boolean",
+                  "const": false
+                },
+                "inheritance_evidence_refs": {
+                  "default": [],
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "evidence_id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                        "description": "Reference to an Evidence record or fixture."
+                      },
+                      "source": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Human-readable source name or artifact path."
+                      },
+                      "observed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                        "description": "RFC 3339 timestamp with an explicit UTC offset."
+                      },
+                      "valid_until": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                            "description": "RFC 3339 timestamp with an explicit UTC offset."
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "authority": {
+                        "type": "string",
+                        "enum": [
+                          "project-local",
+                          "workspace-local",
+                          "user-global",
+                          "system",
+                          "derived",
+                          "sandbox-observation",
+                          "host-observation",
+                          "vendor-doc",
+                          "installed-runtime",
+                          "human-observed"
+                        ],
+                        "description": "Authority plane for a fact or observation."
+                      },
+                      "parser_version": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "confidence": {
+                        "type": "string",
+                        "enum": [
+                          "authoritative",
+                          "high",
+                          "best-effort",
+                          "stale",
+                          "unknown"
+                        ],
+                        "description": "Confidence assigned to an observation by the producer."
+                      }
+                    },
+                    "required": [
+                      "evidence_id",
+                      "source",
+                      "observed_at",
+                      "authority",
+                      "confidence"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                  }
+                }
+              },
+              "required": [
+                "inheritance_held",
+                "inheritance_evidence_refs"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "inheritance_held": {
+                  "type": "boolean",
+                  "const": true
+                },
+                "inheritance_evidence_refs": {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "evidence_id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                        "description": "Reference to an Evidence record or fixture."
+                      },
+                      "source": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Human-readable source name or artifact path."
+                      },
+                      "observed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                        "description": "RFC 3339 timestamp with an explicit UTC offset."
+                      },
+                      "valid_until": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                            "description": "RFC 3339 timestamp with an explicit UTC offset."
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "authority": {
+                        "type": "string",
+                        "enum": [
+                          "project-local",
+                          "workspace-local",
+                          "user-global",
+                          "system",
+                          "derived",
+                          "sandbox-observation",
+                          "host-observation",
+                          "vendor-doc",
+                          "installed-runtime",
+                          "human-observed"
+                        ],
+                        "description": "Authority plane for a fact or observation."
+                      },
+                      "parser_version": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "confidence": {
+                        "type": "string",
+                        "enum": [
+                          "authoritative",
+                          "high",
+                          "best-effort",
+                          "stale",
+                          "unknown"
+                        ],
+                        "description": "Confidence assigned to an observation by the producer."
+                      }
+                    },
+                    "required": [
+                      "evidence_id",
+                      "source",
+                      "observed_at",
+                      "authority",
+                      "confidence"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                  }
+                }
+              },
+              "required": [
+                "inheritance_held",
+                "inheritance_evidence_refs"
+              ],
+              "additionalProperties": false
+            }
+          ],
+          "description": "ADR 0036 filesystem_inheritance BoundaryObservation payload."
+        }
+      },
+      "required": [
+        "schema_version",
+        "evidence_schema_version",
+        "boundary_observation_id",
+        "execution_context_id",
+        "observation_state",
+        "evidence_refs",
+        "boundary_dimension",
+        "observed_payload"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "0.2.0",
+          "description": "BoundaryObservation schema version after ADR 0036/0037 typed payload branches landed in Phase 2.2.3."
+        },
+        "evidence_schema_version": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Base Evidence schema version used by BoundaryObservation component evidence."
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "boundary_observation_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "surface_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "execution_context_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "workspace_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "credential_source_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "tool_or_provider_ref": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "observation_state": {
+          "type": "string",
+          "enum": [
+            "proven",
+            "denied",
+            "pending",
+            "stale",
+            "contradictory",
+            "inapplicable",
+            "unknown"
+          ],
+          "description": "Seven-state boundary vocabulary from ADR 0022. unknown is not false; missing or unobservable evidence is distinct from denied."
+        },
+        "discrepancy_class": {
+          "type": "string",
+          "enum": [
+            "observed_matches_expected",
+            "observed_differs_from_expected",
+            "expected_unobservable",
+            "observed_without_expected",
+            "expected_without_observed",
+            "unknown"
+          ],
+          "description": "Optional discrepancy summary between observed_payload and expected_payload. Initial set; ontology-registry workflow may extend it."
+        },
+        "evidence_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "evidence_id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                "description": "Reference to an Evidence record or fixture."
+              },
+              "source": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Human-readable source name or artifact path."
+              },
+              "observed_at": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "description": "RFC 3339 timestamp with an explicit UTC offset."
+              },
+              "valid_until": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                    "description": "RFC 3339 timestamp with an explicit UTC offset."
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "authority": {
+                "type": "string",
+                "enum": [
+                  "project-local",
+                  "workspace-local",
+                  "user-global",
+                  "system",
+                  "derived",
+                  "sandbox-observation",
+                  "host-observation",
+                  "vendor-doc",
+                  "installed-runtime",
+                  "human-observed"
+                ],
+                "description": "Authority plane for a fact or observation."
+              },
+              "parser_version": {
+                "type": "string",
+                "minLength": 1
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "authoritative",
+                  "high",
+                  "best-effort",
+                  "stale",
+                  "unknown"
+                ],
+                "description": "Confidence assigned to an observation by the producer."
+              }
+            },
+            "required": [
+              "evidence_id",
+              "source",
+              "observed_at",
+              "authority",
+              "confidence"
+            ],
+            "additionalProperties": false,
+            "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+          }
+        },
+        "boundary_dimension": {
+          "type": "string",
+          "const": "filesystem_protected_paths"
+        },
+        "observed_payload": {
+          "type": "object",
+          "properties": {
+            "protected_paths": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "path_authority_kind": {
+                    "type": "string",
+                    "enum": [
+                      "rule_binding",
+                      "lease_scope",
+                      "tcc_scoped",
+                      "human_dashboard_grant"
+                    ],
+                    "description": "Authority source kind for filesystem_protected_paths entries."
+                  },
+                  "path_authority_source_evidence_ref": {
+                    "type": "object",
+                    "properties": {
+                      "evidence_id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                        "description": "Reference to an Evidence record or fixture."
+                      },
+                      "source": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Human-readable source name or artifact path."
+                      },
+                      "observed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                        "description": "RFC 3339 timestamp with an explicit UTC offset."
+                      },
+                      "valid_until": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                            "description": "RFC 3339 timestamp with an explicit UTC offset."
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "authority": {
+                        "type": "string",
+                        "enum": [
+                          "project-local",
+                          "workspace-local",
+                          "user-global",
+                          "system",
+                          "derived",
+                          "sandbox-observation",
+                          "host-observation",
+                          "vendor-doc",
+                          "installed-runtime",
+                          "human-observed"
+                        ],
+                        "description": "Authority plane for a fact or observation."
+                      },
+                      "parser_version": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "confidence": {
+                        "type": "string",
+                        "enum": [
+                          "authoritative",
+                          "high",
+                          "best-effort",
+                          "stale",
+                          "unknown"
+                        ],
+                        "description": "Confidence assigned to an observation by the producer."
+                      }
+                    },
+                    "required": [
+                      "evidence_id",
+                      "source",
+                      "observed_at",
+                      "authority",
+                      "confidence"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                  }
+                },
+                "required": [
+                  "path",
+                  "path_authority_kind",
+                  "path_authority_source_evidence_ref"
+                ],
+                "additionalProperties": false,
+                "description": "Single D-025 protected path assertion in placeholder or canonical path form."
+              }
+            }
+          },
+          "required": [
+            "protected_paths"
+          ],
+          "additionalProperties": false,
+          "description": "ADR 0036 filesystem_protected_paths BoundaryObservation payload."
+        },
+        "expected_payload": {
+          "type": "object",
+          "properties": {
+            "protected_paths": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "path_authority_kind": {
+                    "type": "string",
+                    "enum": [
+                      "rule_binding",
+                      "lease_scope",
+                      "tcc_scoped",
+                      "human_dashboard_grant"
+                    ],
+                    "description": "Authority source kind for filesystem_protected_paths entries."
+                  },
+                  "path_authority_source_evidence_ref": {
+                    "type": "object",
+                    "properties": {
+                      "evidence_id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                        "description": "Reference to an Evidence record or fixture."
+                      },
+                      "source": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Human-readable source name or artifact path."
+                      },
+                      "observed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                        "description": "RFC 3339 timestamp with an explicit UTC offset."
+                      },
+                      "valid_until": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                            "description": "RFC 3339 timestamp with an explicit UTC offset."
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "authority": {
+                        "type": "string",
+                        "enum": [
+                          "project-local",
+                          "workspace-local",
+                          "user-global",
+                          "system",
+                          "derived",
+                          "sandbox-observation",
+                          "host-observation",
+                          "vendor-doc",
+                          "installed-runtime",
+                          "human-observed"
+                        ],
+                        "description": "Authority plane for a fact or observation."
+                      },
+                      "parser_version": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "confidence": {
+                        "type": "string",
+                        "enum": [
+                          "authoritative",
+                          "high",
+                          "best-effort",
+                          "stale",
+                          "unknown"
+                        ],
+                        "description": "Confidence assigned to an observation by the producer."
+                      }
+                    },
+                    "required": [
+                      "evidence_id",
+                      "source",
+                      "observed_at",
+                      "authority",
+                      "confidence"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                  }
+                },
+                "required": [
+                  "path",
+                  "path_authority_kind",
+                  "path_authority_source_evidence_ref"
+                ],
+                "additionalProperties": false,
+                "description": "Single D-025 protected path assertion in placeholder or canonical path form."
+              }
+            }
+          },
+          "required": [
+            "protected_paths"
+          ],
+          "additionalProperties": false,
+          "description": "ADR 0036 filesystem_protected_paths BoundaryObservation payload."
+        }
+      },
+      "required": [
+        "schema_version",
+        "evidence_schema_version",
+        "boundary_observation_id",
+        "workspace_id",
+        "observation_state",
+        "evidence_refs",
+        "boundary_dimension",
+        "observed_payload"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "0.2.0",
+          "description": "BoundaryObservation schema version after ADR 0036/0037 typed payload branches landed in Phase 2.2.3."
+        },
+        "evidence_schema_version": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Base Evidence schema version used by BoundaryObservation component evidence."
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "boundary_observation_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "surface_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "execution_context_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "workspace_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "credential_source_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "tool_or_provider_ref": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "observation_state": {
+          "type": "string",
+          "enum": [
+            "proven",
+            "denied",
+            "pending",
+            "stale",
+            "contradictory",
+            "inapplicable",
+            "unknown"
+          ],
+          "description": "Seven-state boundary vocabulary from ADR 0022. unknown is not false; missing or unobservable evidence is distinct from denied."
+        },
+        "discrepancy_class": {
+          "type": "string",
+          "enum": [
+            "observed_matches_expected",
+            "observed_differs_from_expected",
+            "expected_unobservable",
+            "observed_without_expected",
+            "expected_without_observed",
+            "unknown"
+          ],
+          "description": "Optional discrepancy summary between observed_payload and expected_payload. Initial set; ontology-registry workflow may extend it."
+        },
+        "evidence_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "evidence_id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                "description": "Reference to an Evidence record or fixture."
+              },
+              "source": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Human-readable source name or artifact path."
+              },
+              "observed_at": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "description": "RFC 3339 timestamp with an explicit UTC offset."
+              },
+              "valid_until": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                    "description": "RFC 3339 timestamp with an explicit UTC offset."
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "authority": {
+                "type": "string",
+                "enum": [
+                  "project-local",
+                  "workspace-local",
+                  "user-global",
+                  "system",
+                  "derived",
+                  "sandbox-observation",
+                  "host-observation",
+                  "vendor-doc",
+                  "installed-runtime",
+                  "human-observed"
+                ],
+                "description": "Authority plane for a fact or observation."
+              },
+              "parser_version": {
+                "type": "string",
+                "minLength": 1
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "authoritative",
+                  "high",
+                  "best-effort",
+                  "stale",
+                  "unknown"
+                ],
+                "description": "Confidence assigned to an observation by the producer."
+              }
+            },
+            "required": [
+              "evidence_id",
+              "source",
+              "observed_at",
+              "authority",
+              "confidence"
+            ],
+            "additionalProperties": false,
+            "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+          }
+        },
+        "boundary_dimension": {
+          "type": "string",
+          "const": "mcp_canonical_authority"
+        },
+        "observed_payload": {
+          "type": "object",
+          "properties": {
+            "mcp_server_kind": {
+              "type": "string",
+              "enum": [
+                "github_mcp"
+              ],
+              "description": "MCP server kind enum from ADR 0033; future values require registry extension."
+            },
+            "canonical_install_source_kind": {
+              "type": "string",
+              "enum": [
+                "homebrew",
+                "mise",
+                "asdf",
+                "npm",
+                "pip",
+                "uv",
+                "system_package_manager",
+                "manual",
+                "unknown"
+              ],
+              "description": "Canonical install source kind for mcp_canonical_authority payloads."
+            },
+            "canonical_credential_source_evidence_ref": {
+              "type": "object",
+              "properties": {
+                "evidence_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Reference to an Evidence record or fixture."
+                },
+                "source": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Human-readable source name or artifact path."
+                },
+                "observed_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                "valid_until": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "authority": {
+                  "type": "string",
+                  "enum": [
+                    "project-local",
+                    "workspace-local",
+                    "user-global",
+                    "system",
+                    "derived",
+                    "sandbox-observation",
+                    "host-observation",
+                    "vendor-doc",
+                    "installed-runtime",
+                    "human-observed"
+                  ],
+                  "description": "Authority plane for a fact or observation."
+                },
+                "parser_version": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "confidence": {
+                  "type": "string",
+                  "enum": [
+                    "authoritative",
+                    "high",
+                    "best-effort",
+                    "stale",
+                    "unknown"
+                  ],
+                  "description": "Confidence assigned to an observation by the producer."
+                }
+              },
+              "required": [
+                "evidence_id",
+                "source",
+                "observed_at",
+                "authority",
+                "confidence"
+              ],
+              "additionalProperties": false,
+              "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+            },
+            "shim_chain_evidence_ref": {
+              "type": "object",
+              "properties": {
+                "evidence_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Reference to an Evidence record or fixture."
+                },
+                "source": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Human-readable source name or artifact path."
+                },
+                "observed_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                "valid_until": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "authority": {
+                  "type": "string",
+                  "enum": [
+                    "project-local",
+                    "workspace-local",
+                    "user-global",
+                    "system",
+                    "derived",
+                    "sandbox-observation",
+                    "host-observation",
+                    "vendor-doc",
+                    "installed-runtime",
+                    "human-observed"
+                  ],
+                  "description": "Authority plane for a fact or observation."
+                },
+                "parser_version": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "confidence": {
+                  "type": "string",
+                  "enum": [
+                    "authoritative",
+                    "high",
+                    "best-effort",
+                    "stale",
+                    "unknown"
+                  ],
+                  "description": "Confidence assigned to an observation by the producer."
+                }
+              },
+              "required": [
+                "evidence_id",
+                "source",
+                "observed_at",
+                "authority",
+                "confidence"
+              ],
+              "additionalProperties": false,
+              "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+            },
+            "canonical_authority_kind": {
+              "type": "string",
+              "enum": [
+                "system_install",
+                "user_install",
+                "homebrew",
+                "mise",
+                "direnv_provided"
+              ],
+              "description": "Authority class naming the canonical MCP install or config source."
+            },
+            "redaction_mode": {
+              "type": "string",
+              "const": "reference_only"
+            }
+          },
+          "required": [
+            "mcp_server_kind",
+            "canonical_install_source_kind",
+            "canonical_credential_source_evidence_ref",
+            "shim_chain_evidence_ref",
+            "canonical_authority_kind",
+            "redaction_mode"
+          ],
+          "additionalProperties": false,
+          "description": "ADR 0036 mcp_canonical_authority BoundaryObservation payload."
+        },
+        "expected_payload": {
+          "type": "object",
+          "properties": {
+            "mcp_server_kind": {
+              "type": "string",
+              "enum": [
+                "github_mcp"
+              ],
+              "description": "MCP server kind enum from ADR 0033; future values require registry extension."
+            },
+            "canonical_install_source_kind": {
+              "type": "string",
+              "enum": [
+                "homebrew",
+                "mise",
+                "asdf",
+                "npm",
+                "pip",
+                "uv",
+                "system_package_manager",
+                "manual",
+                "unknown"
+              ],
+              "description": "Canonical install source kind for mcp_canonical_authority payloads."
+            },
+            "canonical_credential_source_evidence_ref": {
+              "type": "object",
+              "properties": {
+                "evidence_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Reference to an Evidence record or fixture."
+                },
+                "source": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Human-readable source name or artifact path."
+                },
+                "observed_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                "valid_until": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "authority": {
+                  "type": "string",
+                  "enum": [
+                    "project-local",
+                    "workspace-local",
+                    "user-global",
+                    "system",
+                    "derived",
+                    "sandbox-observation",
+                    "host-observation",
+                    "vendor-doc",
+                    "installed-runtime",
+                    "human-observed"
+                  ],
+                  "description": "Authority plane for a fact or observation."
+                },
+                "parser_version": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "confidence": {
+                  "type": "string",
+                  "enum": [
+                    "authoritative",
+                    "high",
+                    "best-effort",
+                    "stale",
+                    "unknown"
+                  ],
+                  "description": "Confidence assigned to an observation by the producer."
+                }
+              },
+              "required": [
+                "evidence_id",
+                "source",
+                "observed_at",
+                "authority",
+                "confidence"
+              ],
+              "additionalProperties": false,
+              "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+            },
+            "shim_chain_evidence_ref": {
+              "type": "object",
+              "properties": {
+                "evidence_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Reference to an Evidence record or fixture."
+                },
+                "source": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Human-readable source name or artifact path."
+                },
+                "observed_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                "valid_until": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "authority": {
+                  "type": "string",
+                  "enum": [
+                    "project-local",
+                    "workspace-local",
+                    "user-global",
+                    "system",
+                    "derived",
+                    "sandbox-observation",
+                    "host-observation",
+                    "vendor-doc",
+                    "installed-runtime",
+                    "human-observed"
+                  ],
+                  "description": "Authority plane for a fact or observation."
+                },
+                "parser_version": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "confidence": {
+                  "type": "string",
+                  "enum": [
+                    "authoritative",
+                    "high",
+                    "best-effort",
+                    "stale",
+                    "unknown"
+                  ],
+                  "description": "Confidence assigned to an observation by the producer."
+                }
+              },
+              "required": [
+                "evidence_id",
+                "source",
+                "observed_at",
+                "authority",
+                "confidence"
+              ],
+              "additionalProperties": false,
+              "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+            },
+            "canonical_authority_kind": {
+              "type": "string",
+              "enum": [
+                "system_install",
+                "user_install",
+                "homebrew",
+                "mise",
+                "direnv_provided"
+              ],
+              "description": "Authority class naming the canonical MCP install or config source."
+            },
+            "redaction_mode": {
+              "type": "string",
+              "const": "reference_only"
+            }
+          },
+          "required": [
+            "mcp_server_kind",
+            "canonical_install_source_kind",
+            "canonical_credential_source_evidence_ref",
+            "shim_chain_evidence_ref",
+            "canonical_authority_kind",
+            "redaction_mode"
+          ],
+          "additionalProperties": false,
+          "description": "ADR 0036 mcp_canonical_authority BoundaryObservation payload."
+        }
+      },
+      "required": [
+        "schema_version",
+        "evidence_schema_version",
+        "boundary_observation_id",
+        "execution_context_id",
+        "observation_state",
+        "evidence_refs",
+        "boundary_dimension",
+        "observed_payload"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "0.2.0",
+          "description": "BoundaryObservation schema version after ADR 0036/0037 typed payload branches landed in Phase 2.2.3."
+        },
+        "evidence_schema_version": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Base Evidence schema version used by BoundaryObservation component evidence."
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "boundary_observation_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "surface_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "execution_context_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "workspace_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "credential_source_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "tool_or_provider_ref": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "observation_state": {
+          "type": "string",
+          "enum": [
+            "proven",
+            "denied",
+            "pending",
+            "stale",
+            "contradictory",
+            "inapplicable",
+            "unknown"
+          ],
+          "description": "Seven-state boundary vocabulary from ADR 0022. unknown is not false; missing or unobservable evidence is distinct from denied."
+        },
+        "discrepancy_class": {
+          "type": "string",
+          "enum": [
+            "observed_matches_expected",
+            "observed_differs_from_expected",
+            "expected_unobservable",
+            "observed_without_expected",
+            "expected_without_observed",
+            "unknown"
+          ],
+          "description": "Optional discrepancy summary between observed_payload and expected_payload. Initial set; ontology-registry workflow may extend it."
+        },
+        "evidence_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "evidence_id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                "description": "Reference to an Evidence record or fixture."
+              },
+              "source": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Human-readable source name or artifact path."
+              },
+              "observed_at": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "description": "RFC 3339 timestamp with an explicit UTC offset."
+              },
+              "valid_until": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                    "description": "RFC 3339 timestamp with an explicit UTC offset."
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "authority": {
+                "type": "string",
+                "enum": [
+                  "project-local",
+                  "workspace-local",
+                  "user-global",
+                  "system",
+                  "derived",
+                  "sandbox-observation",
+                  "host-observation",
+                  "vendor-doc",
+                  "installed-runtime",
+                  "human-observed"
+                ],
+                "description": "Authority plane for a fact or observation."
+              },
+              "parser_version": {
+                "type": "string",
+                "minLength": 1
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "authoritative",
+                  "high",
+                  "best-effort",
+                  "stale",
+                  "unknown"
+                ],
+                "description": "Confidence assigned to an observation by the producer."
+              }
+            },
+            "required": [
+              "evidence_id",
+              "source",
+              "observed_at",
+              "authority",
+              "confidence"
+            ],
+            "additionalProperties": false,
+            "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+          }
+        },
+        "boundary_dimension": {
+          "type": "string",
+          "enum": [
+            "bundle_identity",
+            "check_source",
+            "credential_routing",
+            "egress_observed",
+            "egress_policy",
+            "filesystem_authority",
+            "launch_context",
+            "mcp_authorization",
+            "origin_access_validation",
+            "path_coverage",
+            "runner_isolation",
+            "sandbox",
+            "tcc",
+            "volume_authority",
+            "worktree_ownership"
+          ]
+        },
+        "observed_payload": {
+          "$ref": "#/$defs/__schema0"
+        },
+        "expected_payload": {
+          "$ref": "#/$defs/__schema1"
+        }
+      },
+      "required": [
+        "schema_version",
+        "evidence_schema_version",
+        "boundary_observation_id",
+        "observation_state",
+        "evidence_refs",
+        "boundary_dimension",
+        "observed_payload"
+      ],
+      "additionalProperties": false
     }
-  },
-  "required": [
-    "schema_version",
-    "evidence_schema_version",
-    "boundary_observation_id",
-    "boundary_dimension",
-    "observed_payload",
-    "observation_state",
-    "evidence_refs"
   ],
-  "additionalProperties": false,
   "description": "Ring 0 BoundaryObservation envelope from ADR 0022.",
   "$defs": {
     "__schema0": {

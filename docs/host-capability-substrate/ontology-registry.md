@@ -3,7 +3,7 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.3.9
+version: 0.3.10
 last_updated: 2026-05-06
 tags: [ontology, registry, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
 priority: high
@@ -510,6 +510,12 @@ record's payload was sanitized before storage. New evidence subtypes
 must not introduce a parallel `<thing>_redaction_mode` field at the
 payload level whose semantics overlap with the base `redaction_mode`.
 
+ADR 0036 has one accepted fixed-literal exception:
+`mcp_canonical_authority.observed_payload.redaction_mode` is always
+`reference_only`. It names the reference-only content discipline for that
+payload and is not a persistence sanitizer choice. New payload families must
+not copy this exception without their own ADR and ontology-review pass.
+
 If a domain payload needs a redaction-related field whose semantics
 genuinely differ from persistence redaction, the field must:
 
@@ -744,6 +750,122 @@ Mirror notes:
   `boundary_dimension: filesystem_protected_paths` lands in Phase 2.2.3.
 - `coordination_fact` deletion authority requires Layer 1 host-observation
   grounding at mint time; Zod validates only the structural ref pairing.
+
+### `BoundaryObservation` payload enum mirrors
+
+Source: ADR 0036, ADR 0037, and ADR 0038 Phase 2.2.3.
+
+`BoundaryObservation.schema_version`:
+
+- `0.2.0`
+
+`BoundaryObservation.boundary_dimension` Phase 2.2.3 extensions:
+
+- `filesystem_inheritance`
+- `filesystem_protected_paths`
+- `mcp_canonical_authority`
+
+`BoundaryObservation.boundary_dimension` reserved-only value:
+
+- `filesystem_path_authority_check`
+
+`containment_class.observed_payload.containment_kind`:
+
+- `none`
+- `kernel_sandbox`
+- `container`
+- `vm`
+- `remote_cloud_sandbox`
+- `ide_host_isolation`
+- `terminal_no_isolation`
+
+`containment_class.observed_payload.container_runtime_kind`:
+
+- `docker`
+- `podman`
+- `nerdctl`
+- `orbstack`
+- `colima`
+- `unknown`
+
+`containment_class.observed_payload.vm_kind`:
+
+- `local_vm_snapshot`
+- `local_vm_persistent`
+- `unknown`
+
+`containment_class.observed_payload.remote_cloud_kind`:
+
+- `vendor_managed_vm`
+- `vendor_managed_container`
+- `self_hosted_runner_class`
+- `unknown`
+
+`containment_class.observed_payload.network_egress_posture`:
+
+- `none`
+- `restricted`
+- `open`
+- `unknown`
+
+`containment_class.observed_payload.filesystem_write_scope`:
+
+- `none`
+- `workspace_write`
+- `full_access`
+- `unknown`
+
+`containment_class.observed_payload.keychain_access`:
+
+- `none`
+- `tcc_scoped`
+- `app_managed_bundle`
+- `unknown`
+
+`filesystem_protected_paths.observed_payload.path_authority_kind`:
+
+- `rule_binding`
+- `lease_scope`
+- `tcc_scoped`
+- `human_dashboard_grant`
+
+`mcp_canonical_authority.observed_payload.mcp_server_kind`:
+
+- `github_mcp`
+
+`mcp_canonical_authority.observed_payload.canonical_install_source_kind`:
+
+- `homebrew`
+- `mise`
+- `asdf`
+- `npm`
+- `pip`
+- `uv`
+- `system_package_manager`
+- `manual`
+- `unknown`
+
+`mcp_canonical_authority.observed_payload.canonical_authority_kind`:
+
+- `system_install`
+- `user_install`
+- `homebrew`
+- `mise`
+- `direnv_provided`
+
+Mirror notes:
+
+- `filesystem_path_authority_check` remains reserved-only and is not present
+  in the Zod `boundary_dimension` enum. Stage-2 work may add it if per-path
+  operation authority becomes a Ring 1 service.
+- `BoundaryObservation.schema_version` bumps to `0.2.0` because the Phase
+  2.2.3 schema structurally narrows accepted payloads for the typed
+  dimensions.
+- `mcp_server_kind` intentionally lands only `github_mcp`, the ADR 0033
+  accepted value. Other MCP server kinds require a later registry extension.
+- `mcp_canonical_authority` payloads require
+  `redaction_mode: "reference_only"` and carry only evidence references to
+  credential/tool records, never resolved credential content.
 
 ### Knowledge and coordination enum mirrors
 
@@ -980,20 +1102,21 @@ registry, not the surrounding ADRs.
 
 ### `containment_class`
 
-- Status: proposed (umbrella)
+- Status: accepted (umbrella; typed payload landed in Phase 2.2.3)
 - Description: Cross-agent isolation posture for a surface, when no narrower
-  dimension fits. Candidate values inside the payload:
-  `permission_gated`, `worktree_isolated`, `kernel_sandboxed`,
-  `container_or_vm`, `remote_cloud`, `mixed`.
+  dimension fits. ADR 0037 fixes the payload around `containment_kind`:
+  `none`, `kernel_sandbox`, `container`, `vm`, `remote_cloud_sandbox`,
+  `ide_host_isolation`, and `terminal_no_isolation`.
 - Primary target: `execution_context_id`
 - Supplemental targets: `surface_id`, `workspace_id`
 - Overlap notes: per ADR 0022, prefer the narrower dimensions
   (`sandbox`, `egress_policy`, `egress_observed`, `filesystem_authority`,
   `runner_isolation`, `worktree_ownership`) before falling back to
   `containment_class`.
-- Source: Q-010, 2026-05-01 agentic tool isolation synthesis.
+- Source: Q-010, ADR 0037, 2026-05-01 agentic tool isolation synthesis.
 - Sample observed payload sketch:
-  `{ class_name, mechanism, isolation_strength_label }`.
+  `{ containment_kind, network_egress_posture, filesystem_write_scope, keychain_access }`
+  plus the discriminator-specific runtime field.
 
 ### `credential_routing`
 
@@ -1046,11 +1169,46 @@ registry, not the surrounding ADRs.
 - Primary target: `execution_context_id`
 - Supplemental targets: `workspace_id`, `surface_id`
 - Overlap notes: distinct from `volume_authority` (mount-class facts) and
-  `worktree_ownership` (lease/session ownership of a Git worktree).
+  `worktree_ownership` (lease/session ownership of a Git worktree). ADR 0036
+  split inherited authority and protected-path cleanup authority into
+  `filesystem_inheritance` and `filesystem_protected_paths`; this legacy
+  dimension remains for generic per-context path-scope observations until a
+  later ADR deprecates or narrows it.
 - Source: ADR 0016, Codex sandbox docs, Claude Code filesystem permission
   research, quality-management synthesis.
 - Sample observed payload sketch:
   `{ allowed_roots, denied_paths, read_scope, write_scope }`.
+
+### `filesystem_inheritance`
+
+- Status: accepted (typed payload landed in Phase 2.2.3)
+- Description: Whether a child execution context inherits filesystem authority
+  from a parent context. Non-default inheritance requires linked evidence.
+- Primary target: `execution_context_id`
+- Supplemental targets: `workspace_id`, `surface_id`.
+- Overlap notes: distinct from `filesystem_protected_paths`, which records
+  workspace protected-path cleanup authority, and from
+  `filesystem_authority`, which remains the generic per-context path-scope
+  observation.
+- Source: ADR 0036.
+- Sample observed payload sketch:
+  `{ inheritance_held, inheritance_evidence_refs }`.
+
+### `filesystem_protected_paths`
+
+- Status: accepted (typed payload landed in Phase 2.2.3)
+- Description: Workspace paths protected by D-025 deletion-authority discipline
+  and the evidence source that grants that authority classification.
+- Primary target: `workspace_id`
+- Supplemental targets: `execution_context_id`, `surface_id`.
+- Overlap notes: distinct from `filesystem_inheritance`; cleanup operations
+  cite this observation as deletion authority through
+  `OperationShape.deletion_authority_source_ref`. The per-operation,
+  per-path `filesystem_path_authority_check` dimension is reserved-only and
+  intentionally absent from the schema enum in this slice.
+- Source: ADR 0036.
+- Sample observed payload sketch:
+  `{ protected_paths: [{ path, path_authority_kind, path_authority_source_evidence_ref }] }`.
 
 ### `launch_context`
 
@@ -1079,6 +1237,22 @@ registry, not the surrounding ADRs.
 - Source: ADR 0015, Cloudflare MCP fan-out diagnostics addendum.
 - Sample observed payload sketch:
   `{ mcp_server_ref, auth_kind, principal_audience, fan_out_state, last_429_at }`.
+
+### `mcp_canonical_authority`
+
+- Status: accepted (typed payload landed in Phase 2.2.3)
+- Description: Canonical MCP install/config authority for an execution context
+  and MCP server kind. The payload names the canonical install source,
+  credential-source evidence reference, shim-chain evidence reference, and
+  authority class.
+- Primary target: `execution_context_id`
+- Supplemental targets: `tool_or_provider_ref`, `credential_source_id`.
+- Overlap notes: distinct from `mcp_authorization`, which records provider-side
+  session authorization. `mcp_canonical_authority` is reference-only
+  canonicality evidence and must not inline resolved credential content.
+- Source: ADR 0036 and ADR 0033.
+- Sample observed payload sketch:
+  `{ mcp_server_kind, canonical_install_source_kind, canonical_credential_source_evidence_ref, shim_chain_evidence_ref, canonical_authority_kind, redaction_mode }`.
 
 ### `origin_access_validation`
 
@@ -1204,6 +1378,8 @@ Changes to this registry follow the schema-change workflow at
 
 - ADR 0022: `docs/host-capability-substrate/adr/0022-boundary-observation-envelope.md`
 - ADR 0023: `docs/host-capability-substrate/adr/0023-evidence-base-shape.md`
+- ADR 0036: `docs/host-capability-substrate/adr/0036-q-009-workspace-manifest-projection-and-diagnostic-surface.md`
+- ADR 0037: `docs/host-capability-substrate/adr/0037-q-010-cross-agent-isolation-and-compatibility-taxonomy.md`
 - Q-011: `DECISIONS.md`
 - Ontology overview: `docs/host-capability-substrate/ontology.md`
 - Schema-change skill: `.agents/skills/hcs-schema-change/SKILL.md`
@@ -1212,6 +1388,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.3.10 | 2026-05-06 | Added Phase 2.2.3 `BoundaryObservation` payload enum mirrors and accepted registry entries for `filesystem_inheritance`, `filesystem_protected_paths`, and `mcp_canonical_authority`; updated `containment_class` to the ADR 0037 typed payload vocabulary; recorded the `BoundaryObservation.schema_version` bump to `0.2.0`. |
 | 0.3.9 | 2026-05-06 | Added the Phase 2.2.2 `OperationShape` enum mirror for operation_class, mutation_scope, target_kind, and deletion_authority_kind. |
 | 0.3.8 | 2026-05-06 | Added the Phase 2.2.1 `ExecutionContext.latest_containment_evidence_ref` and `ExecutionContext.kernel_sandbox_kind` kernel-set containment cache fields to the authority-field registry. |
 | 0.3.7 | 2026-05-06 | Added the Phase 2.1.4 `QualityGate` enum mirror, `quality_gate` Evidence subject kind, and ADR 0035 reason_kind / required_grant_kind reservations. |

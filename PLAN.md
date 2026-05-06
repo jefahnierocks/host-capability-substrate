@@ -83,8 +83,9 @@ reactive amendment / future glossary cleanup). Phase 2.1.1
 (`KnowledgeSource` / `KnowledgeChunk` / `CoordinationFact` /
 `DerivedSummary`), and Phase 2.1.4 (`QualityGate`) have landed; Phase 2 work
 continues after Phase 2.2.1 (`ExecutionContext` containment cache) and Phase
-2.2.2 (`OperationShape` deletion-authority fields) with Phase 2.2.3
-(`BoundaryObservation` payload bundle).
+2.2.2 (`OperationShape` deletion-authority fields) and Phase 2.2.3
+(`BoundaryObservation` payload bundle) with Phase 2.3.1 (`ToolProvenance` +
+`GitIdentityBinding`).
 
 ### Phase 2 entry-point inventory
 
@@ -96,18 +97,21 @@ subtypes to author: Q-005 six runner receipts (ADR 0032), Q-006 stage-1
 GitHub authority/identity records (ADR 0033), Q-007 envelope payloads
 `ToolProvenance` + `GitIdentityBinding` (ADR 0034), three remote-agent
 subtypes (ADR 0037), `ContainmentObservation` payload (ADR 0037). Plus
-three `filesystem_*` boundary_dimensions (ADR 0036) and
-`mcp_canonical_authority` (ADR 0036). Base-shape extensions landed:
-`ExecutionContext` cache refactor with `kernel_sandbox_kind` pointer field
-(ADR 0037) and `OperationShape.deletion_authority_source_ref` polymorphic FK
-(ADR 0036).
+the Phase 2.3 direct evidence subtypes after the `BoundaryObservation` bundle.
+Base-shape extensions landed: `ExecutionContext` cache refactor with
+`kernel_sandbox_kind` pointer field (ADR 0037),
+`OperationShape.deletion_authority_source_ref` polymorphic FK (ADR 0036), and
+typed `BoundaryObservation` payloads for `containment_class`,
+`filesystem_inheritance`, `filesystem_protected_paths`, and
+`mcp_canonical_authority` (ADR 0036 / ADR 0037).
 
 **Registry update PR** (`ontology-registry.md` extensions):
 producer-class allowlist (`kernel_workspace_diagnose`,
 `kernel_agent_client_resolver`); ~20 new closed-enum extensions
 covering subject_kind, predicate_kind, source_kind, security_label
 (`secret_pointer`), reason_kind (~20 new across ADRs), surface enum
-(+`remote_cloud_agent`), boundary_dimension extensions.
+(+`remote_cloud_agent`), and remaining boundary_dimension extensions outside
+the Phase 2.2.3 payload bundle.
 
 **Canonical policy YAML** (in `system-config/policies/host-capability-substrate/`,
 Milestone 2): per-`boundary_dimension` freshness windows (containment

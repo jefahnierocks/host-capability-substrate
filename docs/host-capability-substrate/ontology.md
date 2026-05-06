@@ -3,7 +3,7 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.3.0
+version: 1.4.0
 last_updated: 2026-05-06
 tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation]
 priority: high
@@ -21,8 +21,9 @@ per ADR 0037 / ADR 0038, and `VerificationCommandSpec` landed as Phase 2.1.2
 per ADR 0036 / ADR 0038. The ADR 0019 knowledge and coordination subgraph
 landed as Phase 2.1.3 per ADR 0038, and `QualityGate` landed as Phase 2.1.4
 per ADR 0035 / ADR 0038. Phase 2.2.1 added `ExecutionContext` containment
-cache fields, and Phase 2.2.2 lands the canonical `OperationShape` schema with
-ADR 0036 deletion-authority fields.
+cache fields, Phase 2.2.2 landed the canonical `OperationShape` schema with
+ADR 0036 deletion-authority fields, and Phase 2.2.3 landed typed
+`BoundaryObservation` payloads for the ADR 0036 / ADR 0037 boundary bundle.
 
 Canonical research plan sketch: `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md` §2 (Ontology) and §Appendix A.
 
@@ -536,10 +537,38 @@ Key fields:
 Multi-dimensional boundary facts are represented as linked observations that
 share target references, not as a single envelope with multiple dimensions.
 
+Phase 2.2.3 adds structural payload schemas for four dimensions:
+
+- The structural payload narrowing bumps `BoundaryObservation.schema_version`
+  to `0.2.0`. Earlier generic `0.1.0` payload records require migration or
+  re-minting before they can be treated as typed Phase 2.2.3 observations.
+- `containment_class` requires `execution_context_id` and carries the ADR 0037
+  `containment_kind` discriminator (`none`, `kernel_sandbox`, `container`,
+  `vm`, `remote_cloud_sandbox`, `ide_host_isolation`,
+  `terminal_no_isolation`) plus the common posture fields
+  `network_egress_posture`, `filesystem_write_scope`, and `keychain_access`.
+  Discriminator-specific fields are required only for their matching kind:
+  `kernel_sandbox_profile`, `container_runtime_kind`, `vm_kind`, or
+  `remote_cloud_kind`.
+- `filesystem_inheritance` requires `execution_context_id` and records whether
+  a child execution context inherits filesystem authority.
+  `inheritance_held: true` requires at least one
+  `inheritance_evidence_refs` entry; the false case may carry an empty link
+  array.
+- `filesystem_protected_paths` requires `workspace_id` and carries
+  `protected_paths[]`, where each entry has `path`, `path_authority_kind`, and
+  `path_authority_source_evidence_ref`. `path_authority_kind` is one of
+  `rule_binding`, `lease_scope`, `tcc_scoped`, or `human_dashboard_grant`.
+- `mcp_canonical_authority` requires `execution_context_id`, carries ADR 0036
+  reference-only MCP canonicality evidence, and requires
+  `redaction_mode: reference_only`. The payload references
+  `CredentialSource` and `ToolProvenance` evidence through `evidenceRefSchema`;
+  resolved credential values are never inlined.
+
 `BoundaryObservation` does not introduce a new policy tier, dashboard route,
-runtime probe, or mutation operation. Domain payload schemas, gate-behavior
-rules for stale or contradictory observations, and dashboard rendering are
-follow-up Q-007 work.
+runtime probe, or mutation operation. Remaining generic domain payload schemas,
+gate-behavior rules for stale or contradictory observations, and dashboard
+rendering are follow-up Q-007 work.
 
 ## Compatibility and Isolation Vocabulary
 
@@ -691,6 +720,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.4.0 | 2026-05-06 | Added Phase 2.2.3 `BoundaryObservation` typed payload docs for `containment_class`, `filesystem_inheritance`, `filesystem_protected_paths`, and `mcp_canonical_authority`, including the `BoundaryObservation.schema_version` bump to `0.2.0`. |
 | 1.3.0 | 2026-05-06 | Added the Phase 2.2.2 `OperationShape` schema docs with ADR 0036 deletion-authority fields. |
 | 1.2.0 | 2026-05-06 | Added the ADR 0037 Phase 2.2.1 `ExecutionContext` containment-cache fields and documented the legacy `sandbox` projection as read-only. |
 | 1.1.0 | 2026-05-06 | Added the ADR 0035 `QualityGate` Phase 2.1.4 schema docs and documented Evidence schema v0.4.0 subject-kind widening. |

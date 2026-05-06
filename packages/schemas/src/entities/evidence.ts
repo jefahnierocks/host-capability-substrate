@@ -7,9 +7,9 @@ import {
 } from '../common.ts';
 
 export const evidenceSchemaVersionSchema = z
-  .literal('0.2.0')
+  .literal('0.3.0')
   .describe(
-    'Evidence schema version after ADR 0036 verification_command_spec subject-kind extension.',
+    'Evidence schema version after ADR 0019 knowledge and coordination subject-kind extensions.',
   );
 
 export const evidenceKindSchema = z
@@ -43,6 +43,10 @@ export const evidenceSubjectKindSchema = z
     'credential_source',
     'startup_phase',
     'verification_command_spec',
+    'knowledge_source',
+    'knowledge_chunk',
+    'coordination_fact',
+    'derived_summary',
     'provider_object',
     'external_control_plane',
     'git_repository',

@@ -5,10 +5,14 @@ import { z } from 'zod';
 import {
   agentClientSchema,
   boundaryObservationSchema,
+  coordinationFactSchema,
   credentialSourceSchema,
+  derivedSummarySchema,
   envProvenanceSchema,
   evidenceSchema,
   executionContextSchema,
+  knowledgeChunkSchema,
+  knowledgeSourceSchema,
   startupPhaseSchema,
   verificationCommandSpecSchema,
 } from '../src/index.ts';
@@ -34,6 +38,16 @@ const schemaEntries = [
     schema: credentialSourceSchema,
   },
   {
+    file: 'CoordinationFact.schema.json',
+    title: 'CoordinationFact',
+    schema: coordinationFactSchema,
+  },
+  {
+    file: 'DerivedSummary.schema.json',
+    title: 'DerivedSummary',
+    schema: derivedSummarySchema,
+  },
+  {
     file: 'Evidence.schema.json',
     title: 'Evidence',
     schema: evidenceSchema,
@@ -47,6 +61,16 @@ const schemaEntries = [
     file: 'ExecutionContext.schema.json',
     title: 'ExecutionContext',
     schema: executionContextSchema,
+  },
+  {
+    file: 'KnowledgeChunk.schema.json',
+    title: 'KnowledgeChunk',
+    schema: knowledgeChunkSchema,
+  },
+  {
+    file: 'KnowledgeSource.schema.json',
+    title: 'KnowledgeSource',
+    schema: knowledgeSourceSchema,
   },
   {
     file: 'StartupPhase.schema.json',

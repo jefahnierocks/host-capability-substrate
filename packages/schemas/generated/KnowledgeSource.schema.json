@@ -1,0 +1,207 @@
+{
+  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/KnowledgeSource.schema.json",
+  "title": "KnowledgeSource",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0",
+      "description": "Entity schema version for a Ring 0 schema."
+    },
+    "knowledge_source_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "uri": {
+      "type": "string",
+      "minLength": 1
+    },
+    "content_hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "SHA-256 digest with algorithm prefix. It is not reversible secret material."
+    },
+    "source_kind": {
+      "type": "string",
+      "enum": [
+        "charter",
+        "adr",
+        "decision_ledger",
+        "runbook",
+        "vendor_doc",
+        "audit_summary",
+        "schema",
+        "code",
+        "audit_profile_yaml",
+        "cycle_history"
+      ],
+      "description": "Canonical source kind for ADR 0019 KnowledgeSource records."
+    },
+    "security_label": {
+      "type": "string",
+      "enum": [
+        "public",
+        "internal",
+        "confidential",
+        "secret_pointer",
+        "secret_referenced"
+      ],
+      "description": "Security label for a KnowledgeSource and its derived KnowledgeChunk records."
+    },
+    "indexable": {
+      "type": "boolean"
+    },
+    "indexed_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+      "description": "RFC 3339 timestamp with an explicit UTC offset."
+    },
+    "execution_context_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "target_refs": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "target_kind": {
+            "type": "string",
+            "enum": [
+              "host",
+              "workspace_context",
+              "execution_context",
+              "session",
+              "repository",
+              "worktree",
+              "branch",
+              "ruleset",
+              "credential_audience",
+              "deployment",
+              "external_target",
+              "filesystem_path",
+              "provider_object",
+              "unknown"
+            ],
+            "description": "Generic target kind for knowledge and coordination cross-context binding."
+          },
+          "target_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "relation": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "target_kind",
+          "target_id"
+        ],
+        "additionalProperties": false,
+        "description": "Generic target reference for knowledge and coordination records."
+      }
+    },
+    "evidence_refs": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "evidence_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+            "description": "Reference to an Evidence record or fixture."
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Human-readable source name or artifact path."
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+            "description": "RFC 3339 timestamp with an explicit UTC offset."
+          },
+          "valid_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "description": "RFC 3339 timestamp with an explicit UTC offset."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "authority": {
+            "type": "string",
+            "enum": [
+              "project-local",
+              "workspace-local",
+              "user-global",
+              "system",
+              "derived",
+              "sandbox-observation",
+              "host-observation",
+              "vendor-doc",
+              "installed-runtime",
+              "human-observed"
+            ],
+            "description": "Authority plane for a fact or observation."
+          },
+          "parser_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "authoritative",
+              "high",
+              "best-effort",
+              "stale",
+              "unknown"
+            ],
+            "description": "Confidence assigned to an observation by the producer."
+          }
+        },
+        "required": [
+          "evidence_id",
+          "source",
+          "observed_at",
+          "authority",
+          "confidence"
+        ],
+        "additionalProperties": false,
+        "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "knowledge_source_id",
+    "uri",
+    "content_hash",
+    "source_kind",
+    "security_label",
+    "indexable",
+    "indexed_at",
+    "execution_context_id",
+    "target_refs",
+    "evidence_refs"
+  ],
+  "additionalProperties": false,
+  "description": "Ring 0 KnowledgeSource entity from ADR 0019 and ADR 0038 Phase 2.1.3."
+}

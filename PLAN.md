@@ -79,16 +79,16 @@ v2; 13 forward-looking non-blocking observations documented in
 ADR 0039 §Forward-looking observations for absorption at
 downstream PRs (Phase 2.1.x / 2.1.4 / 2.2.3 / 2.5 / 2.6 / wave-2
 reactive amendment / future glossary cleanup). Phase 2.1.1
-(`AgentClient`) and Phase 2.1.2 (`VerificationCommandSpec`) have landed;
-Phase 2 work continues at Phase 2.1.3 (Knowledge + Coordination subgraph).
+(`AgentClient`), Phase 2.1.2 (`VerificationCommandSpec`), and Phase 2.1.3
+(`KnowledgeSource` / `KnowledgeChunk` / `CoordinationFact` /
+`DerivedSummary`) have landed; Phase 2 work continues at Phase 2.1.4
+(`QualityGate`).
 
 ### Phase 2 entry-point inventory
 
 **Schema PR** (per `.agents/skills/hcs-schema-change`): Zod source for
 the entities and payloads committed across ADRs 0019-0037. New Ring 0
-entities to author: `KnowledgeSource` / `KnowledgeChunk` /
-`CoordinationFact` / `DerivedSummary` (ADR 0019), `QualityGate`
-(ADR 0035). Evidence
+entities still to author: `QualityGate` (ADR 0035). Evidence
 subtypes to author: Q-005 six runner receipts (ADR 0032), Q-006 stage-1
 + stage-2 source-control receipts (ADR 0027 / ADR 0030), Q-006 (b)-(g)
 GitHub authority/identity records (ADR 0033), Q-007 envelope payloads

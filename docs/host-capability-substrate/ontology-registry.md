@@ -3,9 +3,9 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.3.5
-last_updated: 2026-05-05
-tags: [ontology, registry, boundary-observation, evidence, agent-client, verification-command-spec, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
+version: 0.3.6
+last_updated: 2026-05-06
+tags: [ontology, registry, boundary-observation, evidence, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
 priority: high
 ---
 
@@ -676,6 +676,136 @@ Mirror notes:
 - The global `OperationShape.deletion_authority_source_ref` and
   `deletion_authority_kind` extension remains Phase 2.2.2 work.
 
+### Knowledge and coordination enum mirrors
+
+Source: ADR 0019, ADR 0031, ADR 0036, and ADR 0038 Phase 2.1.3.
+
+`Evidence.subject_kind` Phase 2.1.3 extensions:
+
+- `knowledge_source`
+- `knowledge_chunk`
+- `coordination_fact`
+- `derived_summary`
+
+`KnowledgeSource.source_kind`:
+
+- `charter`
+- `adr`
+- `decision_ledger`
+- `runbook`
+- `vendor_doc`
+- `audit_summary`
+- `schema`
+- `code`
+- `audit_profile_yaml`
+- `cycle_history`
+
+`KnowledgeSource.security_label`:
+
+- `public`
+- `internal`
+- `confidential`
+- `secret_pointer`
+- `secret_referenced`
+
+`KnowledgeChunk.chunk_kind`:
+
+- `prose`
+- `code`
+- `schema_block`
+- `table`
+- `audit_record`
+
+`CoordinationFact.subject_kind`:
+
+- `release`
+- `branch`
+- `worktree`
+- `ruleset`
+- `credential_audience`
+- `deployment`
+- `external_target`
+- `workspace_context`
+- `audit_profile_snapshot`
+
+`CoordinationFact.predicate_kind`:
+
+- `blocked_until`
+- `depends_on`
+- `gate_token`
+- `phase_lock`
+- `release_phase`
+- `scope_assertion`
+- `leased_to`
+- `attached_to`
+- `held_by`
+- `claimed_to_contain`
+- `confirmed_to_contain`
+- `claim_superseded_by_snapshot`
+
+`CoordinationFact.object_kind`:
+
+- `status_block`
+- `dependency`
+- `gate_token`
+- `scoped_assertion`
+
+`CoordinationFact` object-shape notes:
+
+- `object_kind: "status_block"` carries `{status, reason?, valid_until?}`.
+- `object_kind: "dependency"` carries `{dependency_refs}`.
+- `object_kind: "gate_token"` carries `{token_kind, token_ref, valid_until?}`.
+- `object_kind: "scoped_assertion"` carries `{assertion}` for generic scoped
+  assertions or, for ADR 0031 `predicate_kind: "leased_to"`, exactly
+  `{session_id, lease_id, valid_until, lease_acquired_at}`.
+- `subject_kind: "worktree"` carries `subject_ref: {repository_id,
+  worktree_path}`; `workspace_context_id` belongs on the Lease/WorkspaceContext
+  composition, not in the worktree subject reference.
+
+`DerivedSummary.summary_kind`:
+
+- `intervention_summary`
+- `closeout_narrative`
+- `release_summary`
+- `audit_summary`
+- `operational_summary`
+
+`DerivedSummary.derived_from.source_record_kind`:
+
+- `evidence`
+- `coordination_fact`
+- `derived_summary`
+- `knowledge_chunk`
+
+`coordinationTargetRef.target_kind`:
+
+- `host`
+- `workspace_context`
+- `execution_context`
+- `session`
+- `repository`
+- `worktree`
+- `branch`
+- `ruleset`
+- `credential_audience`
+- `deployment`
+- `external_target`
+- `filesystem_path`
+- `provider_object`
+- `unknown`
+
+Mirror notes:
+
+- `project_substrate_contract` is not added to `KnowledgeSource.source_kind`
+  in this schema slice. ADR 0041 keeps it as a future Q-014 Phase 2.7
+  implementation-lane candidate.
+- `secret_pointer` is distinct from `secret_referenced`: pointer-form
+  references may remain indexable, while resolved secret material is forbidden
+  and `secret_referenced` chunks cannot carry `embedding_ref`.
+- `CoordinationFact.predicate_kind` folds accepted ADR 0019, ADR 0031, and ADR
+  0036 reservations into the first schema mirror so downstream facts do not
+  need to re-open the base vocabulary.
+
 ## Boundary dimension registry
 
 Entries are alphabetised by name. Status reflects ontology review on this
@@ -945,6 +1075,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.3.6 | 2026-05-06 | Added the Phase 2.1.3 knowledge and coordination enum mirror, Evidence subject-kind extensions, `secret_pointer` security label, and ADR 0019/0031/0036 CoordinationFact vocabulary. |
 | 0.3.5 | 2026-05-05 | Added the Phase 2.1.2 `VerificationCommandSpec` enum mirror, `verification_command_spec` Evidence subject kind, and `kernel_workspace_diagnose` producer-class allowlist extension. |
 | 0.3.4 | 2026-05-05 | Added the Phase 2.1.1 `AgentClient` identity-axis enum mirror, `remote_cloud_agent` surface extension, and `secret_injection_kind` mirror. |
 | 0.3.3 | 2026-05-03 | Two additions surfaced during the post-merge review of ADR 0029 v1 (Q-008(b) anomalous-capture blocking thresholds). §Naming suffix discipline §Sub-rule 6 amended to forbid `_code` as a discriminator suffix in addition to the existing `_class` rejection; rejection-class fields on `Decision` and required-grant-class fields on `ApprovalGrant` are `reason_kind` and `required_grant_kind` respectively (not `reason_code` / `required_grant_class`). §Sub-rule 9 codifies enum-value casing: stable enum values that appear in canonical policy YAML, schema enums, audit-chain records, and Decision/ApprovalGrant kind discriminators use `lower_snake_case`; mixed-case forms (`PascalCase`, `camelCase`, `kebab-case`) are forbidden for new enum values. The existing `evidenceAuthoritySchema` `kebab-case` exception is grandfathered for that enum only; no other enum may adopt `kebab-case`. Used as a precondition for ADR 0029 v2 revision. |

@@ -1,0 +1,240 @@
+{
+  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/DerivedSummary.schema.json",
+  "title": "DerivedSummary",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0",
+      "description": "Entity schema version for a Ring 0 schema."
+    },
+    "derived_summary_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "derived_from": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source_record_kind": {
+            "type": "string",
+            "enum": [
+              "evidence",
+              "coordination_fact",
+              "derived_summary",
+              "knowledge_chunk"
+            ],
+            "description": "Closed source-record kind for DerivedSummary.derived_from references."
+          },
+          "source_record_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+            "description": "Stable local entity identifier. It is not a secret value."
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+            "description": "RFC 3339 timestamp with an explicit UTC offset."
+          },
+          "valid_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "description": "RFC 3339 timestamp with an explicit UTC offset."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "authority": {
+            "type": "string",
+            "enum": [
+              "project-local",
+              "workspace-local",
+              "user-global",
+              "system",
+              "derived",
+              "sandbox-observation",
+              "host-observation",
+              "vendor-doc",
+              "installed-runtime",
+              "human-observed"
+            ],
+            "description": "Authority plane for a fact or observation."
+          },
+          "parser_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "authoritative",
+              "high",
+              "best-effort",
+              "stale",
+              "unknown"
+            ],
+            "description": "Confidence assigned to an observation by the producer."
+          }
+        },
+        "required": [
+          "source_record_kind",
+          "source_record_id",
+          "source",
+          "observed_at",
+          "authority",
+          "confidence"
+        ],
+        "additionalProperties": false,
+        "description": "Kind-tagged source reference for a DerivedSummary. Not a gate-authority substitute."
+      }
+    },
+    "generated_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+      "description": "RFC 3339 timestamp with an explicit UTC offset."
+    },
+    "summary_kind": {
+      "type": "string",
+      "enum": [
+        "intervention_summary",
+        "closeout_narrative",
+        "release_summary",
+        "audit_summary",
+        "operational_summary"
+      ],
+      "description": "Summary kind for an ADR 0019 DerivedSummary."
+    },
+    "summary_text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authority": {
+      "type": "string",
+      "const": "derived"
+    },
+    "confidence": {
+      "type": "string",
+      "const": "best-effort"
+    },
+    "allowed_for_gate": {
+      "type": "boolean",
+      "description": "Kernel-set gate eligibility flag for promoted coordination records."
+    },
+    "promoted_at": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Kernel-set timestamp for the allowed_for_gate promotion event."
+    },
+    "promotion_grant_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Kernel-set promotion grant reference, null before promotion."
+    },
+    "execution_context_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "target_refs": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "target_kind": {
+            "type": "string",
+            "enum": [
+              "host",
+              "workspace_context",
+              "execution_context",
+              "session",
+              "repository",
+              "worktree",
+              "branch",
+              "ruleset",
+              "credential_audience",
+              "deployment",
+              "external_target",
+              "filesystem_path",
+              "provider_object",
+              "unknown"
+            ],
+            "description": "Generic target kind for knowledge and coordination cross-context binding."
+          },
+          "target_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "relation": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "target_kind",
+          "target_id"
+        ],
+        "additionalProperties": false,
+        "description": "Generic target reference for knowledge and coordination records."
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "derived_summary_id",
+    "derived_from",
+    "generated_by",
+    "generated_at",
+    "summary_kind",
+    "summary_text",
+    "authority",
+    "confidence",
+    "allowed_for_gate",
+    "promoted_at",
+    "promotion_grant_id",
+    "execution_context_id",
+    "target_refs"
+  ],
+  "additionalProperties": false,
+  "description": "Ring 0 DerivedSummary entity from ADR 0019 and ADR 0038 Phase 2.1.3."
+}

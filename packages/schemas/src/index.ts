@@ -32,6 +32,34 @@ export {
   boundaryObservationStateSchema,
 } from './entities/boundary-observation.ts';
 export {
+  allowedForGateSchema,
+  type CoordinationTargetKind,
+  type CoordinationTargetRef,
+  coordinationTargetKindSchema,
+  coordinationTargetRefSchema,
+  type PromotionFields,
+  promotedAtSchema,
+  promotionFieldsSchema,
+  promotionGrantIdSchema,
+} from './entities/coordination-common.ts';
+export {
+  type CoordinationFact,
+  type CoordinationObject,
+  type CoordinationObjectKind,
+  type CoordinationPredicateKind,
+  type CoordinationSubjectKind,
+  coordinationDependencyObjectSchema,
+  coordinationFactSchema,
+  coordinationGateTokenObjectSchema,
+  coordinationLeasedToObjectSchema,
+  coordinationObjectKindSchema,
+  coordinationObjectSchema,
+  coordinationPredicateKindSchema,
+  coordinationScopedAssertionObjectSchema,
+  coordinationStatusBlockObjectSchema,
+  coordinationSubjectKindSchema,
+} from './entities/coordination-fact.ts';
+export {
   type CredentialSource,
   credentialDurabilitySchema,
   credentialHealthSchema,
@@ -42,6 +70,16 @@ export {
   credentialSourceTypeSchema,
   credentialStoragePlaneSchema,
 } from './entities/credential-source.ts';
+export {
+  type DerivedSummary,
+  type DerivedSummaryKind,
+  type DerivedSummarySourceRecordKind,
+  type DerivedSummarySourceRef,
+  derivedSummaryKindSchema,
+  derivedSummarySchema,
+  derivedSummarySourceRecordKindSchema,
+  derivedSummarySourceRefSchema,
+} from './entities/derived-summary.ts';
 export {
   type EnvProvenance,
   envMaterializationSchema,
@@ -78,6 +116,20 @@ export {
   shellCarrierSchema,
   shellStartupFileSchema,
 } from './entities/execution-context.ts';
+export {
+  type KnowledgeChunk,
+  type KnowledgeChunkKind,
+  knowledgeChunkKindSchema,
+  knowledgeChunkSchema,
+} from './entities/knowledge-chunk.ts';
+export {
+  type KnowledgeSecurityLabel,
+  type KnowledgeSource,
+  type KnowledgeSourceKind,
+  knowledgeSecurityLabelSchema,
+  knowledgeSourceKindSchema,
+  knowledgeSourceSchema,
+} from './entities/knowledge-source.ts';
 export {
   type StartupPhase,
   type StartupPhaseName,

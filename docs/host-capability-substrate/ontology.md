@@ -3,9 +3,9 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.9.0
-last_updated: 2026-05-05
-tags: [ontology, entities, schemas, evidence, execution-context, agent-client, verification-command-spec, isolation, github, version-control, boundary-observation]
+version: 1.0.0
+last_updated: 2026-05-06
+tags: [ontology, entities, schemas, evidence, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, isolation, github, version-control, boundary-observation]
 priority: high
 ---
 
@@ -18,7 +18,8 @@ schema slice has landed for ADRs 0016, 0017, and 0018, the base `Evidence`
 entity has landed for ADR 0023, `ExecutionContext` is on the canonical list per
 ADR 0021 invariant 17 (charter v1.3.0), `AgentClient` landed as Phase 2.1.1
 per ADR 0037 / ADR 0038, and `VerificationCommandSpec` landed as Phase 2.1.2
-per ADR 0036 / ADR 0038.
+per ADR 0036 / ADR 0038. The ADR 0019 knowledge and coordination subgraph
+landed as Phase 2.1.3 per ADR 0038.
 
 Canonical research plan sketch: `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md` §2 (Ontology) and §Appendix A.
 
@@ -38,6 +39,10 @@ OperationShape       semantic operation proposal with target + mutation scope
 CommandShape         argv vector + env profile + execution lane (rendered from Operation)
 VerificationCommandSpec producer-asserted workspace verify command spec
 Evidence             a fact with provenance, freshness, authority, confidence
+KnowledgeSource      canonical source indexed for retrieval, never gate authority
+KnowledgeChunk       display-only chunk derived from a KnowledgeSource
+CoordinationFact     promoted gateable assertion about cross-session state
+DerivedSummary       derived narrative projection, gateable only after promotion
 ExecutionContext     a named runtime surface and startup phase
 PolicyRule           a tier/destructive-pattern/approval rule (YAML or Rego)
 Decision             gateway output: allowed | requires_approval | denied
@@ -135,6 +140,116 @@ against rather than inheriting the generic new-entity `0.1.0` literal.
 `VerificationCommandSpec` does not add policy tiers, canonical policy YAML,
 adapter behavior, broker behavior, command execution, or the Phase 2.2.2
 `OperationShape.deletion_authority_source_ref` extension.
+
+### `KnowledgeSource`
+
+Source: `packages/schemas/src/entities/knowledge-source.ts`
+
+Registers a canonical source for the retrieval index. `KnowledgeSource` is a
+Ring 0 no-suffix peer entity from ADR 0019 and ADR 0038 Phase 2.1.3. It names
+what was indexed and the source-content hash observed by the kernel; it is not
+a policy rule, live source of truth, or gate authority by itself.
+
+Key fields:
+
+- `knowledge_source_id` is the stable local identifier.
+- `uri` is the canonical location string for the source.
+- `content_hash` is a `sha256:` digest of the source content at index time.
+- `source_kind` is one of `charter`, `adr`, `decision_ledger`, `runbook`,
+  `vendor_doc`, `audit_summary`, `schema`, `code`, `audit_profile_yaml`, or
+  `cycle_history`.
+- `security_label` is `public`, `internal`, `confidential`,
+  `secret_pointer`, or `secret_referenced`. `secret_pointer` covers
+  reference-form pointers such as `op://...`; resolved secret material remains
+  forbidden.
+- `indexable`, `indexed_at`, `execution_context_id`, `target_refs`, and
+  `evidence_refs` bind the source to index state, context, and provenance.
+
+The Q-014 `project_substrate_contract` source kind is intentionally not present
+in this Phase 2.1.3 schema slice; ADR 0041 keeps that as a future Phase 2.7
+implementation-lane candidate.
+
+### `KnowledgeChunk`
+
+Source: `packages/schemas/src/entities/knowledge-chunk.ts`
+
+Represents a display-only chunk derived from a `KnowledgeSource`.
+`KnowledgeChunk` records are retrieval/index artifacts. They do not carry
+`allowed_for_gate`, and consumer code must not convert chunk content into
+gate-consumed typed records.
+
+Key fields:
+
+- `knowledge_chunk_id` is the stable local identifier.
+- `knowledge_source_id` links the chunk to its source.
+- `source_content_hash` binds the chunk to the source version it was derived
+  from.
+- `chunk_index`, `text_hash`, `heading_path`, `token_count`, `chunk_kind`, and
+  `metadata` describe the derived chunk.
+- `embedding_ref` is a local reference only. When `security_label` is
+  `secret_referenced`, `embedding_ref` must be `null`.
+- `security_label`, `execution_context_id`, `target_refs`, and `evidence_refs`
+  carry the source label, context binding, and provenance.
+
+### `CoordinationFact`
+
+Source: `packages/schemas/src/entities/coordination-fact.ts`
+
+Represents a typed assertion about cross-session, cross-workspace, or
+cross-surface state. A `CoordinationFact` starts unpromoted and becomes
+gate-eligible only when the kernel-set promotion fields show
+`allowed_for_gate: true`, `promoted_at`, and `promotion_grant_id`.
+
+Key fields:
+
+- `subject_kind` selects the subject domain: `release`, `branch`, `worktree`,
+  `ruleset`, `credential_audience`, `deployment`, `external_target`,
+  `workspace_context`, or `audit_profile_snapshot`.
+- `subject_ref` is validated against `subject_kind`; for example `worktree`
+  requires `{repository_id, worktree_path}`, `workspace_context` requires
+  `{workspace_context_id}`, and `audit_profile_snapshot` requires
+  `{workspace_context_id, audit_profile_revision_date}`.
+- `predicate_kind` is the ontology-controlled assertion vocabulary, including
+  ADR 0019 values (`blocked_until`, `depends_on`, `gate_token`, `phase_lock`,
+  `release_phase`, `scope_assertion`), ADR 0031 values (`leased_to`,
+  `attached_to`, `held_by`), and ADR 0036 values (`claimed_to_contain`,
+  `confirmed_to_contain`, `claim_superseded_by_snapshot`).
+- `object_kind` is `status_block`, `dependency`, `gate_token`, or
+  `scoped_assertion`; `object` carries the structured payload selected by that
+  kind. ADR 0031 worktree ownership facts use `predicate_kind: "leased_to"`,
+  `object_kind: "scoped_assertion"`, and object `{session_id, lease_id,
+  valid_until, lease_acquired_at}`.
+- `evidence_refs`, `authority`, `confidence`, `valid_until`,
+  `execution_context_id`, and `target_refs` bind the fact to evidence,
+  freshness, authority, and context.
+- Promoted `workspace_context` and `audit_profile_snapshot` facts require at
+  least one `host-observation` evidence reference. Sandbox-observation facts
+  cannot be promoted for gate use.
+
+### `DerivedSummary`
+
+Source: `packages/schemas/src/entities/derived-summary.ts`
+
+Represents a derived narrative projection over multiple sources. It is always
+`authority: "derived"` and `confidence: "best-effort"`. Like
+`CoordinationFact`, it starts with `allowed_for_gate: false`; promotion is a
+separate typed workflow.
+
+Key fields:
+
+- `derived_summary_id` is the stable local identifier.
+- `derived_from` lists kind-tagged source references used by the summary.
+  `source_record_kind` is closed to `evidence`, `coordination_fact`,
+  `derived_summary`, or `knowledge_chunk`.
+- `generated_by`, `generated_at`, `summary_kind`, and `summary_text` describe
+  the projection.
+- `allowed_for_gate`, `promoted_at`, and `promotion_grant_id` are kernel-set
+  promotion fields.
+- `execution_context_id` and `target_refs` bind the summary to context.
+
+Promoted summaries cannot cite sandbox-observation authority or
+`KnowledgeChunk` records in `derived_from`; this encodes the ADR 0019
+promotion-laundering guard at the schema layer.
 
 ## Phase 1 Shell/Env Entities
 
@@ -261,6 +376,10 @@ Sandbox observations are deliberately constrained. If `authority` is
 at least one trace reference: `session_id`, `run_id`, or `source_ref`. Sandbox
 evidence remains sandbox-authority evidence; a stronger fact requires a
 separate non-sandbox evidence record.
+
+Phase 2.1.3 widens `Evidence.subject_kind` with `knowledge_source`,
+`knowledge_chunk`, `coordination_fact`, and `derived_summary`, bumping the
+Evidence schema to `0.3.0`.
 
 The legacy `evidenceRefSchema` remains as a lightweight reference or embedded
 provenance preview for entities that have not yet been migrated to full
@@ -421,7 +540,7 @@ Every `Evidence` record:
 
 ```json
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.3.0",
   "evidence_id": "evidence:example",
   "evidence_kind": "observation",
   "subject_refs": [
@@ -461,6 +580,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.0.0 | 2026-05-06 | Added the ADR 0019 `KnowledgeSource`, `KnowledgeChunk`, `CoordinationFact`, and `DerivedSummary` Phase 2.1.3 schema docs and documented Evidence schema v0.3.0 subject-kind widening. |
 | 0.9.0 | 2026-05-05 | Added `VerificationCommandSpec` as the Phase 2.1.2 Ring 0 spec entity, widened `Evidence.subject_kind` with `verification_command_spec`, and documented Evidence schema v0.2.0 composition. |
 | 0.8.0 | 2026-05-05 | Added `AgentClient` as the Phase 2.1.1 standalone Ring 0 entity and documented the `remote_cloud_agent` surface extension. |
 | 0.7.0 | 2026-05-02 | Added the ADR 0022 `BoundaryObservation` envelope section. Cross-references the ontology-registry as the source of `boundary_dimension` values. |

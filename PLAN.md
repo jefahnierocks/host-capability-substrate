@@ -24,7 +24,8 @@ is a Phase 2.7 / Wave-2 candidate unless a separate ADR 0038 sequencing
 amendment is accepted. No credential-plane schema, policy YAML, reconciler,
 service-account, vault inventory, OpenTofu, broker, or runtime change may land
 from this intake before a follow-on accepted ADR or approved sequencing
-amendment authorizes the implementation lane.
+amendment authorizes the implementation lane. Lane plan:
+`docs/host-capability-substrate/research/local/2026-05-06-q-013-implementation-lane-plan.md`.
 
 **Project-substrate admission standard intake (2026-05-06; accepted ADR
 0041):** Citadel PR #37

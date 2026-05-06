@@ -3,7 +3,7 @@ title: Credential plane integration synthesis
 category: research
 component: host_capability_substrate
 status: accepted-posture
-version: 0.2.0
+version: 0.2.1
 last_updated: 2026-05-05
 tags: [credential-plane, onepassword, service-accounts, ssh-agent, opentofu, system-config, citadel, covenant, q-013]
 priority: high
@@ -148,6 +148,76 @@ implementation lane, the following are blocked:
 - Any runtime behavior change to `host_secret_*`, `op run`, SSH Agent, or
   Environments.
 
+## Approval Contract for Future Implementation
+
+ADR 0040 is the accepted boundary decision. A future HCS-side implementation
+requires a narrower, evidence-backed approval artifact before work starts. The
+default path is a follow-on implementation ADR landing as Phase 2.7 / Wave-2
+after the accepted Phase 2.1-2.6 train from ADR 0038. An ADR 0038 sequencing
+amendment is the heavier alternate path and is required only if implementation
+pressure forces credential-plane work into the existing Phase 2.1-2.6 sequence.
+That amendment must carry the same four-reviewer discipline as the
+implementation ADR and explicitly re-justify ADR 0038's dependency contracts.
+
+Pure organization-specific configuration in `system-config` or a Citadel-owned
+repo that does not change HCS schema, policy, broker, runtime, or
+operation-class posture follows that repo's own change-management process and
+does not require a new HCS ADR. Those PRs should cite ADR 0040 as the boundary.
+An HCS implementation ADR is required only when the implementation surfaces
+HCS-side schema, policy, broker, runtime, evidence-shape, operation-class, or
+approval-grant changes.
+
+Reviewer dispatch is surface-specific:
+
+- **Schema changes** (Zod source, generated JSON Schema, `ontology.md`, tests,
+  fixtures, registry section 7 mirror): `hcs-architect` and
+  `hcs-ontology-reviewer` are required. Add `hcs-policy-reviewer` if
+  `policy_rule` or `gate_state` shapes change. Add `hcs-security-reviewer` if
+  Evidence authority, `ApprovalGrant.scope`, or audit event shapes change.
+- **Canonical policy YAML in `system-config`**: `hcs-architect` and
+  `hcs-policy-reviewer` are required. Add `hcs-security-reviewer` if credential
+  behavior is affected.
+- **Broker / runtime changes** (ADR 0012 territory, `host_secret_*`,
+  `$HCS_BROKER_SOCKET`): `hcs-architect` and `hcs-security-reviewer` are
+  required. Add `hcs-ontology-reviewer` if new evidence shapes are introduced.
+- **Reconciler implementation**: `hcs-architect` and `hcs-security-reviewer`
+  are required. Add `hcs-ontology-reviewer` if new evidence subtypes are
+  introduced. Add `hcs-policy-reviewer` if operation-class behavior changes.
+- **OpenTofu provider changes involving 1Password or credential material**:
+  `hcs-policy-reviewer` and `hcs-security-reviewer` are required, with
+  `hcs-architect` required for cross-ADR composition.
+- **Service-account creation or vault inventory mutation** is not an HCS-side
+  change by itself. If it triggers HCS evidence shape, schema rules apply. If
+  it is purely organization-specific in `system-config` or a Citadel-owned repo,
+  that repo's normal change-management process applies.
+
+Schema-change review means `.agents/skills/hcs-schema-change`: each schema PR
+carries Zod source, generated JSON Schema, `ontology.md` updates, tests,
+fixtures, and registry section 7 mirror edits together. Keep the PR to one
+entity or one cohesive subgraph. Do not bump `schema_version` for additive
+changes with defaults; structural changes must bump version and cite the
+originating ADR.
+
+The implementation ADR must explicitly compose with:
+
+- ADR 0012: credential broker contract.
+- ADR 0015: external-control-plane evidence-first posture.
+- ADR 0018: `CredentialSource` entity.
+- ADR 0019 v3: knowledge and coordination store, including
+  secret-referenced-source rules.
+- ADR 0029 v2: operation classes, especially
+  `external_control_plane_mutation`.
+- ADR 0034 v2: boundary evidence, including `GitIdentityBinding`'s typed
+  foreign key to `CredentialSource`.
+
+Composition gaps found during review are blockers, not non-blocking notes.
+
+If implementation evidence reveals a repeated failure class that current
+invariants 5, 7, 8, 10, 14, 16, 17, 18, and 19 do not cover, the
+implementation ADR may queue a charter v1.4.x amendment under the charter
+change policy. That amendment must land in a separate PR; it is not bundled
+with implementation.
+
 ## Reviewer Dispatch
 
 Completed before Q-013 acceptance:
@@ -188,6 +258,7 @@ Completed before Q-013 acceptance:
 
 | Version | Date | Change |
 |---|---:|---|
+| 0.2.1 | 2026-05-05 | Added the approval contract for future credential-plane implementation, including reviewer dispatch, default sequencing, schema-change discipline, cross-ADR composition, and pure org-specific change boundary. |
 | 0.2.0 | 2026-05-05 | Recorded Q-013 acceptance via ADR 0040; posture accepted, implementation remains blocked pending follow-on acceptance. |
 | 0.1.4 | 2026-05-05 | Aligned Q-013 candidate scope with ADR 0040: no credential-source enum values are accepted by this planning posture. |
 | 0.1.3 | 2026-05-05 | Reworded service-account-backed source language to avoid implying a new accepted `CredentialSource.source_type` enum value. |

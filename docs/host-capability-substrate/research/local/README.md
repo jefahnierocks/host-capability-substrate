@@ -3,8 +3,8 @@ title: HCS local research artifacts
 category: research
 component: host_capability_substrate
 status: active
-version: 1.7.0
-last_updated: 2026-05-01
+version: 1.9.0
+last_updated: 2026-05-05
 tags: [research, local, host-evidence, github, version-control, quality-management, codex, worktree, branch-cleanup, diagnostics, workspace-context, isolation, ontology, process-inspection]
 priority: medium
 ---
@@ -39,11 +39,14 @@ summaries.
 | `2026-05-01-version-control-authority-consult-synthesis.md` | 2026-05-01 | Synthesis of a user-submitted version-control authority consult. Refines Q-006 around source-control continuity, expected check source identity, branch deletion proof, Actions posture, and split GitHub credential surfaces. |
 | `2026-05-01-ontology-promotion-receipt-dedupe-plan.md` | 2026-05-01 | Cross-Q planning document for ontology promotion buckets, candidate receipt dedupe, naming discipline, and dependency order before additional Ring 0 schema work. Queues Q-011. |
 | `2026-05-01-codex-import-dialog-hang.md` | 2026-05-01 | Live Codex macOS app import-dialog hang investigation. Corrects stale repo-target assumptions, records app/log/process evidence, and reinforces Q-009 safe process inspection for app-managed MCP children. |
+| `2026-05-05-credential-plane-integration-synthesis.md` | 2026-05-05 | Synthesis of the 1Password credential-plane research plus Citadel guidance. Records Q-013 acceptance via ADR 0040 at posture level only and explicitly blocks schema, policy, reconciler, vault, OpenTofu, broker, and runtime work pending follow-on acceptance. |
 
 ## Change Log
 
 | Version | Date | Change |
 |---|---:|---|
+| 1.9.0 | 2026-05-05 | Updated credential-plane synthesis to accepted-posture state after ADR 0040 acceptance; implementation remains blocked. |
+| 1.8.0 | 2026-05-05 | Added credential-plane integration synthesis and linked Q-013 planning posture. |
 | 1.7.0 | 2026-05-01 | Added Codex import-dialog hang and safe process-inspection memo. |
 | 1.6.0 | 2026-05-01 | Added ontology promotion and receipt dedupe plan and linked Q-011. |
 | 1.5.0 | 2026-05-01 | Added version-control authority consult synthesis and Q-006 refinement. |

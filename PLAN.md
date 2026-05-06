@@ -17,6 +17,15 @@ completed in earlier waves; their content remains below as audit trail.
 Phase 2 begins schema + registry + canonical-policy-YAML sequencing
 from the §Out of scope sections of the ten settled ADRs.
 
+**Q-013 credential-plane posture (accepted 2026-05-05):** ADR 0040 accepts
+credential-plane integration as generic HCS posture only. Credential-plane
+implementation is outside ADR 0038's accepted Phase 2.1-2.6 landing train and
+is a Phase 2.7 / Wave-2 candidate unless a separate ADR 0038 sequencing
+amendment is accepted. No credential-plane schema, policy YAML, reconciler,
+service-account, vault inventory, OpenTofu, broker, or runtime change may land
+from this intake before a follow-on accepted ADR or approved sequencing
+amendment authorizes the implementation lane.
+
 **Phase 2 sequencing meta-ADR (accepted 2026-05-04):** ADR 0038
 (`docs/host-capability-substrate/adr/0038-phase-2-schema-landing-sequence.md`)
 accepts a six-phase landing order: charter v1.4.0 amendment (Phase

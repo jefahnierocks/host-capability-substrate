@@ -72,7 +72,89 @@ describe('Phase 1 Ring 0 schemas', () => {
     });
 
     expect(context.surface).toBe('codex_app_sandboxed');
+    expect(context.latest_containment_evidence_ref).toBeNull();
+    expect(context.kernel_sandbox_kind).toBe('unknown');
     expect(context.env_inheritance.terminal_shell_inherited).toBe('observed_absent');
+  });
+
+  it('accepts the ADR 0037 containment cache pointer and kernel sandbox cache', () => {
+    const context = executionContextSchema.parse({
+      schema_version: '0.2.0',
+      execution_context_id: 'ctx:codex-cli:tool-call',
+      surface: 'codex_cli',
+      kind: 'cli',
+      phase: 'tool_call_subprocess',
+      host_id: 'host:local-mac',
+      workspace_id: 'workspace:host-capability-substrate',
+      latest_containment_evidence_ref: {
+        evidence_id: 'bo:containment:codex-cli:tool-call',
+        source: 'BoundaryObservation:containment_class',
+        observed_at: '2026-05-06T00:00:00Z',
+        valid_until: '2026-05-07T00:00:00Z',
+        authority: 'host-observation',
+        confidence: 'high',
+      },
+      kernel_sandbox_kind: 'sandbox_exec',
+      shell: {
+        carrier: 'shell_command',
+        shell_path: '/bin/zsh',
+        argv_flags: ['-c'],
+        login_observed: 'observed_absent',
+        interactive_observed: 'observed_absent',
+        startup_files_observed: ['user_zshenv'],
+        marker_env_visible: 'observed_absent',
+      },
+      sandbox: {
+        profile: 'sandbox_exec',
+        filesystem: 'observed_denied',
+        network: 'observed_denied',
+        keychain: 'unknown',
+      },
+      env_inheritance: {
+        mode: 'codex_shell_environment_policy',
+        terminal_shell_inherited: 'observed_absent',
+        operator_policy: 'include_only',
+      },
+      evidence_refs: [evidenceRef],
+    });
+
+    expect(context.latest_containment_evidence_ref?.evidence_id).toBe(
+      'bo:containment:codex-cli:tool-call',
+    );
+    expect(context.kernel_sandbox_kind).toBe('sandbox_exec');
+  });
+
+  it('rejects the pre-ADR 0037 sandbox_kind cache spelling', () => {
+    expect(
+      executionContextSchema.safeParse({
+        schema_version: '0.2.0',
+        execution_context_id: 'ctx:bad-sandbox-kind',
+        surface: 'codex_cli',
+        kind: 'cli',
+        phase: 'tool_call_subprocess',
+        sandbox_kind: 'sandbox_exec',
+        shell: {
+          carrier: 'shell_command',
+          shell_path: '/bin/zsh',
+          argv_flags: ['-c'],
+          login_observed: 'observed_absent',
+          interactive_observed: 'observed_absent',
+          startup_files_observed: [],
+          marker_env_visible: 'observed_absent',
+        },
+        sandbox: {
+          profile: 'sandbox_exec',
+          filesystem: 'unknown',
+          network: 'unknown',
+          keychain: 'unknown',
+        },
+        env_inheritance: {
+          mode: 'unknown',
+          terminal_shell_inherited: 'unknown',
+        },
+        evidence_refs: [evidenceRef],
+      }).success,
+    ).toBe(false);
   });
 
   it('records env provenance without accepting raw env values', () => {

@@ -317,9 +317,18 @@ Key fields:
 - `surface`, `kind`, and `phase` identify the context being described.
 - `shell` records carrier, shell path, argv flags, startup files, and marker
   visibility for that phase.
-- `sandbox` records coarse filesystem, network, and Keychain capability status
-  as `observed_allowed`, `observed_denied`, `pending`, `unknown`, or
-  `not_applicable`.
+- `latest_containment_evidence_ref` is a kernel-set pointer to the latest
+  accepted `containment_class` `BoundaryObservation` for the same
+  `execution_context_id`. At Phase 2.2.1 this is structurally an
+  `evidenceRefSchema` reference; full payload-shape validation lands with the
+  Phase 2.2.3 containment payload bundle.
+- `kernel_sandbox_kind` is a kernel-set cache of the kernel-sandbox class
+  resolved from `latest_containment_evidence_ref`. It is only a
+  kernel-sandbox shortcut: consumers that need container, VM, remote-cloud, IDE,
+  or terminal containment semantics must dereference the boundary observation.
+- `sandbox` is retained as a read-only legacy projection of coarse filesystem,
+  network, and Keychain capability status as `observed_allowed`,
+  `observed_denied`, `pending`, `unknown`, or `not_applicable`.
 - `env_inheritance` records whether terminal shell inheritance was observed or
   rejected for that surface.
 - `evidence_refs` is required; CLI evidence must not satisfy GUI app or IDE
@@ -624,6 +633,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.2.0 | 2026-05-06 | Added the ADR 0037 Phase 2.2.1 `ExecutionContext` containment-cache fields and documented the legacy `sandbox` projection as read-only. |
 | 1.1.0 | 2026-05-06 | Added the ADR 0035 `QualityGate` Phase 2.1.4 schema docs and documented Evidence schema v0.4.0 subject-kind widening. |
 | 1.0.0 | 2026-05-06 | Added the ADR 0019 `KnowledgeSource`, `KnowledgeChunk`, `CoordinationFact`, and `DerivedSummary` Phase 2.1.3 schema docs and documented Evidence schema v0.3.0 subject-kind widening. |
 | 0.9.0 | 2026-05-05 | Added `VerificationCommandSpec` as the Phase 2.1.2 Ring 0 spec entity, widened `Evidence.subject_kind` with `verification_command_spec`, and documented Evidence schema v0.2.0 composition. |

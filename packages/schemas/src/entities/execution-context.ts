@@ -4,7 +4,9 @@ import { startupPhaseNameSchema } from './startup-phase.ts';
 
 const executionContextSchemaVersionSchema = z
   .literal('0.2.0')
-  .describe('ExecutionContext schema version after ADR 0037 surface enum extension.');
+  .describe(
+    'ExecutionContext schema version after ADR 0037 surface enum extension and additive containment cache fields.',
+  );
 
 export const executionContextSurfaceSchema = z
   .enum([
@@ -126,7 +128,9 @@ export const executionContextSandboxSchema = z
     keychain: contextCapabilityStatusSchema,
   })
   .strict()
-  .describe('Sandbox and app-internal capability matrix for an execution context.');
+  .describe(
+    'Read-only legacy projection of sandbox and app-internal capability matrix for an execution context.',
+  );
 
 export const executionContextEnvInheritanceSchema = z
   .object({
@@ -148,6 +152,17 @@ export const executionContextSchema = z
     workspace_id: entityIdSchema.optional(),
     agent_client_id: entityIdSchema.optional(),
     shell: executionContextShellSchema,
+    latest_containment_evidence_ref: evidenceRefSchema
+      .nullable()
+      .default(null)
+      .describe(
+        'Kernel-set pointer to the latest accepted containment_class BoundaryObservation for this execution context.',
+      ),
+    kernel_sandbox_kind: sandboxProfileSchema
+      .default('unknown')
+      .describe(
+        'Kernel-set cached kernel sandbox class resolved from latest_containment_evidence_ref.',
+      ),
     sandbox: executionContextSandboxSchema,
     env_inheritance: executionContextEnvInheritanceSchema,
     open_questions: z.array(z.string().min(1)).default([]),

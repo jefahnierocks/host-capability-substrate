@@ -361,6 +361,9 @@ Examples surfaced during the ADR 0027 / ADR 0028 review cycle:
 - ADR 0028's `observed_via` (would have been:
   `kernel_observation | sandbox_marker | host_telemetry | self_assertion`):
   kernel-set only.
+- ADR 0037's `ExecutionContext.latest_containment_evidence_ref` and
+  `ExecutionContext.kernel_sandbox_kind`: kernel-set containment cache fields
+  projected from accepted `containment_class` `BoundaryObservation` records.
 
 **`Evidence.producer` is kernel-set when its value names a
 kernel-trusted producer class.** Per the post-merge re-review of
@@ -1143,6 +1146,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.3.8 | 2026-05-06 | Added the Phase 2.2.1 `ExecutionContext.latest_containment_evidence_ref` and `ExecutionContext.kernel_sandbox_kind` kernel-set containment cache fields to the authority-field registry. |
 | 0.3.7 | 2026-05-06 | Added the Phase 2.1.4 `QualityGate` enum mirror, `quality_gate` Evidence subject kind, and ADR 0035 reason_kind / required_grant_kind reservations. |
 | 0.3.6 | 2026-05-06 | Added the Phase 2.1.3 knowledge and coordination enum mirror, Evidence subject-kind extensions, `secret_pointer` security label, and ADR 0019/0031/0036 CoordinationFact vocabulary. |
 | 0.3.5 | 2026-05-05 | Added the Phase 2.1.2 `VerificationCommandSpec` enum mirror, `verification_command_spec` Evidence subject kind, and `kernel_workspace_diagnose` producer-class allowlist extension. |

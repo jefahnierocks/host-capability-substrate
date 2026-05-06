@@ -3,9 +3,9 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.3.6
+version: 0.3.7
 last_updated: 2026-05-06
-tags: [ontology, registry, boundary-observation, evidence, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
+tags: [ontology, registry, boundary-observation, evidence, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
 priority: high
 ---
 
@@ -806,6 +806,74 @@ Mirror notes:
   0036 reservations into the first schema mirror so downstream facts do not
   need to re-open the base vocabulary.
 
+### `QualityGate` enum mirrors
+
+Source: ADR 0035 and ADR 0038 Phase 2.1.4.
+
+`Evidence.subject_kind` Phase 2.1.4 extension:
+
+- `quality_gate`
+
+`QualityGate.gate_kind`:
+
+- `identity_binding`
+- `credential_shadow`
+- `signing_identity`
+- `filesystem_trust`
+- `tool_provenance`
+- `mutation_class`
+
+`QualityGate.gate_state`:
+
+- `provisional`
+- `proven`
+- `expired`
+- `denied`
+
+`QualityGate.target_subject_ref.operation_class`:
+
+- `read_only_diagnostic`
+- `agent_internal_state`
+- `destructive_git`
+- `external_control_plane_mutation`
+- `worktree_mutation`
+- `merge_or_push`
+
+`QualityGate.evidence_chain_refs.record_kind`:
+
+- `evidence`
+- `boundary_observation`
+- `coordination_fact`
+- `derived_summary`
+- `knowledge_chunk`
+- `quality_gate`
+
+`Decision.reason_kind` reservations from ADR 0035:
+
+- `gate_provisional`
+- `gate_denied`
+- `gate_expired`
+- `gate_evidence_insufficient`
+- `gate_target_already_active`
+- `gate_evidence_stale_reuse`
+
+`Decision.required_grant_kind` reservation from ADR 0035:
+
+- `gate_evidence_acknowledgment`
+
+Mirror notes:
+
+- This schema slice does not author a `Decision`, `ApprovalGrant.scope`, or
+  canonical policy YAML schema. The reservations above are documented for
+  vocabulary continuity only.
+- `QualityGate.evidence_refs` remains a single evidence-reference array, with
+  each item extending the common `evidenceRefSchema` preview by adding
+  `evidence_chain_refs`. Each chain ref requires `authority`. The chain
+  preview lets Zod enforce the ADR 0038 / charter invariant 18 guard: direct
+  retrieval artifacts are rejected, and `proven` / `expired` gates cannot cite
+  sandbox-observation authority or unpromoted `CoordinationFact` /
+  `DerivedSummary` records in the transitive evidence chain.
+
 ## Boundary dimension registry
 
 Entries are alphabetised by name. Status reflects ontology review on this
@@ -1075,6 +1143,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.3.7 | 2026-05-06 | Added the Phase 2.1.4 `QualityGate` enum mirror, `quality_gate` Evidence subject kind, and ADR 0035 reason_kind / required_grant_kind reservations. |
 | 0.3.6 | 2026-05-06 | Added the Phase 2.1.3 knowledge and coordination enum mirror, Evidence subject-kind extensions, `secret_pointer` security label, and ADR 0019/0031/0036 CoordinationFact vocabulary. |
 | 0.3.5 | 2026-05-05 | Added the Phase 2.1.2 `VerificationCommandSpec` enum mirror, `verification_command_spec` Evidence subject kind, and `kernel_workspace_diagnose` producer-class allowlist extension. |
 | 0.3.4 | 2026-05-05 | Added the Phase 2.1.1 `AgentClient` identity-axis enum mirror, `remote_cloud_agent` surface extension, and `secret_injection_kind` mirror. |

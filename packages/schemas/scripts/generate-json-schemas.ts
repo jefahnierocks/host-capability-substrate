@@ -13,6 +13,7 @@ import {
   executionContextSchema,
   knowledgeChunkSchema,
   knowledgeSourceSchema,
+  qualityGateSchema,
   startupPhaseSchema,
   verificationCommandSpecSchema,
 } from '../src/index.ts';
@@ -71,6 +72,11 @@ const schemaEntries = [
     file: 'KnowledgeSource.schema.json',
     title: 'KnowledgeSource',
     schema: knowledgeSourceSchema,
+  },
+  {
+    file: 'QualityGate.schema.json',
+    title: 'QualityGate',
+    schema: qualityGateSchema,
   },
   {
     file: 'StartupPhase.schema.json',

@@ -243,9 +243,9 @@ describe('Knowledge and coordination schemas', () => {
     ).toBe(false);
   });
 
-  it('adds knowledge and coordination entities as Evidence subject kinds with Evidence schema v0.3.0', () => {
+  it('keeps knowledge and coordination entities as Evidence subject kinds with Evidence schema v0.4.0', () => {
     const evidence = evidenceSchema.parse({
-      schema_version: '0.3.0',
+      schema_version: '0.4.0',
       evidence_id: 'evidence:knowledge-coordination-subjects',
       evidence_kind: 'observation',
       subject_refs: [

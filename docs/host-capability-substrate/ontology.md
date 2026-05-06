@@ -3,9 +3,9 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.0.0
+version: 1.1.0
 last_updated: 2026-05-06
-tags: [ontology, entities, schemas, evidence, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, isolation, github, version-control, boundary-observation]
+tags: [ontology, entities, schemas, evidence, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation]
 priority: high
 ---
 
@@ -19,7 +19,8 @@ entity has landed for ADR 0023, `ExecutionContext` is on the canonical list per
 ADR 0021 invariant 17 (charter v1.3.0), `AgentClient` landed as Phase 2.1.1
 per ADR 0037 / ADR 0038, and `VerificationCommandSpec` landed as Phase 2.1.2
 per ADR 0036 / ADR 0038. The ADR 0019 knowledge and coordination subgraph
-landed as Phase 2.1.3 per ADR 0038.
+landed as Phase 2.1.3 per ADR 0038, and `QualityGate` landed as Phase 2.1.4
+per ADR 0035 / ADR 0038.
 
 Canonical research plan sketch: `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md` §2 (Ontology) and §Appendix A.
 
@@ -43,6 +44,7 @@ KnowledgeSource      canonical source indexed for retrieval, never gate authorit
 KnowledgeChunk       display-only chunk derived from a KnowledgeSource
 CoordinationFact     promoted gateable assertion about cross-session state
 DerivedSummary       derived narrative projection, gateable only after promotion
+QualityGate          durable evidence-aggregated gate state
 ExecutionContext     a named runtime surface and startup phase
 PolicyRule           a tier/destructive-pattern/approval rule (YAML or Rego)
 Decision             gateway output: allowed | requires_approval | denied
@@ -251,6 +253,45 @@ Promoted summaries cannot cite sandbox-observation authority or
 `KnowledgeChunk` records in `derived_from`; this encodes the ADR 0019
 promotion-laundering guard at the schema layer.
 
+### `QualityGate`
+
+Source: `packages/schemas/src/entities/quality-gate.ts`
+
+Represents a durable evidence-aggregated gate state. `QualityGate` is a Ring 0
+no-suffix peer entity from ADR 0035 and ADR 0038 Phase 2.1.4. It is an
+aggregation/identity layer over typed evidence and matrix checks; it does not
+introduce policy thresholds, runtime probes, canonical policy YAML, dashboard
+behavior, adapter behavior, or approval-grant scope schema.
+
+Key fields:
+
+- `gate_id` is the stable local identifier.
+- `gate_kind` is one of `identity_binding`, `credential_shadow`,
+  `signing_identity`, `filesystem_trust`, `tool_provenance`, or
+  `mutation_class`.
+- `target_subject_ref` is validated against `gate_kind`; for example
+  `credential_shadow` requires `{credential_source_id}`, `tool_provenance`
+  requires `{tool_or_provider_ref}`, and `mutation_class` requires
+  `{operation_class}` where `operation_class` is one of the six ADR 0029
+  operation classes.
+- `gate_state` is `provisional`, `proven`, `expired`, or `denied`.
+- `evidence_refs` carries the supporting evidence references plus a typed
+  `evidence_chain_refs` preview for invariant checks. Direct `KnowledgeChunk`
+  and `DerivedSummary` entity IDs are rejected; chain previews that touch
+  `KnowledgeChunk`, sandbox-observation authority, or unpromoted
+  `CoordinationFact` / `DerivedSummary` records cannot support `proven` or
+  `expired` gates. Every chain preview node carries an `authority` value so
+  transitive sandbox authority cannot be hidden by omission.
+- `valid_until`, `provisional_at`, `proven_at`, `expired_at`, and `denied_at`
+  encode the current lifecycle state. `proven` and `expired` gates require
+  `valid_until`; timestamp combinations must match `gate_state`.
+- `execution_context_id` binds the gate to its context.
+
+Per-gate-kind composition rules, duplicate-target checks, re-mint
+evidence-rotation materiality, `gate_evidence_acknowledgment`, and
+Decision-transition audit event shapes remain Ring 1 / canonical-policy work
+queued by ADR 0035.
+
 ## Phase 1 Shell/Env Entities
 
 The first committed Zod schemas are additive Ring 0 entities that make shell
@@ -380,6 +421,9 @@ separate non-sandbox evidence record.
 Phase 2.1.3 widens `Evidence.subject_kind` with `knowledge_source`,
 `knowledge_chunk`, `coordination_fact`, and `derived_summary`, bumping the
 Evidence schema to `0.3.0`.
+
+Phase 2.1.4 widens `Evidence.subject_kind` with `quality_gate`, bumping the
+Evidence schema to `0.4.0`.
 
 The legacy `evidenceRefSchema` remains as a lightweight reference or embedded
 provenance preview for entities that have not yet been migrated to full
@@ -540,7 +584,7 @@ Every `Evidence` record:
 
 ```json
 {
-  "schema_version": "0.3.0",
+  "schema_version": "0.4.0",
   "evidence_id": "evidence:example",
   "evidence_kind": "observation",
   "subject_refs": [
@@ -580,6 +624,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.1.0 | 2026-05-06 | Added the ADR 0035 `QualityGate` Phase 2.1.4 schema docs and documented Evidence schema v0.4.0 subject-kind widening. |
 | 1.0.0 | 2026-05-06 | Added the ADR 0019 `KnowledgeSource`, `KnowledgeChunk`, `CoordinationFact`, and `DerivedSummary` Phase 2.1.3 schema docs and documented Evidence schema v0.3.0 subject-kind widening. |
 | 0.9.0 | 2026-05-05 | Added `VerificationCommandSpec` as the Phase 2.1.2 Ring 0 spec entity, widened `Evidence.subject_kind` with `verification_command_spec`, and documented Evidence schema v0.2.0 composition. |
 | 0.8.0 | 2026-05-05 | Added `AgentClient` as the Phase 2.1.1 standalone Ring 0 entity and documented the `remote_cloud_agent` surface extension. |

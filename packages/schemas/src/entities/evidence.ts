@@ -7,10 +7,8 @@ import {
 } from '../common.ts';
 
 export const evidenceSchemaVersionSchema = z
-  .literal('0.3.0')
-  .describe(
-    'Evidence schema version after ADR 0019 knowledge and coordination subject-kind extensions.',
-  );
+  .literal('0.4.0')
+  .describe('Evidence schema version after ADR 0035 quality_gate subject-kind extension.');
 
 export const evidenceKindSchema = z
   .enum(['observation', 'receipt', 'derived', 'human_decision', 'fixture'])
@@ -47,6 +45,7 @@ export const evidenceSubjectKindSchema = z
     'knowledge_chunk',
     'coordination_fact',
     'derived_summary',
+    'quality_gate',
     'provider_object',
     'external_control_plane',
     'git_repository',

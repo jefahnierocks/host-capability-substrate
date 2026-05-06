@@ -81,14 +81,14 @@ downstream PRs (Phase 2.1.x / 2.1.4 / 2.2.3 / 2.5 / 2.6 / wave-2
 reactive amendment / future glossary cleanup). Phase 2.1.1
 (`AgentClient`), Phase 2.1.2 (`VerificationCommandSpec`), and Phase 2.1.3
 (`KnowledgeSource` / `KnowledgeChunk` / `CoordinationFact` /
-`DerivedSummary`) have landed; Phase 2 work continues at Phase 2.1.4
-(`QualityGate`).
+`DerivedSummary`), and Phase 2.1.4 (`QualityGate`) have landed; Phase 2 work
+continues at Phase 2.2.1 (`ExecutionContext` cache refactor).
 
 ### Phase 2 entry-point inventory
 
 **Schema PR** (per `.agents/skills/hcs-schema-change`): Zod source for
-the entities and payloads committed across ADRs 0019-0037. New Ring 0
-entities still to author: `QualityGate` (ADR 0035). Evidence
+the entities and payloads committed across ADRs 0019-0037. Standalone Ring 0
+entities in Phase 2.1 have landed. Evidence
 subtypes to author: Q-005 six runner receipts (ADR 0032), Q-006 stage-1
 + stage-2 source-control receipts (ADR 0027 / ADR 0030), Q-006 (b)-(g)
 GitHub authority/identity records (ADR 0033), Q-007 envelope payloads
@@ -111,7 +111,11 @@ Milestone 2): per-`boundary_dimension` freshness windows (containment
 dimension hours-to-day order); `workspace_verify` operation_class
 composition thresholds; per-product-family `permission_mode` verifier
 rules; non-PR remote-agent binding window duration (Phase 1 default
-±5 min); cross-tool exclusion-pattern conflict resolution.
+±5 min); cross-tool exclusion-pattern conflict resolution. QualityGate
+policy backlog: per-`gate_kind` composition rules and `valid_until`
+maxima; `gate_evidence_acknowledgment` verifier-class privileges;
+`mutation_class` meta-gate matrix entries; denial-rate ceiling;
+evidence-rotation materiality thresholds.
 
 **Trap fixtures** (post-schema): Traps #26-#28 (Q-009), #29-#31
 (Q-010) plus 5 candidate traps from ADR 0037 + coordination-store

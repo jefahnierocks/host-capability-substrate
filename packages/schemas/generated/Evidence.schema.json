@@ -8,8 +8,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.3.0",
-          "description": "Evidence schema version after ADR 0019 knowledge and coordination subject-kind extensions."
+          "const": "0.4.0",
+          "description": "Evidence schema version after ADR 0035 quality_gate subject-kind extension."
         },
         "evidence_id": {
           "type": "string",
@@ -66,6 +66,7 @@
                   "knowledge_chunk",
                   "coordination_fact",
                   "derived_summary",
+                  "quality_gate",
                   "provider_object",
                   "external_control_plane",
                   "git_repository",
@@ -223,8 +224,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.3.0",
-          "description": "Evidence schema version after ADR 0019 knowledge and coordination subject-kind extensions."
+          "const": "0.4.0",
+          "description": "Evidence schema version after ADR 0035 quality_gate subject-kind extension."
         },
         "evidence_id": {
           "type": "string",
@@ -281,6 +282,7 @@
                   "knowledge_chunk",
                   "coordination_fact",
                   "derived_summary",
+                  "quality_gate",
                   "provider_object",
                   "external_control_plane",
                   "git_repository",
@@ -430,8 +432,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.3.0",
-          "description": "Evidence schema version after ADR 0019 knowledge and coordination subject-kind extensions."
+          "const": "0.4.0",
+          "description": "Evidence schema version after ADR 0035 quality_gate subject-kind extension."
         },
         "evidence_id": {
           "type": "string",
@@ -488,6 +490,7 @@
                   "knowledge_chunk",
                   "coordination_fact",
                   "derived_summary",
+                  "quality_gate",
                   "provider_object",
                   "external_control_plane",
                   "git_repository",
@@ -637,8 +640,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.3.0",
-          "description": "Evidence schema version after ADR 0019 knowledge and coordination subject-kind extensions."
+          "const": "0.4.0",
+          "description": "Evidence schema version after ADR 0035 quality_gate subject-kind extension."
         },
         "evidence_id": {
           "type": "string",
@@ -695,6 +698,7 @@
                   "knowledge_chunk",
                   "coordination_fact",
                   "derived_summary",
+                  "quality_gate",
                   "provider_object",
                   "external_control_plane",
                   "git_repository",

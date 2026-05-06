@@ -1,0 +1,392 @@
+{
+  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/QualityGate.schema.json",
+  "title": "QualityGate",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0",
+      "description": "Entity schema version for a Ring 0 schema."
+    },
+    "gate_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "gate_kind": {
+      "type": "string",
+      "enum": [
+        "identity_binding",
+        "credential_shadow",
+        "signing_identity",
+        "filesystem_trust",
+        "tool_provenance",
+        "mutation_class"
+      ],
+      "description": "QualityGate gate_kind values from ADR 0035."
+    },
+    "target_subject_ref": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "workspace_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            },
+            "surface_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            }
+          },
+          "required": [
+            "workspace_id",
+            "surface_id"
+          ],
+          "additionalProperties": false,
+          "description": "Target subject ref for identity_binding QualityGate records."
+        },
+        {
+          "type": "object",
+          "properties": {
+            "credential_source_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            }
+          },
+          "required": [
+            "credential_source_id"
+          ],
+          "additionalProperties": false,
+          "description": "Target subject ref for credential_shadow QualityGate records."
+        },
+        {
+          "type": "object",
+          "properties": {
+            "workspace_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            },
+            "repository_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            }
+          },
+          "required": [
+            "workspace_id",
+            "repository_id"
+          ],
+          "additionalProperties": false,
+          "description": "Target subject ref for signing_identity QualityGate records."
+        },
+        {
+          "type": "object",
+          "properties": {
+            "execution_context_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            },
+            "surface_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            }
+          },
+          "required": [
+            "execution_context_id",
+            "surface_id"
+          ],
+          "additionalProperties": false,
+          "description": "Target subject ref for filesystem_trust QualityGate records."
+        },
+        {
+          "type": "object",
+          "properties": {
+            "tool_or_provider_ref": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            }
+          },
+          "required": [
+            "tool_or_provider_ref"
+          ],
+          "additionalProperties": false,
+          "description": "Target subject ref for tool_provenance QualityGate records."
+        },
+        {
+          "type": "object",
+          "properties": {
+            "operation_class": {
+              "type": "string",
+              "enum": [
+                "read_only_diagnostic",
+                "agent_internal_state",
+                "destructive_git",
+                "external_control_plane_mutation",
+                "worktree_mutation",
+                "merge_or_push"
+              ],
+              "description": "ADR 0029 operation class values used by mutation_class QualityGates."
+            }
+          },
+          "required": [
+            "operation_class"
+          ],
+          "additionalProperties": false,
+          "description": "Target subject ref for mutation_class QualityGate records."
+        }
+      ],
+      "description": "Polymorphic target_subject_ref selected by QualityGate.gate_kind."
+    },
+    "gate_state": {
+      "type": "string",
+      "enum": [
+        "provisional",
+        "proven",
+        "expired",
+        "denied"
+      ],
+      "description": "QualityGate lifecycle state from ADR 0035."
+    },
+    "evidence_refs": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "evidence_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+            "description": "Reference to an Evidence record or fixture."
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Human-readable source name or artifact path."
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+            "description": "RFC 3339 timestamp with an explicit UTC offset."
+          },
+          "valid_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "description": "RFC 3339 timestamp with an explicit UTC offset."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "authority": {
+            "type": "string",
+            "enum": [
+              "project-local",
+              "workspace-local",
+              "user-global",
+              "system",
+              "derived",
+              "sandbox-observation",
+              "host-observation",
+              "vendor-doc",
+              "installed-runtime",
+              "human-observed"
+            ],
+            "description": "Authority plane for a fact or observation."
+          },
+          "parser_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "authoritative",
+              "high",
+              "best-effort",
+              "stale",
+              "unknown"
+            ],
+            "description": "Confidence assigned to an observation by the producer."
+          },
+          "evidence_chain_refs": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "record_kind": {
+                  "type": "string",
+                  "enum": [
+                    "evidence",
+                    "boundary_observation",
+                    "coordination_fact",
+                    "derived_summary",
+                    "knowledge_chunk",
+                    "quality_gate"
+                  ],
+                  "description": "Record kind in a QualityGate evidence-chain preview."
+                },
+                "record_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "authority": {
+                  "type": "string",
+                  "enum": [
+                    "project-local",
+                    "workspace-local",
+                    "user-global",
+                    "system",
+                    "derived",
+                    "sandbox-observation",
+                    "host-observation",
+                    "vendor-doc",
+                    "installed-runtime",
+                    "human-observed"
+                  ],
+                  "description": "Authority plane for a fact or observation."
+                },
+                "allowed_for_gate": {
+                  "type": "boolean"
+                },
+                "gate_state": {
+                  "type": "string",
+                  "enum": [
+                    "provisional",
+                    "proven",
+                    "expired",
+                    "denied"
+                  ],
+                  "description": "QualityGate lifecycle state from ADR 0035."
+                }
+              },
+              "required": [
+                "record_kind",
+                "record_id",
+                "authority"
+              ],
+              "additionalProperties": false,
+              "description": "Typed evidence-chain preview used for QualityGate invariant checks."
+            }
+          }
+        },
+        "required": [
+          "evidence_id",
+          "source",
+          "observed_at",
+          "authority",
+          "confidence",
+          "evidence_chain_refs"
+        ],
+        "additionalProperties": false,
+        "description": "QualityGate evidence reference with typed transitive-chain preview."
+      }
+    },
+    "valid_until": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "provisional_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+      "description": "RFC 3339 timestamp with an explicit UTC offset."
+    },
+    "proven_at": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "expired_at": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "denied_at": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "execution_context_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    }
+  },
+  "required": [
+    "schema_version",
+    "gate_id",
+    "gate_kind",
+    "target_subject_ref",
+    "gate_state",
+    "evidence_refs",
+    "valid_until",
+    "provisional_at",
+    "proven_at",
+    "expired_at",
+    "denied_at",
+    "execution_context_id"
+  ],
+  "additionalProperties": false,
+  "description": "Ring 0 QualityGate entity from ADR 0035 and ADR 0038 Phase 2.1.4."
+}

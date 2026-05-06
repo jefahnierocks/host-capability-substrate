@@ -97,9 +97,9 @@ describe('VerificationCommandSpec schema', () => {
     ).toBe(false);
   });
 
-  it('keeps verification_command_spec as an Evidence subject kind with Evidence schema v0.3.0', () => {
+  it('keeps verification_command_spec as an Evidence subject kind with Evidence schema v0.4.0', () => {
     const evidence = evidenceSchema.parse({
-      schema_version: '0.3.0',
+      schema_version: '0.4.0',
       evidence_id: 'evidence:verification-command-spec:just-verify',
       evidence_kind: 'observation',
       subject_refs: [

@@ -14,7 +14,7 @@ describe('BoundaryObservation envelope', () => {
   it('parses a TCC observation bound to an execution context', () => {
     const obs = boundaryObservationSchema.parse({
       schema_version: '0.1.0',
-      evidence_schema_version: '0.1.0',
+      evidence_schema_version: '0.2.0',
       payload_schema_version: 'tcc-grant:v1',
       boundary_observation_id: 'bo:tcc:claude-code-cli:full-disk',
       execution_context_id: 'ctx:claude-code-cli:p06',
@@ -41,7 +41,7 @@ describe('BoundaryObservation envelope', () => {
     expect(
       boundaryObservationSchema.safeParse({
         schema_version: '0.1.0',
-        evidence_schema_version: '0.1.0',
+        evidence_schema_version: '0.2.0',
         boundary_observation_id: 'bo:floating',
         boundary_dimension: 'sandbox',
         observed_payload: { profile_name: 'seatbelt' },
@@ -54,7 +54,7 @@ describe('BoundaryObservation envelope', () => {
   it('preserves the seven-state vocabulary, including unknown is not denied', () => {
     const obs = boundaryObservationSchema.parse({
       schema_version: '0.1.0',
-      evidence_schema_version: '0.1.0',
+      evidence_schema_version: '0.2.0',
       boundary_observation_id: 'bo:unknown-sandbox',
       execution_context_id: 'ctx:codex-app-sandboxed:p13',
       boundary_dimension: 'sandbox',
@@ -70,7 +70,7 @@ describe('BoundaryObservation envelope', () => {
     expect(
       boundaryObservationSchema.safeParse({
         schema_version: '0.1.0',
-        evidence_schema_version: '0.1.0',
+        evidence_schema_version: '0.2.0',
         boundary_observation_id: 'bo:bad-dimension',
         execution_context_id: 'ctx:claude-code-cli:p06',
         boundary_dimension: 'version_drift',
@@ -84,7 +84,7 @@ describe('BoundaryObservation envelope', () => {
   it('accepts a check_source observation bound to a provider object reference', () => {
     const obs = boundaryObservationSchema.parse({
       schema_version: '0.1.0',
-      evidence_schema_version: '0.1.0',
+      evidence_schema_version: '0.2.0',
       payload_schema_version: 'check-source:v1',
       boundary_observation_id: 'bo:check-source:hcs-verify',
       tool_or_provider_ref: 'gh:check:host-capability-substrate:verify',
@@ -106,7 +106,7 @@ describe('BoundaryObservation envelope', () => {
     expect(
       boundaryObservationSchema.safeParse({
         schema_version: '0.1.0',
-        evidence_schema_version: '0.1.0',
+        evidence_schema_version: '0.2.0',
         boundary_observation_id: 'bo:strict-test',
         execution_context_id: 'ctx:claude-code-cli:p06',
         boundary_dimension: 'sandbox',

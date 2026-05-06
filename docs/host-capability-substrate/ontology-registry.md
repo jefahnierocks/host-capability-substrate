@@ -3,9 +3,9 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.3.4
+version: 0.3.5
 last_updated: 2026-05-05
-tags: [ontology, registry, boundary-observation, evidence, agent-client, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
+tags: [ontology, registry, boundary-observation, evidence, agent-client, verification-command-spec, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
 priority: high
 ---
 
@@ -374,6 +374,8 @@ class* are forbidden. The kernel-only value allowlist is:
   producer-crash watchdog).
 - `kernel_telemetry` — direct kernel telemetry sources (kqueue,
   ptrace, host process telemetry).
+- `kernel_workspace_diagnose` — the Ring 1 workspace-diagnose service
+  that mints `system.workspace.diagnose.v1` outputs per ADR 0036.
 - `mint_api` — Ring 1 mint API setting producer when minting
   synthetic or derived records.
 
@@ -632,6 +634,47 @@ Mirror notes:
 - `remote_cloud_agent` is the umbrella surface value for managed cloud-agent
   products. Per-product cloud-agent surface values remain matrix-only until a
   future ADR accepts first-class per-product surfaces.
+
+### `VerificationCommandSpec` enum mirrors
+
+Source: ADR 0036 and ADR 0038 Phase 2.1.2.
+
+`Evidence.subject_kind` Phase 2.1.2 extension:
+
+- `verification_command_spec`
+
+`VerificationCommandSpec.command_shape.operation_class`:
+
+- `workspace_verify`
+
+`VerificationCommandSpec.command_shape.mutation_scope`:
+
+- `verify_workspace`
+
+`VerificationCommandSpec.command_shape.env_refs.env_capture_mode`:
+
+- `name_only`
+- `existence_only`
+
+`VerificationCommandSpec.output_evidence_kind`:
+
+- `verification_receipt`
+- `diagnostic_report`
+
+`VerificationCommandSpec.verification_command_spec_state`:
+
+- `active`
+- `deprecated`
+- `retired`
+
+Mirror notes:
+
+- `command_shape` is an OperationShape-like payload local to
+  `VerificationCommandSpec` until the canonical `OperationShape` schema lands.
+  It carries typed argv and the ADR 0036 argv/env scrubber pattern; it does not
+  introduce a shell-string command surface.
+- The global `OperationShape.deletion_authority_source_ref` and
+  `deletion_authority_kind` extension remains Phase 2.2.2 work.
 
 ## Boundary dimension registry
 
@@ -902,6 +945,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.3.5 | 2026-05-05 | Added the Phase 2.1.2 `VerificationCommandSpec` enum mirror, `verification_command_spec` Evidence subject kind, and `kernel_workspace_diagnose` producer-class allowlist extension. |
 | 0.3.4 | 2026-05-05 | Added the Phase 2.1.1 `AgentClient` identity-axis enum mirror, `remote_cloud_agent` surface extension, and `secret_injection_kind` mirror. |
 | 0.3.3 | 2026-05-03 | Two additions surfaced during the post-merge review of ADR 0029 v1 (Q-008(b) anomalous-capture blocking thresholds). §Naming suffix discipline §Sub-rule 6 amended to forbid `_code` as a discriminator suffix in addition to the existing `_class` rejection; rejection-class fields on `Decision` and required-grant-class fields on `ApprovalGrant` are `reason_kind` and `required_grant_kind` respectively (not `reason_code` / `required_grant_class`). §Sub-rule 9 codifies enum-value casing: stable enum values that appear in canonical policy YAML, schema enums, audit-chain records, and Decision/ApprovalGrant kind discriminators use `lower_snake_case`; mixed-case forms (`PascalCase`, `camelCase`, `kebab-case`) are forbidden for new enum values. The existing `evidenceAuthoritySchema` `kebab-case` exception is grandfathered for that enum only; no other enum may adopt `kebab-case`. Used as a precondition for ADR 0029 v2 revision. |
 | 0.3.2 | 2026-05-02 | Two additions surfaced during the post-merge re-review of ADR 0028 v3. §Naming suffix discipline §Sub-rule 8 codifies `_mode` as the canonical suffix for orthogonal-layer discriminators (capture-vs-persistence layers; e.g., `argv_capture_mode`); `_kind` (Sub-rule 6) remains canonical for receipt-family discriminators. Bare-noun discriminators (`mode`, `capture_status`, `observation_state`, `boundary_dimension`) are permitted when they are the receipt's central concept rather than an orthogonal-layer modifier. §Authority discipline §Producer-vs-kernel-set authority fields amended to enumerate `Evidence.producer` as kernel-set when its value names a kernel-trusted producer class; the kernel-only allowlist is `kernel_broker`, `kernel_telemetry`, `mint_api`. Producer-supplied values naming a kernel-trusted class are rejected at the mint API; agent-side / sandbox-observer values remain producer-asserted but kernel-verifiable. A follow-up schema-change PR tightens `Evidence.producer` from `z.string().min(1).optional()` to a kind-tagged shape. Used as a precondition for ADR 0028 v4 revision. |

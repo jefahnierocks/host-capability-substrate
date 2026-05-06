@@ -11,8 +11,8 @@
     },
     "evidence_schema_version": {
       "type": "string",
-      "const": "0.1.0",
-      "description": "Entity schema version for a Ring 0 schema."
+      "minLength": 1,
+      "description": "Base Evidence schema version used by BoundaryObservation component evidence."
     },
     "payload_schema_version": {
       "type": "string",

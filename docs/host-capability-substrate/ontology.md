@@ -3,24 +3,26 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.8.0
+version: 0.9.0
 last_updated: 2026-05-05
-tags: [ontology, entities, schemas, evidence, execution-context, agent-client, isolation, github, version-control, boundary-observation]
+tags: [ontology, entities, schemas, evidence, execution-context, agent-client, verification-command-spec, isolation, github, version-control, boundary-observation]
 priority: high
 ---
 
 # HCS Ontology
 
-Authoritative human-facing reference for HCS Ring 0 entities. The 22 canonical
-entities are the Milestone 1 target. The first Phase 1 shell/env schema slice
-has landed for ADRs 0016, 0017, and 0018, the base `Evidence` entity has
-landed for ADR 0023, `ExecutionContext` is on the canonical list per ADR
-0021 invariant 17 (charter v1.3.0), and `AgentClient` landed as Phase 2.1.1
-per ADR 0037 / ADR 0038.
+Authoritative human-facing reference for HCS Ring 0 entities. The original
+canonical entity list is the Milestone 1 target, with accepted Phase 2.1
+standalone additions documented below as they land. The first Phase 1 shell/env
+schema slice has landed for ADRs 0016, 0017, and 0018, the base `Evidence`
+entity has landed for ADR 0023, `ExecutionContext` is on the canonical list per
+ADR 0021 invariant 17 (charter v1.3.0), `AgentClient` landed as Phase 2.1.1
+per ADR 0037 / ADR 0038, and `VerificationCommandSpec` landed as Phase 2.1.2
+per ADR 0036 / ADR 0038.
 
 Canonical research plan sketch: `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md` §2 (Ontology) and §Appendix A.
 
-## Entities (22 canonical)
+## Entities
 
 ```
 HostProfile          canonical host identity + stable facts
@@ -34,6 +36,7 @@ ResolvedTool         the authoritative answer for "what tool X in this context"
 Capability           a declared kernel operation (e.g., service.activate)
 OperationShape       semantic operation proposal with target + mutation scope
 CommandShape         argv vector + env profile + execution lane (rendered from Operation)
+VerificationCommandSpec producer-asserted workspace verify command spec
 Evidence             a fact with provenance, freshness, authority, confidence
 ExecutionContext     a named runtime surface and startup phase
 PolicyRule           a tier/destructive-pattern/approval rule (YAML or Rego)
@@ -91,6 +94,47 @@ Key fields:
 runtime execution endpoints. Gate behavior such as narrower-wins composition
 between product capability and runtime containment remains Ring 1 / policy work
 queued by ADR 0037.
+
+### `VerificationCommandSpec`
+
+Source: `packages/schemas/src/entities/verification-command-spec.ts`
+
+Describes the producer-asserted shape of a workspace verification command.
+`VerificationCommandSpec` is a Ring 0 spec entity per ADR 0036 and ADR 0038
+Phase 2.1.2. It records the command shape that the kernel can later verify and
+re-run; it does not execute the command, record command output, or introduce a
+new runtime endpoint. Per-execution verification results remain separate future
+Evidence records.
+
+Key fields:
+
+- `verification_command_spec_id` is the stable local identifier for the spec.
+- `workspace_context_id` binds the spec to the workspace context it verifies.
+- `command_shape` is an OperationShape-like payload local to this entity until
+  the canonical `OperationShape` schema lands. It carries
+  `operation_class: "workspace_verify"`, `mutation_scope:
+  "verify_workspace"`, a typed `argv` array, and `env_refs` entries that name
+  environment variables without values.
+- `command_shape.env_refs.env_capture_mode` is `name_only` or
+  `existence_only`. Secret-shaped env var references in `argv` must have an
+  explicit `env_refs` entry; raw env values are not representable.
+- `expected_exit_codes` separates success codes from allowed failure codes.
+- `output_evidence_kind` is `verification_receipt` or `diagnostic_report`.
+- `verification_command_spec_state` is `active`, `deprecated`, or `retired`.
+- `author_session_id` and `author_agent_client_id` are kernel-set at mint per
+  ADR 0036; producers cannot self-attribute verifier identity.
+- `kernel_observed_at`, `valid_until`, and `evidence_refs` bind the spec to
+  observed runtime, freshness, and provenance.
+
+Phase 2.1.2 also widens `Evidence.subject_kind` with
+`verification_command_spec`, bumping the Evidence schema to `0.2.0`.
+`BoundaryObservation.evidence_schema_version` is now an independent non-empty
+version string so envelopes can cite the Evidence base contract they compose
+against rather than inheriting the generic new-entity `0.1.0` literal.
+
+`VerificationCommandSpec` does not add policy tiers, canonical policy YAML,
+adapter behavior, broker behavior, command execution, or the Phase 2.2.2
+`OperationShape.deletion_authority_source_ref` extension.
 
 ## Phase 1 Shell/Env Entities
 
@@ -417,6 +461,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.9.0 | 2026-05-05 | Added `VerificationCommandSpec` as the Phase 2.1.2 Ring 0 spec entity, widened `Evidence.subject_kind` with `verification_command_spec`, and documented Evidence schema v0.2.0 composition. |
 | 0.8.0 | 2026-05-05 | Added `AgentClient` as the Phase 2.1.1 standalone Ring 0 entity and documented the `remote_cloud_agent` surface extension. |
 | 0.7.0 | 2026-05-02 | Added the ADR 0022 `BoundaryObservation` envelope section. Cross-references the ontology-registry as the source of `boundary_dimension` values. |
 | 0.6.0 | 2026-05-02 | Promoted `ExecutionContext` into the canonical entity list per ADR 0021 invariant 17 (charter v1.3.0). Header updated from "20 core" to "22 canonical". |

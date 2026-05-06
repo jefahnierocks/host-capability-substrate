@@ -10,6 +10,7 @@ import {
   evidenceSchema,
   executionContextSchema,
   startupPhaseSchema,
+  verificationCommandSpecSchema,
 } from '../src/index.ts';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -51,6 +52,11 @@ const schemaEntries = [
     file: 'StartupPhase.schema.json',
     title: 'StartupPhase',
     schema: startupPhaseSchema,
+  },
+  {
+    file: 'VerificationCommandSpec.schema.json',
+    title: 'VerificationCommandSpec',
+    schema: verificationCommandSpecSchema,
   },
 ] as const;
 

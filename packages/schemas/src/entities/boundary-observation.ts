@@ -1,6 +1,11 @@
 import { z } from 'zod';
 import { entityIdSchema, evidenceRefSchema, schemaVersionSchema } from '../common.ts';
 
+const boundaryObservationEvidenceSchemaVersionSchema = z
+  .string()
+  .min(1)
+  .describe('Base Evidence schema version used by BoundaryObservation component evidence.');
+
 export const boundaryDimensionSchema = z
   .enum([
     'bundle_identity',
@@ -46,7 +51,7 @@ export const boundaryDiscrepancyClassSchema = z
 export const boundaryObservationSchema = z
   .object({
     schema_version: schemaVersionSchema,
-    evidence_schema_version: schemaVersionSchema,
+    evidence_schema_version: boundaryObservationEvidenceSchemaVersionSchema,
     payload_schema_version: z.string().min(1).optional(),
     boundary_observation_id: entityIdSchema,
     surface_id: entityIdSchema.optional(),

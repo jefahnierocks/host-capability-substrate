@@ -1,7 +1,7 @@
 ---
 adr_number: 0041
 title: Q-014 project-substrate contract validation posture
-status: proposed
+status: accepted
 date: 2026-05-06
 charter_version: 1.4.0
 tags: [project-substrate, contract-validation, citadel, workspace-context, knowledge-source, boundary-observation, quality-gate, q-014, phase-2]
@@ -11,15 +11,15 @@ tags: [project-substrate, contract-validation, citadel, workspace-context, knowl
 
 ## Status
 
-proposed
+accepted
 
-This ADR proposes the posture for Q-014. It does not authorize Zod schema
-source, generated JSON Schema, canonical policy YAML, validators, adapters,
-dashboard routes, hooks, runner registration, Proxmox changes, OpenTofu
-changes, machine-identity issuance, project workload provisioning, or runtime
-behavior.
+Accepted on 2026-05-06 after reviewer pass and human approval. This ADR
+accepts the posture for Q-014. It does not authorize Zod schema source,
+generated JSON Schema, canonical policy YAML, validators, adapters, dashboard
+routes, hooks, runner registration, Proxmox changes, OpenTofu changes,
+machine-identity issuance, project workload provisioning, or runtime behavior.
 
-Before acceptance, this ADR requires reviewer objections from:
+Acceptance required a reviewer pass from:
 
 - `hcs-architect`
 - `hcs-ontology-reviewer`

@@ -1,0 +1,1860 @@
+{
+  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/RepositoryIdentityReconciliationObservation.schema.json",
+  "title": "RepositoryIdentityReconciliationObservation",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "anyOf": [
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "0.7.0",
+          "description": "Evidence schema version after ADR 0027/0030/0033 Q-006 source-control subject-kind extensions."
+        },
+        "evidence_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        "valid_until": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "authoritative",
+            "high",
+            "best-effort",
+            "stale",
+            "unknown"
+          ],
+          "description": "Confidence assigned to an observation by the producer."
+        },
+        "parser_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "producer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "host_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "workspace_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "execution_context_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "redaction_mode": {
+          "type": "string",
+          "enum": [
+            "none",
+            "redacted",
+            "classified",
+            "hash_only",
+            "reference_only",
+            "mixed"
+          ],
+          "description": "How sensitive payload material was handled before persistence."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "const": "observation"
+        },
+        "subject_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subject_kind": {
+                "type": "string",
+                "const": "repository_identity_reconciliation"
+              },
+              "subject_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "relation": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "subject_kind",
+              "subject_id"
+            ],
+            "additionalProperties": false,
+            "description": "Subject reference for a RepositoryIdentityReconciliationObservation Evidence subtype."
+          }
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "const": "repository_identity_reconciliation:v1"
+        },
+        "payload": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "repository_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "local_path_canonical": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+                  "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
+                },
+                "remote_url_canonical": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:[A-Za-z0-9._-]+@[A-Za-z0-9._-]+:[A-Za-z0-9._~/-]+(?:\\.git)?|ssh:\\/\\/[A-Za-z0-9._-]+@[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?|https?:\\/\\/[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?|git:\\/\\/[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?)$",
+                  "description": "Canonical Git remote URL with credentials stripped."
+                },
+                "ssh_host_alias": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "signing_principal_evidence_ref": {
+                  "type": "object",
+                  "properties": {
+                    "evidence_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "description": "Reference to an Evidence record or fixture."
+                    },
+                    "source": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Human-readable source name or artifact path."
+                    },
+                    "observed_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    "valid_until": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                          "description": "RFC 3339 timestamp with an explicit UTC offset."
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "authority": {
+                      "type": "string",
+                      "enum": [
+                        "project-local",
+                        "workspace-local",
+                        "user-global",
+                        "system",
+                        "derived",
+                        "sandbox-observation",
+                        "host-observation",
+                        "vendor-doc",
+                        "installed-runtime",
+                        "human-observed"
+                      ],
+                      "description": "Authority plane for a fact or observation."
+                    },
+                    "parser_version": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "authoritative",
+                        "high",
+                        "best-effort",
+                        "stale",
+                        "unknown"
+                      ],
+                      "description": "Confidence assigned to an observation by the producer."
+                    }
+                  },
+                  "required": [
+                    "evidence_id",
+                    "source",
+                    "observed_at",
+                    "authority",
+                    "confidence"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                },
+                "credential_account_identity": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_observed_via": {
+                  "type": "string",
+                  "enum": [
+                    "gh_auth_status",
+                    "git_config_read",
+                    "ssh_config_resolution",
+                    "mcp_introspection"
+                  ],
+                  "description": "ADR 0033 repository identity provider observation method."
+                },
+                "reconciliation_verdict_kind": {
+                  "type": "string",
+                  "const": "all_planes_consistent"
+                }
+              },
+              "required": [
+                "repository_id",
+                "local_path_canonical",
+                "remote_url_canonical",
+                "ssh_host_alias",
+                "signing_principal_evidence_ref",
+                "credential_account_identity",
+                "provider_observed_via",
+                "reconciliation_verdict_kind"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "repository_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "local_path_canonical": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+                  "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
+                },
+                "remote_url_canonical": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:[A-Za-z0-9._-]+@[A-Za-z0-9._-]+:[A-Za-z0-9._~/-]+(?:\\.git)?|ssh:\\/\\/[A-Za-z0-9._-]+@[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?|https?:\\/\\/[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?|git:\\/\\/[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?)$",
+                  "description": "Canonical Git remote URL with credentials stripped."
+                },
+                "ssh_host_alias": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "signing_principal_evidence_ref": {
+                  "type": "object",
+                  "properties": {
+                    "evidence_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "description": "Reference to an Evidence record or fixture."
+                    },
+                    "source": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Human-readable source name or artifact path."
+                    },
+                    "observed_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    "valid_until": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                          "description": "RFC 3339 timestamp with an explicit UTC offset."
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "authority": {
+                      "type": "string",
+                      "enum": [
+                        "project-local",
+                        "workspace-local",
+                        "user-global",
+                        "system",
+                        "derived",
+                        "sandbox-observation",
+                        "host-observation",
+                        "vendor-doc",
+                        "installed-runtime",
+                        "human-observed"
+                      ],
+                      "description": "Authority plane for a fact or observation."
+                    },
+                    "parser_version": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "authoritative",
+                        "high",
+                        "best-effort",
+                        "stale",
+                        "unknown"
+                      ],
+                      "description": "Confidence assigned to an observation by the producer."
+                    }
+                  },
+                  "required": [
+                    "evidence_id",
+                    "source",
+                    "observed_at",
+                    "authority",
+                    "confidence"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                },
+                "credential_account_identity": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_observed_via": {
+                  "type": "string",
+                  "enum": [
+                    "gh_auth_status",
+                    "git_config_read",
+                    "ssh_config_resolution",
+                    "mcp_introspection"
+                  ],
+                  "description": "ADR 0033 repository identity provider observation method."
+                },
+                "reconciliation_verdict_kind": {
+                  "type": "string",
+                  "const": "plane_disagreement"
+                },
+                "plane_disagreements": {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "local_path_mismatch",
+                      "remote_url_mismatch",
+                      "ssh_alias_missing",
+                      "ssh_alias_mismatch",
+                      "signing_principal_unmapped",
+                      "signing_principal_mismatch",
+                      "credential_account_mismatch",
+                      "credential_account_unverified",
+                      "organization_mismatch"
+                    ],
+                    "description": "Closed set of repository identity plane disagreement classes."
+                  }
+                }
+              },
+              "required": [
+                "repository_id",
+                "local_path_canonical",
+                "remote_url_canonical",
+                "ssh_host_alias",
+                "signing_principal_evidence_ref",
+                "credential_account_identity",
+                "provider_observed_via",
+                "reconciliation_verdict_kind",
+                "plane_disagreements"
+              ],
+              "additionalProperties": false
+            }
+          ],
+          "description": "ADR 0033 RepositoryIdentityReconciliationObservation typed Evidence payload."
+        },
+        "authority": {
+          "type": "string",
+          "const": "sandbox-observation"
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "schema_version",
+        "evidence_id",
+        "source",
+        "observed_at",
+        "valid_until",
+        "confidence",
+        "parser_version",
+        "execution_context_id",
+        "evidence_kind",
+        "subject_refs",
+        "payload_schema_version",
+        "payload",
+        "authority",
+        "source_ref"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "0.7.0",
+          "description": "Evidence schema version after ADR 0027/0030/0033 Q-006 source-control subject-kind extensions."
+        },
+        "evidence_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        "valid_until": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "authoritative",
+            "high",
+            "best-effort",
+            "stale",
+            "unknown"
+          ],
+          "description": "Confidence assigned to an observation by the producer."
+        },
+        "parser_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "producer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "host_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "workspace_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "execution_context_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "redaction_mode": {
+          "type": "string",
+          "enum": [
+            "none",
+            "redacted",
+            "classified",
+            "hash_only",
+            "reference_only",
+            "mixed"
+          ],
+          "description": "How sensitive payload material was handled before persistence."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "const": "observation"
+        },
+        "subject_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subject_kind": {
+                "type": "string",
+                "const": "repository_identity_reconciliation"
+              },
+              "subject_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "relation": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "subject_kind",
+              "subject_id"
+            ],
+            "additionalProperties": false,
+            "description": "Subject reference for a RepositoryIdentityReconciliationObservation Evidence subtype."
+          }
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "const": "repository_identity_reconciliation:v1"
+        },
+        "payload": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "repository_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "local_path_canonical": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+                  "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
+                },
+                "remote_url_canonical": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:[A-Za-z0-9._-]+@[A-Za-z0-9._-]+:[A-Za-z0-9._~/-]+(?:\\.git)?|ssh:\\/\\/[A-Za-z0-9._-]+@[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?|https?:\\/\\/[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?|git:\\/\\/[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?)$",
+                  "description": "Canonical Git remote URL with credentials stripped."
+                },
+                "ssh_host_alias": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "signing_principal_evidence_ref": {
+                  "type": "object",
+                  "properties": {
+                    "evidence_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "description": "Reference to an Evidence record or fixture."
+                    },
+                    "source": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Human-readable source name or artifact path."
+                    },
+                    "observed_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    "valid_until": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                          "description": "RFC 3339 timestamp with an explicit UTC offset."
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "authority": {
+                      "type": "string",
+                      "enum": [
+                        "project-local",
+                        "workspace-local",
+                        "user-global",
+                        "system",
+                        "derived",
+                        "sandbox-observation",
+                        "host-observation",
+                        "vendor-doc",
+                        "installed-runtime",
+                        "human-observed"
+                      ],
+                      "description": "Authority plane for a fact or observation."
+                    },
+                    "parser_version": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "authoritative",
+                        "high",
+                        "best-effort",
+                        "stale",
+                        "unknown"
+                      ],
+                      "description": "Confidence assigned to an observation by the producer."
+                    }
+                  },
+                  "required": [
+                    "evidence_id",
+                    "source",
+                    "observed_at",
+                    "authority",
+                    "confidence"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                },
+                "credential_account_identity": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_observed_via": {
+                  "type": "string",
+                  "enum": [
+                    "gh_auth_status",
+                    "git_config_read",
+                    "ssh_config_resolution",
+                    "mcp_introspection"
+                  ],
+                  "description": "ADR 0033 repository identity provider observation method."
+                },
+                "reconciliation_verdict_kind": {
+                  "type": "string",
+                  "const": "all_planes_consistent"
+                }
+              },
+              "required": [
+                "repository_id",
+                "local_path_canonical",
+                "remote_url_canonical",
+                "ssh_host_alias",
+                "signing_principal_evidence_ref",
+                "credential_account_identity",
+                "provider_observed_via",
+                "reconciliation_verdict_kind"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "repository_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "local_path_canonical": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+                  "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
+                },
+                "remote_url_canonical": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:[A-Za-z0-9._-]+@[A-Za-z0-9._-]+:[A-Za-z0-9._~/-]+(?:\\.git)?|ssh:\\/\\/[A-Za-z0-9._-]+@[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?|https?:\\/\\/[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?|git:\\/\\/[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?)$",
+                  "description": "Canonical Git remote URL with credentials stripped."
+                },
+                "ssh_host_alias": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "signing_principal_evidence_ref": {
+                  "type": "object",
+                  "properties": {
+                    "evidence_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "description": "Reference to an Evidence record or fixture."
+                    },
+                    "source": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Human-readable source name or artifact path."
+                    },
+                    "observed_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    "valid_until": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                          "description": "RFC 3339 timestamp with an explicit UTC offset."
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "authority": {
+                      "type": "string",
+                      "enum": [
+                        "project-local",
+                        "workspace-local",
+                        "user-global",
+                        "system",
+                        "derived",
+                        "sandbox-observation",
+                        "host-observation",
+                        "vendor-doc",
+                        "installed-runtime",
+                        "human-observed"
+                      ],
+                      "description": "Authority plane for a fact or observation."
+                    },
+                    "parser_version": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "authoritative",
+                        "high",
+                        "best-effort",
+                        "stale",
+                        "unknown"
+                      ],
+                      "description": "Confidence assigned to an observation by the producer."
+                    }
+                  },
+                  "required": [
+                    "evidence_id",
+                    "source",
+                    "observed_at",
+                    "authority",
+                    "confidence"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                },
+                "credential_account_identity": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_observed_via": {
+                  "type": "string",
+                  "enum": [
+                    "gh_auth_status",
+                    "git_config_read",
+                    "ssh_config_resolution",
+                    "mcp_introspection"
+                  ],
+                  "description": "ADR 0033 repository identity provider observation method."
+                },
+                "reconciliation_verdict_kind": {
+                  "type": "string",
+                  "const": "plane_disagreement"
+                },
+                "plane_disagreements": {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "local_path_mismatch",
+                      "remote_url_mismatch",
+                      "ssh_alias_missing",
+                      "ssh_alias_mismatch",
+                      "signing_principal_unmapped",
+                      "signing_principal_mismatch",
+                      "credential_account_mismatch",
+                      "credential_account_unverified",
+                      "organization_mismatch"
+                    ],
+                    "description": "Closed set of repository identity plane disagreement classes."
+                  }
+                }
+              },
+              "required": [
+                "repository_id",
+                "local_path_canonical",
+                "remote_url_canonical",
+                "ssh_host_alias",
+                "signing_principal_evidence_ref",
+                "credential_account_identity",
+                "provider_observed_via",
+                "reconciliation_verdict_kind",
+                "plane_disagreements"
+              ],
+              "additionalProperties": false
+            }
+          ],
+          "description": "ADR 0033 RepositoryIdentityReconciliationObservation typed Evidence payload."
+        },
+        "authority": {
+          "type": "string",
+          "const": "sandbox-observation"
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "schema_version",
+        "evidence_id",
+        "source",
+        "observed_at",
+        "valid_until",
+        "confidence",
+        "parser_version",
+        "execution_context_id",
+        "session_id",
+        "evidence_kind",
+        "subject_refs",
+        "payload_schema_version",
+        "payload",
+        "authority"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "0.7.0",
+          "description": "Evidence schema version after ADR 0027/0030/0033 Q-006 source-control subject-kind extensions."
+        },
+        "evidence_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        "valid_until": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "authoritative",
+            "high",
+            "best-effort",
+            "stale",
+            "unknown"
+          ],
+          "description": "Confidence assigned to an observation by the producer."
+        },
+        "parser_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "producer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "host_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "workspace_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "execution_context_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "redaction_mode": {
+          "type": "string",
+          "enum": [
+            "none",
+            "redacted",
+            "classified",
+            "hash_only",
+            "reference_only",
+            "mixed"
+          ],
+          "description": "How sensitive payload material was handled before persistence."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "const": "observation"
+        },
+        "subject_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subject_kind": {
+                "type": "string",
+                "const": "repository_identity_reconciliation"
+              },
+              "subject_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "relation": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "subject_kind",
+              "subject_id"
+            ],
+            "additionalProperties": false,
+            "description": "Subject reference for a RepositoryIdentityReconciliationObservation Evidence subtype."
+          }
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "const": "repository_identity_reconciliation:v1"
+        },
+        "payload": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "repository_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "local_path_canonical": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+                  "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
+                },
+                "remote_url_canonical": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:[A-Za-z0-9._-]+@[A-Za-z0-9._-]+:[A-Za-z0-9._~/-]+(?:\\.git)?|ssh:\\/\\/[A-Za-z0-9._-]+@[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?|https?:\\/\\/[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?|git:\\/\\/[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?)$",
+                  "description": "Canonical Git remote URL with credentials stripped."
+                },
+                "ssh_host_alias": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "signing_principal_evidence_ref": {
+                  "type": "object",
+                  "properties": {
+                    "evidence_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "description": "Reference to an Evidence record or fixture."
+                    },
+                    "source": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Human-readable source name or artifact path."
+                    },
+                    "observed_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    "valid_until": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                          "description": "RFC 3339 timestamp with an explicit UTC offset."
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "authority": {
+                      "type": "string",
+                      "enum": [
+                        "project-local",
+                        "workspace-local",
+                        "user-global",
+                        "system",
+                        "derived",
+                        "sandbox-observation",
+                        "host-observation",
+                        "vendor-doc",
+                        "installed-runtime",
+                        "human-observed"
+                      ],
+                      "description": "Authority plane for a fact or observation."
+                    },
+                    "parser_version": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "authoritative",
+                        "high",
+                        "best-effort",
+                        "stale",
+                        "unknown"
+                      ],
+                      "description": "Confidence assigned to an observation by the producer."
+                    }
+                  },
+                  "required": [
+                    "evidence_id",
+                    "source",
+                    "observed_at",
+                    "authority",
+                    "confidence"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                },
+                "credential_account_identity": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_observed_via": {
+                  "type": "string",
+                  "enum": [
+                    "gh_auth_status",
+                    "git_config_read",
+                    "ssh_config_resolution",
+                    "mcp_introspection"
+                  ],
+                  "description": "ADR 0033 repository identity provider observation method."
+                },
+                "reconciliation_verdict_kind": {
+                  "type": "string",
+                  "const": "all_planes_consistent"
+                }
+              },
+              "required": [
+                "repository_id",
+                "local_path_canonical",
+                "remote_url_canonical",
+                "ssh_host_alias",
+                "signing_principal_evidence_ref",
+                "credential_account_identity",
+                "provider_observed_via",
+                "reconciliation_verdict_kind"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "repository_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "local_path_canonical": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+                  "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
+                },
+                "remote_url_canonical": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:[A-Za-z0-9._-]+@[A-Za-z0-9._-]+:[A-Za-z0-9._~/-]+(?:\\.git)?|ssh:\\/\\/[A-Za-z0-9._-]+@[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?|https?:\\/\\/[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?|git:\\/\\/[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?)$",
+                  "description": "Canonical Git remote URL with credentials stripped."
+                },
+                "ssh_host_alias": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "signing_principal_evidence_ref": {
+                  "type": "object",
+                  "properties": {
+                    "evidence_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "description": "Reference to an Evidence record or fixture."
+                    },
+                    "source": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Human-readable source name or artifact path."
+                    },
+                    "observed_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    "valid_until": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                          "description": "RFC 3339 timestamp with an explicit UTC offset."
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "authority": {
+                      "type": "string",
+                      "enum": [
+                        "project-local",
+                        "workspace-local",
+                        "user-global",
+                        "system",
+                        "derived",
+                        "sandbox-observation",
+                        "host-observation",
+                        "vendor-doc",
+                        "installed-runtime",
+                        "human-observed"
+                      ],
+                      "description": "Authority plane for a fact or observation."
+                    },
+                    "parser_version": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "authoritative",
+                        "high",
+                        "best-effort",
+                        "stale",
+                        "unknown"
+                      ],
+                      "description": "Confidence assigned to an observation by the producer."
+                    }
+                  },
+                  "required": [
+                    "evidence_id",
+                    "source",
+                    "observed_at",
+                    "authority",
+                    "confidence"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                },
+                "credential_account_identity": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_observed_via": {
+                  "type": "string",
+                  "enum": [
+                    "gh_auth_status",
+                    "git_config_read",
+                    "ssh_config_resolution",
+                    "mcp_introspection"
+                  ],
+                  "description": "ADR 0033 repository identity provider observation method."
+                },
+                "reconciliation_verdict_kind": {
+                  "type": "string",
+                  "const": "plane_disagreement"
+                },
+                "plane_disagreements": {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "local_path_mismatch",
+                      "remote_url_mismatch",
+                      "ssh_alias_missing",
+                      "ssh_alias_mismatch",
+                      "signing_principal_unmapped",
+                      "signing_principal_mismatch",
+                      "credential_account_mismatch",
+                      "credential_account_unverified",
+                      "organization_mismatch"
+                    ],
+                    "description": "Closed set of repository identity plane disagreement classes."
+                  }
+                }
+              },
+              "required": [
+                "repository_id",
+                "local_path_canonical",
+                "remote_url_canonical",
+                "ssh_host_alias",
+                "signing_principal_evidence_ref",
+                "credential_account_identity",
+                "provider_observed_via",
+                "reconciliation_verdict_kind",
+                "plane_disagreements"
+              ],
+              "additionalProperties": false
+            }
+          ],
+          "description": "ADR 0033 RepositoryIdentityReconciliationObservation typed Evidence payload."
+        },
+        "authority": {
+          "type": "string",
+          "const": "sandbox-observation"
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "schema_version",
+        "evidence_id",
+        "source",
+        "observed_at",
+        "valid_until",
+        "confidence",
+        "parser_version",
+        "execution_context_id",
+        "run_id",
+        "evidence_kind",
+        "subject_refs",
+        "payload_schema_version",
+        "payload",
+        "authority"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "0.7.0",
+          "description": "Evidence schema version after ADR 0027/0030/0033 Q-006 source-control subject-kind extensions."
+        },
+        "evidence_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        "valid_until": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "authoritative",
+            "high",
+            "best-effort",
+            "stale",
+            "unknown"
+          ],
+          "description": "Confidence assigned to an observation by the producer."
+        },
+        "parser_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "producer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "host_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "workspace_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "execution_context_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "redaction_mode": {
+          "type": "string",
+          "enum": [
+            "none",
+            "redacted",
+            "classified",
+            "hash_only",
+            "reference_only",
+            "mixed"
+          ],
+          "description": "How sensitive payload material was handled before persistence."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "const": "observation"
+        },
+        "subject_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subject_kind": {
+                "type": "string",
+                "const": "repository_identity_reconciliation"
+              },
+              "subject_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "relation": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "subject_kind",
+              "subject_id"
+            ],
+            "additionalProperties": false,
+            "description": "Subject reference for a RepositoryIdentityReconciliationObservation Evidence subtype."
+          }
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "const": "repository_identity_reconciliation:v1"
+        },
+        "payload": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "repository_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "local_path_canonical": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+                  "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
+                },
+                "remote_url_canonical": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:[A-Za-z0-9._-]+@[A-Za-z0-9._-]+:[A-Za-z0-9._~/-]+(?:\\.git)?|ssh:\\/\\/[A-Za-z0-9._-]+@[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?|https?:\\/\\/[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?|git:\\/\\/[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?)$",
+                  "description": "Canonical Git remote URL with credentials stripped."
+                },
+                "ssh_host_alias": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "signing_principal_evidence_ref": {
+                  "type": "object",
+                  "properties": {
+                    "evidence_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "description": "Reference to an Evidence record or fixture."
+                    },
+                    "source": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Human-readable source name or artifact path."
+                    },
+                    "observed_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    "valid_until": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                          "description": "RFC 3339 timestamp with an explicit UTC offset."
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "authority": {
+                      "type": "string",
+                      "enum": [
+                        "project-local",
+                        "workspace-local",
+                        "user-global",
+                        "system",
+                        "derived",
+                        "sandbox-observation",
+                        "host-observation",
+                        "vendor-doc",
+                        "installed-runtime",
+                        "human-observed"
+                      ],
+                      "description": "Authority plane for a fact or observation."
+                    },
+                    "parser_version": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "authoritative",
+                        "high",
+                        "best-effort",
+                        "stale",
+                        "unknown"
+                      ],
+                      "description": "Confidence assigned to an observation by the producer."
+                    }
+                  },
+                  "required": [
+                    "evidence_id",
+                    "source",
+                    "observed_at",
+                    "authority",
+                    "confidence"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                },
+                "credential_account_identity": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_observed_via": {
+                  "type": "string",
+                  "enum": [
+                    "gh_auth_status",
+                    "git_config_read",
+                    "ssh_config_resolution",
+                    "mcp_introspection"
+                  ],
+                  "description": "ADR 0033 repository identity provider observation method."
+                },
+                "reconciliation_verdict_kind": {
+                  "type": "string",
+                  "const": "all_planes_consistent"
+                }
+              },
+              "required": [
+                "repository_id",
+                "local_path_canonical",
+                "remote_url_canonical",
+                "ssh_host_alias",
+                "signing_principal_evidence_ref",
+                "credential_account_identity",
+                "provider_observed_via",
+                "reconciliation_verdict_kind"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "repository_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "local_path_canonical": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+                  "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
+                },
+                "remote_url_canonical": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:[A-Za-z0-9._-]+@[A-Za-z0-9._-]+:[A-Za-z0-9._~/-]+(?:\\.git)?|ssh:\\/\\/[A-Za-z0-9._-]+@[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?|https?:\\/\\/[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?|git:\\/\\/[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?)$",
+                  "description": "Canonical Git remote URL with credentials stripped."
+                },
+                "ssh_host_alias": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "signing_principal_evidence_ref": {
+                  "type": "object",
+                  "properties": {
+                    "evidence_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "description": "Reference to an Evidence record or fixture."
+                    },
+                    "source": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Human-readable source name or artifact path."
+                    },
+                    "observed_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    "valid_until": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                          "description": "RFC 3339 timestamp with an explicit UTC offset."
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "authority": {
+                      "type": "string",
+                      "enum": [
+                        "project-local",
+                        "workspace-local",
+                        "user-global",
+                        "system",
+                        "derived",
+                        "sandbox-observation",
+                        "host-observation",
+                        "vendor-doc",
+                        "installed-runtime",
+                        "human-observed"
+                      ],
+                      "description": "Authority plane for a fact or observation."
+                    },
+                    "parser_version": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "authoritative",
+                        "high",
+                        "best-effort",
+                        "stale",
+                        "unknown"
+                      ],
+                      "description": "Confidence assigned to an observation by the producer."
+                    }
+                  },
+                  "required": [
+                    "evidence_id",
+                    "source",
+                    "observed_at",
+                    "authority",
+                    "confidence"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+                },
+                "credential_account_identity": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_observed_via": {
+                  "type": "string",
+                  "enum": [
+                    "gh_auth_status",
+                    "git_config_read",
+                    "ssh_config_resolution",
+                    "mcp_introspection"
+                  ],
+                  "description": "ADR 0033 repository identity provider observation method."
+                },
+                "reconciliation_verdict_kind": {
+                  "type": "string",
+                  "const": "plane_disagreement"
+                },
+                "plane_disagreements": {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "local_path_mismatch",
+                      "remote_url_mismatch",
+                      "ssh_alias_missing",
+                      "ssh_alias_mismatch",
+                      "signing_principal_unmapped",
+                      "signing_principal_mismatch",
+                      "credential_account_mismatch",
+                      "credential_account_unverified",
+                      "organization_mismatch"
+                    ],
+                    "description": "Closed set of repository identity plane disagreement classes."
+                  }
+                }
+              },
+              "required": [
+                "repository_id",
+                "local_path_canonical",
+                "remote_url_canonical",
+                "ssh_host_alias",
+                "signing_principal_evidence_ref",
+                "credential_account_identity",
+                "provider_observed_via",
+                "reconciliation_verdict_kind",
+                "plane_disagreements"
+              ],
+              "additionalProperties": false
+            }
+          ],
+          "description": "ADR 0033 RepositoryIdentityReconciliationObservation typed Evidence payload."
+        },
+        "authority": {
+          "type": "string",
+          "enum": [
+            "project-local",
+            "workspace-local",
+            "user-global",
+            "system",
+            "derived",
+            "host-observation",
+            "vendor-doc",
+            "installed-runtime",
+            "human-observed"
+          ]
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "schema_version",
+        "evidence_id",
+        "source",
+        "observed_at",
+        "valid_until",
+        "confidence",
+        "parser_version",
+        "evidence_kind",
+        "subject_refs",
+        "payload_schema_version",
+        "payload",
+        "authority"
+      ],
+      "additionalProperties": false
+    }
+  ],
+  "description": "ADR 0033 RepositoryIdentityReconciliationObservation direct Evidence subtype."
+}

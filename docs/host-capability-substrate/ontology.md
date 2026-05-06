@@ -3,7 +3,7 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.6.0
+version: 1.7.0
 last_updated: 2026-05-06
 tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner]
 priority: high
@@ -27,7 +27,9 @@ ADR 0036 deletion-authority fields, and Phase 2.2.3 landed typed
 Phase 2.3.1 landed the ADR 0034 direct Evidence subtype pair:
 `GitIdentityBinding` and `ToolProvenance`. Phase 2.3.2 landed the ADR 0032
 Q-005 runner/check evidence cohort and the typed `runner_isolation`
-`BoundaryObservation` branch.
+`BoundaryObservation` branch. Phase 2.3.3 landed the ADR 0027 / ADR 0030 /
+ADR 0033 Q-006 source-control evidence cohort and the typed
+`branch_protection` `BoundaryObservation` branch.
 
 Canonical research plan sketch: `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md` §2 (Ontology) and §Appendix A.
 
@@ -49,6 +51,19 @@ VerificationCommandSpec producer-asserted workspace verify command spec
 Evidence             a fact with provenance, freshness, authority, confidence
 GitIdentityBinding   direct Evidence subtype for Git author/signing identity
 ToolProvenance       direct Evidence subtype for tool path/shim/version facts
+GitRepositoryObservation direct Evidence observation for repository identity
+GitRemoteObservation direct Evidence observation for remote/ref state
+GitWorktreeObservation direct Evidence observation for worktree state
+GitWorktreeInventoryObservation direct Evidence observation for branch worktrees
+GitBranchAncestryObservation direct/derived Evidence observation for merge proof
+GitDirtyStateObservation direct Evidence observation for worktree dirty state
+PullRequestReceipt   direct Evidence receipt for PR existence/state
+PullRequestAbsenceReceipt direct Evidence receipt for positive PR absence
+RulesetObservation   direct Evidence observation for GitHub rulesets
+RepositoryIdentityReconciliationObservation direct Evidence observation for five-plane repo identity
+MCPCredentialAudienceObservation direct Evidence observation for MCP credential audience
+StatusCheckSourceObservation direct Evidence observation for check source identity
+BranchProtectionObservation BoundaryObservation subtype for branch protection posture
 RunnerHostObservation direct Evidence subtype for CI runner host identity/posture
 RunnerIsolationObservation BoundaryObservation subtype for runner isolation posture
 WorkflowRunReceipt   direct Evidence receipt for GitHub Actions workflow runs
@@ -513,6 +528,13 @@ Phase 2.3.2 widens `Evidence.subject_kind` with `runner_host`,
 and reuses the existing `resource_budget` subject kind for
 `ResourceBudgetObservation`, bumping the Evidence schema to `0.6.0`.
 
+Phase 2.3.3 widens `Evidence.subject_kind` with Q-006 source-control subjects:
+`ruleset`, `repository_identity_reconciliation`, `mcp_credential_audience`,
+`status_check_source`, `git_worktree`, `git_worktree_inventory`,
+`git_branch_ancestry`, `git_dirty_state`, `pull_request`, and
+`pull_request_absence`; it reuses `git_repository` and `git_ref`, bumping the
+Evidence schema to `0.7.0`.
+
 The legacy `evidenceRefSchema` remains as a lightweight reference or embedded
 provenance preview for entities that have not yet been migrated to full
 Evidence records. It is not a competing fact model.
@@ -652,6 +674,131 @@ output, `conftest_outcome_kind`, scrubber-eligible `policy_ids`,
 `tool_provenance_evidence_refs`. `redaction_mode` is required and cannot be
 `none`; raw plan content is rejected by the strict payload shape.
 
+## Phase 2.3 Q-006 Source-Control Evidence
+
+ADR 0027, ADR 0030, and ADR 0033 land the Q-006 source-control evidence model
+as schemas only. These records observe Git/GitHub/source-control facts; they
+do not mutate repositories, edit GitHub rulesets, register hooks, provision
+GitHub Apps, or create operation authority by themselves.
+
+### `GitRepositoryObservation`
+
+Source: `packages/schemas/src/entities/source-control-evidence.ts`
+
+Direct `Evidence` observation with `subject_kind: git_repository`. The payload
+records first-commit-SHA-rooted `repository_id`, canonicalized `git_dir_path`,
+optional canonicalized `work_tree_path`, optional `default_branch`, remote
+observation evidence refs, and `detected_at`. Raw user-home paths are rejected;
+paths must be placeholder-root or accepted non-user system-root forms.
+
+### `GitRemoteObservation`
+
+Direct `Evidence` observation with `subject_kind: git_ref`. The payload is
+per-(repository, remote, ref), records credential-stripped `remote_url`,
+`ref_kind`, `ref_name`, `last_fetch_at`, `last_fetch_outcome`, and `ref_state`.
+`observed_commit_sha` is present only when `ref_state` is `present`; stale or
+ambiguous gateway behavior remains Ring 1 / policy work.
+
+### `BranchProtectionObservation`
+
+Source: `packages/schemas/src/entities/boundary-observation.ts`
+
+Typed `BoundaryObservation` branch with `boundary_dimension:
+branch_protection`. The payload records classic protection / ruleset posture,
+required checks/reviews, push/delete/force-push restrictions, bypass count,
+linear-history posture, and `last_observed_at`. This branch bumps
+`BoundaryObservation.schema_version` to `0.4.0`.
+
+### `GitWorktreeObservation`
+
+Direct `Evidence` observation with `subject_kind: git_worktree`. The payload
+records canonical `worktree_path`, `worktree_kind`, nullable
+`attached_branch_ref`, `head_commit_sha`, `lock_state`, and optional
+lease/session freshness fields. Q-008(d) owns later composition with durable
+worktree ownership.
+
+### `GitWorktreeInventoryObservation`
+
+Direct `Evidence` observation with `subject_kind: git_worktree_inventory`. The
+payload records per-(repository, branch_ref) worktree evidence refs and an
+`inventory_completeness_kind` discriminator. `partial_with_reason` requires a
+typed reason string; positive zero-worktree inventories are represented by an
+empty `worktree_observations` array with `complete`.
+
+### `GitBranchAncestryObservation`
+
+Direct or derived `Evidence` observation with `subject_kind:
+git_branch_ancestry`. The payload uses `ancestry_kind` to select exactly one
+proof sibling: `ancestry_evidence`, `patch_equivalence_evidence`, or
+`empty_branch_evidence`.
+
+### `GitDirtyStateObservation`
+
+Direct `Evidence` observation with `subject_kind: git_dirty_state`. The
+payload is per-worktree and records canonical `worktree_path`,
+`dirty_state_kind`, path counts, and `observed_via: git_status_porcelain`.
+The strict schema enforces the count invariants for clean, untracked,
+uncommitted, and ignored-only states.
+
+### `PullRequestReceipt`
+
+Direct `Evidence` receipt with `subject_kind: pull_request`. The payload
+records GitHub provider state for `open`, `merged`, or `closed_unmerged` PRs.
+`merge_commit_sha` is required only for merged PRs and
+`closed_unmerged_reason_kind` is required only for closed-unmerged PRs. PR
+titles, bodies, descriptions, reviews, and comments are intentionally outside
+the payload schema.
+
+### `PullRequestAbsenceReceipt`
+
+Direct `Evidence` receipt with `subject_kind: pull_request_absence`. This is
+the positive absence receipt for "no PR exists" for a head/base ref pair. It
+records `absence_observed_at` and `query_observed_via`; missing PR evidence is
+not itself authority.
+
+### `RulesetObservation`
+
+Direct `Evidence` observation with `subject_kind: ruleset`. The payload
+records GitHub ruleset id/kind, target pattern, enforcement kind, structured
+rule axes, bypass actor count, and provider observation method. It coexists
+with `BranchProtectionObservation`; consuming logic unions restriction axes
+rather than picking one envelope as more authoritative.
+
+### `RepositoryIdentityReconciliationObservation`
+
+Direct `Evidence` observation with `subject_kind:
+repository_identity_reconciliation`. The payload records the five-plane
+identity check: canonical local path, canonical remote URL, nullable SSH alias,
+signing-principal evidence ref, credential account identity, provider
+observation method, and a verdict discriminator. Plane disagreements are a
+closed enum; operation-time re-checks remain Ring 1 / gateway work.
+
+### `MCPCredentialAudienceObservation`
+
+Direct `Evidence` observation with `subject_kind: mcp_credential_audience`.
+The payload records `mcp_server_kind: github_mcp`,
+`credential_audience_kind`, closed credential scope tokens,
+`credential_source_evidence_ref`, `provider_verified_at`, and
+`query_observed_via`. Free-form credential scope text is rejected to avoid
+secret-bearing paste vectors.
+
+### `StatusCheckSourceObservation`
+
+Direct `Evidence` observation with `subject_kind: status_check_source`. The
+payload binds repository, commit, check name, expected GitHub App or workflow
+path, conclusion, source kind, provider verification time, and a required
+freshness window. `Evidence.valid_until` must match payload `valid_until`, and
+the Phase 1 schema caps that window at 24 hours past `concluded_at`.
+
+### `GitHubMutationAuthority`
+
+Inline value type, not a standalone entity. It distinguishes `human_pat`,
+`github_app`, `oidc`, `actions_token`, and `unknown` authority sources for
+future operation-shape / `ApprovalGrant.scope` consumers. The schema records
+authority shape only; canonical mutation policy and GitHub credential
+provisioning remain out of scope. The generated JSON Schema set includes this
+as a reusable value-type schema even though it is not a Ring 0 lifecycle entity.
+
 ## Phase 1 Boundary Observation Envelope
 
 ### `BoundaryObservation`
@@ -670,6 +817,11 @@ Key fields:
 - `boundary_dimension` is singular and drawn from the registry at
   `docs/host-capability-substrate/ontology-registry.md`. The Zod enum mirrors
   that registry; drift between them fails `just verify`.
+- `source`, optional `source_ref`, `observed_at`, non-null `valid_until`,
+  `authority`, `confidence`, `parser_version`, optional `producer`, and
+  optional `redaction_mode` give the envelope its own Evidence-base
+  provenance and freshness posture. Linked `evidence_refs` support
+  composition but do not replace envelope-level freshness.
 - `observed_payload` is a domain-specific JSON value owned by the dimension's
   payload schema family. The envelope reasons over `observation_state`,
   `discrepancy_class`, freshness, and `evidence_refs`, not the payload
@@ -725,6 +877,11 @@ bumps `BoundaryObservation.schema_version` to `0.3.0`. The branch requires
 `execution_context_id` and uses the flat runner posture payload documented
 above.
 
+Phase 2.3.3 adds the ADR 0027 `branch_protection` typed payload branch and
+bumps `BoundaryObservation.schema_version` to `0.4.0`. The branch requires
+`tool_or_provider_ref` and records branch/ruleset protection posture for a
+repository/ref target.
+
 `BoundaryObservation` does not introduce a new policy tier, dashboard route,
 runtime probe, or mutation operation. Remaining generic domain payload schemas,
 gate-behavior rules for stale or contradictory observations, and dashboard
@@ -775,9 +932,12 @@ capabilities, and decisions.
 
 ## Version-Control Authority Vocabulary
 
-The 2026-05-01 version-control authority consult refines Q-006 but does not add
-schema by itself. It strengthens the Milestone 1 goal that Git/GitHub facts
-should be modeled as typed evidence before they become mutation authority.
+The 2026-05-01 version-control authority consult refined Q-006. Phase 2.3.3
+lands the accepted ADR 0027 / ADR 0030 / ADR 0033 schema portion: Git and
+GitHub facts become typed evidence before any source-control mutation lane can
+consume them as authority. The schemas do not add GitHub mutation endpoints,
+canonical policy YAML, runner registration behavior, GitHub App provisioning,
+or provider-state mutation.
 
 HCS must not collapse these concepts:
 
@@ -800,39 +960,62 @@ HCS must not collapse these concepts:
 - source-control continuity: protected named references, branch history,
   control start revision, and control lapse/restart evidence.
 
-Candidate evidence/receipt names for Phase 1 reconciliation:
+Landed direct Evidence subtypes:
 
-- `GitRepositoryObservation`
-- `GitRemoteObservation`
-- `GitConfigResolution`
-- `GitIdentityBinding`
-- `GitWorktreeObservation`
-- `GitRefObservation`
-- `GitBranchAncestryObservation`
-- `BranchDeletionProof`
-- `GitHubRepositorySettingsObservation`
-- `GitHubRulesetObservation`
-- `BranchProtectionObservation`
-- `WorkflowPolicyObservation`
-- `CheckRunReceipt`
-- `StatusCheckSourceObservation`
-- `GitHubCredentialObservation`
-- `GitHubMcpSessionObservation`
-- `PullRequestReceipt`
-- `PullRequestReviewReceipt`
-- `SourceControlContinuityReceipt`
+- `GitRepositoryObservation`: repository identity rooted in the
+  first-commit-SHA `repository_id`, with canonicalized `.git` / worktree paths
+  and remote observation evidence refs.
+- `GitRemoteObservation`: per-(repository, remote, ref) ref state with
+  credential-stripped `remote_url`, `ref_kind`, fetch outcome, and
+  `observed_commit_sha` present only when `ref_state == "present"`.
+- `GitWorktreeObservation`: per-worktree path, attached branch, HEAD commit,
+  lock state, and optional lease/session observation fields.
+- `GitWorktreeInventoryObservation`: per-(repository, branch_ref) worktree list,
+  with `complete` versus `partial_with_reason` inventory state.
+- `GitBranchAncestryObservation`: `ancestry`, `patch_equivalence`, or `vacuous`
+  proof using the discriminator-and-sibling pattern.
+- `GitDirtyStateObservation`: per-worktree dirty-state observation with
+  count invariants for uncommitted, untracked, and ignored paths.
+- `PullRequestReceipt`: GitHub PR state receipt for `open`, `merged`, or
+  `closed_unmerged`; PR title/body/review content is outside the strict schema.
+- `PullRequestAbsenceReceipt`: positive absence receipt for "no PR exists" for
+  a head/base ref pair.
+- `RulesetObservation`: GitHub ruleset state, rule-axis summary, enforcement
+  kind, bypass count, and provider observation method.
+- `RepositoryIdentityReconciliationObservation`: five-plane repository identity check
+  across local path, remote URL, SSH alias, signing principal, and credential
+  account identity.
+- `MCPCredentialAudienceObservation`: GitHub MCP credential audience
+  (`read_only`, `mutation`, `unscoped`) with closed scope-token vocabulary.
+- `StatusCheckSourceObservation`: check-source binding for repository, commit,
+  check name, expected app/workflow source, conclusion, provider verification,
+  and a required freshness window capped at 24 hours in this Phase 1 schema.
 
-Candidate `BranchDeletionProof` should include repository identity, worktree
-attachment, fresh remote state, ancestry or patch-equivalence proof, dirty-state
-check, PR state, lease state, and human review for force/remote/protected or
-ambiguous deletion.
+Landed BoundaryObservation subtype:
 
-Check results should not be gateable from name and conclusion alone. Gateable
-check evidence should include source app/integration, commit SHA, workflow path
-or provider object, observed time, and freshness.
+- `BranchProtectionObservation`: `boundary_dimension: "branch_protection"`
+  typed payload for classic protection / ruleset / both / none / unknown,
+  including review/check requirements, restriction posture, bypass count, and
+  linear-history posture.
 
-Do not turn these names into operation endpoints or policy tiers before Q-006
-decides evidence subtype versus standalone entity shape.
+Landed value type:
+
+- `GitHubMutationAuthority`: inline value type, not a standalone entity. It is
+  carried by future operation-shape / `ApprovalGrant.scope` consumers and
+  distinguishes `human_pat`, `github_app`, `oidc`, `actions_token`, and
+  `unknown`.
+
+Deferred names remain candidate-only until later ADR/schema lanes:
+`GitConfigResolution`, `GitRefObservation`, `BranchDeletionProof`,
+`GitHubRepositorySettingsObservation`, `WorkflowPolicyObservation`,
+`CheckRunReceipt`, `GitHubCredentialObservation`,
+`GitHubMcpSessionObservation`, `PullRequestReviewReceipt`, and
+`SourceControlContinuityReceipt`.
+
+Check results are not gateable from name and conclusion alone. Gateable check
+evidence must cite source identity and freshness through
+`StatusCheckSourceObservation`, and self-hosted workflow consumption composes
+with `WorkflowRunReceipt` rather than replacing it.
 
 ## Provenance on every fact
 
@@ -840,7 +1023,7 @@ Every `Evidence` record:
 
 ```json
 {
-  "schema_version": "0.6.0",
+  "schema_version": "0.7.0",
   "evidence_id": "evidence:example",
   "evidence_kind": "observation",
   "subject_refs": [
@@ -880,6 +1063,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.7.0 | 2026-05-06 | Added Phase 2.3.3 Q-006 source-control evidence subtype docs, documented `branch_protection`, `GitHubMutationAuthority`, noted the Evidence schema bump to `0.7.0` plus BoundaryObservation schema bump to `0.4.0`, and documented BoundaryObservation envelope-level provenance plus non-null freshness. |
 | 1.6.0 | 2026-05-06 | Added Phase 2.3.2 Q-005 runner/check evidence subtype docs, documented `runner_isolation`, and noted the Evidence schema bump to `0.6.0` plus BoundaryObservation schema bump to `0.3.0`. |
 | 1.5.0 | 2026-05-06 | Added Phase 2.3.1 `GitIdentityBinding` and `ToolProvenance` direct Evidence subtype docs and noted the Evidence schema bump to `0.5.0`. |
 | 1.4.0 | 2026-05-06 | Added Phase 2.2.3 `BoundaryObservation` typed payload docs for `containment_class`, `filesystem_inheritance`, `filesystem_protected_paths`, and `mcp_canonical_authority`, including the `BoundaryObservation.schema_version` bump to `0.2.0`. |

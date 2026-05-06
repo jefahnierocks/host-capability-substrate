@@ -1,6 +1,6 @@
 {
-  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/ResourceBudgetObservation.schema.json",
-  "title": "ResourceBudgetObservation",
+  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/GitRemoteObservation.schema.json",
+  "title": "GitRemoteObservation",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "anyOf": [
     {
@@ -16,39 +16,6 @@
           "minLength": 1,
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
           "description": "Stable local entity identifier. It is not a secret value."
-        },
-        "evidence_kind": {
-          "type": "string",
-          "const": "observation"
-        },
-        "subject_refs": {
-          "minItems": 1,
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "subject_kind": {
-                "type": "string",
-                "const": "resource_budget"
-              },
-              "subject_id": {
-                "type": "string",
-                "minLength": 1,
-                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-                "description": "Stable local entity identifier. It is not a secret value."
-              },
-              "relation": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
-            "required": [
-              "subject_kind",
-              "subject_id"
-            ],
-            "additionalProperties": false,
-            "description": "Subject reference for a ResourceBudgetObservation Evidence subtype."
-          }
         },
         "source": {
           "type": "string",
@@ -122,80 +89,6 @@
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
           "description": "Stable local entity identifier. It is not a secret value."
         },
-        "payload_schema_version": {
-          "type": "string",
-          "const": "resource-budget-observation:v1"
-        },
-        "payload": {
-          "type": "object",
-          "properties": {
-            "runner_host_id": {
-              "type": "string",
-              "minLength": 1,
-              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-              "description": "Stable local entity identifier. It is not a secret value."
-            },
-            "observation_window": {
-              "type": "object",
-              "properties": {
-                "window_start_at": {
-                  "type": "string",
-                  "format": "date-time",
-                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
-                  "description": "RFC 3339 timestamp with an explicit UTC offset."
-                },
-                "window_end_at": {
-                  "type": "string",
-                  "format": "date-time",
-                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
-                  "description": "RFC 3339 timestamp with an explicit UTC offset."
-                }
-              },
-              "required": [
-                "window_start_at",
-                "window_end_at"
-              ],
-              "additionalProperties": false,
-              "description": "Observation window for runner resource pressure readings."
-            },
-            "cpu_pressure_pct": {
-              "type": "number",
-              "minimum": 0,
-              "maximum": 100
-            },
-            "memory_pressure_pct": {
-              "type": "number",
-              "minimum": 0,
-              "maximum": 100
-            },
-            "disk_pressure_pct": {
-              "type": "number",
-              "minimum": 0,
-              "maximum": 100
-            },
-            "active_jobs_count": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 9007199254740991
-            },
-            "cache_size_bytes": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 9007199254740991
-            }
-          },
-          "required": [
-            "runner_host_id",
-            "observation_window",
-            "cpu_pressure_pct",
-            "memory_pressure_pct",
-            "disk_pressure_pct",
-            "active_jobs_count",
-            "cache_size_bytes"
-          ],
-          "additionalProperties": false,
-          "description": "ADR 0032 ResourceBudgetObservation typed Evidence payload."
-        },
         "redaction_mode": {
           "type": "string",
           "enum": [
@@ -207,6 +100,135 @@
             "mixed"
           ],
           "description": "How sensitive payload material was handled before persistence."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "const": "observation"
+        },
+        "subject_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subject_kind": {
+                "type": "string",
+                "const": "git_ref"
+              },
+              "subject_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "relation": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "subject_kind",
+              "subject_id"
+            ],
+            "additionalProperties": false,
+            "description": "Subject reference for a GitRemoteObservation Evidence subtype."
+          }
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "const": "git_remote_observation:v1"
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "repository_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            },
+            "remote_name": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9._-]+$",
+              "description": "Git remote name."
+            },
+            "remote_url": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^(?:[A-Za-z0-9._-]+@[A-Za-z0-9._-]+:[A-Za-z0-9._~/-]+(?:\\.git)?|ssh:\\/\\/[A-Za-z0-9._-]+@[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?|https?:\\/\\/[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?|git:\\/\\/[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?)$",
+              "description": "Canonical Git remote URL with credentials stripped."
+            },
+            "ref_kind": {
+              "type": "string",
+              "enum": [
+                "branch",
+                "tag",
+                "note",
+                "replace",
+                "stash",
+                "bisect",
+                "remote_tracking",
+                "unknown"
+              ],
+              "description": "ADR 0027 Git ref kind discriminator."
+            },
+            "ref_name": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^(?:refs\\/(?:heads|remotes|tags|notes|replace|bisect)\\/[^~^:?*[\\]\\\\]+|refs\\/stash)$",
+              "description": "Canonical Git ref name in an accepted refs/ namespace."
+            },
+            "observed_commit_sha": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{40}$",
+                  "description": "Lowercase full Git commit SHA."
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "last_fetch_at": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            "last_fetch_outcome": {
+              "type": "string",
+              "enum": [
+                "ok",
+                "network_error",
+                "auth_error",
+                "rejected"
+              ],
+              "description": "ADR 0027 last fetch outcome discriminator."
+            },
+            "ref_state": {
+              "type": "string",
+              "enum": [
+                "present",
+                "gone",
+                "ambiguous",
+                "unknown"
+              ],
+              "description": "ADR 0027 remote ref state discriminator."
+            }
+          },
+          "required": [
+            "repository_id",
+            "remote_name",
+            "remote_url",
+            "ref_kind",
+            "ref_name",
+            "observed_commit_sha",
+            "last_fetch_at",
+            "last_fetch_outcome",
+            "ref_state"
+          ],
+          "additionalProperties": false,
+          "description": "ADR 0027 GitRemoteObservation typed Evidence payload."
         },
         "authority": {
           "type": "string",
@@ -220,14 +242,14 @@
       "required": [
         "schema_version",
         "evidence_id",
-        "evidence_kind",
-        "subject_refs",
         "source",
         "observed_at",
         "valid_until",
         "confidence",
         "parser_version",
         "execution_context_id",
+        "evidence_kind",
+        "subject_refs",
         "payload_schema_version",
         "payload",
         "authority",
@@ -249,39 +271,6 @@
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
           "description": "Stable local entity identifier. It is not a secret value."
         },
-        "evidence_kind": {
-          "type": "string",
-          "const": "observation"
-        },
-        "subject_refs": {
-          "minItems": 1,
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "subject_kind": {
-                "type": "string",
-                "const": "resource_budget"
-              },
-              "subject_id": {
-                "type": "string",
-                "minLength": 1,
-                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-                "description": "Stable local entity identifier. It is not a secret value."
-              },
-              "relation": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
-            "required": [
-              "subject_kind",
-              "subject_id"
-            ],
-            "additionalProperties": false,
-            "description": "Subject reference for a ResourceBudgetObservation Evidence subtype."
-          }
-        },
         "source": {
           "type": "string",
           "minLength": 1
@@ -354,80 +343,6 @@
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
           "description": "Stable local entity identifier. It is not a secret value."
         },
-        "payload_schema_version": {
-          "type": "string",
-          "const": "resource-budget-observation:v1"
-        },
-        "payload": {
-          "type": "object",
-          "properties": {
-            "runner_host_id": {
-              "type": "string",
-              "minLength": 1,
-              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-              "description": "Stable local entity identifier. It is not a secret value."
-            },
-            "observation_window": {
-              "type": "object",
-              "properties": {
-                "window_start_at": {
-                  "type": "string",
-                  "format": "date-time",
-                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
-                  "description": "RFC 3339 timestamp with an explicit UTC offset."
-                },
-                "window_end_at": {
-                  "type": "string",
-                  "format": "date-time",
-                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
-                  "description": "RFC 3339 timestamp with an explicit UTC offset."
-                }
-              },
-              "required": [
-                "window_start_at",
-                "window_end_at"
-              ],
-              "additionalProperties": false,
-              "description": "Observation window for runner resource pressure readings."
-            },
-            "cpu_pressure_pct": {
-              "type": "number",
-              "minimum": 0,
-              "maximum": 100
-            },
-            "memory_pressure_pct": {
-              "type": "number",
-              "minimum": 0,
-              "maximum": 100
-            },
-            "disk_pressure_pct": {
-              "type": "number",
-              "minimum": 0,
-              "maximum": 100
-            },
-            "active_jobs_count": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 9007199254740991
-            },
-            "cache_size_bytes": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 9007199254740991
-            }
-          },
-          "required": [
-            "runner_host_id",
-            "observation_window",
-            "cpu_pressure_pct",
-            "memory_pressure_pct",
-            "disk_pressure_pct",
-            "active_jobs_count",
-            "cache_size_bytes"
-          ],
-          "additionalProperties": false,
-          "description": "ADR 0032 ResourceBudgetObservation typed Evidence payload."
-        },
         "redaction_mode": {
           "type": "string",
           "enum": [
@@ -439,6 +354,135 @@
             "mixed"
           ],
           "description": "How sensitive payload material was handled before persistence."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "const": "observation"
+        },
+        "subject_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subject_kind": {
+                "type": "string",
+                "const": "git_ref"
+              },
+              "subject_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "relation": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "subject_kind",
+              "subject_id"
+            ],
+            "additionalProperties": false,
+            "description": "Subject reference for a GitRemoteObservation Evidence subtype."
+          }
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "const": "git_remote_observation:v1"
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "repository_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            },
+            "remote_name": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9._-]+$",
+              "description": "Git remote name."
+            },
+            "remote_url": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^(?:[A-Za-z0-9._-]+@[A-Za-z0-9._-]+:[A-Za-z0-9._~/-]+(?:\\.git)?|ssh:\\/\\/[A-Za-z0-9._-]+@[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?|https?:\\/\\/[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?|git:\\/\\/[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?)$",
+              "description": "Canonical Git remote URL with credentials stripped."
+            },
+            "ref_kind": {
+              "type": "string",
+              "enum": [
+                "branch",
+                "tag",
+                "note",
+                "replace",
+                "stash",
+                "bisect",
+                "remote_tracking",
+                "unknown"
+              ],
+              "description": "ADR 0027 Git ref kind discriminator."
+            },
+            "ref_name": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^(?:refs\\/(?:heads|remotes|tags|notes|replace|bisect)\\/[^~^:?*[\\]\\\\]+|refs\\/stash)$",
+              "description": "Canonical Git ref name in an accepted refs/ namespace."
+            },
+            "observed_commit_sha": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{40}$",
+                  "description": "Lowercase full Git commit SHA."
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "last_fetch_at": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            "last_fetch_outcome": {
+              "type": "string",
+              "enum": [
+                "ok",
+                "network_error",
+                "auth_error",
+                "rejected"
+              ],
+              "description": "ADR 0027 last fetch outcome discriminator."
+            },
+            "ref_state": {
+              "type": "string",
+              "enum": [
+                "present",
+                "gone",
+                "ambiguous",
+                "unknown"
+              ],
+              "description": "ADR 0027 remote ref state discriminator."
+            }
+          },
+          "required": [
+            "repository_id",
+            "remote_name",
+            "remote_url",
+            "ref_kind",
+            "ref_name",
+            "observed_commit_sha",
+            "last_fetch_at",
+            "last_fetch_outcome",
+            "ref_state"
+          ],
+          "additionalProperties": false,
+          "description": "ADR 0027 GitRemoteObservation typed Evidence payload."
         },
         "authority": {
           "type": "string",
@@ -452,8 +496,6 @@
       "required": [
         "schema_version",
         "evidence_id",
-        "evidence_kind",
-        "subject_refs",
         "source",
         "observed_at",
         "valid_until",
@@ -461,6 +503,8 @@
         "parser_version",
         "execution_context_id",
         "session_id",
+        "evidence_kind",
+        "subject_refs",
         "payload_schema_version",
         "payload",
         "authority"
@@ -480,39 +524,6 @@
           "minLength": 1,
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
           "description": "Stable local entity identifier. It is not a secret value."
-        },
-        "evidence_kind": {
-          "type": "string",
-          "const": "observation"
-        },
-        "subject_refs": {
-          "minItems": 1,
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "subject_kind": {
-                "type": "string",
-                "const": "resource_budget"
-              },
-              "subject_id": {
-                "type": "string",
-                "minLength": 1,
-                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-                "description": "Stable local entity identifier. It is not a secret value."
-              },
-              "relation": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
-            "required": [
-              "subject_kind",
-              "subject_id"
-            ],
-            "additionalProperties": false,
-            "description": "Subject reference for a ResourceBudgetObservation Evidence subtype."
-          }
         },
         "source": {
           "type": "string",
@@ -586,80 +597,6 @@
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
           "description": "Stable local entity identifier. It is not a secret value."
         },
-        "payload_schema_version": {
-          "type": "string",
-          "const": "resource-budget-observation:v1"
-        },
-        "payload": {
-          "type": "object",
-          "properties": {
-            "runner_host_id": {
-              "type": "string",
-              "minLength": 1,
-              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-              "description": "Stable local entity identifier. It is not a secret value."
-            },
-            "observation_window": {
-              "type": "object",
-              "properties": {
-                "window_start_at": {
-                  "type": "string",
-                  "format": "date-time",
-                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
-                  "description": "RFC 3339 timestamp with an explicit UTC offset."
-                },
-                "window_end_at": {
-                  "type": "string",
-                  "format": "date-time",
-                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
-                  "description": "RFC 3339 timestamp with an explicit UTC offset."
-                }
-              },
-              "required": [
-                "window_start_at",
-                "window_end_at"
-              ],
-              "additionalProperties": false,
-              "description": "Observation window for runner resource pressure readings."
-            },
-            "cpu_pressure_pct": {
-              "type": "number",
-              "minimum": 0,
-              "maximum": 100
-            },
-            "memory_pressure_pct": {
-              "type": "number",
-              "minimum": 0,
-              "maximum": 100
-            },
-            "disk_pressure_pct": {
-              "type": "number",
-              "minimum": 0,
-              "maximum": 100
-            },
-            "active_jobs_count": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 9007199254740991
-            },
-            "cache_size_bytes": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 9007199254740991
-            }
-          },
-          "required": [
-            "runner_host_id",
-            "observation_window",
-            "cpu_pressure_pct",
-            "memory_pressure_pct",
-            "disk_pressure_pct",
-            "active_jobs_count",
-            "cache_size_bytes"
-          ],
-          "additionalProperties": false,
-          "description": "ADR 0032 ResourceBudgetObservation typed Evidence payload."
-        },
         "redaction_mode": {
           "type": "string",
           "enum": [
@@ -671,6 +608,135 @@
             "mixed"
           ],
           "description": "How sensitive payload material was handled before persistence."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "const": "observation"
+        },
+        "subject_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subject_kind": {
+                "type": "string",
+                "const": "git_ref"
+              },
+              "subject_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "relation": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "subject_kind",
+              "subject_id"
+            ],
+            "additionalProperties": false,
+            "description": "Subject reference for a GitRemoteObservation Evidence subtype."
+          }
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "const": "git_remote_observation:v1"
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "repository_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            },
+            "remote_name": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9._-]+$",
+              "description": "Git remote name."
+            },
+            "remote_url": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^(?:[A-Za-z0-9._-]+@[A-Za-z0-9._-]+:[A-Za-z0-9._~/-]+(?:\\.git)?|ssh:\\/\\/[A-Za-z0-9._-]+@[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?|https?:\\/\\/[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?|git:\\/\\/[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?)$",
+              "description": "Canonical Git remote URL with credentials stripped."
+            },
+            "ref_kind": {
+              "type": "string",
+              "enum": [
+                "branch",
+                "tag",
+                "note",
+                "replace",
+                "stash",
+                "bisect",
+                "remote_tracking",
+                "unknown"
+              ],
+              "description": "ADR 0027 Git ref kind discriminator."
+            },
+            "ref_name": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^(?:refs\\/(?:heads|remotes|tags|notes|replace|bisect)\\/[^~^:?*[\\]\\\\]+|refs\\/stash)$",
+              "description": "Canonical Git ref name in an accepted refs/ namespace."
+            },
+            "observed_commit_sha": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{40}$",
+                  "description": "Lowercase full Git commit SHA."
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "last_fetch_at": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            "last_fetch_outcome": {
+              "type": "string",
+              "enum": [
+                "ok",
+                "network_error",
+                "auth_error",
+                "rejected"
+              ],
+              "description": "ADR 0027 last fetch outcome discriminator."
+            },
+            "ref_state": {
+              "type": "string",
+              "enum": [
+                "present",
+                "gone",
+                "ambiguous",
+                "unknown"
+              ],
+              "description": "ADR 0027 remote ref state discriminator."
+            }
+          },
+          "required": [
+            "repository_id",
+            "remote_name",
+            "remote_url",
+            "ref_kind",
+            "ref_name",
+            "observed_commit_sha",
+            "last_fetch_at",
+            "last_fetch_outcome",
+            "ref_state"
+          ],
+          "additionalProperties": false,
+          "description": "ADR 0027 GitRemoteObservation typed Evidence payload."
         },
         "authority": {
           "type": "string",
@@ -684,8 +750,6 @@
       "required": [
         "schema_version",
         "evidence_id",
-        "evidence_kind",
-        "subject_refs",
         "source",
         "observed_at",
         "valid_until",
@@ -693,6 +757,8 @@
         "parser_version",
         "execution_context_id",
         "run_id",
+        "evidence_kind",
+        "subject_refs",
         "payload_schema_version",
         "payload",
         "authority"
@@ -712,39 +778,6 @@
           "minLength": 1,
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
           "description": "Stable local entity identifier. It is not a secret value."
-        },
-        "evidence_kind": {
-          "type": "string",
-          "const": "observation"
-        },
-        "subject_refs": {
-          "minItems": 1,
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "subject_kind": {
-                "type": "string",
-                "const": "resource_budget"
-              },
-              "subject_id": {
-                "type": "string",
-                "minLength": 1,
-                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-                "description": "Stable local entity identifier. It is not a secret value."
-              },
-              "relation": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
-            "required": [
-              "subject_kind",
-              "subject_id"
-            ],
-            "additionalProperties": false,
-            "description": "Subject reference for a ResourceBudgetObservation Evidence subtype."
-          }
         },
         "source": {
           "type": "string",
@@ -818,80 +851,6 @@
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
           "description": "Stable local entity identifier. It is not a secret value."
         },
-        "payload_schema_version": {
-          "type": "string",
-          "const": "resource-budget-observation:v1"
-        },
-        "payload": {
-          "type": "object",
-          "properties": {
-            "runner_host_id": {
-              "type": "string",
-              "minLength": 1,
-              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-              "description": "Stable local entity identifier. It is not a secret value."
-            },
-            "observation_window": {
-              "type": "object",
-              "properties": {
-                "window_start_at": {
-                  "type": "string",
-                  "format": "date-time",
-                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
-                  "description": "RFC 3339 timestamp with an explicit UTC offset."
-                },
-                "window_end_at": {
-                  "type": "string",
-                  "format": "date-time",
-                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
-                  "description": "RFC 3339 timestamp with an explicit UTC offset."
-                }
-              },
-              "required": [
-                "window_start_at",
-                "window_end_at"
-              ],
-              "additionalProperties": false,
-              "description": "Observation window for runner resource pressure readings."
-            },
-            "cpu_pressure_pct": {
-              "type": "number",
-              "minimum": 0,
-              "maximum": 100
-            },
-            "memory_pressure_pct": {
-              "type": "number",
-              "minimum": 0,
-              "maximum": 100
-            },
-            "disk_pressure_pct": {
-              "type": "number",
-              "minimum": 0,
-              "maximum": 100
-            },
-            "active_jobs_count": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 9007199254740991
-            },
-            "cache_size_bytes": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 9007199254740991
-            }
-          },
-          "required": [
-            "runner_host_id",
-            "observation_window",
-            "cpu_pressure_pct",
-            "memory_pressure_pct",
-            "disk_pressure_pct",
-            "active_jobs_count",
-            "cache_size_bytes"
-          ],
-          "additionalProperties": false,
-          "description": "ADR 0032 ResourceBudgetObservation typed Evidence payload."
-        },
         "redaction_mode": {
           "type": "string",
           "enum": [
@@ -903,6 +862,135 @@
             "mixed"
           ],
           "description": "How sensitive payload material was handled before persistence."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "const": "observation"
+        },
+        "subject_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subject_kind": {
+                "type": "string",
+                "const": "git_ref"
+              },
+              "subject_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "relation": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "subject_kind",
+              "subject_id"
+            ],
+            "additionalProperties": false,
+            "description": "Subject reference for a GitRemoteObservation Evidence subtype."
+          }
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "const": "git_remote_observation:v1"
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "repository_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            },
+            "remote_name": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9._-]+$",
+              "description": "Git remote name."
+            },
+            "remote_url": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^(?:[A-Za-z0-9._-]+@[A-Za-z0-9._-]+:[A-Za-z0-9._~/-]+(?:\\.git)?|ssh:\\/\\/[A-Za-z0-9._-]+@[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?|https?:\\/\\/[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?|git:\\/\\/[A-Za-z0-9._-]+\\/[A-Za-z0-9._~/-]+(?:\\.git)?)$",
+              "description": "Canonical Git remote URL with credentials stripped."
+            },
+            "ref_kind": {
+              "type": "string",
+              "enum": [
+                "branch",
+                "tag",
+                "note",
+                "replace",
+                "stash",
+                "bisect",
+                "remote_tracking",
+                "unknown"
+              ],
+              "description": "ADR 0027 Git ref kind discriminator."
+            },
+            "ref_name": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^(?:refs\\/(?:heads|remotes|tags|notes|replace|bisect)\\/[^~^:?*[\\]\\\\]+|refs\\/stash)$",
+              "description": "Canonical Git ref name in an accepted refs/ namespace."
+            },
+            "observed_commit_sha": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{40}$",
+                  "description": "Lowercase full Git commit SHA."
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "last_fetch_at": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            "last_fetch_outcome": {
+              "type": "string",
+              "enum": [
+                "ok",
+                "network_error",
+                "auth_error",
+                "rejected"
+              ],
+              "description": "ADR 0027 last fetch outcome discriminator."
+            },
+            "ref_state": {
+              "type": "string",
+              "enum": [
+                "present",
+                "gone",
+                "ambiguous",
+                "unknown"
+              ],
+              "description": "ADR 0027 remote ref state discriminator."
+            }
+          },
+          "required": [
+            "repository_id",
+            "remote_name",
+            "remote_url",
+            "ref_kind",
+            "ref_name",
+            "observed_commit_sha",
+            "last_fetch_at",
+            "last_fetch_outcome",
+            "ref_state"
+          ],
+          "additionalProperties": false,
+          "description": "ADR 0027 GitRemoteObservation typed Evidence payload."
         },
         "authority": {
           "type": "string",
@@ -926,13 +1014,13 @@
       "required": [
         "schema_version",
         "evidence_id",
-        "evidence_kind",
-        "subject_refs",
         "source",
         "observed_at",
         "valid_until",
         "confidence",
         "parser_version",
+        "evidence_kind",
+        "subject_refs",
         "payload_schema_version",
         "payload",
         "authority"
@@ -940,5 +1028,5 @@
       "additionalProperties": false
     }
   ],
-  "description": "ADR 0032 ResourceBudgetObservation direct Evidence subtype."
+  "description": "ADR 0027 GitRemoteObservation direct Evidence subtype."
 }

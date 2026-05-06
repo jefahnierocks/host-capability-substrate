@@ -1,0 +1,93 @@
+{
+  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/GitHubMutationAuthority.schema.json",
+  "title": "GitHubMutationAuthority",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "authority_kind": {
+          "type": "string",
+          "const": "human_pat"
+        },
+        "pat_keyring_account": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "authority_kind",
+        "pat_keyring_account"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "authority_kind": {
+          "type": "string",
+          "const": "github_app"
+        },
+        "github_app_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "authority_kind",
+        "github_app_id"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "authority_kind": {
+          "type": "string",
+          "const": "oidc"
+        },
+        "oidc_issuer": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "authority_kind",
+        "oidc_issuer"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "authority_kind": {
+          "type": "string",
+          "const": "actions_token"
+        },
+        "actions_workflow_path": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "authority_kind",
+        "actions_workflow_path"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "authority_kind": {
+          "type": "string",
+          "const": "unknown"
+        }
+      },
+      "required": [
+        "authority_kind"
+      ],
+      "additionalProperties": false
+    }
+  ],
+  "description": "ADR 0033 inline GitHubMutationAuthority value type."
+}

@@ -3,7 +3,7 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.3.12
+version: 0.3.13
 last_updated: 2026-05-06
 tags: [ontology, registry, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
 priority: high
@@ -1248,6 +1248,297 @@ Mirror notes:
 - This schema slice does not author a `Decision`, `ApprovalGrant.scope`, GitHub
   runner registration behavior, canonical policy YAML, or Citadel policy.
 
+### ADR 0027/0030/0033 Q-006 source-control evidence enum mirrors
+
+Source: ADR 0027, ADR 0030, ADR 0033, and ADR 0038 Phase 2.3.3.
+
+`Evidence.schema_version`:
+
+- `0.7.0`
+
+`Evidence.subject_kind` Phase 2.3.3 extensions:
+
+- `ruleset`
+- `repository_identity_reconciliation`
+- `mcp_credential_audience`
+- `status_check_source`
+- `git_worktree`
+- `git_worktree_inventory`
+- `git_branch_ancestry`
+- `git_dirty_state`
+- `pull_request`
+- `pull_request_absence`
+
+Existing `Evidence.subject_kind` values reused by Phase 2.3.3:
+
+- `git_repository`
+- `git_ref`
+
+`BoundaryObservation.schema_version`:
+
+- `0.4.0`
+
+`BoundaryObservation.boundary_dimension` Phase 2.3.3 extension:
+
+- `branch_protection`
+
+`GitRemoteObservation.payload.ref_kind`:
+
+- `branch`
+- `tag`
+- `note`
+- `replace`
+- `stash`
+- `bisect`
+- `remote_tracking`
+- `unknown`
+
+`GitRemoteObservation.payload.last_fetch_outcome`:
+
+- `ok`
+- `network_error`
+- `auth_error`
+- `rejected`
+
+`GitRemoteObservation.payload.ref_state`:
+
+- `present`
+- `gone`
+- `ambiguous`
+- `unknown`
+
+`BranchProtectionObservation.observed_payload.protection_kind`:
+
+- `classic_protection`
+- `ruleset`
+- `both`
+- `none`
+- `unknown`
+
+`BranchProtectionObservation.observed_payload.restrictions_*`:
+
+- `blocked`
+- `allowed`
+- `bypass_only`
+
+`GitWorktreeObservation.payload.worktree_kind`:
+
+- `primary`
+- `linked`
+
+`GitWorktreeObservation.payload.lock_state`:
+
+- `unlocked`
+- `locked`
+- `held_by_other_session`
+
+`GitWorktreeInventoryObservation.payload.inventory_completeness_kind`:
+
+- `complete`
+- `partial_with_reason`
+
+`GitWorktreeInventoryObservation.payload.observed_via`:
+
+- `git_worktree_list`
+
+`GitBranchAncestryObservation.payload.ancestry_kind`:
+
+- `ancestry`
+- `patch_equivalence`
+- `vacuous`
+
+`GitDirtyStateObservation.payload.dirty_state_kind`:
+
+- `clean`
+- `dirty_uncommitted`
+- `dirty_with_untracked`
+- `dirty_with_ignored_only`
+
+`GitDirtyStateObservation.payload.observed_via`:
+
+- `git_status_porcelain`
+
+`PullRequestReceipt.payload.provider_kind` and
+`PullRequestAbsenceReceipt.payload.provider_kind`:
+
+- `github`
+
+`PullRequestReceipt.payload.pr_state_kind`:
+
+- `open`
+- `merged`
+- `closed_unmerged`
+
+`PullRequestReceipt.payload.closed_unmerged_reason_kind`:
+
+- `abandoned`
+- `superseded`
+- `manual_close`
+- `unknown`
+
+`PullRequestReceipt.payload.provider_observed_via`:
+
+- `github_api_v3`
+- `github_api_v4`
+- `gh_cli`
+- `github_mcp`
+
+`PullRequestAbsenceReceipt.payload.query_observed_via`:
+
+- `github_api_v3_pr_search`
+- `github_api_v4_pull_requests`
+- `gh_pr_list`
+- `github_mcp_pr_search`
+
+`GitHubMutationAuthority.authority_kind`:
+
+- `human_pat`
+- `github_app`
+- `oidc`
+- `actions_token`
+- `unknown`
+
+`RulesetObservation.payload.ruleset_kind`:
+
+- `branch`
+- `tag`
+- `push`
+
+`RulesetObservation.payload.enforcement_kind`:
+
+- `active`
+- `evaluate`
+- `disabled`
+
+`RulesetObservation.payload.provider_observed_via`:
+
+- `github_api_v3_rulesets`
+- `github_api_v4_rulesets`
+- `gh_cli`
+- `github_mcp`
+
+`RepositoryIdentityReconciliationObservation.payload.reconciliation_verdict_kind`:
+
+- `all_planes_consistent`
+- `plane_disagreement`
+
+`RepositoryIdentityReconciliationObservation.payload.plane_disagreements`:
+
+- `local_path_mismatch`
+- `remote_url_mismatch`
+- `ssh_alias_missing`
+- `ssh_alias_mismatch`
+- `signing_principal_unmapped`
+- `signing_principal_mismatch`
+- `credential_account_mismatch`
+- `credential_account_unverified`
+- `organization_mismatch`
+
+`RepositoryIdentityReconciliationObservation.payload.provider_observed_via`:
+
+- `gh_auth_status`
+- `git_config_read`
+- `ssh_config_resolution`
+- `mcp_introspection`
+
+`MCPCredentialAudienceObservation.payload.mcp_server_kind`:
+
+- `github_mcp`
+
+`MCPCredentialAudienceObservation.payload.credential_audience_kind`:
+
+- `read_only`
+- `mutation`
+- `unscoped`
+
+`MCPCredentialAudienceObservation.payload.credential_scope_tokens`:
+
+- `metadata:read`
+- `contents:read`
+- `contents:write`
+- `pull_requests:read`
+- `pull_requests:write`
+- `actions:read`
+- `actions:write`
+- `checks:read`
+- `checks:write`
+- `administration:read`
+- `administration:write`
+- `workflows:read`
+- `workflows:write`
+
+`MCPCredentialAudienceObservation.payload.query_observed_via`:
+
+- `gh_token_list`
+- `github_api_permissions`
+- `mcp_introspection`
+- `unknown`
+
+`StatusCheckSourceObservation.payload.conclusion_kind`:
+
+- `success`
+- `failure`
+- `skipped`
+- `cancelled`
+- `neutral`
+- `timed_out`
+- `action_required`
+
+`StatusCheckSourceObservation.payload.source_kind`:
+
+- `actions_workflow`
+- `github_app`
+- `third_party_service`
+- `native`
+
+`StatusCheckSourceObservation.payload.provider_observed_via`:
+
+- `github_api_v3_checks`
+- `github_api_v4_checkruns`
+- `gh_cli`
+- `github_mcp`
+
+`Decision.reason_kind` reservations from ADR 0030:
+
+- `worktree_attachment_drift`
+- `worktree_inventory_partial`
+- `ancestry_proof_invalid`
+- `dirty_state_blocks_destructive_op`
+- `pr_state_drift`
+- `pr_absence_stale`
+
+`Decision.required_grant_kind` reservations from ADR 0030:
+
+- `worktree_clean_acknowledgment`
+- `pr_absence_acknowledgment`
+
+`Decision.reason_kind` reservations from ADR 0033:
+
+- `github_mutation_authority_unverified`
+- `ruleset_baseline_unmet`
+- `repository_identity_mismatch`
+- `mcp_credential_audience_mismatch`
+- `status_check_source_unverified`
+- `status_check_source_app_drift`
+
+Mirror notes:
+
+- `BranchProtectionObservation` is a typed `BoundaryObservation` branch.
+  `StatusCheckSourceObservation` is a direct Evidence subtype; ADR 0033
+  explicitly rejects a `BoundaryObservation` envelope for it.
+- `GitHubMutationAuthority` is an inline value type, not a standalone Ring 0
+  entity and not a Q-011 bucket member. It still has a generated reusable JSON
+  Schema so future operation-shape / `ApprovalGrant.scope` consumers can cite
+  the same value contract.
+- `PullRequestReceipt` does not carry `absent`; positive absence is
+  `PullRequestAbsenceReceipt`.
+- PR titles, bodies, descriptions, review comments, token values, GitHub App
+  private keys, PATs, OIDC token bytes, and resolved secret material are
+  outside the strict Q-006 payload schemas.
+- This schema slice does not author a `Decision`, `ApprovalGrant.scope`,
+  canonical policy YAML, GitHub mutation operation, GitHub App provisioning,
+  or source-control hook behavior.
+
 ## Boundary dimension registry
 
 Entries are alphabetised by name. Status reflects ontology review on this
@@ -1267,6 +1558,22 @@ registry, not the surrounding ADRs.
 - Sample observed payload sketch (illustrative only):
   `{ bundle_id, codesign_team_id, signature_state, version_observed, build_observed }`.
 
+### `branch_protection`
+
+- Status: accepted (typed payload landed in Phase 2.3.3)
+- Description: Branch protection posture for a repository/ref target, including
+  classic branch protection, GitHub rulesets, required checks/reviews, push /
+  delete / force-push restrictions, bypass count, and linear-history posture.
+- Primary target: `tool_or_provider_ref`
+- Supplemental targets: `workspace_id`
+- Overlap notes: distinct from `RulesetObservation`, which records a GitHub
+  ruleset object as direct Evidence. `BranchProtectionObservation` records the
+  target branch/ref boundary posture and composes with `RulesetObservation`
+  by unioning restriction axes.
+- Source: ADR 0027, ADR 0033, Phase 2.3.3 schema implementation.
+- Observed payload schema: `BranchProtectionObservation.observed_payload`
+  (`branch_protection:v1`).
+
 ### `check_source`
 
 - Status: proposed
@@ -1276,9 +1583,10 @@ registry, not the surrounding ADRs.
 - Primary target: `tool_or_provider_ref` (provider object reference for the
   check or workflow).
 - Supplemental targets: `workspace_id`, `surface_id`.
-- Overlap notes: ADR 0020 names `StatusCheckSourceObservation` as the
-  evidence-subtype receipt; this dimension is the discriminator that envelope
-  carries when emitted as a `BoundaryObservation`.
+- Overlap notes: legacy candidate retained for registry continuity only.
+  ADR 0033 commits `StatusCheckSourceObservation` as a direct Evidence subtype
+  and explicitly rejects a `BoundaryObservation` envelope for status-check
+  source binding.
 - Source: ADR 0020, 2026-05-01 version-control authority consult synthesis.
 - Sample observed payload sketch:
   `{ check_name, source_app_id, expected_workflow_path, commit_sha, observed_at }`.
@@ -1572,6 +1880,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.3.13 | 2026-05-06 | Added Phase 2.3.3 enum mirrors for ADR 0027/0030/0033 Q-006 source-control evidence, promoted `branch_protection` to accepted, corrected `check_source` overlap notes to the ADR 0033 direct-Evidence posture, recorded `Evidence.schema_version` `0.7.0`, recorded `BoundaryObservation.schema_version` `0.4.0`, and aligned the BoundaryObservation envelope with charter invariant 19 by requiring envelope-level provenance plus non-null freshness. |
 | 0.3.12 | 2026-05-06 | Added Phase 2.3.2 enum mirrors for ADR 0032 Q-005 runner/check evidence, promoted `runner_isolation` to accepted, recorded `Evidence.schema_version` `0.6.0`, and recorded `BoundaryObservation.schema_version` `0.3.0`. |
 | 0.3.11 | 2026-05-06 | Added Phase 2.3.1 enum mirrors for ADR 0034 `GitIdentityBinding` and `ToolProvenance` direct Evidence subtypes and recorded the Evidence schema bump to `0.5.0`. |
 | 0.3.10 | 2026-05-06 | Added Phase 2.2.3 `BoundaryObservation` payload enum mirrors and accepted registry entries for `filesystem_inheritance`, `filesystem_protected_paths`, and `mcp_canonical_authority`; updated `containment_class` to the ADR 0037 typed payload vocabulary; recorded the `BoundaryObservation.schema_version` bump to `0.2.0`. |

@@ -7,8 +7,10 @@ import {
 } from '../common.ts';
 
 export const evidenceSchemaVersionSchema = z
-  .literal('0.6.0')
-  .describe('Evidence schema version after ADR 0032 Q-005 runner/check subject-kind extensions.');
+  .literal('0.7.0')
+  .describe(
+    'Evidence schema version after ADR 0027/0030/0033 Q-006 source-control subject-kind extensions.',
+  );
 
 export const evidenceKindSchema = z
   .enum(['observation', 'receipt', 'derived', 'human_decision', 'fixture'])
@@ -48,6 +50,16 @@ export const evidenceSubjectKindSchema = z
     'quality_gate',
     'git_identity_binding',
     'tool_provenance',
+    'ruleset',
+    'repository_identity_reconciliation',
+    'mcp_credential_audience',
+    'status_check_source',
+    'git_worktree',
+    'git_worktree_inventory',
+    'git_branch_ancestry',
+    'git_dirty_state',
+    'pull_request',
+    'pull_request_absence',
     'runner_host',
     'runner_isolation',
     'workflow_run',

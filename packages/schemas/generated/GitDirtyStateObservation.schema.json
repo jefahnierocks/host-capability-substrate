@@ -1,0 +1,1456 @@
+{
+  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/GitDirtyStateObservation.schema.json",
+  "title": "GitDirtyStateObservation",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "anyOf": [
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "0.7.0",
+          "description": "Evidence schema version after ADR 0027/0030/0033 Q-006 source-control subject-kind extensions."
+        },
+        "evidence_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        "valid_until": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "authoritative",
+            "high",
+            "best-effort",
+            "stale",
+            "unknown"
+          ],
+          "description": "Confidence assigned to an observation by the producer."
+        },
+        "parser_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "producer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "host_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "workspace_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "execution_context_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "redaction_mode": {
+          "type": "string",
+          "enum": [
+            "none",
+            "redacted",
+            "classified",
+            "hash_only",
+            "reference_only",
+            "mixed"
+          ],
+          "description": "How sensitive payload material was handled before persistence."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "const": "observation"
+        },
+        "subject_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subject_kind": {
+                "type": "string",
+                "const": "git_dirty_state"
+              },
+              "subject_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "relation": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "subject_kind",
+              "subject_id"
+            ],
+            "additionalProperties": false,
+            "description": "Subject reference for a GitDirtyStateObservation Evidence subtype."
+          }
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "const": "git_dirty_state_observation:v1"
+        },
+        "payload": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "repository_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "worktree_path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+                  "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
+                },
+                "observed_via": {
+                  "type": "string",
+                  "const": "git_status_porcelain"
+                },
+                "dirty_state_kind": {
+                  "type": "string",
+                  "const": "clean"
+                },
+                "uncommitted_path_count": {
+                  "type": "number",
+                  "const": 0
+                },
+                "untracked_path_count": {
+                  "type": "number",
+                  "const": 0
+                },
+                "ignored_path_count": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "repository_id",
+                "worktree_path",
+                "observed_via",
+                "dirty_state_kind",
+                "uncommitted_path_count",
+                "untracked_path_count",
+                "ignored_path_count"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "repository_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "worktree_path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+                  "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
+                },
+                "observed_via": {
+                  "type": "string",
+                  "const": "git_status_porcelain"
+                },
+                "dirty_state_kind": {
+                  "type": "string",
+                  "const": "dirty_uncommitted"
+                },
+                "uncommitted_path_count": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "untracked_path_count": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "ignored_path_count": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "repository_id",
+                "worktree_path",
+                "observed_via",
+                "dirty_state_kind",
+                "uncommitted_path_count",
+                "untracked_path_count",
+                "ignored_path_count"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "repository_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "worktree_path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+                  "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
+                },
+                "observed_via": {
+                  "type": "string",
+                  "const": "git_status_porcelain"
+                },
+                "dirty_state_kind": {
+                  "type": "string",
+                  "const": "dirty_with_untracked"
+                },
+                "uncommitted_path_count": {
+                  "type": "number",
+                  "const": 0
+                },
+                "untracked_path_count": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "ignored_path_count": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "repository_id",
+                "worktree_path",
+                "observed_via",
+                "dirty_state_kind",
+                "uncommitted_path_count",
+                "untracked_path_count",
+                "ignored_path_count"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "repository_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "worktree_path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+                  "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
+                },
+                "observed_via": {
+                  "type": "string",
+                  "const": "git_status_porcelain"
+                },
+                "dirty_state_kind": {
+                  "type": "string",
+                  "const": "dirty_with_ignored_only"
+                },
+                "uncommitted_path_count": {
+                  "type": "number",
+                  "const": 0
+                },
+                "untracked_path_count": {
+                  "type": "number",
+                  "const": 0
+                },
+                "ignored_path_count": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "repository_id",
+                "worktree_path",
+                "observed_via",
+                "dirty_state_kind",
+                "uncommitted_path_count",
+                "untracked_path_count",
+                "ignored_path_count"
+              ],
+              "additionalProperties": false
+            }
+          ],
+          "description": "ADR 0030 GitDirtyStateObservation typed Evidence payload."
+        },
+        "authority": {
+          "type": "string",
+          "const": "sandbox-observation"
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "schema_version",
+        "evidence_id",
+        "source",
+        "observed_at",
+        "valid_until",
+        "confidence",
+        "parser_version",
+        "execution_context_id",
+        "evidence_kind",
+        "subject_refs",
+        "payload_schema_version",
+        "payload",
+        "authority",
+        "source_ref"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "0.7.0",
+          "description": "Evidence schema version after ADR 0027/0030/0033 Q-006 source-control subject-kind extensions."
+        },
+        "evidence_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        "valid_until": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "authoritative",
+            "high",
+            "best-effort",
+            "stale",
+            "unknown"
+          ],
+          "description": "Confidence assigned to an observation by the producer."
+        },
+        "parser_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "producer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "host_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "workspace_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "execution_context_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "redaction_mode": {
+          "type": "string",
+          "enum": [
+            "none",
+            "redacted",
+            "classified",
+            "hash_only",
+            "reference_only",
+            "mixed"
+          ],
+          "description": "How sensitive payload material was handled before persistence."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "const": "observation"
+        },
+        "subject_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subject_kind": {
+                "type": "string",
+                "const": "git_dirty_state"
+              },
+              "subject_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "relation": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "subject_kind",
+              "subject_id"
+            ],
+            "additionalProperties": false,
+            "description": "Subject reference for a GitDirtyStateObservation Evidence subtype."
+          }
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "const": "git_dirty_state_observation:v1"
+        },
+        "payload": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "repository_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "worktree_path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+                  "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
+                },
+                "observed_via": {
+                  "type": "string",
+                  "const": "git_status_porcelain"
+                },
+                "dirty_state_kind": {
+                  "type": "string",
+                  "const": "clean"
+                },
+                "uncommitted_path_count": {
+                  "type": "number",
+                  "const": 0
+                },
+                "untracked_path_count": {
+                  "type": "number",
+                  "const": 0
+                },
+                "ignored_path_count": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "repository_id",
+                "worktree_path",
+                "observed_via",
+                "dirty_state_kind",
+                "uncommitted_path_count",
+                "untracked_path_count",
+                "ignored_path_count"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "repository_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "worktree_path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+                  "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
+                },
+                "observed_via": {
+                  "type": "string",
+                  "const": "git_status_porcelain"
+                },
+                "dirty_state_kind": {
+                  "type": "string",
+                  "const": "dirty_uncommitted"
+                },
+                "uncommitted_path_count": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "untracked_path_count": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "ignored_path_count": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "repository_id",
+                "worktree_path",
+                "observed_via",
+                "dirty_state_kind",
+                "uncommitted_path_count",
+                "untracked_path_count",
+                "ignored_path_count"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "repository_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "worktree_path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+                  "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
+                },
+                "observed_via": {
+                  "type": "string",
+                  "const": "git_status_porcelain"
+                },
+                "dirty_state_kind": {
+                  "type": "string",
+                  "const": "dirty_with_untracked"
+                },
+                "uncommitted_path_count": {
+                  "type": "number",
+                  "const": 0
+                },
+                "untracked_path_count": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "ignored_path_count": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "repository_id",
+                "worktree_path",
+                "observed_via",
+                "dirty_state_kind",
+                "uncommitted_path_count",
+                "untracked_path_count",
+                "ignored_path_count"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "repository_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "worktree_path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+                  "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
+                },
+                "observed_via": {
+                  "type": "string",
+                  "const": "git_status_porcelain"
+                },
+                "dirty_state_kind": {
+                  "type": "string",
+                  "const": "dirty_with_ignored_only"
+                },
+                "uncommitted_path_count": {
+                  "type": "number",
+                  "const": 0
+                },
+                "untracked_path_count": {
+                  "type": "number",
+                  "const": 0
+                },
+                "ignored_path_count": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "repository_id",
+                "worktree_path",
+                "observed_via",
+                "dirty_state_kind",
+                "uncommitted_path_count",
+                "untracked_path_count",
+                "ignored_path_count"
+              ],
+              "additionalProperties": false
+            }
+          ],
+          "description": "ADR 0030 GitDirtyStateObservation typed Evidence payload."
+        },
+        "authority": {
+          "type": "string",
+          "const": "sandbox-observation"
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "schema_version",
+        "evidence_id",
+        "source",
+        "observed_at",
+        "valid_until",
+        "confidence",
+        "parser_version",
+        "execution_context_id",
+        "session_id",
+        "evidence_kind",
+        "subject_refs",
+        "payload_schema_version",
+        "payload",
+        "authority"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "0.7.0",
+          "description": "Evidence schema version after ADR 0027/0030/0033 Q-006 source-control subject-kind extensions."
+        },
+        "evidence_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        "valid_until": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "authoritative",
+            "high",
+            "best-effort",
+            "stale",
+            "unknown"
+          ],
+          "description": "Confidence assigned to an observation by the producer."
+        },
+        "parser_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "producer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "host_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "workspace_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "execution_context_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "redaction_mode": {
+          "type": "string",
+          "enum": [
+            "none",
+            "redacted",
+            "classified",
+            "hash_only",
+            "reference_only",
+            "mixed"
+          ],
+          "description": "How sensitive payload material was handled before persistence."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "const": "observation"
+        },
+        "subject_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subject_kind": {
+                "type": "string",
+                "const": "git_dirty_state"
+              },
+              "subject_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "relation": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "subject_kind",
+              "subject_id"
+            ],
+            "additionalProperties": false,
+            "description": "Subject reference for a GitDirtyStateObservation Evidence subtype."
+          }
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "const": "git_dirty_state_observation:v1"
+        },
+        "payload": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "repository_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "worktree_path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+                  "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
+                },
+                "observed_via": {
+                  "type": "string",
+                  "const": "git_status_porcelain"
+                },
+                "dirty_state_kind": {
+                  "type": "string",
+                  "const": "clean"
+                },
+                "uncommitted_path_count": {
+                  "type": "number",
+                  "const": 0
+                },
+                "untracked_path_count": {
+                  "type": "number",
+                  "const": 0
+                },
+                "ignored_path_count": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "repository_id",
+                "worktree_path",
+                "observed_via",
+                "dirty_state_kind",
+                "uncommitted_path_count",
+                "untracked_path_count",
+                "ignored_path_count"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "repository_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "worktree_path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+                  "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
+                },
+                "observed_via": {
+                  "type": "string",
+                  "const": "git_status_porcelain"
+                },
+                "dirty_state_kind": {
+                  "type": "string",
+                  "const": "dirty_uncommitted"
+                },
+                "uncommitted_path_count": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "untracked_path_count": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "ignored_path_count": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "repository_id",
+                "worktree_path",
+                "observed_via",
+                "dirty_state_kind",
+                "uncommitted_path_count",
+                "untracked_path_count",
+                "ignored_path_count"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "repository_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "worktree_path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+                  "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
+                },
+                "observed_via": {
+                  "type": "string",
+                  "const": "git_status_porcelain"
+                },
+                "dirty_state_kind": {
+                  "type": "string",
+                  "const": "dirty_with_untracked"
+                },
+                "uncommitted_path_count": {
+                  "type": "number",
+                  "const": 0
+                },
+                "untracked_path_count": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "ignored_path_count": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "repository_id",
+                "worktree_path",
+                "observed_via",
+                "dirty_state_kind",
+                "uncommitted_path_count",
+                "untracked_path_count",
+                "ignored_path_count"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "repository_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "worktree_path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+                  "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
+                },
+                "observed_via": {
+                  "type": "string",
+                  "const": "git_status_porcelain"
+                },
+                "dirty_state_kind": {
+                  "type": "string",
+                  "const": "dirty_with_ignored_only"
+                },
+                "uncommitted_path_count": {
+                  "type": "number",
+                  "const": 0
+                },
+                "untracked_path_count": {
+                  "type": "number",
+                  "const": 0
+                },
+                "ignored_path_count": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "repository_id",
+                "worktree_path",
+                "observed_via",
+                "dirty_state_kind",
+                "uncommitted_path_count",
+                "untracked_path_count",
+                "ignored_path_count"
+              ],
+              "additionalProperties": false
+            }
+          ],
+          "description": "ADR 0030 GitDirtyStateObservation typed Evidence payload."
+        },
+        "authority": {
+          "type": "string",
+          "const": "sandbox-observation"
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "schema_version",
+        "evidence_id",
+        "source",
+        "observed_at",
+        "valid_until",
+        "confidence",
+        "parser_version",
+        "execution_context_id",
+        "run_id",
+        "evidence_kind",
+        "subject_refs",
+        "payload_schema_version",
+        "payload",
+        "authority"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "0.7.0",
+          "description": "Evidence schema version after ADR 0027/0030/0033 Q-006 source-control subject-kind extensions."
+        },
+        "evidence_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        "valid_until": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "authoritative",
+            "high",
+            "best-effort",
+            "stale",
+            "unknown"
+          ],
+          "description": "Confidence assigned to an observation by the producer."
+        },
+        "parser_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "producer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "host_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "workspace_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "execution_context_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "redaction_mode": {
+          "type": "string",
+          "enum": [
+            "none",
+            "redacted",
+            "classified",
+            "hash_only",
+            "reference_only",
+            "mixed"
+          ],
+          "description": "How sensitive payload material was handled before persistence."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "const": "observation"
+        },
+        "subject_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subject_kind": {
+                "type": "string",
+                "const": "git_dirty_state"
+              },
+              "subject_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "relation": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "subject_kind",
+              "subject_id"
+            ],
+            "additionalProperties": false,
+            "description": "Subject reference for a GitDirtyStateObservation Evidence subtype."
+          }
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "const": "git_dirty_state_observation:v1"
+        },
+        "payload": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "repository_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "worktree_path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+                  "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
+                },
+                "observed_via": {
+                  "type": "string",
+                  "const": "git_status_porcelain"
+                },
+                "dirty_state_kind": {
+                  "type": "string",
+                  "const": "clean"
+                },
+                "uncommitted_path_count": {
+                  "type": "number",
+                  "const": 0
+                },
+                "untracked_path_count": {
+                  "type": "number",
+                  "const": 0
+                },
+                "ignored_path_count": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "repository_id",
+                "worktree_path",
+                "observed_via",
+                "dirty_state_kind",
+                "uncommitted_path_count",
+                "untracked_path_count",
+                "ignored_path_count"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "repository_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "worktree_path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+                  "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
+                },
+                "observed_via": {
+                  "type": "string",
+                  "const": "git_status_porcelain"
+                },
+                "dirty_state_kind": {
+                  "type": "string",
+                  "const": "dirty_uncommitted"
+                },
+                "uncommitted_path_count": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "untracked_path_count": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "ignored_path_count": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "repository_id",
+                "worktree_path",
+                "observed_via",
+                "dirty_state_kind",
+                "uncommitted_path_count",
+                "untracked_path_count",
+                "ignored_path_count"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "repository_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "worktree_path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+                  "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
+                },
+                "observed_via": {
+                  "type": "string",
+                  "const": "git_status_porcelain"
+                },
+                "dirty_state_kind": {
+                  "type": "string",
+                  "const": "dirty_with_untracked"
+                },
+                "uncommitted_path_count": {
+                  "type": "number",
+                  "const": 0
+                },
+                "untracked_path_count": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "ignored_path_count": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "repository_id",
+                "worktree_path",
+                "observed_via",
+                "dirty_state_kind",
+                "uncommitted_path_count",
+                "untracked_path_count",
+                "ignored_path_count"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "repository_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "worktree_path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+                  "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
+                },
+                "observed_via": {
+                  "type": "string",
+                  "const": "git_status_porcelain"
+                },
+                "dirty_state_kind": {
+                  "type": "string",
+                  "const": "dirty_with_ignored_only"
+                },
+                "uncommitted_path_count": {
+                  "type": "number",
+                  "const": 0
+                },
+                "untracked_path_count": {
+                  "type": "number",
+                  "const": 0
+                },
+                "ignored_path_count": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "repository_id",
+                "worktree_path",
+                "observed_via",
+                "dirty_state_kind",
+                "uncommitted_path_count",
+                "untracked_path_count",
+                "ignored_path_count"
+              ],
+              "additionalProperties": false
+            }
+          ],
+          "description": "ADR 0030 GitDirtyStateObservation typed Evidence payload."
+        },
+        "authority": {
+          "type": "string",
+          "enum": [
+            "project-local",
+            "workspace-local",
+            "user-global",
+            "system",
+            "derived",
+            "host-observation",
+            "vendor-doc",
+            "installed-runtime",
+            "human-observed"
+          ]
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "schema_version",
+        "evidence_id",
+        "source",
+        "observed_at",
+        "valid_until",
+        "confidence",
+        "parser_version",
+        "evidence_kind",
+        "subject_refs",
+        "payload_schema_version",
+        "payload",
+        "authority"
+      ],
+      "additionalProperties": false
+    }
+  ],
+  "description": "ADR 0030 GitDirtyStateObservation direct Evidence subtype."
+}

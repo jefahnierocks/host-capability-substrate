@@ -1,6 +1,6 @@
 {
-  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/PolicyPlanReceipt.schema.json",
-  "title": "PolicyPlanReceipt",
+  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/GitRepositoryObservation.schema.json",
+  "title": "GitRepositoryObservation",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "anyOf": [
     {
@@ -16,39 +16,6 @@
           "minLength": 1,
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
           "description": "Stable local entity identifier. It is not a secret value."
-        },
-        "evidence_kind": {
-          "type": "string",
-          "const": "receipt"
-        },
-        "subject_refs": {
-          "minItems": 1,
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "subject_kind": {
-                "type": "string",
-                "const": "policy_plan"
-              },
-              "subject_id": {
-                "type": "string",
-                "minLength": 1,
-                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-                "description": "Stable local entity identifier. It is not a secret value."
-              },
-              "relation": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
-            "required": [
-              "subject_kind",
-              "subject_id"
-            ],
-            "additionalProperties": false,
-            "description": "Subject reference for a PolicyPlanReceipt Evidence subtype."
-          }
         },
         "source": {
           "type": "string",
@@ -122,9 +89,52 @@
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
           "description": "Stable local entity identifier. It is not a secret value."
         },
+        "redaction_mode": {
+          "type": "string",
+          "enum": [
+            "none",
+            "redacted",
+            "classified",
+            "hash_only",
+            "reference_only",
+            "mixed"
+          ],
+          "description": "How sensitive payload material was handled before persistence."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "const": "observation"
+        },
+        "subject_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subject_kind": {
+                "type": "string",
+                "const": "git_repository"
+              },
+              "subject_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "relation": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "subject_kind",
+              "subject_id"
+            ],
+            "additionalProperties": false,
+            "description": "Subject reference for a GitRepositoryObservation Evidence subtype."
+          }
+        },
         "payload_schema_version": {
           "type": "string",
-          "const": "policy-plan-receipt:v1"
+          "const": "git_repository_observation:v1"
         },
         "payload": {
           "type": "object",
@@ -135,48 +145,24 @@
               "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
               "description": "Stable local entity identifier. It is not a secret value."
             },
-            "opentofu_plan_hash": {
-              "type": "string",
-              "pattern": "^sha256:[a-f0-9]{64}$",
-              "description": "SHA-256 digest with algorithm prefix. It is not reversible secret material."
-            },
-            "conftest_outcome_kind": {
-              "type": "string",
-              "enum": [
-                "pass",
-                "fail",
-                "warn"
-              ],
-              "description": "ADR 0032 conftest policy-plan outcome kind."
-            },
-            "policy_ids": {
-              "default": [],
-              "type": "array",
-              "items": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
-            "workspace_id_ref": {
+            "git_dir_path": {
               "type": "string",
               "minLength": 1,
-              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-              "description": "Stable local entity identifier. It is not a secret value."
+              "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+              "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
             },
-            "provider_versions": {
-              "default": {},
-              "type": "object",
-              "propertyNames": {
-                "type": "string",
-                "minLength": 1
-              },
-              "additionalProperties": {
-                "type": "string",
-                "minLength": 1
-              }
+            "work_tree_path": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+              "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
             },
-            "tool_provenance_evidence_refs": {
-              "minItems": 1,
+            "default_branch": {
+              "type": "string",
+              "minLength": 1
+            },
+            "remote_observation_evidence_refs": {
+              "default": [],
               "type": "array",
               "items": {
                 "type": "object",
@@ -253,30 +239,22 @@
                 "additionalProperties": false,
                 "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
               }
+            },
+            "detected_at": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
             }
           },
           "required": [
             "repository_id",
-            "opentofu_plan_hash",
-            "conftest_outcome_kind",
-            "policy_ids",
-            "workspace_id_ref",
-            "provider_versions",
-            "tool_provenance_evidence_refs"
+            "git_dir_path",
+            "remote_observation_evidence_refs",
+            "detected_at"
           ],
           "additionalProperties": false,
-          "description": "ADR 0032 PolicyPlanReceipt typed Evidence payload."
-        },
-        "redaction_mode": {
-          "type": "string",
-          "enum": [
-            "redacted",
-            "classified",
-            "hash_only",
-            "reference_only",
-            "mixed"
-          ],
-          "description": "ADR 0032 redaction floor for PolicyPlanReceipt records."
+          "description": "ADR 0027 GitRepositoryObservation typed Evidence payload."
         },
         "authority": {
           "type": "string",
@@ -290,17 +268,16 @@
       "required": [
         "schema_version",
         "evidence_id",
-        "evidence_kind",
-        "subject_refs",
         "source",
         "observed_at",
         "valid_until",
         "confidence",
         "parser_version",
         "execution_context_id",
+        "evidence_kind",
+        "subject_refs",
         "payload_schema_version",
         "payload",
-        "redaction_mode",
         "authority",
         "source_ref"
       ],
@@ -320,39 +297,6 @@
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
           "description": "Stable local entity identifier. It is not a secret value."
         },
-        "evidence_kind": {
-          "type": "string",
-          "const": "receipt"
-        },
-        "subject_refs": {
-          "minItems": 1,
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "subject_kind": {
-                "type": "string",
-                "const": "policy_plan"
-              },
-              "subject_id": {
-                "type": "string",
-                "minLength": 1,
-                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-                "description": "Stable local entity identifier. It is not a secret value."
-              },
-              "relation": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
-            "required": [
-              "subject_kind",
-              "subject_id"
-            ],
-            "additionalProperties": false,
-            "description": "Subject reference for a PolicyPlanReceipt Evidence subtype."
-          }
-        },
         "source": {
           "type": "string",
           "minLength": 1
@@ -425,9 +369,52 @@
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
           "description": "Stable local entity identifier. It is not a secret value."
         },
+        "redaction_mode": {
+          "type": "string",
+          "enum": [
+            "none",
+            "redacted",
+            "classified",
+            "hash_only",
+            "reference_only",
+            "mixed"
+          ],
+          "description": "How sensitive payload material was handled before persistence."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "const": "observation"
+        },
+        "subject_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subject_kind": {
+                "type": "string",
+                "const": "git_repository"
+              },
+              "subject_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "relation": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "subject_kind",
+              "subject_id"
+            ],
+            "additionalProperties": false,
+            "description": "Subject reference for a GitRepositoryObservation Evidence subtype."
+          }
+        },
         "payload_schema_version": {
           "type": "string",
-          "const": "policy-plan-receipt:v1"
+          "const": "git_repository_observation:v1"
         },
         "payload": {
           "type": "object",
@@ -438,48 +425,24 @@
               "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
               "description": "Stable local entity identifier. It is not a secret value."
             },
-            "opentofu_plan_hash": {
-              "type": "string",
-              "pattern": "^sha256:[a-f0-9]{64}$",
-              "description": "SHA-256 digest with algorithm prefix. It is not reversible secret material."
-            },
-            "conftest_outcome_kind": {
-              "type": "string",
-              "enum": [
-                "pass",
-                "fail",
-                "warn"
-              ],
-              "description": "ADR 0032 conftest policy-plan outcome kind."
-            },
-            "policy_ids": {
-              "default": [],
-              "type": "array",
-              "items": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
-            "workspace_id_ref": {
+            "git_dir_path": {
               "type": "string",
               "minLength": 1,
-              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-              "description": "Stable local entity identifier. It is not a secret value."
+              "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+              "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
             },
-            "provider_versions": {
-              "default": {},
-              "type": "object",
-              "propertyNames": {
-                "type": "string",
-                "minLength": 1
-              },
-              "additionalProperties": {
-                "type": "string",
-                "minLength": 1
-              }
+            "work_tree_path": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+              "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
             },
-            "tool_provenance_evidence_refs": {
-              "minItems": 1,
+            "default_branch": {
+              "type": "string",
+              "minLength": 1
+            },
+            "remote_observation_evidence_refs": {
+              "default": [],
               "type": "array",
               "items": {
                 "type": "object",
@@ -556,30 +519,22 @@
                 "additionalProperties": false,
                 "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
               }
+            },
+            "detected_at": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
             }
           },
           "required": [
             "repository_id",
-            "opentofu_plan_hash",
-            "conftest_outcome_kind",
-            "policy_ids",
-            "workspace_id_ref",
-            "provider_versions",
-            "tool_provenance_evidence_refs"
+            "git_dir_path",
+            "remote_observation_evidence_refs",
+            "detected_at"
           ],
           "additionalProperties": false,
-          "description": "ADR 0032 PolicyPlanReceipt typed Evidence payload."
-        },
-        "redaction_mode": {
-          "type": "string",
-          "enum": [
-            "redacted",
-            "classified",
-            "hash_only",
-            "reference_only",
-            "mixed"
-          ],
-          "description": "ADR 0032 redaction floor for PolicyPlanReceipt records."
+          "description": "ADR 0027 GitRepositoryObservation typed Evidence payload."
         },
         "authority": {
           "type": "string",
@@ -593,8 +548,6 @@
       "required": [
         "schema_version",
         "evidence_id",
-        "evidence_kind",
-        "subject_refs",
         "source",
         "observed_at",
         "valid_until",
@@ -602,9 +555,10 @@
         "parser_version",
         "execution_context_id",
         "session_id",
+        "evidence_kind",
+        "subject_refs",
         "payload_schema_version",
         "payload",
-        "redaction_mode",
         "authority"
       ],
       "additionalProperties": false
@@ -622,39 +576,6 @@
           "minLength": 1,
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
           "description": "Stable local entity identifier. It is not a secret value."
-        },
-        "evidence_kind": {
-          "type": "string",
-          "const": "receipt"
-        },
-        "subject_refs": {
-          "minItems": 1,
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "subject_kind": {
-                "type": "string",
-                "const": "policy_plan"
-              },
-              "subject_id": {
-                "type": "string",
-                "minLength": 1,
-                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-                "description": "Stable local entity identifier. It is not a secret value."
-              },
-              "relation": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
-            "required": [
-              "subject_kind",
-              "subject_id"
-            ],
-            "additionalProperties": false,
-            "description": "Subject reference for a PolicyPlanReceipt Evidence subtype."
-          }
         },
         "source": {
           "type": "string",
@@ -728,9 +649,52 @@
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
           "description": "Stable local entity identifier. It is not a secret value."
         },
+        "redaction_mode": {
+          "type": "string",
+          "enum": [
+            "none",
+            "redacted",
+            "classified",
+            "hash_only",
+            "reference_only",
+            "mixed"
+          ],
+          "description": "How sensitive payload material was handled before persistence."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "const": "observation"
+        },
+        "subject_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subject_kind": {
+                "type": "string",
+                "const": "git_repository"
+              },
+              "subject_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "relation": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "subject_kind",
+              "subject_id"
+            ],
+            "additionalProperties": false,
+            "description": "Subject reference for a GitRepositoryObservation Evidence subtype."
+          }
+        },
         "payload_schema_version": {
           "type": "string",
-          "const": "policy-plan-receipt:v1"
+          "const": "git_repository_observation:v1"
         },
         "payload": {
           "type": "object",
@@ -741,48 +705,24 @@
               "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
               "description": "Stable local entity identifier. It is not a secret value."
             },
-            "opentofu_plan_hash": {
-              "type": "string",
-              "pattern": "^sha256:[a-f0-9]{64}$",
-              "description": "SHA-256 digest with algorithm prefix. It is not reversible secret material."
-            },
-            "conftest_outcome_kind": {
-              "type": "string",
-              "enum": [
-                "pass",
-                "fail",
-                "warn"
-              ],
-              "description": "ADR 0032 conftest policy-plan outcome kind."
-            },
-            "policy_ids": {
-              "default": [],
-              "type": "array",
-              "items": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
-            "workspace_id_ref": {
+            "git_dir_path": {
               "type": "string",
               "minLength": 1,
-              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-              "description": "Stable local entity identifier. It is not a secret value."
+              "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+              "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
             },
-            "provider_versions": {
-              "default": {},
-              "type": "object",
-              "propertyNames": {
-                "type": "string",
-                "minLength": 1
-              },
-              "additionalProperties": {
-                "type": "string",
-                "minLength": 1
-              }
+            "work_tree_path": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+              "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
             },
-            "tool_provenance_evidence_refs": {
-              "minItems": 1,
+            "default_branch": {
+              "type": "string",
+              "minLength": 1
+            },
+            "remote_observation_evidence_refs": {
+              "default": [],
               "type": "array",
               "items": {
                 "type": "object",
@@ -859,30 +799,22 @@
                 "additionalProperties": false,
                 "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
               }
+            },
+            "detected_at": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
             }
           },
           "required": [
             "repository_id",
-            "opentofu_plan_hash",
-            "conftest_outcome_kind",
-            "policy_ids",
-            "workspace_id_ref",
-            "provider_versions",
-            "tool_provenance_evidence_refs"
+            "git_dir_path",
+            "remote_observation_evidence_refs",
+            "detected_at"
           ],
           "additionalProperties": false,
-          "description": "ADR 0032 PolicyPlanReceipt typed Evidence payload."
-        },
-        "redaction_mode": {
-          "type": "string",
-          "enum": [
-            "redacted",
-            "classified",
-            "hash_only",
-            "reference_only",
-            "mixed"
-          ],
-          "description": "ADR 0032 redaction floor for PolicyPlanReceipt records."
+          "description": "ADR 0027 GitRepositoryObservation typed Evidence payload."
         },
         "authority": {
           "type": "string",
@@ -896,8 +828,6 @@
       "required": [
         "schema_version",
         "evidence_id",
-        "evidence_kind",
-        "subject_refs",
         "source",
         "observed_at",
         "valid_until",
@@ -905,9 +835,10 @@
         "parser_version",
         "execution_context_id",
         "run_id",
+        "evidence_kind",
+        "subject_refs",
         "payload_schema_version",
         "payload",
-        "redaction_mode",
         "authority"
       ],
       "additionalProperties": false
@@ -925,39 +856,6 @@
           "minLength": 1,
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
           "description": "Stable local entity identifier. It is not a secret value."
-        },
-        "evidence_kind": {
-          "type": "string",
-          "const": "receipt"
-        },
-        "subject_refs": {
-          "minItems": 1,
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "subject_kind": {
-                "type": "string",
-                "const": "policy_plan"
-              },
-              "subject_id": {
-                "type": "string",
-                "minLength": 1,
-                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-                "description": "Stable local entity identifier. It is not a secret value."
-              },
-              "relation": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
-            "required": [
-              "subject_kind",
-              "subject_id"
-            ],
-            "additionalProperties": false,
-            "description": "Subject reference for a PolicyPlanReceipt Evidence subtype."
-          }
         },
         "source": {
           "type": "string",
@@ -1031,9 +929,52 @@
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
           "description": "Stable local entity identifier. It is not a secret value."
         },
+        "redaction_mode": {
+          "type": "string",
+          "enum": [
+            "none",
+            "redacted",
+            "classified",
+            "hash_only",
+            "reference_only",
+            "mixed"
+          ],
+          "description": "How sensitive payload material was handled before persistence."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "const": "observation"
+        },
+        "subject_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subject_kind": {
+                "type": "string",
+                "const": "git_repository"
+              },
+              "subject_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "relation": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "subject_kind",
+              "subject_id"
+            ],
+            "additionalProperties": false,
+            "description": "Subject reference for a GitRepositoryObservation Evidence subtype."
+          }
+        },
         "payload_schema_version": {
           "type": "string",
-          "const": "policy-plan-receipt:v1"
+          "const": "git_repository_observation:v1"
         },
         "payload": {
           "type": "object",
@@ -1044,48 +985,24 @@
               "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
               "description": "Stable local entity identifier. It is not a secret value."
             },
-            "opentofu_plan_hash": {
-              "type": "string",
-              "pattern": "^sha256:[a-f0-9]{64}$",
-              "description": "SHA-256 digest with algorithm prefix. It is not reversible secret material."
-            },
-            "conftest_outcome_kind": {
-              "type": "string",
-              "enum": [
-                "pass",
-                "fail",
-                "warn"
-              ],
-              "description": "ADR 0032 conftest policy-plan outcome kind."
-            },
-            "policy_ids": {
-              "default": [],
-              "type": "array",
-              "items": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
-            "workspace_id_ref": {
+            "git_dir_path": {
               "type": "string",
               "minLength": 1,
-              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-              "description": "Stable local entity identifier. It is not a secret value."
+              "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+              "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
             },
-            "provider_versions": {
-              "default": {},
-              "type": "object",
-              "propertyNames": {
-                "type": "string",
-                "minLength": 1
-              },
-              "additionalProperties": {
-                "type": "string",
-                "minLength": 1
-              }
+            "work_tree_path": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|WORKSPACE|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|~\\/.+|\\/workspace\\/.+|\\/workspaces\\/.+|\\/repo\\/.+|\\/private\\/tmp\\/.+|\\/tmp\\/.+|\\/opt\\/.+)$",
+              "description": "Canonical source-control path using a placeholder root or accepted non-user system root."
             },
-            "tool_provenance_evidence_refs": {
-              "minItems": 1,
+            "default_branch": {
+              "type": "string",
+              "minLength": 1
+            },
+            "remote_observation_evidence_refs": {
+              "default": [],
               "type": "array",
               "items": {
                 "type": "object",
@@ -1162,30 +1079,22 @@
                 "additionalProperties": false,
                 "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
               }
+            },
+            "detected_at": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
             }
           },
           "required": [
             "repository_id",
-            "opentofu_plan_hash",
-            "conftest_outcome_kind",
-            "policy_ids",
-            "workspace_id_ref",
-            "provider_versions",
-            "tool_provenance_evidence_refs"
+            "git_dir_path",
+            "remote_observation_evidence_refs",
+            "detected_at"
           ],
           "additionalProperties": false,
-          "description": "ADR 0032 PolicyPlanReceipt typed Evidence payload."
-        },
-        "redaction_mode": {
-          "type": "string",
-          "enum": [
-            "redacted",
-            "classified",
-            "hash_only",
-            "reference_only",
-            "mixed"
-          ],
-          "description": "ADR 0032 redaction floor for PolicyPlanReceipt records."
+          "description": "ADR 0027 GitRepositoryObservation typed Evidence payload."
         },
         "authority": {
           "type": "string",
@@ -1209,20 +1118,19 @@
       "required": [
         "schema_version",
         "evidence_id",
-        "evidence_kind",
-        "subject_refs",
         "source",
         "observed_at",
         "valid_until",
         "confidence",
         "parser_version",
+        "evidence_kind",
+        "subject_refs",
         "payload_schema_version",
         "payload",
-        "redaction_mode",
         "authority"
       ],
       "additionalProperties": false
     }
   ],
-  "description": "ADR 0032 PolicyPlanReceipt direct Evidence subtype."
+  "description": "ADR 0027 GitRepositoryObservation direct Evidence subtype."
 }

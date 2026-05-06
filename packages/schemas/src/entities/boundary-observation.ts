@@ -1,11 +1,18 @@
 import { z } from 'zod';
-import { entityIdSchema, evidenceRefSchema } from '../common.ts';
+import {
+  entityIdSchema,
+  evidenceAuthoritySchema,
+  evidenceConfidenceSchema,
+  evidenceRefSchema,
+  isoDateTimeSchema,
+} from '../common.ts';
+import { evidenceRedactionModeSchema } from './evidence.ts';
 import { sandboxProfileSchema } from './execution-context.ts';
 
 const boundaryObservationSchemaVersionSchema = z
-  .literal('0.3.0')
+  .literal('0.4.0')
   .describe(
-    'BoundaryObservation schema version after ADR 0032 runner_isolation payload branch landed in Phase 2.3.2.',
+    'BoundaryObservation schema version after ADR 0027 branch_protection payload branch landed in Phase 2.3.3.',
   );
 
 const boundaryObservationEvidenceSchemaVersionSchema = z
@@ -16,6 +23,7 @@ const boundaryObservationEvidenceSchemaVersionSchema = z
 export const boundaryDimensionSchema = z
   .enum([
     'bundle_identity',
+    'branch_protection',
     'check_source',
     'containment_class',
     'credential_routing',
@@ -246,7 +254,64 @@ export const runnerIsolationPayloadSchema = z
   .strict()
   .describe('ADR 0032 runner_isolation BoundaryObservation payload.');
 
+export const branchProtectionKindSchema = z
+  .enum(['classic_protection', 'ruleset', 'both', 'none', 'unknown'])
+  .describe('ADR 0027 branch protection kind discriminator.');
+
+export const branchProtectionRestrictionKindSchema = z
+  .enum(['blocked', 'allowed', 'bypass_only'])
+  .describe('ADR 0027 branch protection restriction discriminator.');
+
+const branchProtectionPayloadBaseSchema = z.object({
+  repository_id: entityIdSchema,
+  remote_name: z.string().min(1),
+  ref_name: z.string().min(1),
+  required_check_names: z.array(z.string().min(1)).default([]),
+  required_review_count: z.number().int().min(0).optional(),
+  restrictions_push: branchProtectionRestrictionKindSchema,
+  restrictions_delete: branchProtectionRestrictionKindSchema,
+  restrictions_force_push: branchProtectionRestrictionKindSchema,
+  bypass_actor_count: z.number().int().min(0).optional(),
+  linear_history_required: z.boolean().optional(),
+  last_observed_at: isoDateTimeSchema,
+});
+
+export const branchProtectionPayloadSchema = z
+  .discriminatedUnion('protection_kind', [
+    branchProtectionPayloadBaseSchema
+      .extend({
+        protection_kind: z.literal('classic_protection'),
+      })
+      .strict(),
+    branchProtectionPayloadBaseSchema
+      .extend({
+        protection_kind: z.literal('ruleset'),
+        ruleset_id: z.string().min(1),
+        ruleset_version: z.string().min(1).optional(),
+      })
+      .strict(),
+    branchProtectionPayloadBaseSchema
+      .extend({
+        protection_kind: z.literal('both'),
+        ruleset_id: z.string().min(1),
+        ruleset_version: z.string().min(1).optional(),
+      })
+      .strict(),
+    branchProtectionPayloadBaseSchema
+      .extend({
+        protection_kind: z.literal('none'),
+      })
+      .strict(),
+    branchProtectionPayloadBaseSchema
+      .extend({
+        protection_kind: z.literal('unknown'),
+      })
+      .strict(),
+  ])
+  .describe('ADR 0027 branch_protection BoundaryObservation payload.');
+
 const typedBoundaryDimensions = [
+  'branch_protection',
   'containment_class',
   'filesystem_inheritance',
   'filesystem_protected_paths',
@@ -261,6 +326,15 @@ const boundaryObservationBaseSchema = z.object({
   evidence_schema_version: boundaryObservationEvidenceSchemaVersionSchema,
   payload_schema_version: z.string().min(1).optional(),
   boundary_observation_id: entityIdSchema,
+  source: z.string().min(1),
+  source_ref: z.string().min(1).optional(),
+  observed_at: isoDateTimeSchema,
+  valid_until: isoDateTimeSchema,
+  authority: evidenceAuthoritySchema,
+  confidence: evidenceConfidenceSchema,
+  parser_version: z.string().min(1),
+  producer: z.string().min(1).optional(),
+  redaction_mode: evidenceRedactionModeSchema.optional(),
   surface_id: entityIdSchema.optional(),
   execution_context_id: entityIdSchema.optional(),
   workspace_id: entityIdSchema.optional(),
@@ -287,6 +361,16 @@ const containmentClassBoundaryObservationSchema = boundaryObservationBaseSchema
     expected_payload: containmentClassPayloadSchema.optional(),
   })
   .strict();
+
+export const branchProtectionObservationSchema = boundaryObservationBaseSchema
+  .extend({
+    tool_or_provider_ref: entityIdSchema,
+    boundary_dimension: z.literal('branch_protection'),
+    observed_payload: branchProtectionPayloadSchema,
+    expected_payload: branchProtectionPayloadSchema.optional(),
+  })
+  .strict()
+  .describe('ADR 0027 BranchProtectionObservation BoundaryObservation subtype.');
 
 const filesystemInheritanceBoundaryObservationSchema = boundaryObservationBaseSchema
   .extend({
@@ -327,6 +411,7 @@ export const runnerIsolationObservationSchema = boundaryObservationBaseSchema
 
 export const boundaryObservationSchema = z
   .union([
+    branchProtectionObservationSchema,
     containmentClassBoundaryObservationSchema,
     filesystemInheritanceBoundaryObservationSchema,
     filesystemProtectedPathsBoundaryObservationSchema,
@@ -370,3 +455,7 @@ export type RunnerNetworkEgressKind = z.infer<typeof runnerNetworkEgressKindSche
 export type RunnerHostFilesystemAccess = z.infer<typeof runnerHostFilesystemAccessSchema>;
 export type RunnerIsolationPayload = z.infer<typeof runnerIsolationPayloadSchema>;
 export type RunnerIsolationObservation = z.infer<typeof runnerIsolationObservationSchema>;
+export type BranchProtectionKind = z.infer<typeof branchProtectionKindSchema>;
+export type BranchProtectionRestrictionKind = z.infer<typeof branchProtectionRestrictionKindSchema>;
+export type BranchProtectionPayload = z.infer<typeof branchProtectionPayloadSchema>;
+export type BranchProtectionObservation = z.infer<typeof branchProtectionObservationSchema>;

@@ -8,8 +8,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.6.0",
-          "description": "Evidence schema version after ADR 0032 Q-005 runner/check subject-kind extensions."
+          "const": "0.7.0",
+          "description": "Evidence schema version after ADR 0027/0030/0033 Q-006 source-control subject-kind extensions."
         },
         "evidence_id": {
           "type": "string",
@@ -301,8 +301,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.6.0",
-          "description": "Evidence schema version after ADR 0032 Q-005 runner/check subject-kind extensions."
+          "const": "0.7.0",
+          "description": "Evidence schema version after ADR 0027/0030/0033 Q-006 source-control subject-kind extensions."
         },
         "evidence_id": {
           "type": "string",
@@ -594,8 +594,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.6.0",
-          "description": "Evidence schema version after ADR 0032 Q-005 runner/check subject-kind extensions."
+          "const": "0.7.0",
+          "description": "Evidence schema version after ADR 0027/0030/0033 Q-006 source-control subject-kind extensions."
         },
         "evidence_id": {
           "type": "string",
@@ -887,8 +887,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.6.0",
-          "description": "Evidence schema version after ADR 0032 Q-005 runner/check subject-kind extensions."
+          "const": "0.7.0",
+          "description": "Evidence schema version after ADR 0027/0030/0033 Q-006 source-control subject-kind extensions."
         },
         "evidence_id": {
           "type": "string",

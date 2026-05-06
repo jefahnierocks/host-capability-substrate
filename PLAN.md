@@ -26,6 +26,8 @@ service-account, vault inventory, OpenTofu, broker, or runtime change may land
 from this intake before a follow-on accepted ADR or approved sequencing
 amendment authorizes the implementation lane. Lane plan:
 `docs/host-capability-substrate/research/local/2026-05-06-q-013-implementation-lane-plan.md`.
+Deferred-lane sequencing:
+`docs/host-capability-substrate/research/local/2026-05-06-phase-2-7-deferred-lane-sequencing-plan.md`.
 
 **Project-substrate admission standard intake (2026-05-06; accepted ADR
 0041):** Citadel PR #37
@@ -49,6 +51,8 @@ dashboard, hook, project workload/provisioning, or runtime change may land from
 this intake before a follow-on implementation ADR or approved sequencing
 amendment authorizes the implementation lane. Q-014 implementation is a Phase
 2.7 / Wave-2 candidate that should sequence jointly with Q-013.
+Deferred-lane sequencing:
+`docs/host-capability-substrate/research/local/2026-05-06-phase-2-7-deferred-lane-sequencing-plan.md`.
 
 **Phase 2 sequencing meta-ADR (accepted 2026-05-04):** ADR 0038
 (`docs/host-capability-substrate/adr/0038-phase-2-schema-landing-sequence.md`)
@@ -123,7 +127,9 @@ Q-007 carry-overs).
 derived-content subject_kind grounding rule extension (ADR 0036
 extensibility principle); project-substrate contract validation and
 admission-receipt composition (Q-014 follow-up; lane plan:
-`docs/host-capability-substrate/research/local/2026-05-06-q-014-implementation-lane-plan.md`).
+`docs/host-capability-substrate/research/local/2026-05-06-q-014-implementation-lane-plan.md`;
+joint sequencing:
+`docs/host-capability-substrate/research/local/2026-05-06-phase-2-7-deferred-lane-sequencing-plan.md`).
 
 ### Historical record — Phase 0b closeout / Phase 1 prep / synthesis-window
 

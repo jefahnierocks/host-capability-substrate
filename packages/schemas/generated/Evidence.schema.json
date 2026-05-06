@@ -9,7 +9,7 @@
         "schema_version": {
           "type": "string",
           "const": "0.1.0",
-          "description": "Entity schema version for the first Phase 1 Ring 0 schema slice."
+          "description": "Entity schema version for a Ring 0 schema."
         },
         "evidence_id": {
           "type": "string",
@@ -219,7 +219,7 @@
         "schema_version": {
           "type": "string",
           "const": "0.1.0",
-          "description": "Entity schema version for the first Phase 1 Ring 0 schema slice."
+          "description": "Entity schema version for a Ring 0 schema."
         },
         "evidence_id": {
           "type": "string",
@@ -421,7 +421,7 @@
         "schema_version": {
           "type": "string",
           "const": "0.1.0",
-          "description": "Entity schema version for the first Phase 1 Ring 0 schema slice."
+          "description": "Entity schema version for a Ring 0 schema."
         },
         "evidence_id": {
           "type": "string",
@@ -623,7 +623,7 @@
         "schema_version": {
           "type": "string",
           "const": "0.1.0",
-          "description": "Entity schema version for the first Phase 1 Ring 0 schema slice."
+          "description": "Entity schema version for a Ring 0 schema."
         },
         "evidence_id": {
           "type": "string",

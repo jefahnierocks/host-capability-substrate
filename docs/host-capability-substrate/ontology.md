@@ -3,9 +3,9 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.7.0
-last_updated: 2026-05-02
-tags: [ontology, entities, schemas, evidence, execution-context, isolation, github, version-control, boundary-observation]
+version: 0.8.0
+last_updated: 2026-05-05
+tags: [ontology, entities, schemas, evidence, execution-context, agent-client, isolation, github, version-control, boundary-observation]
 priority: high
 ---
 
@@ -14,8 +14,9 @@ priority: high
 Authoritative human-facing reference for HCS Ring 0 entities. The 22 canonical
 entities are the Milestone 1 target. The first Phase 1 shell/env schema slice
 has landed for ADRs 0016, 0017, and 0018, the base `Evidence` entity has
-landed for ADR 0023, and `ExecutionContext` is on the canonical list per ADR
-0021 invariant 17 (charter v1.3.0).
+landed for ADR 0023, `ExecutionContext` is on the canonical list per ADR
+0021 invariant 17 (charter v1.3.0), and `AgentClient` landed as Phase 2.1.1
+per ADR 0037 / ADR 0038.
 
 Canonical research plan sketch: `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md` §2 (Ontology) and §Appendix A.
 
@@ -51,6 +52,46 @@ supplemental entities until Q-011-guided ontology review promotes them.
 
 Each entity carries a `schema_version`. Entity schema versions are independent of adapter tool-name versions (MCP tool names follow `system.{namespace}.{verb}.v{N}` in adapter surfaces).
 
+## Phase 2.1 Standalone Entities
+
+### `AgentClient`
+
+Source: `packages/schemas/src/entities/agent-client.ts`
+
+Describes a connected agent client as a durable lifecycle entity. `AgentClient`
+is a no-suffix Ring 0 entity per Q-011 bucket 2 and ADR 0037. It is the
+authority target for agent product/build identity and capability-class
+containment posture; runtime containment for a specific launch still composes
+through `ExecutionContext` and future containment boundary evidence.
+
+Identity grain is `(product_family, surface, app_build)`. A new `app_build`
+mints a new `AgentClient`; `agent_client_id` does not mutate in place. Retired
+records remain queryable for audit-chain reconstruction.
+
+Key fields:
+
+- `product_family` is a closed enum for the agent product family:
+  `claude_code`, `codex`, `cursor`, `copilot`, `devin`, `windsurf`,
+  `augment`, `amp`, `opencode`, `warp`, `vscode_native`, or `unknown`.
+- `surface` reuses `ExecutionContext.surface`, including the Phase 2.1.1
+  `remote_cloud_agent` extension.
+- `app_build` and `dep_bundle_version` are opaque normalized build strings
+  observed by the kernel.
+- `permission_mode` records the product-specific permission posture as
+  `default`, `yolo`, `approve_all`, `read_only`, or `unknown`. The producer may
+  declare this field, but the kernel verifies it against observed config.
+- `containment_mechanism` is capability-class evidence naming what the product
+  can provide, not what a particular launch currently has.
+- `agent_client_state` is `active` or `retired`.
+- `kernel_observed_at`, `valid_until`, `audit_chain_link_hash`, and
+  `evidence_refs` bind the record to observed runtime, freshness, audit-chain
+  continuity, and provenance.
+
+`AgentClient` does not add policy tiers, adapter behavior, broker behavior, or
+runtime execution endpoints. Gate behavior such as narrower-wins composition
+between product capability and runtime containment remains Ring 1 / policy work
+queued by ADR 0037.
+
 ## Phase 1 Shell/Env Entities
 
 The first committed Zod schemas are additive Ring 0 entities that make shell
@@ -68,7 +109,8 @@ Describes a named runtime surface and startup phase. Initial `surface` values
 include `codex_cli`, `codex_app_sandboxed`, `codex_ide_ext`,
 `claude_code_cli`, `claude_desktop`, `claude_code_ide_ext`,
 `zed_external_agent`, `warp_terminal`, `mcp_server`, `setup_script`, and
-`app_integrated_terminal`.
+`app_integrated_terminal`; Phase 2.1.1 adds `remote_cloud_agent` and bumps the
+entity schema to `0.2.0`.
 
 Key fields:
 
@@ -107,6 +149,9 @@ Initial `source_type` values include `macos_keychain`, `codex_home_file`,
 `api_key_env`, `api_key_helper`, `onepassword`, `infisical`, `vault`,
 `devenv_secretspec`, `long_lived_setup_token`, `service_account`, and
 `brokered_secret_reference`.
+
+Phase 2.1.1 bumps the entity schema to `0.2.0` because `owning_surface` shares
+the `ExecutionContext.surface` enum and now accepts `remote_cloud_agent`.
 
 Key fields:
 
@@ -246,8 +291,9 @@ Candidate schema reconciliation points:
 
 - `ExecutionContext` may need explicit containment and execution-location
   evidence, not only `surface`, shell, sandbox, and env inheritance fields.
-- `AgentClient` should distinguish product family, surface, app build,
-  dependency bundle, permission mode, and containment mechanism.
+- `AgentClient` now distinguishes product family, surface, app build,
+  dependency bundle, permission mode, and containment mechanism. Future work
+  composes it with `WorkspaceContext` and runtime containment evidence.
 - `ToolInstallation` and `ResolvedTool` should represent app-bundled
   dependencies, cloud setup/runtime tools, devcontainer tools, and host PATH
   tools as separate authority surfaces.
@@ -371,6 +417,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.8.0 | 2026-05-05 | Added `AgentClient` as the Phase 2.1.1 standalone Ring 0 entity and documented the `remote_cloud_agent` surface extension. |
 | 0.7.0 | 2026-05-02 | Added the ADR 0022 `BoundaryObservation` envelope section. Cross-references the ontology-registry as the source of `boundary_dimension` values. |
 | 0.6.0 | 2026-05-02 | Promoted `ExecutionContext` into the canonical entity list per ADR 0021 invariant 17 (charter v1.3.0). Header updated from "20 core" to "22 canonical". |
 | 0.5.0 | 2026-05-01 | Added the ADR 0023 base `Evidence` schema documentation and updated the provenance example. |

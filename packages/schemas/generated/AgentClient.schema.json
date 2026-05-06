@@ -1,6 +1,6 @@
 {
-  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/EnvProvenance.schema.json",
-  "title": "EnvProvenance",
+  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/AgentClient.schema.json",
+  "title": "AgentClient",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
@@ -9,103 +9,117 @@
       "const": "0.1.0",
       "description": "Entity schema version for a Ring 0 schema."
     },
-    "env_provenance_id": {
+    "agent_client_id": {
       "type": "string",
       "minLength": 1,
       "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
       "description": "Stable local entity identifier. It is not a secret value."
     },
-    "execution_context_id": {
-      "type": "string",
-      "minLength": 1,
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-      "description": "Stable local entity identifier. It is not a secret value."
-    },
-    "variable_name": {
-      "type": "string",
-      "minLength": 1,
-      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
-      "description": "Environment variable name only. The schema intentionally has no value field."
-    },
-    "source_kind": {
+    "product_family": {
       "type": "string",
       "enum": [
-        "launchd_user_session",
-        "launchctl_setenv",
-        "launchagent_plist",
-        "shell_rc",
-        "direnv_envrc",
-        "mise_toml_env",
-        "devcontainer",
-        "codex_policy",
-        "claude_env_file",
-        "session_start_hook",
-        "warp_drive",
-        "onepassword_reference",
-        "api_key_helper",
-        "secretspec"
-      ],
-      "description": "Source class for an environment variable name or redacted observation."
-    },
-    "source_ref": {
-      "type": "string",
-      "minLength": 1
-    },
-    "materialization": {
-      "type": "string",
-      "enum": [
-        "baked",
-        "runtime_applied",
-        "probed"
-      ],
-      "description": "Devcontainer-derived env timing class adopted by ADR 0016."
-    },
-    "observation_mode": {
-      "type": "string",
-      "enum": [
-        "name_only",
-        "existence_only",
-        "classified",
-        "hash_only",
-        "absent",
-        "not_observed"
-      ],
-      "description": "Secret-safe observation mode. Raw values are intentionally excluded."
-    },
-    "sensitivity": {
-      "type": "string",
-      "enum": [
-        "secret_shaped",
-        "credential_reference",
-        "non_secret",
+        "claude_code",
+        "codex",
+        "cursor",
+        "copilot",
+        "devin",
+        "windsurf",
+        "augment",
+        "amp",
+        "opencode",
+        "warp",
+        "vscode_native",
         "unknown"
       ],
-      "description": "Classifier result without exposing the variable value."
+      "description": "Agent product family from ADR 0037."
     },
-    "value_hash": {
+    "surface": {
+      "type": "string",
+      "enum": [
+        "codex_cli",
+        "codex_app_sandboxed",
+        "codex_ide_ext",
+        "claude_code_cli",
+        "claude_desktop",
+        "claude_code_ide_ext",
+        "zed_external_agent",
+        "warp_terminal",
+        "mcp_server",
+        "setup_script",
+        "app_integrated_terminal",
+        "remote_cloud_agent",
+        "unknown"
+      ],
+      "description": "Agent or host surface that owns this execution context."
+    },
+    "app_build": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9._+-]+$",
+      "description": "Opaque build or dependency-bundle version observed by the kernel."
+    },
+    "dep_bundle_version": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9._+-]+$",
+      "description": "Opaque build or dependency-bundle version observed by the kernel."
+    },
+    "permission_mode": {
+      "type": "string",
+      "enum": [
+        "default",
+        "yolo",
+        "approve_all",
+        "read_only",
+        "unknown"
+      ],
+      "description": "Declared permission mode; producer-asserted and kernel-verifiable."
+    },
+    "containment_mechanism": {
+      "type": "string",
+      "enum": [
+        "terminal_no_isolation_capable",
+        "ide_host_isolation_capable",
+        "app_managed_bundle_capable",
+        "kernel_sandbox_capable",
+        "container_capable",
+        "vm_capable",
+        "remote_cloud_managed_capable",
+        "unknown"
+      ],
+      "description": "Capability-class containment mechanism the product can provide."
+    },
+    "agent_client_state": {
+      "type": "string",
+      "enum": [
+        "active",
+        "retired"
+      ],
+      "description": "Lifecycle state for an AgentClient record."
+    },
+    "kernel_observed_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+      "description": "RFC 3339 timestamp with an explicit UTC offset."
+    },
+    "valid_until": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "audit_chain_link_hash": {
       "type": "string",
       "pattern": "^sha256:[a-f0-9]{64}$",
       "description": "SHA-256 digest with algorithm prefix. It is not reversible secret material."
-    },
-    "operator_filter": {
-      "default": "none",
-      "type": "string",
-      "enum": [
-        "inherit",
-        "include_only",
-        "exclude",
-        "set",
-        "overrides",
-        "ignore_default_excludes",
-        "none"
-      ],
-      "description": "Operator policy affecting whether the variable reaches a context."
-    },
-    "credential_source_id": {
-      "type": "string",
-      "minLength": 1,
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-      "description": "Stable local entity identifier. It is not a secret value."
     },
     "evidence_refs": {
       "minItems": 1,
@@ -189,16 +203,19 @@
   },
   "required": [
     "schema_version",
-    "env_provenance_id",
-    "execution_context_id",
-    "variable_name",
-    "source_kind",
-    "materialization",
-    "observation_mode",
-    "sensitivity",
-    "operator_filter",
+    "agent_client_id",
+    "product_family",
+    "surface",
+    "app_build",
+    "dep_bundle_version",
+    "permission_mode",
+    "containment_mechanism",
+    "agent_client_state",
+    "kernel_observed_at",
+    "valid_until",
+    "audit_chain_link_hash",
     "evidence_refs"
   ],
   "additionalProperties": false,
-  "description": "Ring 0 env provenance entity. It records names, classifications, and hashes only."
+  "description": "Ring 0 AgentClient entity from ADR 0037 and ADR 0038 Phase 2.1.1."
 }

@@ -6,8 +6,8 @@
   "properties": {
     "schema_version": {
       "type": "string",
-      "const": "0.1.0",
-      "description": "Entity schema version for the first Phase 1 Ring 0 schema slice."
+      "const": "0.2.0",
+      "description": "ExecutionContext schema version after ADR 0037 surface enum extension."
     },
     "execution_context_id": {
       "type": "string",
@@ -29,6 +29,7 @@
         "mcp_server",
         "setup_script",
         "app_integrated_terminal",
+        "remote_cloud_agent",
         "unknown"
       ],
       "description": "Agent or host surface that owns this execution context."

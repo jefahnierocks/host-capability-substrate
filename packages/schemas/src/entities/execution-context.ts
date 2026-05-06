@@ -1,11 +1,10 @@
 import { z } from 'zod';
-import {
-  entityIdSchema,
-  evidenceRefSchema,
-  observationStatusSchema,
-  schemaVersionSchema,
-} from '../common.ts';
+import { entityIdSchema, evidenceRefSchema, observationStatusSchema } from '../common.ts';
 import { startupPhaseNameSchema } from './startup-phase.ts';
+
+const executionContextSchemaVersionSchema = z
+  .literal('0.2.0')
+  .describe('ExecutionContext schema version after ADR 0037 surface enum extension.');
 
 export const executionContextSurfaceSchema = z
   .enum([
@@ -20,6 +19,7 @@ export const executionContextSurfaceSchema = z
     'mcp_server',
     'setup_script',
     'app_integrated_terminal',
+    'remote_cloud_agent',
     'unknown',
   ])
   .describe('Agent or host surface that owns this execution context.');
@@ -139,7 +139,7 @@ export const executionContextEnvInheritanceSchema = z
 
 export const executionContextSchema = z
   .object({
-    schema_version: schemaVersionSchema,
+    schema_version: executionContextSchemaVersionSchema,
     execution_context_id: entityIdSchema,
     surface: executionContextSurfaceSchema,
     kind: executionContextKindSchema,

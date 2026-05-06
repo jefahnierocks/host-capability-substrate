@@ -3,9 +3,9 @@ import { entityIdSchema, evidenceRefSchema } from '../common.ts';
 import { sandboxProfileSchema } from './execution-context.ts';
 
 const boundaryObservationSchemaVersionSchema = z
-  .literal('0.2.0')
+  .literal('0.3.0')
   .describe(
-    'BoundaryObservation schema version after ADR 0036/0037 typed payload branches landed in Phase 2.2.3.',
+    'BoundaryObservation schema version after ADR 0032 runner_isolation payload branch landed in Phase 2.3.2.',
   );
 
 const boundaryObservationEvidenceSchemaVersionSchema = z
@@ -215,11 +215,43 @@ export const mcpCanonicalAuthorityPayloadSchema = z
   .strict()
   .describe('ADR 0036 mcp_canonical_authority BoundaryObservation payload.');
 
+export const runnerJobEnvironmentKindSchema = z
+  .enum(['host', 'container', 'disposable_vm'])
+  .describe('ADR 0032 runner job environment kind.');
+
+export const runnerWorkspaceCleanupKindSchema = z
+  .enum(['always_clean', 'checkout_clean_only', 'persistent'])
+  .describe('ADR 0032 runner workspace cleanup posture.');
+
+export const runnerDockerSocketExposureKindSchema = z
+  .enum(['none', 'host_workflow_only', 'all_workflows', 'unknown'])
+  .describe('ADR 0032 runner Docker socket exposure kind.');
+
+export const runnerNetworkEgressKindSchema = z
+  .enum(['internet_full', 'internet_restricted', 'vpn_only', 'egress_blocked'])
+  .describe('ADR 0032 runner network egress posture.');
+
+export const runnerHostFilesystemAccessSchema = z
+  .enum(['isolated', 'shared_workspace', 'shared_host'])
+  .describe('ADR 0032 runner host filesystem access posture.');
+
+export const runnerIsolationPayloadSchema = z
+  .object({
+    job_environment_kind: runnerJobEnvironmentKindSchema,
+    workspace_cleanup_kind: runnerWorkspaceCleanupKindSchema,
+    docker_socket_exposure_kind: runnerDockerSocketExposureKindSchema,
+    network_egress_kind: runnerNetworkEgressKindSchema,
+    host_filesystem_access: runnerHostFilesystemAccessSchema,
+  })
+  .strict()
+  .describe('ADR 0032 runner_isolation BoundaryObservation payload.');
+
 const typedBoundaryDimensions = [
   'containment_class',
   'filesystem_inheritance',
   'filesystem_protected_paths',
   'mcp_canonical_authority',
+  'runner_isolation',
 ] as const;
 
 const genericBoundaryDimensionSchema = boundaryDimensionSchema.exclude(typedBoundaryDimensions);
@@ -283,12 +315,23 @@ const mcpCanonicalAuthorityBoundaryObservationSchema = boundaryObservationBaseSc
   })
   .strict();
 
+export const runnerIsolationObservationSchema = boundaryObservationBaseSchema
+  .extend({
+    execution_context_id: entityIdSchema,
+    boundary_dimension: z.literal('runner_isolation'),
+    observed_payload: runnerIsolationPayloadSchema,
+    expected_payload: runnerIsolationPayloadSchema.optional(),
+  })
+  .strict()
+  .describe('ADR 0032 RunnerIsolationObservation BoundaryObservation subtype.');
+
 export const boundaryObservationSchema = z
   .union([
     containmentClassBoundaryObservationSchema,
     filesystemInheritanceBoundaryObservationSchema,
     filesystemProtectedPathsBoundaryObservationSchema,
     mcpCanonicalAuthorityBoundaryObservationSchema,
+    runnerIsolationObservationSchema,
     genericBoundaryObservationSchema,
   ])
   .refine(
@@ -320,3 +363,10 @@ export type FilesystemProtectedPath = z.infer<typeof filesystemProtectedPathSche
 export type FilesystemProtectedPathsPayload = z.infer<typeof filesystemProtectedPathsPayloadSchema>;
 export type MCPServerKind = z.infer<typeof mcpServerKindSchema>;
 export type MCPCanonicalAuthorityPayload = z.infer<typeof mcpCanonicalAuthorityPayloadSchema>;
+export type RunnerJobEnvironmentKind = z.infer<typeof runnerJobEnvironmentKindSchema>;
+export type RunnerWorkspaceCleanupKind = z.infer<typeof runnerWorkspaceCleanupKindSchema>;
+export type RunnerDockerSocketExposureKind = z.infer<typeof runnerDockerSocketExposureKindSchema>;
+export type RunnerNetworkEgressKind = z.infer<typeof runnerNetworkEgressKindSchema>;
+export type RunnerHostFilesystemAccess = z.infer<typeof runnerHostFilesystemAccessSchema>;
+export type RunnerIsolationPayload = z.infer<typeof runnerIsolationPayloadSchema>;
+export type RunnerIsolationObservation = z.infer<typeof runnerIsolationObservationSchema>;

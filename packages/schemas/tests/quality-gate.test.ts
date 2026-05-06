@@ -358,7 +358,7 @@ describe('QualityGate schema', () => {
 
   it('keeps quality_gate as an Evidence subject kind with current Evidence schema', () => {
     const evidence = evidenceSchema.parse({
-      schema_version: '0.5.0',
+      schema_version: '0.6.0',
       evidence_id: 'evidence:quality-gate:merge-or-push',
       evidence_kind: 'observation',
       subject_refs: [

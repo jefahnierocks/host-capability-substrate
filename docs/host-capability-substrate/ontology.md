@@ -3,9 +3,9 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.5.0
+version: 1.6.0
 last_updated: 2026-05-06
-tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation]
+tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner]
 priority: high
 ---
 
@@ -25,7 +25,9 @@ cache fields, Phase 2.2.2 landed the canonical `OperationShape` schema with
 ADR 0036 deletion-authority fields, and Phase 2.2.3 landed typed
 `BoundaryObservation` payloads for the ADR 0036 / ADR 0037 boundary bundle.
 Phase 2.3.1 landed the ADR 0034 direct Evidence subtype pair:
-`GitIdentityBinding` and `ToolProvenance`.
+`GitIdentityBinding` and `ToolProvenance`. Phase 2.3.2 landed the ADR 0032
+Q-005 runner/check evidence cohort and the typed `runner_isolation`
+`BoundaryObservation` branch.
 
 Canonical research plan sketch: `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md` §2 (Ontology) and §Appendix A.
 
@@ -47,6 +49,12 @@ VerificationCommandSpec producer-asserted workspace verify command spec
 Evidence             a fact with provenance, freshness, authority, confidence
 GitIdentityBinding   direct Evidence subtype for Git author/signing identity
 ToolProvenance       direct Evidence subtype for tool path/shim/version facts
+RunnerHostObservation direct Evidence subtype for CI runner host identity/posture
+RunnerIsolationObservation BoundaryObservation subtype for runner isolation posture
+WorkflowRunReceipt   direct Evidence receipt for GitHub Actions workflow runs
+CleanRoomSmokeReceipt direct Evidence receipt for hosted clean-room smoke runs
+ResourceBudgetObservation direct Evidence observation feeding ResourceBudget
+PolicyPlanReceipt    direct Evidence receipt for redacted OpenTofu/conftest plans
 KnowledgeSource      canonical source indexed for retrieval, never gate authority
 KnowledgeChunk       display-only chunk derived from a KnowledgeSource
 CoordinationFact     promoted gateable assertion about cross-session state
@@ -500,6 +508,11 @@ Evidence schema to `0.4.0`.
 Phase 2.3.1 widens `Evidence.subject_kind` with `git_identity_binding` and
 `tool_provenance`, bumping the Evidence schema to `0.5.0`.
 
+Phase 2.3.2 widens `Evidence.subject_kind` with `runner_host`,
+`runner_isolation`, `workflow_run`, `clean_room_smoke`, and `policy_plan`,
+and reuses the existing `resource_budget` subject kind for
+`ResourceBudgetObservation`, bumping the Evidence schema to `0.6.0`.
+
 The legacy `evidenceRefSchema` remains as a lightweight reference or embedded
 provenance preview for entities that have not yet been migrated to full
 Evidence records. It is not a competing fact model.
@@ -568,6 +581,77 @@ Sandbox-authority records preserve the base `Evidence` trace rule and remain
 non-promotable until Ring 1 / policy re-checks supply host-authoritative
 evidence.
 
+## Phase 2.3 Q-005 Runner/Check Evidence
+
+ADR 0032 lands the Q-005 runner/check evidence model as schemas only. These
+records observe runner/check facts and plan outcomes; they do not register
+runners, mutate GitHub runner groups, provision infrastructure, dispatch
+workflows, author Citadel OPA, or make HCS a CI control plane.
+
+### `RunnerHostObservation`
+
+Source: `packages/schemas/src/entities/runner-host-observation.ts`
+
+Direct `Evidence` observation with `subject_kind: runner_host`. The payload
+records `runner_host_id`, Citadel-signaled `registration_epoch`,
+`substrate_kind`, `os`, `arch`, scrubber-eligible `labels`,
+`repo_access_kind`, `last_seen_at`, and optional
+`tool_provenance_evidence_refs`. The schema requires `subject_refs` to include
+the payload `runner_host_id` and preserves the sandbox-observation trace rule.
+
+### `RunnerIsolationObservation`
+
+Source: `packages/schemas/src/entities/boundary-observation.ts`
+
+Typed `BoundaryObservation` branch with `boundary_dimension:
+runner_isolation`. The payload is flat, not a top-level discriminator:
+`job_environment_kind`, `workspace_cleanup_kind`,
+`docker_socket_exposure_kind`, `network_egress_kind`, and
+`host_filesystem_access` are independent posture fields. This branch bumps
+`BoundaryObservation.schema_version` to `0.3.0`.
+
+### `WorkflowRunReceipt`
+
+Source: `packages/schemas/src/entities/workflow-run-receipt.ts`
+
+Direct `Evidence` receipt with `subject_kind: workflow_run`. The payload
+records `repository_id`, `workflow_run_id`, full `commit_sha`, `actor_login`,
+scrubber-eligible `workflow_path`, `conclusion_kind`, `started_at`,
+`completed_at`, and nullable `runner_host_evidence_ref`. Timestamp order is
+structurally checked. Linked runner-host evidence remains subject to Ring 1 /
+gateway authority re-check before gate consumption.
+
+### `CleanRoomSmokeReceipt`
+
+Source: `packages/schemas/src/entities/clean-room-smoke-receipt.ts`
+
+Direct `Evidence` receipt with `subject_kind: clean_room_smoke`. The payload
+records the hosted workflow run, invoked script reference, dependency-install
+outcome, `artifact_hash`, timestamps, and `runner_isolation_evidence_ref`.
+This is a receipt, not a proof composite; promotion to proof is a future ADR if
+a mutation gate consumes it as authority.
+
+### `ResourceBudgetObservation`
+
+Source: `packages/schemas/src/entities/resource-budget-observation.ts`
+
+Direct `Evidence` observation using the existing `subject_kind:
+resource_budget`. The payload records `runner_host_id`, an observation window,
+CPU/memory/disk pressure percentages, active job count, and cache size. It
+feeds the durable `ResourceBudget` entity rather than duplicating it as a
+runner-specific standalone entity.
+
+### `PolicyPlanReceipt`
+
+Source: `packages/schemas/src/entities/policy-plan-receipt.ts`
+
+Direct `Evidence` receipt with `subject_kind: policy_plan`. The payload names
+the IaC `repository_id`, `opentofu_plan_hash` computed over redacted plan
+output, `conftest_outcome_kind`, scrubber-eligible `policy_ids`,
+`workspace_id_ref`, provider versions, and required
+`tool_provenance_evidence_refs`. `redaction_mode` is required and cannot be
+`none`; raw plan content is rejected by the strict payload shape.
+
 ## Phase 1 Boundary Observation Envelope
 
 ### `BoundaryObservation`
@@ -635,6 +719,11 @@ Phase 2.2.3 adds structural payload schemas for four dimensions:
   `redaction_mode: reference_only`. The payload references
   `CredentialSource` and `ToolProvenance` evidence through `evidenceRefSchema`;
   resolved credential values are never inlined.
+
+Phase 2.3.2 adds the ADR 0032 `runner_isolation` typed payload branch and
+bumps `BoundaryObservation.schema_version` to `0.3.0`. The branch requires
+`execution_context_id` and uses the flat runner posture payload documented
+above.
 
 `BoundaryObservation` does not introduce a new policy tier, dashboard route,
 runtime probe, or mutation operation. Remaining generic domain payload schemas,
@@ -751,7 +840,7 @@ Every `Evidence` record:
 
 ```json
 {
-  "schema_version": "0.5.0",
+  "schema_version": "0.6.0",
   "evidence_id": "evidence:example",
   "evidence_kind": "observation",
   "subject_refs": [
@@ -791,6 +880,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.6.0 | 2026-05-06 | Added Phase 2.3.2 Q-005 runner/check evidence subtype docs, documented `runner_isolation`, and noted the Evidence schema bump to `0.6.0` plus BoundaryObservation schema bump to `0.3.0`. |
 | 1.5.0 | 2026-05-06 | Added Phase 2.3.1 `GitIdentityBinding` and `ToolProvenance` direct Evidence subtype docs and noted the Evidence schema bump to `0.5.0`. |
 | 1.4.0 | 2026-05-06 | Added Phase 2.2.3 `BoundaryObservation` typed payload docs for `containment_class`, `filesystem_inheritance`, `filesystem_protected_paths`, and `mcp_canonical_authority`, including the `BoundaryObservation.schema_version` bump to `0.2.0`. |
 | 1.3.0 | 2026-05-06 | Added the Phase 2.2.2 `OperationShape` schema docs with ADR 0036 deletion-authority fields. |

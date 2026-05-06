@@ -8,8 +8,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.5.0",
-          "description": "Evidence schema version after ADR 0034 git_identity_binding and tool_provenance subject-kind extensions."
+          "const": "0.6.0",
+          "description": "Evidence schema version after ADR 0032 Q-005 runner/check subject-kind extensions."
         },
         "evidence_id": {
           "type": "string",
@@ -669,8 +669,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.5.0",
-          "description": "Evidence schema version after ADR 0034 git_identity_binding and tool_provenance subject-kind extensions."
+          "const": "0.6.0",
+          "description": "Evidence schema version after ADR 0032 Q-005 runner/check subject-kind extensions."
         },
         "evidence_id": {
           "type": "string",
@@ -1330,8 +1330,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.5.0",
-          "description": "Evidence schema version after ADR 0034 git_identity_binding and tool_provenance subject-kind extensions."
+          "const": "0.6.0",
+          "description": "Evidence schema version after ADR 0032 Q-005 runner/check subject-kind extensions."
         },
         "evidence_id": {
           "type": "string",
@@ -1991,8 +1991,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.5.0",
-          "description": "Evidence schema version after ADR 0034 git_identity_binding and tool_provenance subject-kind extensions."
+          "const": "0.6.0",
+          "description": "Evidence schema version after ADR 0032 Q-005 runner/check subject-kind extensions."
         },
         "evidence_id": {
           "type": "string",

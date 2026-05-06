@@ -52,9 +52,31 @@ export {
   mcpServerKindSchema,
   type PathAuthorityKind,
   pathAuthorityKindSchema,
+  type RunnerDockerSocketExposureKind,
+  type RunnerHostFilesystemAccess,
+  type RunnerIsolationObservation,
+  type RunnerIsolationPayload,
+  type RunnerJobEnvironmentKind,
+  type RunnerNetworkEgressKind,
+  type RunnerWorkspaceCleanupKind,
   remoteCloudKindSchema,
+  runnerDockerSocketExposureKindSchema,
+  runnerHostFilesystemAccessSchema,
+  runnerIsolationObservationSchema,
+  runnerIsolationPayloadSchema,
+  runnerJobEnvironmentKindSchema,
+  runnerNetworkEgressKindSchema,
+  runnerWorkspaceCleanupKindSchema,
   vmKindSchema,
 } from './entities/boundary-observation.ts';
+export {
+  type CleanRoomSmokePayload,
+  type CleanRoomSmokeReceipt,
+  cleanRoomSmokePayloadSchema,
+  cleanRoomSmokeReceiptSchema,
+  type DependencyInstallOutcomeKind,
+  dependencyInstallOutcomeKindSchema,
+} from './entities/clean-room-smoke-receipt.ts';
 export {
   allowedForGateSchema,
   type CoordinationTargetKind,
@@ -200,6 +222,16 @@ export {
   worktreeOperationTargetRefSchema,
 } from './entities/operation-shape.ts';
 export {
+  type ConftestOutcomeKind,
+  conftestOutcomeKindSchema,
+  type PolicyPlanPayload,
+  type PolicyPlanReceipt,
+  type PolicyPlanRedactionMode,
+  policyPlanPayloadSchema,
+  policyPlanReceiptSchema,
+  policyPlanRedactionModeSchema,
+} from './entities/policy-plan-receipt.ts';
+export {
   credentialShadowGateTargetRefSchema,
   filesystemTrustGateTargetRefSchema,
   identityBindingGateTargetRefSchema,
@@ -223,6 +255,24 @@ export {
   signingIdentityGateTargetRefSchema,
   toolProvenanceGateTargetRefSchema,
 } from './entities/quality-gate.ts';
+export {
+  type ResourceBudgetObservation,
+  type ResourceBudgetObservationWindow,
+  type ResourceBudgetPayload,
+  resourceBudgetObservationSchema,
+  resourceBudgetObservationWindowSchema,
+  resourceBudgetPayloadSchema,
+} from './entities/resource-budget-observation.ts';
+export {
+  type RunnerHostObservation,
+  type RunnerHostPayload,
+  type RunnerHostRepoAccessKind,
+  type RunnerHostSubstrateKind,
+  runnerHostObservationSchema,
+  runnerHostPayloadSchema,
+  runnerHostRepoAccessKindSchema,
+  runnerHostSubstrateKindSchema,
+} from './entities/runner-host-observation.ts';
 export {
   type StartupPhase,
   type StartupPhaseName,
@@ -262,3 +312,11 @@ export {
   verificationCommandSpecSchema,
   verificationCommandSpecStateSchema,
 } from './entities/verification-command-spec.ts';
+export {
+  type WorkflowRunConclusionKind,
+  type WorkflowRunPayload,
+  type WorkflowRunReceipt,
+  workflowRunConclusionKindSchema,
+  workflowRunPayloadSchema,
+  workflowRunReceiptSchema,
+} from './entities/workflow-run-receipt.ts';

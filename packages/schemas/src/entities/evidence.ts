@@ -7,10 +7,8 @@ import {
 } from '../common.ts';
 
 export const evidenceSchemaVersionSchema = z
-  .literal('0.5.0')
-  .describe(
-    'Evidence schema version after ADR 0034 git_identity_binding and tool_provenance subject-kind extensions.',
-  );
+  .literal('0.6.0')
+  .describe('Evidence schema version after ADR 0032 Q-005 runner/check subject-kind extensions.');
 
 export const evidenceKindSchema = z
   .enum(['observation', 'receipt', 'derived', 'human_decision', 'fixture'])
@@ -50,11 +48,16 @@ export const evidenceSubjectKindSchema = z
     'quality_gate',
     'git_identity_binding',
     'tool_provenance',
+    'runner_host',
+    'runner_isolation',
+    'workflow_run',
+    'clean_room_smoke',
     'provider_object',
     'external_control_plane',
     'git_repository',
     'git_ref',
     'github_check',
+    'policy_plan',
     'filesystem_path',
     'process',
     'unknown',

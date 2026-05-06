@@ -8,8 +8,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.5.0",
-          "description": "Evidence schema version after ADR 0034 git_identity_binding and tool_provenance subject-kind extensions."
+          "const": "0.6.0",
+          "description": "Evidence schema version after ADR 0032 Q-005 runner/check subject-kind extensions."
         },
         "evidence_id": {
           "type": "string",
@@ -69,11 +69,16 @@
                   "quality_gate",
                   "git_identity_binding",
                   "tool_provenance",
+                  "runner_host",
+                  "runner_isolation",
+                  "workflow_run",
+                  "clean_room_smoke",
                   "provider_object",
                   "external_control_plane",
                   "git_repository",
                   "git_ref",
                   "github_check",
+                  "policy_plan",
                   "filesystem_path",
                   "process",
                   "unknown"
@@ -226,8 +231,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.5.0",
-          "description": "Evidence schema version after ADR 0034 git_identity_binding and tool_provenance subject-kind extensions."
+          "const": "0.6.0",
+          "description": "Evidence schema version after ADR 0032 Q-005 runner/check subject-kind extensions."
         },
         "evidence_id": {
           "type": "string",
@@ -287,11 +292,16 @@
                   "quality_gate",
                   "git_identity_binding",
                   "tool_provenance",
+                  "runner_host",
+                  "runner_isolation",
+                  "workflow_run",
+                  "clean_room_smoke",
                   "provider_object",
                   "external_control_plane",
                   "git_repository",
                   "git_ref",
                   "github_check",
+                  "policy_plan",
                   "filesystem_path",
                   "process",
                   "unknown"
@@ -436,8 +446,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.5.0",
-          "description": "Evidence schema version after ADR 0034 git_identity_binding and tool_provenance subject-kind extensions."
+          "const": "0.6.0",
+          "description": "Evidence schema version after ADR 0032 Q-005 runner/check subject-kind extensions."
         },
         "evidence_id": {
           "type": "string",
@@ -497,11 +507,16 @@
                   "quality_gate",
                   "git_identity_binding",
                   "tool_provenance",
+                  "runner_host",
+                  "runner_isolation",
+                  "workflow_run",
+                  "clean_room_smoke",
                   "provider_object",
                   "external_control_plane",
                   "git_repository",
                   "git_ref",
                   "github_check",
+                  "policy_plan",
                   "filesystem_path",
                   "process",
                   "unknown"
@@ -646,8 +661,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.5.0",
-          "description": "Evidence schema version after ADR 0034 git_identity_binding and tool_provenance subject-kind extensions."
+          "const": "0.6.0",
+          "description": "Evidence schema version after ADR 0032 Q-005 runner/check subject-kind extensions."
         },
         "evidence_id": {
           "type": "string",
@@ -707,11 +722,16 @@
                   "quality_gate",
                   "git_identity_binding",
                   "tool_provenance",
+                  "runner_host",
+                  "runner_isolation",
+                  "workflow_run",
+                  "clean_room_smoke",
                   "provider_object",
                   "external_control_plane",
                   "git_repository",
                   "git_ref",
                   "github_check",
+                  "policy_plan",
                   "filesystem_path",
                   "process",
                   "unknown"

@@ -5,6 +5,7 @@ import { z } from 'zod';
 import {
   agentClientSchema,
   boundaryObservationSchema,
+  cleanRoomSmokeReceiptSchema,
   coordinationFactSchema,
   credentialSourceSchema,
   derivedSummarySchema,
@@ -15,10 +16,15 @@ import {
   knowledgeChunkSchema,
   knowledgeSourceSchema,
   operationShapeSchema,
+  policyPlanReceiptSchema,
   qualityGateSchema,
+  resourceBudgetObservationSchema,
+  runnerHostObservationSchema,
+  runnerIsolationObservationSchema,
   startupPhaseSchema,
   toolProvenanceSchema,
   verificationCommandSpecSchema,
+  workflowRunReceiptSchema,
 } from '../src/index.ts';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -40,6 +46,11 @@ const schemaEntries = [
     file: 'CredentialSource.schema.json',
     title: 'CredentialSource',
     schema: credentialSourceSchema,
+  },
+  {
+    file: 'CleanRoomSmokeReceipt.schema.json',
+    title: 'CleanRoomSmokeReceipt',
+    schema: cleanRoomSmokeReceiptSchema,
   },
   {
     file: 'CoordinationFact.schema.json',
@@ -87,9 +98,29 @@ const schemaEntries = [
     schema: operationShapeSchema,
   },
   {
+    file: 'PolicyPlanReceipt.schema.json',
+    title: 'PolicyPlanReceipt',
+    schema: policyPlanReceiptSchema,
+  },
+  {
     file: 'QualityGate.schema.json',
     title: 'QualityGate',
     schema: qualityGateSchema,
+  },
+  {
+    file: 'ResourceBudgetObservation.schema.json',
+    title: 'ResourceBudgetObservation',
+    schema: resourceBudgetObservationSchema,
+  },
+  {
+    file: 'RunnerHostObservation.schema.json',
+    title: 'RunnerHostObservation',
+    schema: runnerHostObservationSchema,
+  },
+  {
+    file: 'RunnerIsolationObservation.schema.json',
+    title: 'RunnerIsolationObservation',
+    schema: runnerIsolationObservationSchema,
   },
   {
     file: 'StartupPhase.schema.json',
@@ -105,6 +136,11 @@ const schemaEntries = [
     file: 'VerificationCommandSpec.schema.json',
     title: 'VerificationCommandSpec',
     schema: verificationCommandSpecSchema,
+  },
+  {
+    file: 'WorkflowRunReceipt.schema.json',
+    title: 'WorkflowRunReceipt',
+    schema: workflowRunReceiptSchema,
   },
 ] as const;
 

@@ -3,9 +3,9 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.3.11
+version: 0.3.12
 last_updated: 2026-05-06
-tags: [ontology, registry, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
+tags: [ontology, registry, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
 priority: high
 ---
 
@@ -1132,6 +1132,122 @@ Mirror notes:
 - These two records are direct Evidence subtypes, not `BoundaryObservation`
   payloads.
 
+### ADR 0032 Q-005 runner/check evidence enum mirrors
+
+Source: ADR 0032 and ADR 0038 Phase 2.3.2.
+
+`Evidence.schema_version`:
+
+- `0.6.0`
+
+`Evidence.subject_kind` Phase 2.3.2 extensions:
+
+- `runner_host`
+- `runner_isolation`
+- `workflow_run`
+- `clean_room_smoke`
+- `policy_plan`
+
+Existing `Evidence.subject_kind` reused by Phase 2.3.2:
+
+- `resource_budget`
+
+`BoundaryObservation.schema_version`:
+
+- `0.3.0`
+
+`RunnerHostObservation.payload.substrate_kind`:
+
+- `github_hosted`
+- `self_hosted_proxmox`
+- `self_hosted_macbook`
+- `self_hosted_other`
+
+`RunnerHostObservation.payload.repo_access_kind`:
+
+- `public`
+- `private`
+- `fork_isolated`
+
+`RunnerIsolationObservation.observed_payload.job_environment_kind`:
+
+- `host`
+- `container`
+- `disposable_vm`
+
+`RunnerIsolationObservation.observed_payload.workspace_cleanup_kind`:
+
+- `always_clean`
+- `checkout_clean_only`
+- `persistent`
+
+`RunnerIsolationObservation.observed_payload.docker_socket_exposure_kind`:
+
+- `none`
+- `host_workflow_only`
+- `all_workflows`
+- `unknown`
+
+`RunnerIsolationObservation.observed_payload.network_egress_kind`:
+
+- `internet_full`
+- `internet_restricted`
+- `vpn_only`
+- `egress_blocked`
+
+`RunnerIsolationObservation.observed_payload.host_filesystem_access`:
+
+- `isolated`
+- `shared_workspace`
+- `shared_host`
+
+`WorkflowRunReceipt.payload.conclusion_kind`:
+
+- `success`
+- `failure`
+- `cancelled`
+- `skipped`
+- `neutral`
+- `timed_out`
+- `action_required`
+
+`CleanRoomSmokeReceipt.payload.dependency_install_outcome_kind`:
+
+- `success`
+- `failure`
+
+`PolicyPlanReceipt.payload.conftest_outcome_kind`:
+
+- `pass`
+- `fail`
+- `warn`
+
+`Decision.reason_kind` reservations from ADR 0032:
+
+- `runner_isolation_unverified`
+- `runner_substrate_forbidden`
+- `status_check_source_required`
+- `workflow_run_evidence_drift`
+- `policy_plan_outcome_failed`
+- `runner_observation_stale_post_deregistration`
+- `runner_capability_registration_forbidden`
+
+Mirror notes:
+
+- `RunnerIsolationObservation` is a typed `BoundaryObservation` branch, not a
+  direct Evidence payload branch.
+- `ResourceBudgetObservation` uses the existing `resource_budget` subject kind
+  and feeds the durable `ResourceBudget` entity; it is not a duplicate
+  standalone entity.
+- `PolicyPlanReceipt.redaction_mode` excludes `none`. The payload carries a
+  redacted-plan hash and summary identifiers only; raw plan content is outside
+  the strict schema.
+- The five forbidden runner families from ADR 0032 are policy/gateway
+  vocabulary. These schemas may record forbidden states; they do not enforce
+  operation rejection or duplicate Citadel OPA.
+- This schema slice does not author a `Decision`, `ApprovalGrant.scope`, GitHub
+  runner registration behavior, canonical policy YAML, or Citadel policy.
+
 ## Boundary dimension registry
 
 Entries are alphabetised by name. Status reflects ontology review on this
@@ -1351,18 +1467,18 @@ registry, not the surrounding ADRs.
 
 ### `runner_isolation`
 
-- Status: proposed (gated by Q-005)
+- Status: accepted
 - Description: CI runner-host isolation observation — clean-room versus
   persistent runner, multi-tenant exposure, ephemeral filesystem state, runner
   network egress class.
 - Primary target: `execution_context_id` (runner host as context).
 - Supplemental targets: `tool_or_provider_ref` (runner provider/group).
 - Overlap notes: distinct from `sandbox` (process-level on developer host) and
-  `containment_class` (umbrella). Q-005 must settle before this dimension is
-  promoted from proposed to accepted.
-- Source: 2026-04-26 proposed runner architecture report.
+  `containment_class` (umbrella). Q-005 settled this dimension as an accepted
+  typed `BoundaryObservation` branch.
+- Source: ADR 0032.
 - Sample observed payload sketch:
-  `{ runner_class, host_persistence, network_egress_class, observed_via }`.
+  `{ job_environment_kind, workspace_cleanup_kind, docker_socket_exposure_kind, network_egress_kind, host_filesystem_access }`.
 
 ### `sandbox`
 
@@ -1456,6 +1572,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.3.12 | 2026-05-06 | Added Phase 2.3.2 enum mirrors for ADR 0032 Q-005 runner/check evidence, promoted `runner_isolation` to accepted, recorded `Evidence.schema_version` `0.6.0`, and recorded `BoundaryObservation.schema_version` `0.3.0`. |
 | 0.3.11 | 2026-05-06 | Added Phase 2.3.1 enum mirrors for ADR 0034 `GitIdentityBinding` and `ToolProvenance` direct Evidence subtypes and recorded the Evidence schema bump to `0.5.0`. |
 | 0.3.10 | 2026-05-06 | Added Phase 2.2.3 `BoundaryObservation` payload enum mirrors and accepted registry entries for `filesystem_inheritance`, `filesystem_protected_paths`, and `mcp_canonical_authority`; updated `containment_class` to the ADR 0037 typed payload vocabulary; recorded the `BoundaryObservation.schema_version` bump to `0.2.0`. |
 | 0.3.9 | 2026-05-06 | Added the Phase 2.2.2 `OperationShape` enum mirror for operation_class, mutation_scope, target_kind, and deletion_authority_kind. |

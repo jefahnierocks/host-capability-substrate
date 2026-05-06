@@ -1,6 +1,6 @@
 {
-  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/ToolProvenance.schema.json",
-  "title": "ToolProvenance",
+  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/ResourceBudgetObservation.schema.json",
+  "title": "ResourceBudgetObservation",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "anyOf": [
     {
@@ -29,7 +29,7 @@
             "properties": {
               "subject_kind": {
                 "type": "string",
-                "const": "tool_provenance"
+                "const": "resource_budget"
               },
               "subject_id": {
                 "type": "string",
@@ -47,7 +47,7 @@
               "subject_id"
             ],
             "additionalProperties": false,
-            "description": "Subject reference for a ToolProvenance Evidence subtype."
+            "description": "Subject reference for a ResourceBudgetObservation Evidence subtype."
           }
         },
         "source": {
@@ -110,123 +110,91 @@
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
           "description": "Stable local entity identifier. It is not a secret value."
         },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
         "payload_schema_version": {
           "type": "string",
-          "minLength": 1
+          "const": "resource-budget-observation:v1"
         },
         "payload": {
           "type": "object",
           "properties": {
-            "tool_or_provider_ref": {
+            "runner_host_id": {
               "type": "string",
               "minLength": 1,
               "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
               "description": "Stable local entity identifier. It is not a secret value."
             },
-            "execution_context_id": {
-              "type": "string",
-              "minLength": 1,
-              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-              "description": "Stable local entity identifier. It is not a secret value."
-            },
-            "installed_path": {
-              "type": "string",
-              "minLength": 1,
-              "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|\\/usr\\/local\\/.+|\\/opt\\/.+|\\/Library\\/Frameworks\\/.+)$",
-              "description": "Canonicalized tool path in placeholder-root-with-path or accepted system-root form."
-            },
-            "shim_chain": {
-              "default": [],
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "shim_path": {
-                    "type": "string",
-                    "minLength": 1,
-                    "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|\\/usr\\/local\\/.+|\\/opt\\/.+|\\/Library\\/Frameworks\\/.+)$",
-                    "description": "Canonicalized tool path in placeholder-root-with-path or accepted system-root form."
-                  },
-                  "target_path": {
-                    "type": "string",
-                    "minLength": 1,
-                    "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|\\/usr\\/local\\/.+|\\/opt\\/.+|\\/Library\\/Frameworks\\/.+)$",
-                    "description": "Canonicalized tool path in placeholder-root-with-path or accepted system-root form."
-                  }
+            "observation_window": {
+              "type": "object",
+              "properties": {
+                "window_start_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
                 },
-                "required": [
-                  "shim_path",
-                  "target_path"
-                ],
-                "additionalProperties": false,
-                "description": "Single shim-chain hop with canonicalized paths."
-              }
+                "window_end_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                }
+              },
+              "required": [
+                "window_start_at",
+                "window_end_at"
+              ],
+              "additionalProperties": false,
+              "description": "Observation window for runner resource pressure readings."
             },
-            "shim_depth": {
+            "cpu_pressure_pct": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "memory_pressure_pct": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "disk_pressure_pct": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "active_jobs_count": {
               "type": "integer",
               "minimum": 0,
               "maximum": 9007199254740991
             },
-            "install_source_kind": {
-              "type": "string",
-              "enum": [
-                "homebrew",
-                "mise",
-                "asdf",
-                "npm",
-                "pip",
-                "uv",
-                "system_package_manager",
-                "manual",
-                "unknown"
-              ],
-              "description": "ADR 0034 install source discriminator for ToolProvenance."
-            },
-            "version_observed": {
-              "type": "string",
-              "minLength": 1
-            },
-            "version_drift_kind": {
-              "type": "string",
-              "enum": [
-                "matches_lockfile",
-                "ahead_of_lockfile",
-                "behind_lockfile",
-                "no_lockfile",
-                "unknown"
-              ],
-              "description": "ADR 0034 version drift discriminator for ToolProvenance."
-            },
-            "provider_observed_via": {
-              "type": "string",
-              "enum": [
-                "which_command",
-                "shim_introspection",
-                "package_manager_query"
-              ],
-              "description": "Kernel-set provider observation method for ToolProvenance records."
-            },
-            "provider_verified_at": {
-              "type": "string",
-              "format": "date-time",
-              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
-              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            "cache_size_bytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
             }
           },
           "required": [
-            "tool_or_provider_ref",
-            "execution_context_id",
-            "installed_path",
-            "shim_chain",
-            "shim_depth",
-            "install_source_kind",
-            "version_observed",
-            "version_drift_kind",
-            "provider_observed_via",
-            "provider_verified_at"
+            "runner_host_id",
+            "observation_window",
+            "cpu_pressure_pct",
+            "memory_pressure_pct",
+            "disk_pressure_pct",
+            "active_jobs_count",
+            "cache_size_bytes"
           ],
           "additionalProperties": false,
-          "description": "ADR 0034 ToolProvenance typed Evidence payload."
+          "description": "ADR 0032 ResourceBudgetObservation typed Evidence payload."
         },
         "redaction_mode": {
           "type": "string",
@@ -247,18 +215,6 @@
         "source_ref": {
           "type": "string",
           "minLength": 1
-        },
-        "session_id": {
-          "type": "string",
-          "minLength": 1,
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-          "description": "Stable local entity identifier. It is not a secret value."
-        },
-        "run_id": {
-          "type": "string",
-          "minLength": 1,
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-          "description": "Stable local entity identifier. It is not a secret value."
         }
       },
       "required": [
@@ -272,6 +228,7 @@
         "confidence",
         "parser_version",
         "execution_context_id",
+        "payload_schema_version",
         "payload",
         "authority",
         "source_ref"
@@ -304,7 +261,7 @@
             "properties": {
               "subject_kind": {
                 "type": "string",
-                "const": "tool_provenance"
+                "const": "resource_budget"
               },
               "subject_id": {
                 "type": "string",
@@ -322,7 +279,7 @@
               "subject_id"
             ],
             "additionalProperties": false,
-            "description": "Subject reference for a ToolProvenance Evidence subtype."
+            "description": "Subject reference for a ResourceBudgetObservation Evidence subtype."
           }
         },
         "source": {
@@ -385,123 +342,91 @@
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
           "description": "Stable local entity identifier. It is not a secret value."
         },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
         "payload_schema_version": {
           "type": "string",
-          "minLength": 1
+          "const": "resource-budget-observation:v1"
         },
         "payload": {
           "type": "object",
           "properties": {
-            "tool_or_provider_ref": {
+            "runner_host_id": {
               "type": "string",
               "minLength": 1,
               "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
               "description": "Stable local entity identifier. It is not a secret value."
             },
-            "execution_context_id": {
-              "type": "string",
-              "minLength": 1,
-              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-              "description": "Stable local entity identifier. It is not a secret value."
-            },
-            "installed_path": {
-              "type": "string",
-              "minLength": 1,
-              "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|\\/usr\\/local\\/.+|\\/opt\\/.+|\\/Library\\/Frameworks\\/.+)$",
-              "description": "Canonicalized tool path in placeholder-root-with-path or accepted system-root form."
-            },
-            "shim_chain": {
-              "default": [],
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "shim_path": {
-                    "type": "string",
-                    "minLength": 1,
-                    "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|\\/usr\\/local\\/.+|\\/opt\\/.+|\\/Library\\/Frameworks\\/.+)$",
-                    "description": "Canonicalized tool path in placeholder-root-with-path or accepted system-root form."
-                  },
-                  "target_path": {
-                    "type": "string",
-                    "minLength": 1,
-                    "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|\\/usr\\/local\\/.+|\\/opt\\/.+|\\/Library\\/Frameworks\\/.+)$",
-                    "description": "Canonicalized tool path in placeholder-root-with-path or accepted system-root form."
-                  }
+            "observation_window": {
+              "type": "object",
+              "properties": {
+                "window_start_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
                 },
-                "required": [
-                  "shim_path",
-                  "target_path"
-                ],
-                "additionalProperties": false,
-                "description": "Single shim-chain hop with canonicalized paths."
-              }
+                "window_end_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                }
+              },
+              "required": [
+                "window_start_at",
+                "window_end_at"
+              ],
+              "additionalProperties": false,
+              "description": "Observation window for runner resource pressure readings."
             },
-            "shim_depth": {
+            "cpu_pressure_pct": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "memory_pressure_pct": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "disk_pressure_pct": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "active_jobs_count": {
               "type": "integer",
               "minimum": 0,
               "maximum": 9007199254740991
             },
-            "install_source_kind": {
-              "type": "string",
-              "enum": [
-                "homebrew",
-                "mise",
-                "asdf",
-                "npm",
-                "pip",
-                "uv",
-                "system_package_manager",
-                "manual",
-                "unknown"
-              ],
-              "description": "ADR 0034 install source discriminator for ToolProvenance."
-            },
-            "version_observed": {
-              "type": "string",
-              "minLength": 1
-            },
-            "version_drift_kind": {
-              "type": "string",
-              "enum": [
-                "matches_lockfile",
-                "ahead_of_lockfile",
-                "behind_lockfile",
-                "no_lockfile",
-                "unknown"
-              ],
-              "description": "ADR 0034 version drift discriminator for ToolProvenance."
-            },
-            "provider_observed_via": {
-              "type": "string",
-              "enum": [
-                "which_command",
-                "shim_introspection",
-                "package_manager_query"
-              ],
-              "description": "Kernel-set provider observation method for ToolProvenance records."
-            },
-            "provider_verified_at": {
-              "type": "string",
-              "format": "date-time",
-              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
-              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            "cache_size_bytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
             }
           },
           "required": [
-            "tool_or_provider_ref",
-            "execution_context_id",
-            "installed_path",
-            "shim_chain",
-            "shim_depth",
-            "install_source_kind",
-            "version_observed",
-            "version_drift_kind",
-            "provider_observed_via",
-            "provider_verified_at"
+            "runner_host_id",
+            "observation_window",
+            "cpu_pressure_pct",
+            "memory_pressure_pct",
+            "disk_pressure_pct",
+            "active_jobs_count",
+            "cache_size_bytes"
           ],
           "additionalProperties": false,
-          "description": "ADR 0034 ToolProvenance typed Evidence payload."
+          "description": "ADR 0032 ResourceBudgetObservation typed Evidence payload."
         },
         "redaction_mode": {
           "type": "string",
@@ -522,18 +447,6 @@
         "source_ref": {
           "type": "string",
           "minLength": 1
-        },
-        "session_id": {
-          "type": "string",
-          "minLength": 1,
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-          "description": "Stable local entity identifier. It is not a secret value."
-        },
-        "run_id": {
-          "type": "string",
-          "minLength": 1,
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-          "description": "Stable local entity identifier. It is not a secret value."
         }
       },
       "required": [
@@ -547,9 +460,10 @@
         "confidence",
         "parser_version",
         "execution_context_id",
+        "session_id",
+        "payload_schema_version",
         "payload",
-        "authority",
-        "session_id"
+        "authority"
       ],
       "additionalProperties": false
     },
@@ -579,7 +493,7 @@
             "properties": {
               "subject_kind": {
                 "type": "string",
-                "const": "tool_provenance"
+                "const": "resource_budget"
               },
               "subject_id": {
                 "type": "string",
@@ -597,7 +511,7 @@
               "subject_id"
             ],
             "additionalProperties": false,
-            "description": "Subject reference for a ToolProvenance Evidence subtype."
+            "description": "Subject reference for a ResourceBudgetObservation Evidence subtype."
           }
         },
         "source": {
@@ -660,123 +574,91 @@
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
           "description": "Stable local entity identifier. It is not a secret value."
         },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
         "payload_schema_version": {
           "type": "string",
-          "minLength": 1
+          "const": "resource-budget-observation:v1"
         },
         "payload": {
           "type": "object",
           "properties": {
-            "tool_or_provider_ref": {
+            "runner_host_id": {
               "type": "string",
               "minLength": 1,
               "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
               "description": "Stable local entity identifier. It is not a secret value."
             },
-            "execution_context_id": {
-              "type": "string",
-              "minLength": 1,
-              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-              "description": "Stable local entity identifier. It is not a secret value."
-            },
-            "installed_path": {
-              "type": "string",
-              "minLength": 1,
-              "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|\\/usr\\/local\\/.+|\\/opt\\/.+|\\/Library\\/Frameworks\\/.+)$",
-              "description": "Canonicalized tool path in placeholder-root-with-path or accepted system-root form."
-            },
-            "shim_chain": {
-              "default": [],
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "shim_path": {
-                    "type": "string",
-                    "minLength": 1,
-                    "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|\\/usr\\/local\\/.+|\\/opt\\/.+|\\/Library\\/Frameworks\\/.+)$",
-                    "description": "Canonicalized tool path in placeholder-root-with-path or accepted system-root form."
-                  },
-                  "target_path": {
-                    "type": "string",
-                    "minLength": 1,
-                    "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|\\/usr\\/local\\/.+|\\/opt\\/.+|\\/Library\\/Frameworks\\/.+)$",
-                    "description": "Canonicalized tool path in placeholder-root-with-path or accepted system-root form."
-                  }
+            "observation_window": {
+              "type": "object",
+              "properties": {
+                "window_start_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
                 },
-                "required": [
-                  "shim_path",
-                  "target_path"
-                ],
-                "additionalProperties": false,
-                "description": "Single shim-chain hop with canonicalized paths."
-              }
+                "window_end_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                }
+              },
+              "required": [
+                "window_start_at",
+                "window_end_at"
+              ],
+              "additionalProperties": false,
+              "description": "Observation window for runner resource pressure readings."
             },
-            "shim_depth": {
+            "cpu_pressure_pct": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "memory_pressure_pct": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "disk_pressure_pct": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "active_jobs_count": {
               "type": "integer",
               "minimum": 0,
               "maximum": 9007199254740991
             },
-            "install_source_kind": {
-              "type": "string",
-              "enum": [
-                "homebrew",
-                "mise",
-                "asdf",
-                "npm",
-                "pip",
-                "uv",
-                "system_package_manager",
-                "manual",
-                "unknown"
-              ],
-              "description": "ADR 0034 install source discriminator for ToolProvenance."
-            },
-            "version_observed": {
-              "type": "string",
-              "minLength": 1
-            },
-            "version_drift_kind": {
-              "type": "string",
-              "enum": [
-                "matches_lockfile",
-                "ahead_of_lockfile",
-                "behind_lockfile",
-                "no_lockfile",
-                "unknown"
-              ],
-              "description": "ADR 0034 version drift discriminator for ToolProvenance."
-            },
-            "provider_observed_via": {
-              "type": "string",
-              "enum": [
-                "which_command",
-                "shim_introspection",
-                "package_manager_query"
-              ],
-              "description": "Kernel-set provider observation method for ToolProvenance records."
-            },
-            "provider_verified_at": {
-              "type": "string",
-              "format": "date-time",
-              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
-              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            "cache_size_bytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
             }
           },
           "required": [
-            "tool_or_provider_ref",
-            "execution_context_id",
-            "installed_path",
-            "shim_chain",
-            "shim_depth",
-            "install_source_kind",
-            "version_observed",
-            "version_drift_kind",
-            "provider_observed_via",
-            "provider_verified_at"
+            "runner_host_id",
+            "observation_window",
+            "cpu_pressure_pct",
+            "memory_pressure_pct",
+            "disk_pressure_pct",
+            "active_jobs_count",
+            "cache_size_bytes"
           ],
           "additionalProperties": false,
-          "description": "ADR 0034 ToolProvenance typed Evidence payload."
+          "description": "ADR 0032 ResourceBudgetObservation typed Evidence payload."
         },
         "redaction_mode": {
           "type": "string",
@@ -797,18 +679,6 @@
         "source_ref": {
           "type": "string",
           "minLength": 1
-        },
-        "session_id": {
-          "type": "string",
-          "minLength": 1,
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-          "description": "Stable local entity identifier. It is not a secret value."
-        },
-        "run_id": {
-          "type": "string",
-          "minLength": 1,
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-          "description": "Stable local entity identifier. It is not a secret value."
         }
       },
       "required": [
@@ -822,9 +692,10 @@
         "confidence",
         "parser_version",
         "execution_context_id",
+        "run_id",
+        "payload_schema_version",
         "payload",
-        "authority",
-        "run_id"
+        "authority"
       ],
       "additionalProperties": false
     },
@@ -854,7 +725,7 @@
             "properties": {
               "subject_kind": {
                 "type": "string",
-                "const": "tool_provenance"
+                "const": "resource_budget"
               },
               "subject_id": {
                 "type": "string",
@@ -872,7 +743,7 @@
               "subject_id"
             ],
             "additionalProperties": false,
-            "description": "Subject reference for a ToolProvenance Evidence subtype."
+            "description": "Subject reference for a ResourceBudgetObservation Evidence subtype."
           }
         },
         "source": {
@@ -935,123 +806,91 @@
           "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
           "description": "Stable local entity identifier. It is not a secret value."
         },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
         "payload_schema_version": {
           "type": "string",
-          "minLength": 1
+          "const": "resource-budget-observation:v1"
         },
         "payload": {
           "type": "object",
           "properties": {
-            "tool_or_provider_ref": {
+            "runner_host_id": {
               "type": "string",
               "minLength": 1,
               "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
               "description": "Stable local entity identifier. It is not a secret value."
             },
-            "execution_context_id": {
-              "type": "string",
-              "minLength": 1,
-              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-              "description": "Stable local entity identifier. It is not a secret value."
-            },
-            "installed_path": {
-              "type": "string",
-              "minLength": 1,
-              "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|\\/usr\\/local\\/.+|\\/opt\\/.+|\\/Library\\/Frameworks\\/.+)$",
-              "description": "Canonicalized tool path in placeholder-root-with-path or accepted system-root form."
-            },
-            "shim_chain": {
-              "default": [],
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "shim_path": {
-                    "type": "string",
-                    "minLength": 1,
-                    "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|\\/usr\\/local\\/.+|\\/opt\\/.+|\\/Library\\/Frameworks\\/.+)$",
-                    "description": "Canonicalized tool path in placeholder-root-with-path or accepted system-root form."
-                  },
-                  "target_path": {
-                    "type": "string",
-                    "minLength": 1,
-                    "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|\\/usr\\/local\\/.+|\\/opt\\/.+|\\/Library\\/Frameworks\\/.+)$",
-                    "description": "Canonicalized tool path in placeholder-root-with-path or accepted system-root form."
-                  }
+            "observation_window": {
+              "type": "object",
+              "properties": {
+                "window_start_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
                 },
-                "required": [
-                  "shim_path",
-                  "target_path"
-                ],
-                "additionalProperties": false,
-                "description": "Single shim-chain hop with canonicalized paths."
-              }
+                "window_end_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                }
+              },
+              "required": [
+                "window_start_at",
+                "window_end_at"
+              ],
+              "additionalProperties": false,
+              "description": "Observation window for runner resource pressure readings."
             },
-            "shim_depth": {
+            "cpu_pressure_pct": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "memory_pressure_pct": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "disk_pressure_pct": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "active_jobs_count": {
               "type": "integer",
               "minimum": 0,
               "maximum": 9007199254740991
             },
-            "install_source_kind": {
-              "type": "string",
-              "enum": [
-                "homebrew",
-                "mise",
-                "asdf",
-                "npm",
-                "pip",
-                "uv",
-                "system_package_manager",
-                "manual",
-                "unknown"
-              ],
-              "description": "ADR 0034 install source discriminator for ToolProvenance."
-            },
-            "version_observed": {
-              "type": "string",
-              "minLength": 1
-            },
-            "version_drift_kind": {
-              "type": "string",
-              "enum": [
-                "matches_lockfile",
-                "ahead_of_lockfile",
-                "behind_lockfile",
-                "no_lockfile",
-                "unknown"
-              ],
-              "description": "ADR 0034 version drift discriminator for ToolProvenance."
-            },
-            "provider_observed_via": {
-              "type": "string",
-              "enum": [
-                "which_command",
-                "shim_introspection",
-                "package_manager_query"
-              ],
-              "description": "Kernel-set provider observation method for ToolProvenance records."
-            },
-            "provider_verified_at": {
-              "type": "string",
-              "format": "date-time",
-              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
-              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            "cache_size_bytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
             }
           },
           "required": [
-            "tool_or_provider_ref",
-            "execution_context_id",
-            "installed_path",
-            "shim_chain",
-            "shim_depth",
-            "install_source_kind",
-            "version_observed",
-            "version_drift_kind",
-            "provider_observed_via",
-            "provider_verified_at"
+            "runner_host_id",
+            "observation_window",
+            "cpu_pressure_pct",
+            "memory_pressure_pct",
+            "disk_pressure_pct",
+            "active_jobs_count",
+            "cache_size_bytes"
           ],
           "additionalProperties": false,
-          "description": "ADR 0034 ToolProvenance typed Evidence payload."
+          "description": "ADR 0032 ResourceBudgetObservation typed Evidence payload."
         },
         "redaction_mode": {
           "type": "string",
@@ -1082,18 +921,6 @@
         "source_ref": {
           "type": "string",
           "minLength": 1
-        },
-        "session_id": {
-          "type": "string",
-          "minLength": 1,
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-          "description": "Stable local entity identifier. It is not a secret value."
-        },
-        "run_id": {
-          "type": "string",
-          "minLength": 1,
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-          "description": "Stable local entity identifier. It is not a secret value."
         }
       },
       "required": [
@@ -1106,12 +933,12 @@
         "valid_until",
         "confidence",
         "parser_version",
-        "execution_context_id",
+        "payload_schema_version",
         "payload",
         "authority"
       ],
       "additionalProperties": false
     }
   ],
-  "description": "ADR 0034 ToolProvenance direct Evidence subtype."
+  "description": "ADR 0032 ResourceBudgetObservation direct Evidence subtype."
 }

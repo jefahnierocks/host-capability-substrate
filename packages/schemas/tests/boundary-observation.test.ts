@@ -13,8 +13,8 @@ const evidenceRef = {
 describe('BoundaryObservation envelope', () => {
   it('parses a TCC observation bound to an execution context', () => {
     const obs = boundaryObservationSchema.parse({
-      schema_version: '0.2.0',
-      evidence_schema_version: '0.2.0',
+      schema_version: '0.3.0',
+      evidence_schema_version: '0.6.0',
       payload_schema_version: 'tcc-grant:v1',
       boundary_observation_id: 'bo:tcc:claude-code-cli:full-disk',
       execution_context_id: 'ctx:claude-code-cli:p06',
@@ -40,8 +40,8 @@ describe('BoundaryObservation envelope', () => {
   it('rejects an envelope with no target reference', () => {
     expect(
       boundaryObservationSchema.safeParse({
-        schema_version: '0.2.0',
-        evidence_schema_version: '0.2.0',
+        schema_version: '0.3.0',
+        evidence_schema_version: '0.6.0',
         boundary_observation_id: 'bo:floating',
         boundary_dimension: 'sandbox',
         observed_payload: { profile_name: 'seatbelt' },
@@ -53,8 +53,8 @@ describe('BoundaryObservation envelope', () => {
 
   it('preserves the seven-state vocabulary, including unknown is not denied', () => {
     const obs = boundaryObservationSchema.parse({
-      schema_version: '0.2.0',
-      evidence_schema_version: '0.2.0',
+      schema_version: '0.3.0',
+      evidence_schema_version: '0.6.0',
       boundary_observation_id: 'bo:unknown-sandbox',
       execution_context_id: 'ctx:codex-app-sandboxed:p13',
       boundary_dimension: 'sandbox',
@@ -69,8 +69,8 @@ describe('BoundaryObservation envelope', () => {
   it('refuses ad-hoc boundary_dimension values such as version_drift', () => {
     expect(
       boundaryObservationSchema.safeParse({
-        schema_version: '0.2.0',
-        evidence_schema_version: '0.2.0',
+        schema_version: '0.3.0',
+        evidence_schema_version: '0.6.0',
         boundary_observation_id: 'bo:bad-dimension',
         execution_context_id: 'ctx:claude-code-cli:p06',
         boundary_dimension: 'version_drift',
@@ -83,8 +83,8 @@ describe('BoundaryObservation envelope', () => {
 
   it('accepts a check_source observation bound to a provider object reference', () => {
     const obs = boundaryObservationSchema.parse({
-      schema_version: '0.2.0',
-      evidence_schema_version: '0.2.0',
+      schema_version: '0.3.0',
+      evidence_schema_version: '0.6.0',
       payload_schema_version: 'check-source:v1',
       boundary_observation_id: 'bo:check-source:hcs-verify',
       tool_or_provider_ref: 'gh:check:host-capability-substrate:verify',
@@ -104,8 +104,8 @@ describe('BoundaryObservation envelope', () => {
 
   it('parses a typed containment_class observation for a container runtime', () => {
     const obs = boundaryObservationSchema.parse({
-      schema_version: '0.2.0',
-      evidence_schema_version: '0.2.0',
+      schema_version: '0.3.0',
+      evidence_schema_version: '0.6.0',
       payload_schema_version: 'containment-class:v1',
       boundary_observation_id: 'bo:containment:codex-container',
       execution_context_id: 'ctx:codex-container:p01',
@@ -131,8 +131,8 @@ describe('BoundaryObservation envelope', () => {
   it('rejects containment_class payloads missing the discriminator-specific field', () => {
     expect(
       boundaryObservationSchema.safeParse({
-        schema_version: '0.2.0',
-        evidence_schema_version: '0.2.0',
+        schema_version: '0.3.0',
+        evidence_schema_version: '0.6.0',
         payload_schema_version: 'containment-class:v1',
         boundary_observation_id: 'bo:containment:bad-container',
         execution_context_id: 'ctx:codex-container:p01',
@@ -152,8 +152,8 @@ describe('BoundaryObservation envelope', () => {
   it('requires evidence refs when filesystem inheritance is held', () => {
     expect(
       boundaryObservationSchema.safeParse({
-        schema_version: '0.2.0',
-        evidence_schema_version: '0.2.0',
+        schema_version: '0.3.0',
+        evidence_schema_version: '0.6.0',
         payload_schema_version: 'filesystem-inheritance:v1',
         boundary_observation_id: 'bo:fs-inheritance:missing-link',
         execution_context_id: 'ctx:child-context:p01',
@@ -170,8 +170,8 @@ describe('BoundaryObservation envelope', () => {
 
   it('parses filesystem_inheritance when inherited authority has linked evidence', () => {
     const obs = boundaryObservationSchema.parse({
-      schema_version: '0.2.0',
-      evidence_schema_version: '0.2.0',
+      schema_version: '0.3.0',
+      evidence_schema_version: '0.6.0',
       payload_schema_version: 'filesystem-inheritance:v1',
       boundary_observation_id: 'bo:fs-inheritance:child',
       execution_context_id: 'ctx:child-context:p01',
@@ -193,8 +193,8 @@ describe('BoundaryObservation envelope', () => {
 
   it('parses filesystem_protected_paths with D-025 authority source refs', () => {
     const obs = boundaryObservationSchema.parse({
-      schema_version: '0.2.0',
-      evidence_schema_version: '0.2.0',
+      schema_version: '0.3.0',
+      evidence_schema_version: '0.6.0',
       payload_schema_version: 'filesystem-protected-paths:v1',
       boundary_observation_id: 'bo:protected-paths:hcs',
       workspace_id: 'workspace:host-capability-substrate',
@@ -221,8 +221,8 @@ describe('BoundaryObservation envelope', () => {
 
   it('requires reference_only redaction for mcp_canonical_authority payloads', () => {
     const base = {
-      schema_version: '0.2.0',
-      evidence_schema_version: '0.2.0',
+      schema_version: '0.3.0',
+      evidence_schema_version: '0.6.0',
       payload_schema_version: 'mcp-canonical-authority:v1',
       boundary_observation_id: 'bo:mcp-canonical:github',
       execution_context_id: 'ctx:codex-cli:p01',
@@ -257,8 +257,8 @@ describe('BoundaryObservation envelope', () => {
   it('keeps filesystem_path_authority_check reserved out of the schema', () => {
     expect(
       boundaryObservationSchema.safeParse({
-        schema_version: '0.2.0',
-        evidence_schema_version: '0.2.0',
+        schema_version: '0.3.0',
+        evidence_schema_version: '0.6.0',
         boundary_observation_id: 'bo:fs-path-check:reserved',
         execution_context_id: 'ctx:codex-cli:p01',
         boundary_dimension: 'filesystem_path_authority_check',
@@ -272,8 +272,8 @@ describe('BoundaryObservation envelope', () => {
   it('rejects extra envelope fields that are not in the strict shape', () => {
     expect(
       boundaryObservationSchema.safeParse({
-        schema_version: '0.2.0',
-        evidence_schema_version: '0.2.0',
+        schema_version: '0.3.0',
+        evidence_schema_version: '0.6.0',
         boundary_observation_id: 'bo:strict-test',
         execution_context_id: 'ctx:claude-code-cli:p06',
         boundary_dimension: 'sandbox',

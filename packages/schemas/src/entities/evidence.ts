@@ -4,8 +4,13 @@ import {
   evidenceAuthoritySchema,
   evidenceConfidenceSchema,
   isoDateTimeSchema,
-  schemaVersionSchema,
 } from '../common.ts';
+
+export const evidenceSchemaVersionSchema = z
+  .literal('0.2.0')
+  .describe(
+    'Evidence schema version after ADR 0036 verification_command_spec subject-kind extension.',
+  );
 
 export const evidenceKindSchema = z
   .enum(['observation', 'receipt', 'derived', 'human_decision', 'fixture'])
@@ -37,6 +42,7 @@ export const evidenceSubjectKindSchema = z
     'execution_context',
     'credential_source',
     'startup_phase',
+    'verification_command_spec',
     'provider_object',
     'external_control_plane',
     'git_repository',
@@ -63,7 +69,7 @@ export const evidenceRedactionModeSchema = z
 
 const evidenceBaseSchema = z
   .object({
-    schema_version: schemaVersionSchema,
+    schema_version: evidenceSchemaVersionSchema,
     evidence_id: entityIdSchema,
     evidence_kind: evidenceKindSchema,
     subject_refs: z.array(evidenceSubjectRefSchema).min(1),

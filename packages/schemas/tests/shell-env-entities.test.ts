@@ -132,7 +132,7 @@ describe('Phase 1 Ring 0 schemas', () => {
 
   it('validates Evidence as the shared provenance and freshness base entity', () => {
     const evidence = evidenceSchema.parse({
-      schema_version: '0.1.0',
+      schema_version: '0.2.0',
       evidence_id: 'evidence:codex-cli-tool-shell',
       evidence_kind: 'observation',
       subject_refs: [
@@ -165,7 +165,7 @@ describe('Phase 1 Ring 0 schemas', () => {
   it('keeps sandbox-observation Evidence bound to the sandbox context and trace', () => {
     expect(
       evidenceSchema.safeParse({
-        schema_version: '0.1.0',
+        schema_version: '0.2.0',
         evidence_id: 'evidence:sandbox-missing-context',
         evidence_kind: 'observation',
         subject_refs: [
@@ -185,7 +185,7 @@ describe('Phase 1 Ring 0 schemas', () => {
 
     expect(
       evidenceSchema.parse({
-        schema_version: '0.1.0',
+        schema_version: '0.2.0',
         evidence_id: 'evidence:sandbox-bound',
         evidence_kind: 'fixture',
         subject_refs: [

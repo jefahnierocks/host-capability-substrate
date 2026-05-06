@@ -58,6 +58,7 @@ export {
   evidenceKindSchema,
   evidenceRedactionModeSchema,
   evidenceSchema,
+  evidenceSchemaVersionSchema,
   evidenceSubjectKindSchema,
   evidenceSubjectRefSchema,
 } from './entities/evidence.ts';
@@ -85,3 +86,19 @@ export {
   startupPhaseOrder,
   startupPhaseSchema,
 } from './entities/startup-phase.ts';
+export {
+  type VerificationCommandEnvCaptureMode,
+  type VerificationCommandEnvRef,
+  type VerificationCommandExpectedExitCodes,
+  type VerificationCommandOutputEvidenceKind,
+  type VerificationCommandShape,
+  type VerificationCommandSpec,
+  type VerificationCommandSpecState,
+  verificationCommandEnvCaptureModeSchema,
+  verificationCommandEnvRefSchema,
+  verificationCommandExpectedExitCodesSchema,
+  verificationCommandOutputEvidenceKindSchema,
+  verificationCommandShapeSchema,
+  verificationCommandSpecSchema,
+  verificationCommandSpecStateSchema,
+} from './entities/verification-command-spec.ts';

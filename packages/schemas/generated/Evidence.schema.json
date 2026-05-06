@@ -8,8 +8,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.1.0",
-          "description": "Entity schema version for a Ring 0 schema."
+          "const": "0.2.0",
+          "description": "Evidence schema version after ADR 0036 verification_command_spec subject-kind extension."
         },
         "evidence_id": {
           "type": "string",
@@ -61,6 +61,7 @@
                   "execution_context",
                   "credential_source",
                   "startup_phase",
+                  "verification_command_spec",
                   "provider_object",
                   "external_control_plane",
                   "git_repository",
@@ -218,8 +219,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.1.0",
-          "description": "Entity schema version for a Ring 0 schema."
+          "const": "0.2.0",
+          "description": "Evidence schema version after ADR 0036 verification_command_spec subject-kind extension."
         },
         "evidence_id": {
           "type": "string",
@@ -271,6 +272,7 @@
                   "execution_context",
                   "credential_source",
                   "startup_phase",
+                  "verification_command_spec",
                   "provider_object",
                   "external_control_plane",
                   "git_repository",
@@ -420,8 +422,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.1.0",
-          "description": "Entity schema version for a Ring 0 schema."
+          "const": "0.2.0",
+          "description": "Evidence schema version after ADR 0036 verification_command_spec subject-kind extension."
         },
         "evidence_id": {
           "type": "string",
@@ -473,6 +475,7 @@
                   "execution_context",
                   "credential_source",
                   "startup_phase",
+                  "verification_command_spec",
                   "provider_object",
                   "external_control_plane",
                   "git_repository",
@@ -622,8 +625,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.1.0",
-          "description": "Entity schema version for a Ring 0 schema."
+          "const": "0.2.0",
+          "description": "Evidence schema version after ADR 0036 verification_command_spec subject-kind extension."
         },
         "evidence_id": {
           "type": "string",
@@ -675,6 +678,7 @@
                   "execution_context",
                   "credential_source",
                   "startup_phase",
+                  "verification_command_spec",
                   "provider_object",
                   "external_control_plane",
                   "git_repository",

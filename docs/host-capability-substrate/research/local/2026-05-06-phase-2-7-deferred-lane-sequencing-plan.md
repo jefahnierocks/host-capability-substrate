@@ -11,9 +11,8 @@ operation registration.
 
 ## Purpose
 
-ADR 0038 accepts the Phase 2.1-2.6 schema landing train. ADR 0040 and ADR
-0041 accept two additional posture lanes that are outside that train; the
-Q-015 intake and proposed ADR 0042 add a third deferred posture lane:
+ADR 0038 accepts the Phase 2.1-2.6 schema landing train. ADR 0040, ADR 0041,
+and ADR 0042 accept three posture lanes that are outside that train:
 
 - Q-013 credential-plane implementation.
 - Q-014 project-substrate contract validation and admission evidence.
@@ -30,7 +29,7 @@ or under a separately accepted sequencing amendment.
   `docs/host-capability-substrate/adr/0040-credential-plane-integration.md`
 - ADR 0041:
   `docs/host-capability-substrate/adr/0041-q-014-project-substrate-contract-validation.md`
-- Proposed ADR 0042:
+- ADR 0042:
   `docs/host-capability-substrate/adr/0042-q-015-backup-readiness-posture.md`
 - Q-013 lane plan:
   `docs/host-capability-substrate/research/local/2026-05-06-q-013-implementation-lane-plan.md`
@@ -127,5 +126,6 @@ entry conditions are satisfied or a sequencing amendment is accepted.
 
 | Version | Date | Change |
 |---|---:|---|
+| 0.2.1 | 2026-05-07 | Updated ADR 0042 references after human acceptance; Q-015 remains posture-only and implementation-blocked. |
 | 0.2.0 | 2026-05-07 | Added Q-015 backup-readiness as a third deferred posture lane, linked the intake and proposed ADR 0042, expanded the lane matrix, and added backup-specific stop rules. |
 | 0.1.0 | 2026-05-06 | Initial docs-only sequencing plan tying Q-013 and Q-014 deferred implementation lanes together after ADR 0040 and ADR 0041 acceptance. |

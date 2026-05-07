@@ -1,7 +1,7 @@
 ---
 adr_number: 0042
 title: Q-015 backup-readiness posture
-status: proposed
+status: accepted
 date: 2026-05-07
 charter_version: 1.4.0
 tags: [backup-readiness, restore-drill, storage-class, project-substrate, credential-source, boundary-observation, quality-gate, q-015, phase-2]
@@ -11,16 +11,18 @@ tags: [backup-readiness, restore-drill, storage-class, project-substrate, creden
 
 ## Status
 
-proposed
+accepted
 
-This ADR proposes the posture for Q-015. It does not authorize Zod schema
-source, generated JSON Schema, registry entries, canonical policy YAML,
-validators, adapters, dashboard routes, hooks, runner registration, Proxmox
-changes, Hetzner changes, OpenTofu changes, machine-identity issuance, backup
-execution, restore execution, project workload provisioning, broker behavior,
-or runtime behavior.
+Accepted on 2026-05-07 by human approval. This ADR closes Q-015 at the posture
+layer only. It does not authorize Zod schema source, generated JSON Schema,
+registry entries, canonical policy YAML, validators, adapters, dashboard
+routes, hooks, runner registration, Proxmox changes, Hetzner changes,
+OpenTofu changes, machine-identity issuance, backup execution, restore
+execution, project workload provisioning, broker behavior, or runtime
+behavior.
 
-Acceptance requires reviewer pass from:
+Follow-on implementation work still requires a separate accepted
+implementation ADR and reviewer dispatch for:
 
 - `hcs-architect`
 - `hcs-ontology-reviewer`
@@ -29,7 +31,7 @@ Acceptance requires reviewer pass from:
 
 ## Date
 
-2026-05-07
+2026-05-07 (proposed); 2026-05-07 (accepted)
 
 ## Charter version
 

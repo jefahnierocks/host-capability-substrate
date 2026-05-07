@@ -39,6 +39,11 @@ amendment authorizes the implementation lane. Lane plan:
 `docs/host-capability-substrate/research/local/2026-05-06-q-013-implementation-lane-plan.md`.
 Deferred-lane sequencing:
 `docs/host-capability-substrate/research/local/2026-05-06-phase-2-7-deferred-lane-sequencing-plan.md`.
+Proposed implementation ADR:
+`docs/host-capability-substrate/adr/0043-q-013-credential-plane-implementation.md`.
+Until accepted, ADR 0043 is planning authority only and does not authorize
+schema, policy, broker, runtime, reconciler, service-account, vault,
+OpenTofu, or provider changes.
 
 **Project-substrate admission standard intake (2026-05-06; accepted ADR
 0041):** Citadel PR #37
@@ -195,7 +200,9 @@ Q-007 carry-overs).
 `system.cleanup.plan.v1` composition (ADR 0036 follow-up); cross-cutting
 derived-content subject_kind grounding rule extension (ADR 0036
 extensibility principle); Q-013 credential-plane implementation (first
-Phase 2.7 dependency; lane plan:
+Phase 2.7 dependency; proposed ADR:
+`docs/host-capability-substrate/adr/0043-q-013-credential-plane-implementation.md`;
+lane plan:
 `docs/host-capability-substrate/research/local/2026-05-06-q-013-implementation-lane-plan.md`);
 Q-014 project-substrate contract validation and admission-receipt composition
 (after Q-013 implementation evidence; lane plan:

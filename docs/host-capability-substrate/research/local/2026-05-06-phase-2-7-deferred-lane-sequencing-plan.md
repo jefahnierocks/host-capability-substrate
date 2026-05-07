@@ -33,6 +33,8 @@ or under a separately accepted sequencing amendment.
   `docs/host-capability-substrate/adr/0042-q-015-backup-readiness-posture.md`
 - Q-013 lane plan:
   `docs/host-capability-substrate/research/local/2026-05-06-q-013-implementation-lane-plan.md`
+- Proposed Q-013 implementation ADR:
+  `docs/host-capability-substrate/adr/0043-q-013-credential-plane-implementation.md`
 - Q-014 lane plan:
   `docs/host-capability-substrate/research/local/2026-05-06-q-014-implementation-lane-plan.md`
 - Q-015 intake:
@@ -129,6 +131,7 @@ entry conditions are satisfied or a sequencing amendment is accepted.
 
 | Version | Date | Change |
 |---|---:|---|
+| 0.2.4 | 2026-05-07 | Added proposed ADR 0043 as the Q-013 implementation ADR input without changing implementation authority. |
 | 0.2.3 | 2026-05-07 | Added the Q-015 implementation-lane plan as an input while keeping Q-015 implementation blocked. |
 | 0.2.2 | 2026-05-07 | Added Q-015 surfaces to the planning-only status block and generalized the acceleration rule to all three deferred lanes. |
 | 0.2.1 | 2026-05-07 | Updated ADR 0042 references after human acceptance; Q-015 remains posture-only and implementation-blocked. |

@@ -40,6 +40,19 @@ registration, `CredentialRuntimeInjectionReceipt`,
 `CredentialReconcilerReceipt`, `CredentialIssuanceReceipt`, or
 `RemoteMutationReceipt`.
 
+Implementation ADR note: ADR 0044
+(`docs/host-capability-substrate/adr/0044-q-014-project-substrate-implementation.md`)
+is proposed as the first Phase 2.7 Q-014 implementation slice. While
+proposed, it is planning only and authorizes no schema, generated schema,
+canonical policy YAML, validator, adapter, dashboard, hook, runner, Proxmox,
+OpenTofu, identity, provider mutation, project workload, or runtime change. If
+accepted after reviewer pass and human approval, it would authorize only the
+narrow schema/evidence slice for `project_substrate_contract`,
+`project_admission_authority`,
+`ProjectSubstrateContractValidationReceipt`,
+`ProjectSubstrateAdmissionObservation`, `ProjectTeardownPlanReceipt`,
+`ProjectTeardownCompletionReceipt`, and required subject/ref vocabulary.
+
 ## Accepted
 
 | ID | Decision | Rationale | ADR | Date |

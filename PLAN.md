@@ -68,7 +68,10 @@ YAML, validator, runner, Proxmox, OpenTofu, machine-identity, adapter,
 dashboard, hook, project workload/provisioning, or runtime change may land from
 this intake before a follow-on implementation ADR or approved sequencing
 amendment authorizes the implementation lane. Q-014 implementation is a Phase
-2.7 / Wave-2 candidate that should sequence jointly with Q-013.
+2.7 / Wave-2 candidate that should sequence jointly with Q-013. Proposed
+implementation ADR:
+`docs/host-capability-substrate/adr/0044-q-014-project-substrate-implementation.md`;
+while proposed, it is planning only and does not authorize schema/runtime work.
 Deferred-lane sequencing:
 `docs/host-capability-substrate/research/local/2026-05-06-phase-2-7-deferred-lane-sequencing-plan.md`.
 
@@ -207,7 +210,9 @@ implementation (first Phase 2.7 dependency; accepted ADR:
 lane plan:
 `docs/host-capability-substrate/research/local/2026-05-06-q-013-implementation-lane-plan.md`);
 Q-014 project-substrate contract validation and admission-receipt composition
-(after Q-013 implementation evidence; lane plan:
+after Q-013 implementation evidence (proposed implementation ADR:
+`docs/host-capability-substrate/adr/0044-q-014-project-substrate-implementation.md`;
+lane plan:
 `docs/host-capability-substrate/research/local/2026-05-06-q-014-implementation-lane-plan.md`);
 Q-015 backup-readiness implementation ADR (after Q-013 and Q-014
 implementation evidence and only if backup/readiness remains an independent

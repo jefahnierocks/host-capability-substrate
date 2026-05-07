@@ -2,12 +2,13 @@
 
 Date: 2026-05-06
 
-Status: implementation ADR planning may open. ADR 0043 has landed the Q-013
-credential-source and machine-identity evidence dependency, but this document
-does not authorize Q-014 schema source, generated JSON Schema, validators,
-canonical policy YAML, adapters, dashboard routes, hooks, runner registration,
-Proxmox changes, OpenTofu changes, machine-identity issuance, project workload
-provisioning, or runtime behavior.
+Status: implementation ADR drafted as proposed ADR 0044. ADR 0043 has landed
+the Q-013 credential-source and machine-identity evidence dependency, but ADR
+0044 is not accepted yet. This document and proposed ADR 0044 do not authorize
+Q-014 schema source, generated JSON Schema, validators, canonical policy YAML,
+adapters, dashboard routes, hooks, runner registration, Proxmox changes,
+OpenTofu changes, machine-identity issuance, project workload provisioning,
+provider mutation, operation registration, or runtime behavior.
 
 ## Authority
 
@@ -23,6 +24,8 @@ Accepted posture:
   `docs/host-capability-substrate/research/external/2026-05-06-citadel-project-substrate-standard.md`
 - Q-013 v1 evidence dependency:
   `docs/host-capability-substrate/adr/0043-q-013-credential-plane-implementation.md`
+- Proposed Q-014 implementation ADR:
+  `docs/host-capability-substrate/adr/0044-q-014-project-substrate-implementation.md`
 
 External source authority remains Citadel PR #37, merged to
 `The-Nash-Group/citadel-config` at
@@ -62,9 +65,9 @@ Q-014 schema implementation should not open until all of these are true:
 - Phase 2.1-2.6 schema train completed per ADR 0038.
 - Q-013 implementation landed the credential-source and machine-identity
   evidence dependencies needed by project-substrate validation via ADR 0043.
-- A follow-on implementation ADR is accepted for Q-014 schema scope, including
-  registry changes, Zod source, generated JSON Schema, fixtures, docs, and
-  tests.
+- ADR 0044, or a follow-on replacement, is accepted for Q-014 schema scope,
+  including registry changes, Zod source, generated JSON Schema, fixtures,
+  docs, and tests.
 - Reviewer dispatch is planned for `hcs-architect`,
   `hcs-ontology-reviewer`, `hcs-policy-reviewer`, and
   `hcs-security-reviewer`.
@@ -74,7 +77,8 @@ Q-014 schema implementation should not open until all of these are true:
 1. ADR/schema proposal.
    Define the exact cohort-2 payload shapes, subject refs, target refs,
    content-hash grain, parser/version fields, evidence refs, and
-   execution-context bindings.
+   execution-context bindings. Proposed ADR 0044 now carries the initial
+   scope; acceptance is still required before schema work.
 
 2. Ontology registry update.
    Add candidate enum values only with the normal schema-change lane:
@@ -147,13 +151,15 @@ Stop and return to human review if a task tries to:
 
 ## Next Safe Action
 
-Draft the Q-014 implementation ADR. Keep schema, validator, adapter,
-dashboard, hook, policy, and runtime implementation blocked until that ADR is
-accepted and the required reviewer pass completes.
+Complete the ADR 0044 review/acceptance cycle. Keep schema, validator,
+adapter, dashboard, hook, policy, and runtime implementation blocked until ADR
+0044 or a replacement implementation ADR is accepted and the required reviewer
+pass completes.
 
 ## Change Log
 
 | Version | Date | Change |
 |---|---:|---|
+| 0.3.0 | 2026-05-07 | Added proposed ADR 0044 as the Q-014 implementation ADR draft; Q-014 schema/runtime work remains blocked until acceptance and reviewer pass. |
 | 0.2.0 | 2026-05-07 | Updated after ADR 0043 schema/evidence landing; Q-014 implementation ADR planning may open while Q-014 schema/runtime work remains blocked. |
 | 0.1.0 | 2026-05-06 | Initial docs-only implementation-lane plan following ADR 0041 acceptance. |

@@ -2,9 +2,10 @@
 
 Date: 2026-05-06
 
-Status: lane plan with accepted v1 schema/evidence ADR. ADR 0043 authorizes
-only `CredentialAuthorityObservation`, `MachineIdentityBindingObservation`,
-and the minimum subject/ref vocabulary required by those records. This
+Status: v1 schema/evidence slice landed. ADR 0043 authorized only
+`CredentialAuthorityObservation`, `MachineIdentityBindingObservation`, and the
+minimum subject/ref vocabulary required by those records; that implementation
+landed on 2026-05-07 with `Evidence.schema_version` `0.9.0`. This
 document does not authorize canonical policy YAML, reconciler code,
 service-account creation, vault inventory, OpenTofu changes, broker changes,
 runtime behavior, provider mutation, operation registration,
@@ -28,7 +29,7 @@ Accepted posture:
 - Citadel guidance source note:
   `docs/host-capability-substrate/research/external/2026-05-05-citadel-credential-plane-guidance.md`
 
-ADR 0040 closes Q-013 at posture level. ADR 0043 opens the first Q-013
+ADR 0040 closes Q-013 at posture level. ADR 0043 opened the first Q-013
 implementation slice as Phase 2.7 schema/evidence work only.
 
 ## Accepted Shape
@@ -46,7 +47,7 @@ service-account issuance, organization-specific manifests, OpenTofu applies,
 or runtime secret material.
 
 ADR 0040 keeps `CredentialSource.source_type` as the schema field name. ADR
-0043 accepts only two evidence subtypes:
+0043 accepts and the v1 implementation lands only two evidence subtypes:
 `CredentialAuthorityObservation` and `MachineIdentityBindingObservation`. No
 new credential-source enum values, operation classes, broker behavior, runtime
 behavior, reconciler receipts, mutation receipts, or policy rows are accepted
@@ -59,8 +60,8 @@ is rejected for this cycle.
 
 ## Entry Conditions
 
-Q-013 v1 schema/evidence implementation may open because these entry
-conditions are now satisfied:
+Q-013 v1 schema/evidence implementation opened because these entry conditions
+were satisfied:
 
 - Phase 2.1-2.6 schema train completed per ADR 0038.
 - ADR 0043 was accepted for the exact HCS-side v1 scope: credential-source
@@ -151,15 +152,17 @@ Stop and return to human review if a task tries to:
 
 ## Next Safe Action
 
-Open the ADR 0043 schema/evidence implementation slice. Keep it limited to
-`CredentialAuthorityObservation`, `MachineIdentityBindingObservation`, their
-subject/ref vocabulary, generated schemas, docs, fixtures, and tests. Q-014
-remains downstream of the resulting credential-source and machine-identity
-evidence.
+Treat Q-013 v1 schema/evidence as landed. The next downstream lane is the
+Q-014 implementation ADR for project-substrate contract validation and
+admission evidence, now that the credential-source and machine-identity
+evidence dependency exists. Any Q-013 runtime, policy, broker, reconciler,
+provider-mutation, or credential-issuance work still requires a separate
+accepted ADR or policy lane.
 
 ## Change Log
 
 | Version | Date | Change |
 |---|---:|---|
+| 0.3.0 | 2026-05-07 | Recorded the ADR 0043 v1 schema/evidence landing and moved the next safe action to Q-014 implementation ADR planning. |
 | 0.2.0 | 2026-05-07 | Updated after ADR 0043 acceptance; Q-013 v1 schema/evidence implementation may open with runtime, policy, provider, and reconciler work still blocked. |
 | 0.1.0 | 2026-05-06 | Initial docs-only implementation-lane plan following ADR 0040 acceptance. |

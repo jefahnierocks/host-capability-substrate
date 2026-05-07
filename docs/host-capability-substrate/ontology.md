@@ -3,9 +3,9 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.7.0
-last_updated: 2026-05-06
-tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner]
+version: 1.9.0
+last_updated: 2026-05-07
+tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity]
 priority: high
 ---
 
@@ -29,7 +29,9 @@ Phase 2.3.1 landed the ADR 0034 direct Evidence subtype pair:
 Q-005 runner/check evidence cohort and the typed `runner_isolation`
 `BoundaryObservation` branch. Phase 2.3.3 landed the ADR 0027 / ADR 0030 /
 ADR 0033 Q-006 source-control evidence cohort and the typed
-`branch_protection` `BoundaryObservation` branch.
+`branch_protection` `BoundaryObservation` branch. Phase 2.3.4 landed the ADR
+0037 Q-010 remote-agent evidence cohort. Phase 2.7 now opens with ADR 0043's
+Q-013 credential-plane schema/evidence slice.
 
 Canonical research plan sketch: `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md` §2 (Ontology) and §Appendix A.
 
@@ -70,6 +72,8 @@ WorkflowRunReceipt   direct Evidence receipt for GitHub Actions workflow runs
 CleanRoomSmokeReceipt direct Evidence receipt for hosted clean-room smoke runs
 ResourceBudgetObservation direct Evidence observation feeding ResourceBudget
 PolicyPlanReceipt    direct Evidence receipt for redacted OpenTofu/conftest plans
+CredentialAuthorityObservation direct Evidence observation for credential-source authority posture
+MachineIdentityBindingObservation direct Evidence observation for machine identity binding posture
 KnowledgeSource      canonical source indexed for retrieval, never gate authority
 KnowledgeChunk       display-only chunk derived from a KnowledgeSource
 CoordinationFact     promoted gateable assertion about cross-session state
@@ -539,6 +543,11 @@ Phase 2.3.4 widens `Evidence.subject_kind` with Q-010 remote-agent subjects:
 `remote_agent_base_image`, `remote_agent_setup`, and
 `remote_agent_network_posture`, bumping the Evidence schema to `0.8.0`.
 
+Phase 2.7 widens `Evidence.subject_kind` with Q-013 `machine_identity` for
+`MachineIdentityBindingObservation`; `CredentialAuthorityObservation` reuses
+the existing `credential_source` subject kind. This bumps the Evidence schema
+to `0.9.0`.
+
 The legacy `evidenceRefSchema` remains as a lightweight reference or embedded
 provenance preview for entities that have not yet been migrated to full
 Evidence records. It is not a competing fact model.
@@ -853,6 +862,51 @@ derive the `(execution_context_id, observed_at window)` binding across all
 three Q-010 records; this schema does not add the future
 `RemoteAgentInvocationReceipt` aggregator.
 
+## Phase 2.7 Credential-Plane Evidence
+
+ADR 0043 opens the first Q-013 implementation slice as schema/evidence work
+only. The slice adds two direct `Evidence` observations and no policy,
+broker/runtime, provider mutation, reconciler, credential issuance, operation
+registration, or canonical policy YAML behavior. Both records require non-null
+`valid_until`, explicit `redaction_mode`, typed target references, and
+reference-only credential or identity fields.
+
+### `CredentialAuthorityObservation`
+
+Source: `packages/schemas/src/entities/credential-plane-evidence.ts`
+
+Direct `Evidence` observation with `subject_kind: credential_source`. The
+payload records `credential_source_id`, `credential_source_type`,
+`credential_storage_plane`, `authority_surface_kind`, `authority_surface_ref`,
+scope/audience posture, expiry/rotation posture, credential health posture,
+auditability posture, optional `credential_source_evidence_ref`, and
+`boundary_evidence_refs`. The subject refs must include the observed
+`credential_source_id`.
+
+This record verifies credential-source authority posture without resolving
+credential material. Provider labels and source types are evidence inputs, not
+gate authority by themselves.
+
+### `MachineIdentityBindingObservation`
+
+Source: `packages/schemas/src/entities/credential-plane-evidence.ts`
+
+Direct `Evidence` observation with `subject_kind: machine_identity` plus a
+second `subject_kind: credential_source` reference. The payload records the
+kind-tagged `machine_identity_kind` / `machine_identity_ref` pair,
+`credential_source_id`, authority-surface reference, issuer/audience posture,
+expiry/rotation posture, binding status, `execution_context_id`,
+`identity_observed_at`, `credential_authority_evidence_ref`, and
+`boundary_evidence_refs`.
+
+`machine_identity_kind` is limited to generic HCS values:
+`provider_principal`, `federated_subject`, and `runner_principal`. The
+`machine_identity_ref` value is an `entityIdSchema`-compatible non-secret
+reference target selected by that kind. It is never a token, private key,
+service-account secret, provider item body, recovery code, raw assertion, JWT
+body, or human SSH-agent state. HCS does not mint, rotate, retire, register, or
+mutate machine identities through this evidence record.
+
 ## Phase 1 Boundary Observation Envelope
 
 ### `BoundaryObservation`
@@ -1077,7 +1131,7 @@ Every `Evidence` record:
 
 ```json
 {
-  "schema_version": "0.8.0",
+  "schema_version": "0.9.0",
   "evidence_id": "evidence:example",
   "evidence_kind": "observation",
   "subject_refs": [
@@ -1117,6 +1171,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.9.0 | 2026-05-07 | Added ADR 0043 Q-013 credential-plane Evidence subtype docs for `CredentialAuthorityObservation` and `MachineIdentityBindingObservation`, and noted the Evidence schema bump to `0.9.0`. |
 | 1.8.0 | 2026-05-07 | Added Phase 2.3.4 Q-010 remote-agent Evidence subtype docs and noted the Evidence schema bump to `0.8.0`. |
 | 1.7.0 | 2026-05-06 | Added Phase 2.3.3 Q-006 source-control evidence subtype docs, documented `branch_protection`, `GitHubMutationAuthority`, noted the Evidence schema bump to `0.7.0` plus BoundaryObservation schema bump to `0.4.0`, and documented BoundaryObservation envelope-level provenance plus non-null freshness. |
 | 1.6.0 | 2026-05-06 | Added Phase 2.3.2 Q-005 runner/check evidence subtype docs, documented `runner_isolation`, and noted the Evidence schema bump to `0.6.0` plus BoundaryObservation schema bump to `0.3.0`. |

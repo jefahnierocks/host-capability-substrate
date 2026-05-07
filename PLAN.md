@@ -31,13 +31,14 @@ logic.
 **Q-013 credential-plane posture (accepted 2026-05-05):** ADR 0040 accepts
 credential-plane integration as generic HCS posture only. Credential-plane
 implementation is outside ADR 0038's accepted Phase 2.1-2.6 landing train.
-ADR 0043, accepted 2026-05-07, authorizes the first Phase 2.7 Q-013
-implementation slice: schema/evidence work for
-`CredentialAuthorityObservation`, `MachineIdentityBindingObservation`, and
-the minimum subject/ref vocabulary those records require. It does not
-authorize credential-plane policy YAML, reconciler, service-account, vault
-inventory, OpenTofu, broker, runtime, provider mutation, operation
-registration, `CredentialRuntimeInjectionReceipt`,
+ADR 0043, accepted 2026-05-07, authorized the first Phase 2.7 Q-013
+implementation slice. That slice landed on 2026-05-07 as schema/evidence work
+for `CredentialAuthorityObservation`, `MachineIdentityBindingObservation`, and
+the minimum subject/ref vocabulary those records require. It bumped
+`Evidence.schema_version` to `0.9.0` by adding `subject_kind:
+"machine_identity"`. It does not authorize credential-plane policy YAML,
+reconciler, service-account, vault inventory, OpenTofu, broker, runtime,
+provider mutation, operation registration, `CredentialRuntimeInjectionReceipt`,
 `CredentialReconcilerReceipt`, `CredentialIssuanceReceipt`, or
 `RemoteMutationReceipt`. Lane plan:
 `docs/host-capability-substrate/research/local/2026-05-06-q-013-implementation-lane-plan.md`.

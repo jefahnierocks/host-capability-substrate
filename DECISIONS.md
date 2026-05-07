@@ -31,10 +31,12 @@ Implementation ADR note: ADR 0043
 was accepted on 2026-05-07 as the first Phase 2.7 Q-013 implementation slice
 after reviewer pass and human approval. It authorizes schema/evidence work
 only for `CredentialAuthorityObservation`, `MachineIdentityBindingObservation`,
-and the minimum subject/ref vocabulary those records require. It does not
-authorize canonical policy YAML, broker/runtime behavior, reconciler code,
-service-account creation, vault inventory mutation, OpenTofu changes, provider
-mutation, operation registration, `CredentialRuntimeInjectionReceipt`,
+and the minimum subject/ref vocabulary those records require. The v1 schema
+slice landed on 2026-05-07, including `Evidence.schema_version` `0.9.0` and
+`subject_kind: "machine_identity"`. It does not authorize canonical policy
+YAML, broker/runtime behavior, reconciler code, service-account creation,
+vault inventory mutation, OpenTofu changes, provider mutation, operation
+registration, `CredentialRuntimeInjectionReceipt`,
 `CredentialReconcilerReceipt`, `CredentialIssuanceReceipt`, or
 `RemoteMutationReceipt`.
 

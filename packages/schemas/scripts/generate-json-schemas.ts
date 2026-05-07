@@ -7,6 +7,7 @@ import {
   boundaryObservationSchema,
   cleanRoomSmokeReceiptSchema,
   coordinationFactSchema,
+  credentialAuthorityObservationSchema,
   credentialSourceSchema,
   derivedSummarySchema,
   envProvenanceSchema,
@@ -22,6 +23,7 @@ import {
   gitWorktreeObservationSchema,
   knowledgeChunkSchema,
   knowledgeSourceSchema,
+  machineIdentityBindingObservationSchema,
   mcpCredentialAudienceObservationSchema,
   operationShapeSchema,
   policyPlanReceiptSchema,
@@ -62,6 +64,11 @@ const schemaEntries = [
     file: 'CredentialSource.schema.json',
     title: 'CredentialSource',
     schema: credentialSourceSchema,
+  },
+  {
+    file: 'CredentialAuthorityObservation.schema.json',
+    title: 'CredentialAuthorityObservation',
+    schema: credentialAuthorityObservationSchema,
   },
   {
     file: 'CleanRoomSmokeReceipt.schema.json',
@@ -147,6 +154,11 @@ const schemaEntries = [
     file: 'MCPCredentialAudienceObservation.schema.json',
     title: 'MCPCredentialAudienceObservation',
     schema: mcpCredentialAudienceObservationSchema,
+  },
+  {
+    file: 'MachineIdentityBindingObservation.schema.json',
+    title: 'MachineIdentityBindingObservation',
+    schema: machineIdentityBindingObservationSchema,
   },
   {
     file: 'StatusCheckSourceObservation.schema.json',

@@ -3,9 +3,9 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.4.0
+version: 0.4.1
 last_updated: 2026-05-07
-tags: [ontology, registry, registry-consolidation, phase-2-4, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, remote-agent, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
+tags: [ontology, registry, registry-consolidation, phase-2-4, phase-2-7, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, remote-agent, credential-plane, machine-identity, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
 priority: high
 ---
 
@@ -605,7 +605,7 @@ work can cite one stable registry index.
 | `OperationShape` | 2.2.2 | ADR 0036 | `packages/schemas/src/entities/operation-shape.ts` | Added `deletion_authority_kind` and `deletion_authority_source_ref`; schema version `0.2.0`. | Deletion-authority enum mirrors recorded; no execute lane behavior authorized. |
 | `BoundaryObservation` | 2.2.3, 2.3.2, 2.3.3 | ADR 0022, ADR 0036, ADR 0037, ADR 0032, ADR 0027 | `packages/schemas/src/entities/boundary-observation.ts` | Typed payload bundle and later branch additions; current schema version `0.4.0`. | Accepted typed branches are summarized below. |
 
-### Direct Evidence subtypes landed in Phase 2.3
+### Direct Evidence subtypes landed through Phase 2.7
 
 | Evidence subtype | Phase | Source ADR | `evidence_kind` | `subject_kind` | Payload version |
 |---|---:|---|---|---|---|
@@ -631,6 +631,8 @@ work can cite one stable registry index.
 | `RemoteAgentBaseImageObservation` | 2.3.4 | ADR 0037 | `observation` | `remote_agent_base_image` | `remote-agent-base-image-observation:v1` |
 | `RemoteAgentSetupReceipt` | 2.3.4 | ADR 0037 | `receipt` | `remote_agent_setup` | `remote-agent-setup-receipt:v1` |
 | `RemoteAgentNetworkPostureObservation` | 2.3.4 | ADR 0037 | `observation` | `remote_agent_network_posture` | `remote-agent-network-posture-observation:v1` |
+| `CredentialAuthorityObservation` | 2.7 | ADR 0043 | `observation` | `credential_source` | `credential_authority_observation:v1` |
+| `MachineIdentityBindingObservation` | 2.7 | ADR 0043 | `observation` | `machine_identity` | `machine_identity_binding_observation:v1` |
 
 ### Typed `BoundaryObservation` branches landed through Phase 2.3
 
@@ -647,7 +649,7 @@ work can cite one stable registry index.
 
 | Schema family | Current version | Last Phase 2 change | Notes |
 |---|---:|---|---|
-| `Evidence` | `0.8.0` | Phase 2.3.4 Q-010 remote-agent subject-kind extensions | Direct Evidence subtype payloads use the base envelope and their own `payload_schema_version` values. |
+| `Evidence` | `0.9.0` | Phase 2.7 Q-013 machine-identity subject-kind extension | Direct Evidence subtype payloads use the base envelope and their own `payload_schema_version` values. |
 | `BoundaryObservation` | `0.4.0` | Phase 2.3.3 `branch_protection` branch and invariant-19 envelope tightening | `evidence_schema_version` is an independent envelope field that cites the base `Evidence` contract; current fixtures use the base `Evidence` version without requiring future lockstep bumps. |
 | `ExecutionContext` | `0.2.0` | Phase 2.2.1 containment-cache refactor | Cache is kernel-set and points to typed containment evidence. |
 | `OperationShape` | `0.2.0` | Phase 2.2.2 deletion-authority extension | No mutation/execute behavior is authorized by this registry record. |
@@ -1727,6 +1729,104 @@ Mirror notes:
   canonical policy YAML, vendor API adapter, remote-agent invocation broker, or
   provider mutation operation.
 
+### ADR 0043 Q-013 credential-plane evidence enum mirrors
+
+Source: ADR 0043.
+
+`Evidence.schema_version`:
+
+- `0.9.0`
+
+`Evidence.subject_kind` Phase 2.7 extension:
+
+- `machine_identity`
+
+`CredentialAuthorityObservation.payload.authority_surface_kind` and
+`MachineIdentityBindingObservation.payload.authority_surface_kind`:
+
+- `credential_authority`
+- `secret_store`
+- `identity_provider`
+- `broker`
+- `provider_control_plane`
+- `local_host`
+- `unknown`
+
+`CredentialAuthorityObservation.payload.scope_posture_kind`:
+
+- `least_privilege`
+- `bounded`
+- `broad`
+- `unknown`
+
+`CredentialAuthorityObservation.payload.audience_posture_kind` and
+`MachineIdentityBindingObservation.payload.audience_posture_kind`:
+
+- `single_audience`
+- `multiple_audience`
+- `wildcard`
+- `unknown`
+
+`CredentialAuthorityObservation.payload.expiry_posture_kind` and
+`MachineIdentityBindingObservation.payload.expiry_posture_kind`:
+
+- `expires`
+- `non_expiring`
+- `unknown`
+
+`CredentialAuthorityObservation.payload.rotation_posture_kind` and
+`MachineIdentityBindingObservation.payload.rotation_posture_kind`:
+
+- `rotating`
+- `manual`
+- `not_observed`
+- `unknown`
+
+`CredentialAuthorityObservation.payload.auditability_kind`:
+
+- `audit_log_available`
+- `audit_log_partial`
+- `not_observed`
+- `unknown`
+
+`MachineIdentityBindingObservation.payload.machine_identity_kind`:
+
+- `provider_principal`
+- `federated_subject`
+- `runner_principal`
+
+`MachineIdentityBindingObservation.payload.issuer_posture_kind`:
+
+- `platform_native`
+- `federated`
+- `service_account`
+- `runner_registration`
+- `unknown`
+
+`MachineIdentityBindingObservation.payload.binding_status_kind`:
+
+- `observed_bound`
+- `observed_absent`
+- `contradictory`
+- `unknown`
+
+Mirror notes:
+
+- `CredentialAuthorityObservation` reuses existing `subject_kind:
+  "credential_source"` and does not add a credential-authority subject kind.
+- `MachineIdentityBindingObservation` requires both `machine_identity` and
+  `credential_source` subject refs. The subject kind names the nonhuman
+  identity subject, not the evidence envelope.
+- `machine_identity_ref` is kind-tagged by `machine_identity_kind`, uses
+  `entityIdSchema`-compatible reference form, and never carries token, private
+  key, provider item body, assertion, JWT body, recovery code, or human
+  SSH-agent state.
+- `CredentialRuntimeInjectionReceipt`, `CredentialReconcilerReceipt`,
+  `CredentialIssuanceReceipt`, `RemoteMutationReceipt`, `ApprovalGrant.scope`,
+  `QualityGate.gate_kind`, `allowed_for_gate`, canonical policy YAML,
+  broker/runtime behavior, provider mutation, and operation registration remain
+  outside this schema slice.
+
 ## Boundary dimension registry
 
 Entries are alphabetised by name. Status reflects ontology review on this
@@ -2069,6 +2169,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.4.1 | 2026-05-07 | Added ADR 0043 Q-013 credential-plane enum mirrors for `CredentialAuthorityObservation` and `MachineIdentityBindingObservation`, recorded `machine_identity` as an `Evidence.subject_kind`, and bumped `Evidence.schema_version` to `0.9.0`. |
 | 0.4.0 | 2026-05-07 | Phase 2.4 registry consolidation: added summary tables for Phase 2.1 standalone entities, Phase 2.2 base-shape extensions, Phase 2.3 direct Evidence subtypes, typed `BoundaryObservation` branches, schema-version ledger, and kernel-trusted producer allowlist final state; aligned frontmatter with the Q-010 `0.3.14` registry state; recorded `kernel_agent_client_resolver` in the producer allowlist per ADR 0037. |
 | 0.3.14 | 2026-05-07 | Added Phase 2.3.4 enum mirrors for ADR 0037 Q-010 remote-agent Evidence subtypes and recorded `Evidence.schema_version` `0.8.0`. |
 | 0.3.13 | 2026-05-06 | Added Phase 2.3.3 enum mirrors for ADR 0027/0030/0033 Q-006 source-control evidence, promoted `branch_protection` to accepted, corrected `check_source` overlap notes to the ADR 0033 direct-Evidence posture, recorded `Evidence.schema_version` `0.7.0`, recorded `BoundaryObservation.schema_version` `0.4.0`, and aligned the BoundaryObservation envelope with charter invariant 19 by requiring envelope-level provenance plus non-null freshness. |

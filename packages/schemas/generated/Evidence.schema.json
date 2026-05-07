@@ -8,8 +8,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.8.0",
-          "description": "Evidence schema version after ADR 0037 Q-010 remote-agent subject-kind extensions."
+          "const": "0.9.0",
+          "description": "Evidence schema version after ADR 0043 Q-013 machine-identity subject-kind extension."
         },
         "evidence_id": {
           "type": "string",
@@ -63,6 +63,7 @@
                   "resource_budget",
                   "execution_context",
                   "credential_source",
+                  "machine_identity",
                   "startup_phase",
                   "verification_command_spec",
                   "knowledge_source",
@@ -244,8 +245,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.8.0",
-          "description": "Evidence schema version after ADR 0037 Q-010 remote-agent subject-kind extensions."
+          "const": "0.9.0",
+          "description": "Evidence schema version after ADR 0043 Q-013 machine-identity subject-kind extension."
         },
         "evidence_id": {
           "type": "string",
@@ -299,6 +300,7 @@
                   "resource_budget",
                   "execution_context",
                   "credential_source",
+                  "machine_identity",
                   "startup_phase",
                   "verification_command_spec",
                   "knowledge_source",
@@ -472,8 +474,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.8.0",
-          "description": "Evidence schema version after ADR 0037 Q-010 remote-agent subject-kind extensions."
+          "const": "0.9.0",
+          "description": "Evidence schema version after ADR 0043 Q-013 machine-identity subject-kind extension."
         },
         "evidence_id": {
           "type": "string",
@@ -527,6 +529,7 @@
                   "resource_budget",
                   "execution_context",
                   "credential_source",
+                  "machine_identity",
                   "startup_phase",
                   "verification_command_spec",
                   "knowledge_source",
@@ -700,8 +703,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.8.0",
-          "description": "Evidence schema version after ADR 0037 Q-010 remote-agent subject-kind extensions."
+          "const": "0.9.0",
+          "description": "Evidence schema version after ADR 0043 Q-013 machine-identity subject-kind extension."
         },
         "evidence_id": {
           "type": "string",
@@ -755,6 +758,7 @@
                   "resource_budget",
                   "execution_context",
                   "credential_source",
+                  "machine_identity",
                   "startup_phase",
                   "verification_command_spec",
                   "knowledge_source",

@@ -7,8 +7,10 @@ import {
 } from '../common.ts';
 
 export const evidenceSchemaVersionSchema = z
-  .literal('0.8.0')
-  .describe('Evidence schema version after ADR 0037 Q-010 remote-agent subject-kind extensions.');
+  .literal('0.9.0')
+  .describe(
+    'Evidence schema version after ADR 0043 Q-013 machine-identity subject-kind extension.',
+  );
 
 export const evidenceKindSchema = z
   .enum(['observation', 'receipt', 'derived', 'human_decision', 'fixture'])
@@ -42,6 +44,7 @@ export const evidenceSubjectKindSchema = z
     'resource_budget',
     'execution_context',
     'credential_source',
+    'machine_identity',
     'startup_phase',
     'verification_command_spec',
     'knowledge_source',

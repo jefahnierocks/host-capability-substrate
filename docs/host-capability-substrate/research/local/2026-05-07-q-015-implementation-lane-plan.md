@@ -22,9 +22,9 @@ Accepted posture:
 - Phase 2.7 deferred-lane sequencing:
   `docs/host-capability-substrate/research/local/2026-05-06-phase-2-7-deferred-lane-sequencing-plan.md`
 
-ADR 0042 closes Q-015 at posture level only. Q-015 implementation is a Phase
-2.7 / Wave-2 candidate behind Q-013 and Q-014 unless a separate ADR 0038
-sequencing amendment is accepted.
+ADR 0042 closes Q-015 at posture level only. Q-013 v1 schema/evidence landed
+via ADR 0043, but Q-015 implementation remains a Phase 2.7 / Wave-2 candidate
+behind Q-014 unless a separate ADR 0038 sequencing amendment is accepted.
 
 ## Accepted Shape
 
@@ -69,10 +69,9 @@ evidence that cites both source material and Layer 1 operational evidence.
 
 Q-015 implementation should not open until all of these are true:
 
-- Phase 2.1-2.6 schema train completes per ADR 0038, or a separate sequencing
-  amendment explicitly changes that order.
-- Q-013 implementation lands the credential-source and machine-identity
-  evidence dependencies needed by backup credential custody.
+- Phase 2.1-2.6 schema train completed per ADR 0038.
+- Q-013 implementation landed the credential-source and machine-identity
+  evidence dependencies needed by backup credential custody via ADR 0043.
 - Q-014 implementation lands the project-substrate contract validation and
   admission evidence that project backup requirements can cite.
 - Backup/readiness remains an independent evidence need after Q-014
@@ -189,11 +188,12 @@ Stop and return to human review if a task tries to:
 ## Next Safe Action
 
 Leave implementation blocked. Keep Q-015 in the Phase 2.7 / Wave-2 queue and
-revisit only after Q-013 and Q-014 implementation dependencies exist, or after
-a sequencing amendment explicitly changes that order.
+revisit only after Q-014 implementation dependencies exist, or after a
+sequencing amendment explicitly changes that order.
 
 ## Change Log
 
 | Version | Date | Change |
 |---|---:|---|
+| 0.2.0 | 2026-05-07 | Updated after ADR 0043 schema/evidence landing; Q-015 remains blocked behind Q-014 implementation evidence. |
 | 0.1.0 | 2026-05-07 | Initial docs-only implementation-lane plan following ADR 0042 acceptance. |

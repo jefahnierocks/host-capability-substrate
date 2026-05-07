@@ -1,0 +1,1873 @@
+{
+  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/MachineIdentityBindingObservation.schema.json",
+  "title": "MachineIdentityBindingObservation",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "anyOf": [
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "0.9.0",
+          "description": "Evidence schema version after ADR 0043 Q-013 machine-identity subject-kind extension."
+        },
+        "evidence_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "const": "observation"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        "valid_until": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "authoritative",
+            "high",
+            "best-effort",
+            "stale",
+            "unknown"
+          ],
+          "description": "Confidence assigned to an observation by the producer."
+        },
+        "parser_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "producer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "host_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "workspace_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "execution_context_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "redaction_mode": {
+          "type": "string",
+          "enum": [
+            "none",
+            "redacted",
+            "classified",
+            "hash_only",
+            "reference_only",
+            "mixed"
+          ],
+          "description": "How sensitive payload material was handled before persistence."
+        },
+        "subject_refs": {
+          "minItems": 2,
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "subject_kind": {
+                    "type": "string",
+                    "const": "machine_identity"
+                  },
+                  "subject_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "description": "Stable local entity identifier. It is not a secret value."
+                  },
+                  "relation": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "subject_kind",
+                  "subject_id"
+                ],
+                "additionalProperties": false,
+                "description": "Subject reference for a MachineIdentityBindingObservation Evidence subtype."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "subject_kind": {
+                    "type": "string",
+                    "const": "credential_source"
+                  },
+                  "subject_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "description": "Stable local entity identifier. It is not a secret value."
+                  },
+                  "relation": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "subject_kind",
+                  "subject_id"
+                ],
+                "additionalProperties": false,
+                "description": "Subject reference for a CredentialAuthorityObservation Evidence subtype."
+              }
+            ]
+          }
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "const": "machine_identity_binding_observation:v1"
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "machine_identity_kind": {
+              "type": "string",
+              "enum": [
+                "provider_principal",
+                "federated_subject",
+                "runner_principal"
+              ],
+              "description": "ADR 0043 machine identity reference discriminator."
+            },
+            "machine_identity_ref": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            },
+            "credential_source_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            },
+            "authority_surface_kind": {
+              "type": "string",
+              "enum": [
+                "credential_authority",
+                "secret_store",
+                "identity_provider",
+                "broker",
+                "provider_control_plane",
+                "local_host",
+                "unknown"
+              ],
+              "description": "ADR 0043 credential authority surface discriminator."
+            },
+            "authority_surface_ref": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            },
+            "issuer_posture_kind": {
+              "type": "string",
+              "enum": [
+                "platform_native",
+                "federated",
+                "service_account",
+                "runner_registration",
+                "unknown"
+              ],
+              "description": "ADR 0043 machine identity issuer/source posture discriminator."
+            },
+            "audience_posture_kind": {
+              "type": "string",
+              "enum": [
+                "single_audience",
+                "multiple_audience",
+                "wildcard",
+                "unknown"
+              ],
+              "description": "ADR 0043 credential or identity audience posture discriminator."
+            },
+            "expiry_posture_kind": {
+              "type": "string",
+              "enum": [
+                "expires",
+                "non_expiring",
+                "unknown"
+              ],
+              "description": "ADR 0043 credential expiry posture discriminator."
+            },
+            "rotation_posture_kind": {
+              "type": "string",
+              "enum": [
+                "rotating",
+                "manual",
+                "not_observed",
+                "unknown"
+              ],
+              "description": "ADR 0043 credential rotation posture discriminator."
+            },
+            "binding_status_kind": {
+              "type": "string",
+              "enum": [
+                "observed_bound",
+                "observed_absent",
+                "contradictory",
+                "unknown"
+              ],
+              "description": "ADR 0043 machine identity to credential-source binding status."
+            },
+            "execution_context_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            },
+            "identity_observed_at": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            "credential_authority_evidence_ref": {
+              "type": "object",
+              "properties": {
+                "evidence_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Reference to an Evidence record or fixture."
+                },
+                "source": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Human-readable source name or artifact path."
+                },
+                "observed_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                "valid_until": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "authority": {
+                  "type": "string",
+                  "enum": [
+                    "project-local",
+                    "workspace-local",
+                    "user-global",
+                    "system",
+                    "derived",
+                    "sandbox-observation",
+                    "host-observation",
+                    "vendor-doc",
+                    "installed-runtime",
+                    "human-observed"
+                  ],
+                  "description": "Authority plane for a fact or observation."
+                },
+                "parser_version": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "confidence": {
+                  "type": "string",
+                  "enum": [
+                    "authoritative",
+                    "high",
+                    "best-effort",
+                    "stale",
+                    "unknown"
+                  ],
+                  "description": "Confidence assigned to an observation by the producer."
+                }
+              },
+              "required": [
+                "evidence_id",
+                "source",
+                "observed_at",
+                "authority",
+                "confidence"
+              ],
+              "additionalProperties": false,
+              "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+            },
+            "boundary_evidence_refs": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "evidence_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "description": "Reference to an Evidence record or fixture."
+                  },
+                  "source": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Human-readable source name or artifact path."
+                  },
+                  "observed_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                    "description": "RFC 3339 timestamp with an explicit UTC offset."
+                  },
+                  "valid_until": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                        "description": "RFC 3339 timestamp with an explicit UTC offset."
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "authority": {
+                    "type": "string",
+                    "enum": [
+                      "project-local",
+                      "workspace-local",
+                      "user-global",
+                      "system",
+                      "derived",
+                      "sandbox-observation",
+                      "host-observation",
+                      "vendor-doc",
+                      "installed-runtime",
+                      "human-observed"
+                    ],
+                    "description": "Authority plane for a fact or observation."
+                  },
+                  "parser_version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "authoritative",
+                      "high",
+                      "best-effort",
+                      "stale",
+                      "unknown"
+                    ],
+                    "description": "Confidence assigned to an observation by the producer."
+                  }
+                },
+                "required": [
+                  "evidence_id",
+                  "source",
+                  "observed_at",
+                  "authority",
+                  "confidence"
+                ],
+                "additionalProperties": false,
+                "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+              }
+            }
+          },
+          "required": [
+            "machine_identity_kind",
+            "machine_identity_ref",
+            "credential_source_id",
+            "authority_surface_kind",
+            "authority_surface_ref",
+            "issuer_posture_kind",
+            "audience_posture_kind",
+            "expiry_posture_kind",
+            "rotation_posture_kind",
+            "binding_status_kind",
+            "execution_context_id",
+            "identity_observed_at",
+            "credential_authority_evidence_ref",
+            "boundary_evidence_refs"
+          ],
+          "additionalProperties": false,
+          "description": "ADR 0043 MachineIdentityBindingObservation typed Evidence payload."
+        },
+        "authority": {
+          "type": "string",
+          "const": "sandbox-observation"
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "schema_version",
+        "evidence_id",
+        "evidence_kind",
+        "source",
+        "observed_at",
+        "valid_until",
+        "confidence",
+        "parser_version",
+        "execution_context_id",
+        "redaction_mode",
+        "subject_refs",
+        "payload_schema_version",
+        "payload",
+        "authority",
+        "source_ref"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "0.9.0",
+          "description": "Evidence schema version after ADR 0043 Q-013 machine-identity subject-kind extension."
+        },
+        "evidence_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "const": "observation"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        "valid_until": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "authoritative",
+            "high",
+            "best-effort",
+            "stale",
+            "unknown"
+          ],
+          "description": "Confidence assigned to an observation by the producer."
+        },
+        "parser_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "producer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "host_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "workspace_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "execution_context_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "redaction_mode": {
+          "type": "string",
+          "enum": [
+            "none",
+            "redacted",
+            "classified",
+            "hash_only",
+            "reference_only",
+            "mixed"
+          ],
+          "description": "How sensitive payload material was handled before persistence."
+        },
+        "subject_refs": {
+          "minItems": 2,
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "subject_kind": {
+                    "type": "string",
+                    "const": "machine_identity"
+                  },
+                  "subject_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "description": "Stable local entity identifier. It is not a secret value."
+                  },
+                  "relation": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "subject_kind",
+                  "subject_id"
+                ],
+                "additionalProperties": false,
+                "description": "Subject reference for a MachineIdentityBindingObservation Evidence subtype."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "subject_kind": {
+                    "type": "string",
+                    "const": "credential_source"
+                  },
+                  "subject_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "description": "Stable local entity identifier. It is not a secret value."
+                  },
+                  "relation": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "subject_kind",
+                  "subject_id"
+                ],
+                "additionalProperties": false,
+                "description": "Subject reference for a CredentialAuthorityObservation Evidence subtype."
+              }
+            ]
+          }
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "const": "machine_identity_binding_observation:v1"
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "machine_identity_kind": {
+              "type": "string",
+              "enum": [
+                "provider_principal",
+                "federated_subject",
+                "runner_principal"
+              ],
+              "description": "ADR 0043 machine identity reference discriminator."
+            },
+            "machine_identity_ref": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            },
+            "credential_source_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            },
+            "authority_surface_kind": {
+              "type": "string",
+              "enum": [
+                "credential_authority",
+                "secret_store",
+                "identity_provider",
+                "broker",
+                "provider_control_plane",
+                "local_host",
+                "unknown"
+              ],
+              "description": "ADR 0043 credential authority surface discriminator."
+            },
+            "authority_surface_ref": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            },
+            "issuer_posture_kind": {
+              "type": "string",
+              "enum": [
+                "platform_native",
+                "federated",
+                "service_account",
+                "runner_registration",
+                "unknown"
+              ],
+              "description": "ADR 0043 machine identity issuer/source posture discriminator."
+            },
+            "audience_posture_kind": {
+              "type": "string",
+              "enum": [
+                "single_audience",
+                "multiple_audience",
+                "wildcard",
+                "unknown"
+              ],
+              "description": "ADR 0043 credential or identity audience posture discriminator."
+            },
+            "expiry_posture_kind": {
+              "type": "string",
+              "enum": [
+                "expires",
+                "non_expiring",
+                "unknown"
+              ],
+              "description": "ADR 0043 credential expiry posture discriminator."
+            },
+            "rotation_posture_kind": {
+              "type": "string",
+              "enum": [
+                "rotating",
+                "manual",
+                "not_observed",
+                "unknown"
+              ],
+              "description": "ADR 0043 credential rotation posture discriminator."
+            },
+            "binding_status_kind": {
+              "type": "string",
+              "enum": [
+                "observed_bound",
+                "observed_absent",
+                "contradictory",
+                "unknown"
+              ],
+              "description": "ADR 0043 machine identity to credential-source binding status."
+            },
+            "execution_context_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            },
+            "identity_observed_at": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            "credential_authority_evidence_ref": {
+              "type": "object",
+              "properties": {
+                "evidence_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Reference to an Evidence record or fixture."
+                },
+                "source": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Human-readable source name or artifact path."
+                },
+                "observed_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                "valid_until": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "authority": {
+                  "type": "string",
+                  "enum": [
+                    "project-local",
+                    "workspace-local",
+                    "user-global",
+                    "system",
+                    "derived",
+                    "sandbox-observation",
+                    "host-observation",
+                    "vendor-doc",
+                    "installed-runtime",
+                    "human-observed"
+                  ],
+                  "description": "Authority plane for a fact or observation."
+                },
+                "parser_version": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "confidence": {
+                  "type": "string",
+                  "enum": [
+                    "authoritative",
+                    "high",
+                    "best-effort",
+                    "stale",
+                    "unknown"
+                  ],
+                  "description": "Confidence assigned to an observation by the producer."
+                }
+              },
+              "required": [
+                "evidence_id",
+                "source",
+                "observed_at",
+                "authority",
+                "confidence"
+              ],
+              "additionalProperties": false,
+              "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+            },
+            "boundary_evidence_refs": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "evidence_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "description": "Reference to an Evidence record or fixture."
+                  },
+                  "source": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Human-readable source name or artifact path."
+                  },
+                  "observed_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                    "description": "RFC 3339 timestamp with an explicit UTC offset."
+                  },
+                  "valid_until": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                        "description": "RFC 3339 timestamp with an explicit UTC offset."
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "authority": {
+                    "type": "string",
+                    "enum": [
+                      "project-local",
+                      "workspace-local",
+                      "user-global",
+                      "system",
+                      "derived",
+                      "sandbox-observation",
+                      "host-observation",
+                      "vendor-doc",
+                      "installed-runtime",
+                      "human-observed"
+                    ],
+                    "description": "Authority plane for a fact or observation."
+                  },
+                  "parser_version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "authoritative",
+                      "high",
+                      "best-effort",
+                      "stale",
+                      "unknown"
+                    ],
+                    "description": "Confidence assigned to an observation by the producer."
+                  }
+                },
+                "required": [
+                  "evidence_id",
+                  "source",
+                  "observed_at",
+                  "authority",
+                  "confidence"
+                ],
+                "additionalProperties": false,
+                "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+              }
+            }
+          },
+          "required": [
+            "machine_identity_kind",
+            "machine_identity_ref",
+            "credential_source_id",
+            "authority_surface_kind",
+            "authority_surface_ref",
+            "issuer_posture_kind",
+            "audience_posture_kind",
+            "expiry_posture_kind",
+            "rotation_posture_kind",
+            "binding_status_kind",
+            "execution_context_id",
+            "identity_observed_at",
+            "credential_authority_evidence_ref",
+            "boundary_evidence_refs"
+          ],
+          "additionalProperties": false,
+          "description": "ADR 0043 MachineIdentityBindingObservation typed Evidence payload."
+        },
+        "authority": {
+          "type": "string",
+          "const": "sandbox-observation"
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "schema_version",
+        "evidence_id",
+        "evidence_kind",
+        "source",
+        "observed_at",
+        "valid_until",
+        "confidence",
+        "parser_version",
+        "execution_context_id",
+        "session_id",
+        "redaction_mode",
+        "subject_refs",
+        "payload_schema_version",
+        "payload",
+        "authority"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "0.9.0",
+          "description": "Evidence schema version after ADR 0043 Q-013 machine-identity subject-kind extension."
+        },
+        "evidence_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "const": "observation"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        "valid_until": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "authoritative",
+            "high",
+            "best-effort",
+            "stale",
+            "unknown"
+          ],
+          "description": "Confidence assigned to an observation by the producer."
+        },
+        "parser_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "producer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "host_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "workspace_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "execution_context_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "redaction_mode": {
+          "type": "string",
+          "enum": [
+            "none",
+            "redacted",
+            "classified",
+            "hash_only",
+            "reference_only",
+            "mixed"
+          ],
+          "description": "How sensitive payload material was handled before persistence."
+        },
+        "subject_refs": {
+          "minItems": 2,
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "subject_kind": {
+                    "type": "string",
+                    "const": "machine_identity"
+                  },
+                  "subject_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "description": "Stable local entity identifier. It is not a secret value."
+                  },
+                  "relation": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "subject_kind",
+                  "subject_id"
+                ],
+                "additionalProperties": false,
+                "description": "Subject reference for a MachineIdentityBindingObservation Evidence subtype."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "subject_kind": {
+                    "type": "string",
+                    "const": "credential_source"
+                  },
+                  "subject_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "description": "Stable local entity identifier. It is not a secret value."
+                  },
+                  "relation": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "subject_kind",
+                  "subject_id"
+                ],
+                "additionalProperties": false,
+                "description": "Subject reference for a CredentialAuthorityObservation Evidence subtype."
+              }
+            ]
+          }
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "const": "machine_identity_binding_observation:v1"
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "machine_identity_kind": {
+              "type": "string",
+              "enum": [
+                "provider_principal",
+                "federated_subject",
+                "runner_principal"
+              ],
+              "description": "ADR 0043 machine identity reference discriminator."
+            },
+            "machine_identity_ref": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            },
+            "credential_source_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            },
+            "authority_surface_kind": {
+              "type": "string",
+              "enum": [
+                "credential_authority",
+                "secret_store",
+                "identity_provider",
+                "broker",
+                "provider_control_plane",
+                "local_host",
+                "unknown"
+              ],
+              "description": "ADR 0043 credential authority surface discriminator."
+            },
+            "authority_surface_ref": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            },
+            "issuer_posture_kind": {
+              "type": "string",
+              "enum": [
+                "platform_native",
+                "federated",
+                "service_account",
+                "runner_registration",
+                "unknown"
+              ],
+              "description": "ADR 0043 machine identity issuer/source posture discriminator."
+            },
+            "audience_posture_kind": {
+              "type": "string",
+              "enum": [
+                "single_audience",
+                "multiple_audience",
+                "wildcard",
+                "unknown"
+              ],
+              "description": "ADR 0043 credential or identity audience posture discriminator."
+            },
+            "expiry_posture_kind": {
+              "type": "string",
+              "enum": [
+                "expires",
+                "non_expiring",
+                "unknown"
+              ],
+              "description": "ADR 0043 credential expiry posture discriminator."
+            },
+            "rotation_posture_kind": {
+              "type": "string",
+              "enum": [
+                "rotating",
+                "manual",
+                "not_observed",
+                "unknown"
+              ],
+              "description": "ADR 0043 credential rotation posture discriminator."
+            },
+            "binding_status_kind": {
+              "type": "string",
+              "enum": [
+                "observed_bound",
+                "observed_absent",
+                "contradictory",
+                "unknown"
+              ],
+              "description": "ADR 0043 machine identity to credential-source binding status."
+            },
+            "execution_context_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            },
+            "identity_observed_at": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            "credential_authority_evidence_ref": {
+              "type": "object",
+              "properties": {
+                "evidence_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Reference to an Evidence record or fixture."
+                },
+                "source": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Human-readable source name or artifact path."
+                },
+                "observed_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                "valid_until": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "authority": {
+                  "type": "string",
+                  "enum": [
+                    "project-local",
+                    "workspace-local",
+                    "user-global",
+                    "system",
+                    "derived",
+                    "sandbox-observation",
+                    "host-observation",
+                    "vendor-doc",
+                    "installed-runtime",
+                    "human-observed"
+                  ],
+                  "description": "Authority plane for a fact or observation."
+                },
+                "parser_version": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "confidence": {
+                  "type": "string",
+                  "enum": [
+                    "authoritative",
+                    "high",
+                    "best-effort",
+                    "stale",
+                    "unknown"
+                  ],
+                  "description": "Confidence assigned to an observation by the producer."
+                }
+              },
+              "required": [
+                "evidence_id",
+                "source",
+                "observed_at",
+                "authority",
+                "confidence"
+              ],
+              "additionalProperties": false,
+              "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+            },
+            "boundary_evidence_refs": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "evidence_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "description": "Reference to an Evidence record or fixture."
+                  },
+                  "source": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Human-readable source name or artifact path."
+                  },
+                  "observed_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                    "description": "RFC 3339 timestamp with an explicit UTC offset."
+                  },
+                  "valid_until": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                        "description": "RFC 3339 timestamp with an explicit UTC offset."
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "authority": {
+                    "type": "string",
+                    "enum": [
+                      "project-local",
+                      "workspace-local",
+                      "user-global",
+                      "system",
+                      "derived",
+                      "sandbox-observation",
+                      "host-observation",
+                      "vendor-doc",
+                      "installed-runtime",
+                      "human-observed"
+                    ],
+                    "description": "Authority plane for a fact or observation."
+                  },
+                  "parser_version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "authoritative",
+                      "high",
+                      "best-effort",
+                      "stale",
+                      "unknown"
+                    ],
+                    "description": "Confidence assigned to an observation by the producer."
+                  }
+                },
+                "required": [
+                  "evidence_id",
+                  "source",
+                  "observed_at",
+                  "authority",
+                  "confidence"
+                ],
+                "additionalProperties": false,
+                "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+              }
+            }
+          },
+          "required": [
+            "machine_identity_kind",
+            "machine_identity_ref",
+            "credential_source_id",
+            "authority_surface_kind",
+            "authority_surface_ref",
+            "issuer_posture_kind",
+            "audience_posture_kind",
+            "expiry_posture_kind",
+            "rotation_posture_kind",
+            "binding_status_kind",
+            "execution_context_id",
+            "identity_observed_at",
+            "credential_authority_evidence_ref",
+            "boundary_evidence_refs"
+          ],
+          "additionalProperties": false,
+          "description": "ADR 0043 MachineIdentityBindingObservation typed Evidence payload."
+        },
+        "authority": {
+          "type": "string",
+          "const": "sandbox-observation"
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "schema_version",
+        "evidence_id",
+        "evidence_kind",
+        "source",
+        "observed_at",
+        "valid_until",
+        "confidence",
+        "parser_version",
+        "execution_context_id",
+        "run_id",
+        "redaction_mode",
+        "subject_refs",
+        "payload_schema_version",
+        "payload",
+        "authority"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "0.9.0",
+          "description": "Evidence schema version after ADR 0043 Q-013 machine-identity subject-kind extension."
+        },
+        "evidence_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "const": "observation"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        "valid_until": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "authoritative",
+            "high",
+            "best-effort",
+            "stale",
+            "unknown"
+          ],
+          "description": "Confidence assigned to an observation by the producer."
+        },
+        "parser_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "producer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "host_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "workspace_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "execution_context_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "redaction_mode": {
+          "type": "string",
+          "enum": [
+            "none",
+            "redacted",
+            "classified",
+            "hash_only",
+            "reference_only",
+            "mixed"
+          ],
+          "description": "How sensitive payload material was handled before persistence."
+        },
+        "subject_refs": {
+          "minItems": 2,
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "subject_kind": {
+                    "type": "string",
+                    "const": "machine_identity"
+                  },
+                  "subject_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "description": "Stable local entity identifier. It is not a secret value."
+                  },
+                  "relation": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "subject_kind",
+                  "subject_id"
+                ],
+                "additionalProperties": false,
+                "description": "Subject reference for a MachineIdentityBindingObservation Evidence subtype."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "subject_kind": {
+                    "type": "string",
+                    "const": "credential_source"
+                  },
+                  "subject_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "description": "Stable local entity identifier. It is not a secret value."
+                  },
+                  "relation": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "subject_kind",
+                  "subject_id"
+                ],
+                "additionalProperties": false,
+                "description": "Subject reference for a CredentialAuthorityObservation Evidence subtype."
+              }
+            ]
+          }
+        },
+        "payload_schema_version": {
+          "type": "string",
+          "const": "machine_identity_binding_observation:v1"
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "machine_identity_kind": {
+              "type": "string",
+              "enum": [
+                "provider_principal",
+                "federated_subject",
+                "runner_principal"
+              ],
+              "description": "ADR 0043 machine identity reference discriminator."
+            },
+            "machine_identity_ref": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            },
+            "credential_source_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            },
+            "authority_surface_kind": {
+              "type": "string",
+              "enum": [
+                "credential_authority",
+                "secret_store",
+                "identity_provider",
+                "broker",
+                "provider_control_plane",
+                "local_host",
+                "unknown"
+              ],
+              "description": "ADR 0043 credential authority surface discriminator."
+            },
+            "authority_surface_ref": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            },
+            "issuer_posture_kind": {
+              "type": "string",
+              "enum": [
+                "platform_native",
+                "federated",
+                "service_account",
+                "runner_registration",
+                "unknown"
+              ],
+              "description": "ADR 0043 machine identity issuer/source posture discriminator."
+            },
+            "audience_posture_kind": {
+              "type": "string",
+              "enum": [
+                "single_audience",
+                "multiple_audience",
+                "wildcard",
+                "unknown"
+              ],
+              "description": "ADR 0043 credential or identity audience posture discriminator."
+            },
+            "expiry_posture_kind": {
+              "type": "string",
+              "enum": [
+                "expires",
+                "non_expiring",
+                "unknown"
+              ],
+              "description": "ADR 0043 credential expiry posture discriminator."
+            },
+            "rotation_posture_kind": {
+              "type": "string",
+              "enum": [
+                "rotating",
+                "manual",
+                "not_observed",
+                "unknown"
+              ],
+              "description": "ADR 0043 credential rotation posture discriminator."
+            },
+            "binding_status_kind": {
+              "type": "string",
+              "enum": [
+                "observed_bound",
+                "observed_absent",
+                "contradictory",
+                "unknown"
+              ],
+              "description": "ADR 0043 machine identity to credential-source binding status."
+            },
+            "execution_context_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            },
+            "identity_observed_at": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            "credential_authority_evidence_ref": {
+              "type": "object",
+              "properties": {
+                "evidence_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Reference to an Evidence record or fixture."
+                },
+                "source": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Human-readable source name or artifact path."
+                },
+                "observed_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                "valid_until": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                      "description": "RFC 3339 timestamp with an explicit UTC offset."
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "authority": {
+                  "type": "string",
+                  "enum": [
+                    "project-local",
+                    "workspace-local",
+                    "user-global",
+                    "system",
+                    "derived",
+                    "sandbox-observation",
+                    "host-observation",
+                    "vendor-doc",
+                    "installed-runtime",
+                    "human-observed"
+                  ],
+                  "description": "Authority plane for a fact or observation."
+                },
+                "parser_version": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "confidence": {
+                  "type": "string",
+                  "enum": [
+                    "authoritative",
+                    "high",
+                    "best-effort",
+                    "stale",
+                    "unknown"
+                  ],
+                  "description": "Confidence assigned to an observation by the producer."
+                }
+              },
+              "required": [
+                "evidence_id",
+                "source",
+                "observed_at",
+                "authority",
+                "confidence"
+              ],
+              "additionalProperties": false,
+              "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+            },
+            "boundary_evidence_refs": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "evidence_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "description": "Reference to an Evidence record or fixture."
+                  },
+                  "source": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Human-readable source name or artifact path."
+                  },
+                  "observed_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                    "description": "RFC 3339 timestamp with an explicit UTC offset."
+                  },
+                  "valid_until": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                        "description": "RFC 3339 timestamp with an explicit UTC offset."
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "authority": {
+                    "type": "string",
+                    "enum": [
+                      "project-local",
+                      "workspace-local",
+                      "user-global",
+                      "system",
+                      "derived",
+                      "sandbox-observation",
+                      "host-observation",
+                      "vendor-doc",
+                      "installed-runtime",
+                      "human-observed"
+                    ],
+                    "description": "Authority plane for a fact or observation."
+                  },
+                  "parser_version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "authoritative",
+                      "high",
+                      "best-effort",
+                      "stale",
+                      "unknown"
+                    ],
+                    "description": "Confidence assigned to an observation by the producer."
+                  }
+                },
+                "required": [
+                  "evidence_id",
+                  "source",
+                  "observed_at",
+                  "authority",
+                  "confidence"
+                ],
+                "additionalProperties": false,
+                "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+              }
+            }
+          },
+          "required": [
+            "machine_identity_kind",
+            "machine_identity_ref",
+            "credential_source_id",
+            "authority_surface_kind",
+            "authority_surface_ref",
+            "issuer_posture_kind",
+            "audience_posture_kind",
+            "expiry_posture_kind",
+            "rotation_posture_kind",
+            "binding_status_kind",
+            "execution_context_id",
+            "identity_observed_at",
+            "credential_authority_evidence_ref",
+            "boundary_evidence_refs"
+          ],
+          "additionalProperties": false,
+          "description": "ADR 0043 MachineIdentityBindingObservation typed Evidence payload."
+        },
+        "authority": {
+          "type": "string",
+          "enum": [
+            "project-local",
+            "workspace-local",
+            "user-global",
+            "system",
+            "derived",
+            "host-observation",
+            "vendor-doc",
+            "installed-runtime",
+            "human-observed"
+          ]
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "schema_version",
+        "evidence_id",
+        "evidence_kind",
+        "source",
+        "observed_at",
+        "valid_until",
+        "confidence",
+        "parser_version",
+        "execution_context_id",
+        "redaction_mode",
+        "subject_refs",
+        "payload_schema_version",
+        "payload",
+        "authority"
+      ],
+      "additionalProperties": false
+    }
+  ],
+  "description": "ADR 0043 MachineIdentityBindingObservation direct Evidence subtype."
+}

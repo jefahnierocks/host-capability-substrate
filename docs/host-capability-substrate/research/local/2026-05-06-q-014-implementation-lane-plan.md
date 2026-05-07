@@ -2,10 +2,12 @@
 
 Date: 2026-05-06
 
-Status: planning only. This document does not authorize schema source,
-generated JSON Schema, validators, canonical policy YAML, adapters, dashboard
-routes, hooks, runner registration, Proxmox changes, OpenTofu changes,
-machine-identity issuance, project workload provisioning, or runtime behavior.
+Status: implementation ADR planning may open. ADR 0043 has landed the Q-013
+credential-source and machine-identity evidence dependency, but this document
+does not authorize Q-014 schema source, generated JSON Schema, validators,
+canonical policy YAML, adapters, dashboard routes, hooks, runner registration,
+Proxmox changes, OpenTofu changes, machine-identity issuance, project workload
+provisioning, or runtime behavior.
 
 ## Authority
 
@@ -19,6 +21,8 @@ Accepted posture:
   `docs/host-capability-substrate/research/local/2026-05-06-project-substrate-compatibility-synthesis.md`
 - External compatibility note:
   `docs/host-capability-substrate/research/external/2026-05-06-citadel-project-substrate-standard.md`
+- Q-013 v1 evidence dependency:
+  `docs/host-capability-substrate/adr/0043-q-013-credential-plane-implementation.md`
 
 External source authority remains Citadel PR #37, merged to
 `The-Nash-Group/citadel-config` at
@@ -53,12 +57,11 @@ summarize its state, but must not duplicate the payload as a second fact home.
 
 ## Entry Conditions
 
-Q-014 implementation should not open until all of these are true:
+Q-014 schema implementation should not open until all of these are true:
 
-- Phase 2.1-2.6 schema train completes per ADR 0038, or a separate sequencing
-  amendment explicitly changes that order.
-- Q-013 implementation lands the credential-source and machine-identity
-  evidence dependencies needed by project-substrate validation.
+- Phase 2.1-2.6 schema train completed per ADR 0038.
+- Q-013 implementation landed the credential-source and machine-identity
+  evidence dependencies needed by project-substrate validation via ADR 0043.
 - A follow-on implementation ADR is accepted for Q-014 schema scope, including
   registry changes, Zod source, generated JSON Schema, fixtures, docs, and
   tests.
@@ -144,12 +147,13 @@ Stop and return to human review if a task tries to:
 
 ## Next Safe Action
 
-Leave implementation blocked. The next HCS-local action is to keep Q-014 in
-the Phase 2.7 / Wave-2 queue and revisit it only after Q-013 implementation
-evidence exists or a sequencing amendment is accepted.
+Draft the Q-014 implementation ADR. Keep schema, validator, adapter,
+dashboard, hook, policy, and runtime implementation blocked until that ADR is
+accepted and the required reviewer pass completes.
 
 ## Change Log
 
 | Version | Date | Change |
 |---|---:|---|
+| 0.2.0 | 2026-05-07 | Updated after ADR 0043 schema/evidence landing; Q-014 implementation ADR planning may open while Q-014 schema/runtime work remains blocked. |
 | 0.1.0 | 2026-05-06 | Initial docs-only implementation-lane plan following ADR 0041 acceptance. |

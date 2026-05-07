@@ -20,6 +20,15 @@ const credentialSourceEvidenceRef = {
   confidence: 'high',
 } as const;
 
+const credentialAuthorityEvidenceRef = {
+  evidence_id: 'evidence:credential-authority:hcs-ci',
+  source: 'CredentialAuthorityObservation:hcs-ci',
+  observed_at: observedAt,
+  valid_until: validUntil,
+  authority: 'host-observation',
+  confidence: 'high',
+} as const;
+
 const boundaryEvidenceRef = {
   evidence_id: 'bo:credential-source:hcs-ci',
   source: 'BoundaryObservation:credential-source:hcs-ci',
@@ -106,6 +115,23 @@ describe('ADR 0043 Q-013 credential-plane evidence subtypes', () => {
         },
       }).success,
     ).toBe(false);
+    expect(
+      credentialAuthorityObservationSchema.safeParse({
+        ...credentialAuthority,
+        evidence_id: 'evidence:credential-authority:inline-provider-item',
+        payload: {
+          ...credentialAuthority.payload,
+          provider_item_body: 'not allowed',
+        },
+      }).success,
+    ).toBe(false);
+    expect(
+      credentialAuthorityObservationSchema.safeParse({
+        ...credentialAuthority,
+        evidence_id: 'evidence:credential-authority:no-redaction',
+        redaction_mode: 'none',
+      }).success,
+    ).toBe(false);
   });
 
   it('validates MachineIdentityBindingObservation with both subject refs', () => {
@@ -146,7 +172,7 @@ describe('ADR 0043 Q-013 credential-plane evidence subtypes', () => {
         binding_status_kind: 'observed_bound',
         execution_context_id: executionContextId,
         identity_observed_at: observedAt,
-        credential_authority_evidence_ref: credentialSourceEvidenceRef,
+        credential_authority_evidence_ref: credentialAuthorityEvidenceRef,
         boundary_evidence_refs: [boundaryEvidenceRef],
       },
       redaction_mode: 'reference_only',
@@ -160,6 +186,30 @@ describe('ADR 0043 Q-013 credential-plane evidence subtypes', () => {
         payload: {
           ...obs.payload,
           execution_context_id: 'ctx:other',
+        },
+      }).success,
+    ).toBe(false);
+    expect(
+      machineIdentityBindingObservationSchema.safeParse({
+        ...obs,
+        evidence_id: 'evidence:machine-identity-binding:stale',
+        valid_until: null,
+      }).success,
+    ).toBe(false);
+    expect(
+      machineIdentityBindingObservationSchema.safeParse({
+        ...obs,
+        evidence_id: 'evidence:machine-identity-binding:no-redaction',
+        redaction_mode: 'none',
+      }).success,
+    ).toBe(false);
+    expect(
+      machineIdentityBindingObservationSchema.safeParse({
+        ...obs,
+        evidence_id: 'evidence:machine-identity-binding:inline-secret',
+        payload: {
+          ...obs.payload,
+          private_key: 'not allowed',
         },
       }).success,
     ).toBe(false);
@@ -201,7 +251,7 @@ describe('ADR 0043 Q-013 credential-plane evidence subtypes', () => {
         binding_status_kind: 'observed_bound',
         execution_context_id: executionContextId,
         identity_observed_at: observedAt,
-        credential_authority_evidence_ref: credentialSourceEvidenceRef,
+        credential_authority_evidence_ref: credentialAuthorityEvidenceRef,
       },
       redaction_mode: 'reference_only',
     });
@@ -225,6 +275,26 @@ describe('ADR 0043 Q-013 credential-plane evidence subtypes', () => {
         payload: {
           ...binding.payload,
           machine_identity_kind: 'github_app',
+        },
+      }).success,
+    ).toBe(false);
+    expect(
+      machineIdentityBindingObservationSchema.safeParse({
+        ...binding,
+        evidence_id: 'evidence:machine-identity-binding:jwt-ref',
+        payload: {
+          ...binding.payload,
+          machine_identity_ref: 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjaSJ9.signature',
+        },
+      }).success,
+    ).toBe(false);
+    expect(
+      machineIdentityBindingObservationSchema.safeParse({
+        ...binding,
+        evidence_id: 'evidence:machine-identity-binding:ssh-agent-state',
+        payload: {
+          ...binding.payload,
+          human_ssh_agent_state: 'not allowed',
         },
       }).success,
     ).toBe(false);

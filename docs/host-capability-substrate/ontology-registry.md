@@ -1821,6 +1821,13 @@ Mirror notes:
   `entityIdSchema`-compatible reference form, and never carries token, private
   key, provider item body, assertion, JWT body, recovery code, or human
   SSH-agent state.
+- Credential-plane records require a non-`none` `redaction_mode`. The Zod
+  schemas also reject common JWT-shaped `machine_identity_ref` values; future
+  Ring 1 minting must still run the secret-shape scrubber because generated
+  JSON Schema cannot encode every semantic secret pattern.
+- Generated JSON Schema is not sufficient by itself for Q-013 target binding.
+  Subject-ref-to-payload and `execution_context_id` matching are enforced by
+  Zod refinements and must be preserved at the mint API.
 - `CredentialRuntimeInjectionReceipt`, `CredentialReconcilerReceipt`,
   `CredentialIssuanceReceipt`, `RemoteMutationReceipt`, `ApprovalGrant.scope`,
   `QualityGate.gate_kind`, `allowed_for_gate`, canonical policy YAML,

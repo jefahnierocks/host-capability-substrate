@@ -13,6 +13,18 @@ import {
 } from './credential-source.ts';
 import { evidenceRedactionModeSchema, evidenceSchemaVersionSchema } from './evidence.ts';
 
+const jwtLikePattern = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/;
+
+const credentialPlaneRedactionModeSchema = evidenceRedactionModeSchema
+  .exclude(['none'])
+  .describe('ADR 0043 credential-plane records require an explicit non-none redaction mode.');
+
+const machineIdentityRefSchema = entityIdSchema
+  .refine((value) => !jwtLikePattern.test(value), {
+    message: 'machine_identity_ref must be a reference id, not a JWT/assertion-shaped value.',
+  })
+  .describe('ADR 0043 non-secret machine identity reference.');
+
 const credentialPlaneEvidenceBaseFields = {
   schema_version: evidenceSchemaVersionSchema,
   evidence_id: entityIdSchema,
@@ -28,7 +40,7 @@ const credentialPlaneEvidenceBaseFields = {
   execution_context_id: entityIdSchema.optional(),
   session_id: entityIdSchema.optional(),
   run_id: entityIdSchema.optional(),
-  redaction_mode: evidenceRedactionModeSchema,
+  redaction_mode: credentialPlaneRedactionModeSchema,
 } as const;
 
 const credentialPlaneSubjectRefSchema = (subjectKind: string, description: string) =>
@@ -181,7 +193,7 @@ const machineIdentityBindingSubjectRefSchema = z.union([
 export const machineIdentityBindingPayloadSchema = z
   .object({
     machine_identity_kind: machineIdentityKindSchema,
-    machine_identity_ref: entityIdSchema,
+    machine_identity_ref: machineIdentityRefSchema,
     credential_source_id: entityIdSchema,
     authority_surface_kind: credentialAuthoritySurfaceKindSchema,
     authority_surface_ref: entityIdSchema,

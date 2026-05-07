@@ -89,14 +89,13 @@
         "redaction_mode": {
           "type": "string",
           "enum": [
-            "none",
             "redacted",
             "classified",
             "hash_only",
             "reference_only",
             "mixed"
           ],
-          "description": "How sensitive payload material was handled before persistence."
+          "description": "ADR 0043 credential-plane records require an explicit non-none redaction mode."
         },
         "subject_refs": {
           "minItems": 2,
@@ -176,7 +175,7 @@
               "type": "string",
               "minLength": 1,
               "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-              "description": "Stable local entity identifier. It is not a secret value."
+              "description": "ADR 0043 non-secret machine identity reference."
             },
             "credential_source_id": {
               "type": "string",
@@ -553,14 +552,13 @@
         "redaction_mode": {
           "type": "string",
           "enum": [
-            "none",
             "redacted",
             "classified",
             "hash_only",
             "reference_only",
             "mixed"
           ],
-          "description": "How sensitive payload material was handled before persistence."
+          "description": "ADR 0043 credential-plane records require an explicit non-none redaction mode."
         },
         "subject_refs": {
           "minItems": 2,
@@ -640,7 +638,7 @@
               "type": "string",
               "minLength": 1,
               "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-              "description": "Stable local entity identifier. It is not a secret value."
+              "description": "ADR 0043 non-secret machine identity reference."
             },
             "credential_source_id": {
               "type": "string",
@@ -1017,14 +1015,13 @@
         "redaction_mode": {
           "type": "string",
           "enum": [
-            "none",
             "redacted",
             "classified",
             "hash_only",
             "reference_only",
             "mixed"
           ],
-          "description": "How sensitive payload material was handled before persistence."
+          "description": "ADR 0043 credential-plane records require an explicit non-none redaction mode."
         },
         "subject_refs": {
           "minItems": 2,
@@ -1104,7 +1101,7 @@
               "type": "string",
               "minLength": 1,
               "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-              "description": "Stable local entity identifier. It is not a secret value."
+              "description": "ADR 0043 non-secret machine identity reference."
             },
             "credential_source_id": {
               "type": "string",
@@ -1481,14 +1478,13 @@
         "redaction_mode": {
           "type": "string",
           "enum": [
-            "none",
             "redacted",
             "classified",
             "hash_only",
             "reference_only",
             "mixed"
           ],
-          "description": "How sensitive payload material was handled before persistence."
+          "description": "ADR 0043 credential-plane records require an explicit non-none redaction mode."
         },
         "subject_refs": {
           "minItems": 2,
@@ -1568,7 +1564,7 @@
               "type": "string",
               "minLength": 1,
               "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-              "description": "Stable local entity identifier. It is not a secret value."
+              "description": "ADR 0043 non-secret machine identity reference."
             },
             "credential_source_id": {
               "type": "string",

@@ -871,6 +871,11 @@ registration, or canonical policy YAML behavior. Both records require non-null
 `valid_until`, explicit `redaction_mode`, typed target references, and
 reference-only credential or identity fields.
 
+The generated JSON Schemas are structural projections. Zod schema refinements
+and the future Ring 1 mint API enforce cross-field binding, including
+subject-ref-to-payload matching and `execution_context_id` consistency. A
+generated-schema-only pass is not sufficient gate evidence for Q-013 or Q-014.
+
 ### `CredentialAuthorityObservation`
 
 Source: `packages/schemas/src/entities/credential-plane-evidence.ts`

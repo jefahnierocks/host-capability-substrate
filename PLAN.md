@@ -54,6 +54,38 @@ amendment authorizes the implementation lane. Q-014 implementation is a Phase
 Deferred-lane sequencing:
 `docs/host-capability-substrate/research/local/2026-05-06-phase-2-7-deferred-lane-sequencing-plan.md`.
 
+**Q-015 backup-readiness substrate-contract intake (2026-05-06; intake only,
+no ADR drafted):** External advisor directive received 2026-05-06 on
+backup/readiness posture as HCS-facing substrate contract requirements. HCS
+absorbs the posture as typed evidence/contract consumer; HCS does not own
+backup execution, restore execution, or upstream substrates. Source ownership
+stays explicit: `runner-substrate` owns Proxmox/Synology backup evidence
+(PR #3 active); `hetzner` repo owns VPS-side restic/Storage Box; Citadel owns
+runner groups/admission standards; `HomeNetOps`/`system-config`/project repos
+each own different surfaces. Lifecycle vocabulary preserved verbatim:
+`pending → configured → usable → ready` with optional `expired`; restore
+drill with boot/service verification is the promotion gate from `usable` to
+`ready`; backup readiness does not imply runner readiness; runner readiness
+does not imply project workload admission. Candidate entity names from the
+advisor (`BackupReadinessEvidence`, `StorageClassReadiness`,
+`RestoreDrillEvidence`, `BackupLayerThreatModel`, `BackupCredentialCustody`,
+`BackupMonitoringRequirement`, `ProjectSubstrateBackupRequirement`) are
+recorded for synthesis; Q-011 naming-suffix discipline will rename at
+ADR review. Composes with ADR 0036 (workspace manifest projection),
+ADR 0040 (credential plane), ADR 0041 (project-substrate contract).
+The Phase 2.7 deferred-lane sequencing plan already names backup/restore as
+a downstream lane in its Lane Dependency Matrix (candidate
+`BackupReadinessObservation` and `RestoreExpectationReceipt`); this intake
+provides the structure that placeholder lacked. Intake doc:
+`docs/host-capability-substrate/research/local/2026-05-06-q-015-backup-readiness-intake.md`.
+No backup/restore schema, registry, validator, canonical policy YAML, adapter,
+dashboard, hook, runner, Proxmox, Hetzner, OpenTofu, machine-identity, or
+runtime change is authorized by this intake. Q-015 implementation, if
+subsequently accepted, opens as a Phase 2.7 / Wave-2 lane behind Q-013 and
+Q-014, or under a separately accepted ADR 0038 sequencing amendment. Q-010
+(remote-agent receipts; Phase 2.3.4) remains the next safe lane in the
+accepted Phase 2.1–2.6 train.
+
 **Phase 2 sequencing meta-ADR (accepted 2026-05-04):** ADR 0038
 (`docs/host-capability-substrate/adr/0038-phase-2-schema-landing-sequence.md`)
 accepts a six-phase landing order: charter v1.4.0 amendment (Phase

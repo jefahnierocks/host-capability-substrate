@@ -5,7 +5,7 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Upstream research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — Phase 2.4 registry consolidation; Phase 2.5 policy YAML next sequenced dependency
+## Current Focus — Phase 2.6 trap scaffold expansion; Phase 2.7 deferred lanes next
 
 As of 2026-05-04, the **Phase 1 synthesis-window is closed**. All nine
 pending Q-rows in `DECISIONS.md` (Q-003, Q-005, Q-006, Q-007, Q-008,
@@ -16,6 +16,17 @@ completed in earlier waves; their content remains below as audit trail.
 
 Phase 2 begins schema + registry + canonical-policy-YAML sequencing
 from the §Out of scope sections of the ten settled ADRs.
+
+**Phase 2.6 regression-trap scaffold expansion (2026-05-07):** The eval
+corpus deconflicts the provisional ADR 0036 / ADR 0037 trap numbers without
+renumbering existing shell/environment or coordination seeds. Coordination
+seeds #31-#35 now have scaffold files. ADR 0036 Q-009 traps land as #46-#48;
+ADR 0037 Q-010 traps land as #49-#51; ADR 0037 security-review candidates land
+as #52-#56; the Phase 2.4 registry-summary union-narrowing incident lands as
+#57. This packet is eval/docs only: it adds trajectory-scored trap definitions
+and seed-index bookkeeping, not executable harness fixtures, schema behavior,
+policy YAML, runtime probes, adapters, hooks, dashboard routes, or gateway
+logic.
 
 **Q-013 credential-plane posture (accepted 2026-05-05):** ADR 0040 accepts
 credential-plane integration as generic HCS posture only. Credential-plane
@@ -160,11 +171,14 @@ maxima; `gate_evidence_acknowledgment` verifier-class privileges;
 `mutation_class` meta-gate matrix entries; denial-rate ceiling;
 evidence-rotation materiality thresholds.
 
-**Trap fixtures** (post-schema): Traps #26-#28 (Q-009), #29-#31
-(Q-010) plus 5 candidate traps from ADR 0037 + coordination-store
-brief reservations #31-#35, plus a Phase 2.4 registry-consistency trap for
-summary tables that narrow a landed union enum — needs deconfliction at
-fixture-landing PR.
+**Trap scaffolds** (post-schema): Phase 2.6 deconflicts the historical seed
+numbers. Existing shell/environment scaffolds keep #26-#30; coordination-store
+brief reservations keep #31-#35 and now have scaffold files; ADR 0036 Q-009
+traps land as #46-#48; ADR 0037 Q-010 traps land as #49-#51; ADR 0037
+security-review candidates land as #52-#56; the Phase 2.4 registry-summary
+union-narrowing incident lands as #57. Executable fixture packets and scanner
+heuristics remain future work and should land only when their specific evidence
+dependencies and harness expectations are available.
 
 **Charter v1.4.0 amendment**: invariants 18 + 19 candidates (Q-003 +
 Q-007 carry-overs).

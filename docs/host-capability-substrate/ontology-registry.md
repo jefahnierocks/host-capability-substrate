@@ -3,9 +3,9 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.3.13
-last_updated: 2026-05-06
-tags: [ontology, registry, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
+version: 0.4.0
+last_updated: 2026-05-07
+tags: [ontology, registry, registry-consolidation, phase-2-4, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, remote-agent, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
 priority: high
 ---
 
@@ -377,6 +377,9 @@ class* are forbidden. The kernel-only value allowlist is:
   producer-crash watchdog).
 - `kernel_telemetry` — direct kernel telemetry sources (kqueue,
   ptrace, host process telemetry).
+- `kernel_agent_client_resolver` — the Ring 1 resolver that mints
+  `AgentClient` axes from launchd, process-tree, installed-binary, and
+  remote-cloud execution-context evidence per ADR 0037.
 - `kernel_workspace_diagnose` — the Ring 1 workspace-diagnose service
   that mints `system.workspace.diagnose.v1` outputs per ADR 0036.
 - `mint_api` — Ring 1 mint API setting producer when minting
@@ -573,6 +576,112 @@ The canonical matrix originated in ADR 0028 v2 §`CommandCaptureReceipt`
 receipt families with similar capture-vs-persistence layers. ADRs
 proposing new such receipts inherit the matrix discipline and must
 name any deviations explicitly.
+
+## Phase 2.4 Consolidation Summary
+
+Source: ADR 0038 Phase 2.4. This section is a registry summary only. It
+introduces no new schema enum values, no new Zod payloads, no canonical policy
+YAML, and no runtime behavior. It records the Phase 2.1-2.3 vocabulary already
+landed in schema PRs so Phase 2.5 policy drafting and Phase 2.6 trap fixture
+work can cite one stable registry index.
+
+### Standalone Ring 0 entities landed in Phase 2.1
+
+| Entity | Phase | Source ADR | Schema source | Generated schema | Registry notes |
+|---|---:|---|---|---|---|
+| `AgentClient` | 2.1.1 | ADR 0037 | `packages/schemas/src/entities/agent-client.ts` | `packages/schemas/generated/AgentClient.schema.json` | Identity-axis enum mirrors and `remote_cloud_agent` surface extension recorded. |
+| `VerificationCommandSpec` | 2.1.2 | ADR 0036 | `packages/schemas/src/entities/verification-command-spec.ts` | `packages/schemas/generated/VerificationCommandSpec.schema.json` | `workspace_verify` operation-class posture and `kernel_workspace_diagnose` producer class recorded. |
+| `KnowledgeSource` | 2.1.3 | ADR 0019 v3 | `packages/schemas/src/entities/knowledge-source.ts` | `packages/schemas/generated/KnowledgeSource.schema.json` | Source-kind and security-label mirrors recorded; `KnowledgeChunk` output remains display-only. |
+| `KnowledgeChunk` | 2.1.3 | ADR 0019 v3 | `packages/schemas/src/entities/knowledge-chunk.ts` | `packages/schemas/generated/KnowledgeChunk.schema.json` | Not gate authority directly per charter invariant 18. |
+| `CoordinationFact` | 2.1.3 | ADR 0019 v3 | `packages/schemas/src/entities/coordination-fact.ts` | `packages/schemas/generated/CoordinationFact.schema.json` | Promotion vocabulary and coordination subject/object/predicate mirrors recorded. |
+| `DerivedSummary` | 2.1.3 | ADR 0019 v3 | `packages/schemas/src/entities/derived-summary.ts` | `packages/schemas/generated/DerivedSummary.schema.json` | Derived graph record-kind mirror recorded; promotion constraints stay Ring 1 / gate consumption posture. |
+| `QualityGate` | 2.1.4 | ADR 0035 | `packages/schemas/src/entities/quality-gate.ts` | `packages/schemas/generated/QualityGate.schema.json` | Gate-kind, gate-state, evidence-chain, and reason-kind mirrors recorded. |
+
+### Existing Ring 0 shapes extended in Phase 2.2
+
+| Shape | Phase | Source ADR | Schema source | Version / field movement | Registry notes |
+|---|---:|---|---|---|---|
+| `ExecutionContext` | 2.2.1 | ADR 0037 | `packages/schemas/src/entities/execution-context.ts` | Added `latest_containment_evidence_ref`; renamed cache to `kernel_sandbox_kind`; schema version `0.2.0`. | Cache fields are kernel-set authority fields. |
+| `OperationShape` | 2.2.2 | ADR 0036 | `packages/schemas/src/entities/operation-shape.ts` | Added `deletion_authority_kind` and `deletion_authority_source_ref`; schema version `0.2.0`. | Deletion-authority enum mirrors recorded; no execute lane behavior authorized. |
+| `BoundaryObservation` | 2.2.3, 2.3.2, 2.3.3 | ADR 0022, ADR 0036, ADR 0037, ADR 0032, ADR 0027 | `packages/schemas/src/entities/boundary-observation.ts` | Typed payload bundle and later branch additions; current schema version `0.4.0`. | Accepted typed branches are summarized below. |
+
+### Direct Evidence subtypes landed in Phase 2.3
+
+| Evidence subtype | Phase | Source ADR | `evidence_kind` | `subject_kind` | Payload version |
+|---|---:|---|---|---|---|
+| `GitIdentityBinding` | 2.3.1 | ADR 0034 | `observation` | `git_identity_binding` | implementation-specific optional string |
+| `ToolProvenance` | 2.3.1 | ADR 0034 | `observation` | `tool_provenance` | implementation-specific optional string |
+| `RunnerHostObservation` | 2.3.2 | ADR 0032 | `observation` | `runner_host` | `runner-host-observation:v1` |
+| `WorkflowRunReceipt` | 2.3.2 | ADR 0032 | `receipt` | `workflow_run` | `workflow-run-receipt:v1` |
+| `CleanRoomSmokeReceipt` | 2.3.2 | ADR 0032 | `receipt` | `clean_room_smoke` | `clean-room-smoke-receipt:v1` |
+| `ResourceBudgetObservation` | 2.3.2 | ADR 0032 | `observation` | `resource_budget` | `resource-budget-observation:v1` |
+| `PolicyPlanReceipt` | 2.3.2 | ADR 0032 | `receipt` | `policy_plan` | `policy-plan-receipt:v1` |
+| `GitRepositoryObservation` | 2.3.3 | ADR 0027 | `observation` | `git_repository` | `git_repository_observation:v1` |
+| `GitRemoteObservation` | 2.3.3 | ADR 0027 | `observation` | `git_ref` | `git_remote_observation:v1` |
+| `GitWorktreeObservation` | 2.3.3 | ADR 0030 | `observation` | `git_worktree` | `git_worktree_observation:v1` |
+| `GitWorktreeInventoryObservation` | 2.3.3 | ADR 0030 | `observation` | `git_worktree_inventory` | `git_worktree_inventory_observation:v1` |
+| `GitBranchAncestryObservation` | 2.3.3 | ADR 0030 | `observation` or `derived` | `git_branch_ancestry` | `git_branch_ancestry_observation:v1` |
+| `GitDirtyStateObservation` | 2.3.3 | ADR 0030 | `observation` | `git_dirty_state` | `git_dirty_state_observation:v1` |
+| `PullRequestReceipt` | 2.3.3 | ADR 0030 | `receipt` | `pull_request` | `pull_request_receipt:v1` |
+| `PullRequestAbsenceReceipt` | 2.3.3 | ADR 0030 | `receipt` | `pull_request_absence` | `pull_request_absence_receipt:v1` |
+| `RulesetObservation` | 2.3.3 | ADR 0033 | `observation` | `ruleset` | `ruleset_observation:v1` |
+| `RepositoryIdentityReconciliationObservation` | 2.3.3 | ADR 0033 | `observation` | `repository_identity_reconciliation` | `repository_identity_reconciliation:v1` |
+| `MCPCredentialAudienceObservation` | 2.3.3 | ADR 0033 | `observation` | `mcp_credential_audience` | `mcp_credential_audience_observation:v1` |
+| `StatusCheckSourceObservation` | 2.3.3 | ADR 0033 | `observation` | `status_check_source` | `status_check_source_observation:v1` |
+| `RemoteAgentBaseImageObservation` | 2.3.4 | ADR 0037 | `observation` | `remote_agent_base_image` | `remote-agent-base-image-observation:v1` |
+| `RemoteAgentSetupReceipt` | 2.3.4 | ADR 0037 | `receipt` | `remote_agent_setup` | `remote-agent-setup-receipt:v1` |
+| `RemoteAgentNetworkPostureObservation` | 2.3.4 | ADR 0037 | `observation` | `remote_agent_network_posture` | `remote-agent-network-posture-observation:v1` |
+
+### Typed `BoundaryObservation` branches landed through Phase 2.3
+
+| Boundary dimension | Phase | Source ADR | Primary target | Payload schema | Current status |
+|---|---:|---|---|---|---|
+| `containment_class` | 2.2.3 | ADR 0037 | `execution_context_id` | `containmentClassPayloadSchema` | accepted |
+| `filesystem_inheritance` | 2.2.3 | ADR 0036 | `execution_context_id` | `filesystemInheritancePayloadSchema` | accepted |
+| `filesystem_protected_paths` | 2.2.3 | ADR 0036 | `workspace_id` | `filesystemProtectedPathsPayloadSchema` | accepted |
+| `mcp_canonical_authority` | 2.2.3 | ADR 0036 | `execution_context_id` | `mcpCanonicalAuthorityPayloadSchema` | accepted |
+| `runner_isolation` | 2.3.2 | ADR 0032 | `execution_context_id` | `runnerIsolationPayloadSchema` | accepted |
+| `branch_protection` | 2.3.3 | ADR 0027 | `tool_or_provider_ref` | `branchProtectionPayloadSchema` | accepted |
+
+### Current schema-version ledger
+
+| Schema family | Current version | Last Phase 2 change | Notes |
+|---|---:|---|---|
+| `Evidence` | `0.8.0` | Phase 2.3.4 Q-010 remote-agent subject-kind extensions | Direct Evidence subtype payloads use the base envelope and their own `payload_schema_version` values. |
+| `BoundaryObservation` | `0.4.0` | Phase 2.3.3 `branch_protection` branch and invariant-19 envelope tightening | `evidence_schema_version` is an independent envelope field that cites the base `Evidence` contract; current fixtures use the base `Evidence` version without requiring future lockstep bumps. |
+| `ExecutionContext` | `0.2.0` | Phase 2.2.1 containment-cache refactor | Cache is kernel-set and points to typed containment evidence. |
+| `OperationShape` | `0.2.0` | Phase 2.2.2 deletion-authority extension | No mutation/execute behavior is authorized by this registry record. |
+| Standalone Phase 2.1 entities | `0.1.0` | Phase 2.1 entity introductions | Uses common `schemaVersionSchema`; future breaking changes require their own ADR. |
+
+### Kernel-trusted producer allowlist final state
+
+Phase 2.4 restates the authority-discipline allowlist above for producer
+values that are kernel-set when present in `Evidence.producer`:
+
+| Producer value | Source ADR | Kernel owner | Notes |
+|---|---|---|---|
+| `kernel_broker` | ADR 0028 | Ring 1 broker FSM | Broker-mediated invocation / watchdog producer class. |
+| `kernel_telemetry` | ADR 0028 | Ring 1 telemetry readers | Host process, kqueue, ptrace, and equivalent host telemetry. |
+| `kernel_agent_client_resolver` | ADR 0037 | Ring 1 agent-client resolver | Resolves AgentClient axes and remote-cloud execution-context surfaces. |
+| `kernel_workspace_diagnose` | ADR 0036 | Ring 1 workspace diagnose service | Mints workspace diagnostic outputs and manifest projections. |
+| `mint_api` | ADR 0028 | Ring 1 mint API | Kernel-set producer for synthetic or derived records. |
+
+Producer-supplied values matching any row above remain rejected at the mint API
+until the future `Evidence.producer` kind-tagged schema lands. This table does
+not authorize agents or adapters to self-identify as kernel producers.
+
+### Phase 2.4 follow-on boundary
+
+Phase 2.4 closes only registry summary and cross-reference consolidation for
+the accepted Phase 2.1-2.3 schema train. Remaining work stays in the lanes ADR
+0038 already names:
+
+- Phase 2.5 canonical policy YAML lives in
+  `system-config/policies/host-capability-substrate/`, not this repo.
+- Phase 2.6 trap fixtures land after policy dependencies and trap-number
+  deconfliction.
+- Q-013, Q-014, and Q-015 remain Phase 2.7 / Wave-2 or separately amended
+  lanes; their posture docs do not add schema vocabulary here.
 
 ## Schema enum mirrors
 
@@ -1951,6 +2060,7 @@ Changes to this registry follow the schema-change workflow at
 - ADR 0034: `docs/host-capability-substrate/adr/0034-q-007-b-f-boundary-evidence-composition-quality-gate-posture.md`
 - ADR 0036: `docs/host-capability-substrate/adr/0036-q-009-workspace-manifest-projection-and-diagnostic-surface.md`
 - ADR 0037: `docs/host-capability-substrate/adr/0037-q-010-cross-agent-isolation-and-compatibility-taxonomy.md`
+- ADR 0038: `docs/host-capability-substrate/adr/0038-phase-2-schema-landing-sequence.md`
 - Q-011: `DECISIONS.md`
 - Ontology overview: `docs/host-capability-substrate/ontology.md`
 - Schema-change skill: `.agents/skills/hcs-schema-change/SKILL.md`
@@ -1959,6 +2069,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.4.0 | 2026-05-07 | Phase 2.4 registry consolidation: added summary tables for Phase 2.1 standalone entities, Phase 2.2 base-shape extensions, Phase 2.3 direct Evidence subtypes, typed `BoundaryObservation` branches, schema-version ledger, and kernel-trusted producer allowlist final state; aligned frontmatter with the Q-010 `0.3.14` registry state; recorded `kernel_agent_client_resolver` in the producer allowlist per ADR 0037. |
 | 0.3.14 | 2026-05-07 | Added Phase 2.3.4 enum mirrors for ADR 0037 Q-010 remote-agent Evidence subtypes and recorded `Evidence.schema_version` `0.8.0`. |
 | 0.3.13 | 2026-05-06 | Added Phase 2.3.3 enum mirrors for ADR 0027/0030/0033 Q-006 source-control evidence, promoted `branch_protection` to accepted, corrected `check_source` overlap notes to the ADR 0033 direct-Evidence posture, recorded `Evidence.schema_version` `0.7.0`, recorded `BoundaryObservation.schema_version` `0.4.0`, and aligned the BoundaryObservation envelope with charter invariant 19 by requiring envelope-level provenance plus non-null freshness. |
 | 0.3.12 | 2026-05-06 | Added Phase 2.3.2 enum mirrors for ADR 0032 Q-005 runner/check evidence, promoted `runner_isolation` to accepted, recorded `Evidence.schema_version` `0.6.0`, and recorded `BoundaryObservation.schema_version` `0.3.0`. |

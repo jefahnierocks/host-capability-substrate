@@ -5,7 +5,7 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Upstream research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — Phase 1 synthesis-window closed; Phase 2 schema + registry sequencing
+## Current Focus — Phase 2.4 registry consolidation; Phase 2.5 policy YAML next sequenced dependency
 
 As of 2026-05-04, the **Phase 1 synthesis-window is closed**. All nine
 pending Q-rows in `DECISIONS.md` (Q-003, Q-005, Q-006, Q-007, Q-008,
@@ -83,8 +83,8 @@ dashboard, hook, runner, Proxmox, Hetzner, OpenTofu, machine-identity, or
 runtime change is authorized by this intake. Q-015 implementation, if
 subsequently accepted, opens as a Phase 2.7 / Wave-2 lane behind Q-013 and
 Q-014, or under a separately accepted ADR 0038 sequencing amendment. Q-010
-(remote-agent receipts; Phase 2.3.4) remains the next safe lane in the
-accepted Phase 2.1–2.6 train.
+(remote-agent receipts; Phase 2.3.4) has since landed in the accepted
+Phase 2.1–2.6 train.
 
 **Phase 2 sequencing meta-ADR (accepted 2026-05-04):** ADR 0038
 (`docs/host-capability-substrate/adr/0038-phase-2-schema-landing-sequence.md`)
@@ -113,43 +113,44 @@ downstream PRs (Phase 2.1.x / 2.1.4 / 2.2.3 / 2.5 / 2.6 / wave-2
 reactive amendment / future glossary cleanup). Phase 2.1.1
 (`AgentClient`), Phase 2.1.2 (`VerificationCommandSpec`), and Phase 2.1.3
 (`KnowledgeSource` / `KnowledgeChunk` / `CoordinationFact` /
-`DerivedSummary`), and Phase 2.1.4 (`QualityGate`) have landed; Phase 2 work
-continues after Phase 2.2.1 (`ExecutionContext` containment cache) and Phase
-2.2.2 (`OperationShape` deletion-authority fields) and Phase 2.2.3
-(`BoundaryObservation` payload bundle) and Phase 2.3.1 (`ToolProvenance` +
-`GitIdentityBinding`), Phase 2.3.2 (Q-005 runner receipts), and Phase
-2.3.3 (Q-006 source-control receipts) with Phase 2.3.4 (Q-010 remote-agent
-receipts).
+`DerivedSummary`), Phase 2.1.4 (`QualityGate`), Phase 2.2.1
+(`ExecutionContext` containment cache), Phase 2.2.2 (`OperationShape`
+deletion-authority fields), Phase 2.2.3 (`BoundaryObservation` payload
+bundle), Phase 2.3.1 (`ToolProvenance` + `GitIdentityBinding`), Phase 2.3.2
+(Q-005 runner receipts), Phase 2.3.3 (Q-006 source-control receipts), and
+Phase 2.3.4 (Q-010 remote-agent receipts) have landed. Phase 2.4 registry
+consolidation lands as docs-only `ontology-registry.md` v0.4.0 with summary
+tables for the Phase 2.1-2.3 schema train and the final kernel-trusted
+producer allowlist state. It adds no schema, canonical policy YAML, adapter,
+hook, dashboard, or runtime behavior.
 
 ### Phase 2 entry-point inventory
 
-**Schema PR** (per `.agents/skills/hcs-schema-change`): Zod source for
-the entities and payloads committed across ADRs 0019-0037. Standalone Ring 0
-entities in Phase 2.1 have landed. Evidence
-subtypes to author: three remote-agent subtypes (ADR 0037),
-`ContainmentObservation` payload (ADR 0037).
-Base-shape extensions landed: `ExecutionContext` cache refactor with
-`kernel_sandbox_kind` pointer field (ADR 0037),
-`OperationShape.deletion_authority_source_ref` polymorphic FK (ADR 0036), and
-typed `BoundaryObservation` payloads for `containment_class`,
-`filesystem_inheritance`, `filesystem_protected_paths`, and
-`mcp_canonical_authority` (ADR 0036 / ADR 0037), plus ADR 0034 direct
-Evidence subtypes `ToolProvenance` and `GitIdentityBinding`, plus ADR 0032
-Q-005 runner/check evidence subtypes and the `runner_isolation` typed
-BoundaryObservation branch, plus ADR 0027 / ADR 0030 / ADR 0033 Q-006
-source-control evidence subtypes and the `branch_protection` typed
-BoundaryObservation branch.
+**Schema PRs** (per `.agents/skills/hcs-schema-change`): the ADR 0038
+Phase 2.1-2.3 schema train has landed through Q-010. Completed schema surface:
+standalone Ring 0 entities (`AgentClient`, `VerificationCommandSpec`,
+`KnowledgeSource`, `KnowledgeChunk`, `CoordinationFact`, `DerivedSummary`,
+`QualityGate`); base-shape extensions (`ExecutionContext`,
+`OperationShape`, typed `BoundaryObservation` payload bundle); direct Evidence
+subtypes for ADR 0034 (`ToolProvenance`, `GitIdentityBinding`), Q-005
+runner/check evidence, Q-006 source-control evidence, and Q-010 remote-agent
+evidence; typed `BoundaryObservation` branches for containment,
+filesystem/MCP authority, runner isolation, and branch protection. No
+additional schema work is authorized inside the accepted Phase 2.1-2.6 train
+without a follow-on accepted ADR or sequencing amendment.
 
-**Registry update PR** (`ontology-registry.md` extensions):
-producer-class allowlist (`kernel_workspace_diagnose`,
-`kernel_agent_client_resolver`); ~20 new closed-enum extensions
-covering subject_kind, predicate_kind, source_kind, security_label
-(`secret_pointer`), reason_kind (~20 new across ADRs), surface enum
-(+`remote_cloud_agent`), and remaining boundary_dimension extensions outside
-the Phase 2.2.3 payload bundle.
+**Registry update PR** (`ontology-registry.md` extensions): Phase 2.4
+consolidation records the already-landed schema vocabulary in one stable
+registry index. It closes the producer-class allowlist
+(`kernel_broker`, `kernel_telemetry`, `kernel_agent_client_resolver`,
+`kernel_workspace_diagnose`, `mint_api`), summary tables for Phase 2.1
+standalone entities, Phase 2.2 base-shape extensions, Phase 2.3 Evidence
+subtypes, typed `BoundaryObservation` branches, and the current schema-version
+ledger. This is registry/docs bookkeeping only.
 
-**Canonical policy YAML** (in `system-config/policies/host-capability-substrate/`,
-Milestone 2): per-`boundary_dimension` freshness windows (containment
+**Canonical policy YAML** (Phase 2.5; in
+`system-config/policies/host-capability-substrate/`, not this repo):
+per-`boundary_dimension` freshness windows (containment
 dimension hours-to-day order); `workspace_verify` operation_class
 composition thresholds; per-product-family `permission_mode` verifier
 rules; non-PR remote-agent binding window duration (Phase 1 default
@@ -161,8 +162,9 @@ evidence-rotation materiality thresholds.
 
 **Trap fixtures** (post-schema): Traps #26-#28 (Q-009), #29-#31
 (Q-010) plus 5 candidate traps from ADR 0037 + coordination-store
-brief reservations #31-#35 — needs deconfliction at fixture-landing
-PR.
+brief reservations #31-#35, plus a Phase 2.4 registry-consistency trap for
+summary tables that narrow a landed union enum — needs deconfliction at
+fixture-landing PR.
 
 **Charter v1.4.0 amendment**: invariants 18 + 19 candidates (Q-003 +
 Q-007 carry-overs).

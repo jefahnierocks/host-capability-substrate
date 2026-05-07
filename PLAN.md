@@ -192,11 +192,16 @@ Q-007 carry-overs).
 (ADR 0037 follow-up); `AgentClient × WorkspaceContext` cardinality;
 `system.cleanup.plan.v1` composition (ADR 0036 follow-up); cross-cutting
 derived-content subject_kind grounding rule extension (ADR 0036
-extensibility principle); project-substrate contract validation and
-admission-receipt composition (Q-014 follow-up; lane plan:
-`docs/host-capability-substrate/research/local/2026-05-06-q-014-implementation-lane-plan.md`;
-joint sequencing:
-`docs/host-capability-substrate/research/local/2026-05-06-phase-2-7-deferred-lane-sequencing-plan.md`).
+extensibility principle); Q-013 credential-plane implementation (first
+Phase 2.7 dependency; lane plan:
+`docs/host-capability-substrate/research/local/2026-05-06-q-013-implementation-lane-plan.md`);
+Q-014 project-substrate contract validation and admission-receipt composition
+(after Q-013 implementation evidence; lane plan:
+`docs/host-capability-substrate/research/local/2026-05-06-q-014-implementation-lane-plan.md`);
+Q-015 backup-readiness implementation ADR (after Q-013 and Q-014
+implementation evidence and only if backup/readiness remains an independent
+evidence need); joint sequencing:
+`docs/host-capability-substrate/research/local/2026-05-06-phase-2-7-deferred-lane-sequencing-plan.md`.
 
 ### Historical record — Phase 0b closeout / Phase 1 prep / synthesis-window
 

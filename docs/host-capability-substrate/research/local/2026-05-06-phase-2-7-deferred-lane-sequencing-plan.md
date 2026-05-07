@@ -5,9 +5,9 @@ Date: 2026-05-06
 Status: planning only. This document does not amend ADR 0038 and does not
 authorize schema source, generated JSON Schema, canonical policy YAML,
 validators, adapters, dashboard routes, hooks, broker/runtime behavior,
-runner registration, Proxmox changes, OpenTofu changes, service-account
-creation, machine-identity issuance, project workload provisioning, or
-operation registration.
+runner registration, Proxmox changes, Hetzner changes, OpenTofu changes,
+service-account creation, machine-identity issuance, backup execution,
+restore execution, project workload provisioning, or operation registration.
 
 ## Purpose
 
@@ -57,10 +57,11 @@ Default order:
 
 Accelerated order:
 
-- If implementation pressure requires Q-013 or Q-014 work before Phase 2.1-2.6
-  completes, draft a separate sequencing amendment. That amendment must name
-  the exact phase displacement, affected dependencies, reviewer set, and stop
-  conditions. It must not silently amend ADR 0038.
+- If implementation pressure requires Q-013, Q-014, or Q-015 work before that
+  lane's entry conditions are satisfied, draft a separate sequencing
+  amendment. That amendment must name the exact phase displacement, affected
+  dependencies, reviewer set, and stop conditions. It must not silently amend
+  ADR 0038.
 
 ## Lane Dependency Matrix
 
@@ -126,6 +127,7 @@ entry conditions are satisfied or a sequencing amendment is accepted.
 
 | Version | Date | Change |
 |---|---:|---|
+| 0.2.2 | 2026-05-07 | Added Q-015 surfaces to the planning-only status block and generalized the acceleration rule to all three deferred lanes. |
 | 0.2.1 | 2026-05-07 | Updated ADR 0042 references after human acceptance; Q-015 remains posture-only and implementation-blocked. |
 | 0.2.0 | 2026-05-07 | Added Q-015 backup-readiness as a third deferred posture lane, linked the intake and proposed ADR 0042, expanded the lane matrix, and added backup-specific stop rules. |
 | 0.1.0 | 2026-05-06 | Initial docs-only sequencing plan tying Q-013 and Q-014 deferred implementation lanes together after ADR 0040 and ADR 0041 acceptance. |

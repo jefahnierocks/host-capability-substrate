@@ -1,7 +1,7 @@
 ---
 adr_number: 0043
 title: Q-013 credential-plane implementation slice
-status: proposed
+status: accepted
 date: 2026-05-07
 charter_version: 1.4.0
 tags: [credential-plane, credential-source, machine-identity, evidence, q-013, phase-2-7]
@@ -11,18 +11,44 @@ tags: [credential-plane, credential-source, machine-identity, evidence, q-013, p
 
 ## Status
 
-proposed
+accepted
 
-This ADR proposes the first Q-013 implementation slice after ADR 0040. It
-does not authorize code changes, schema source, generated JSON Schema,
-canonical policy YAML, broker/runtime behavior, reconciler code,
-service-account creation, vault inventory mutation, OpenTofu changes, provider
-mutation, or operation registration until accepted by the human owner and
-reviewed for the touched surfaces.
+Accepted on 2026-05-07 after reviewer pass and human approval. This ADR
+authorizes the first Q-013 implementation slice: schema/evidence work for
+`CredentialAuthorityObservation`, `MachineIdentityBindingObservation`, and the
+minimum subject/ref vocabulary required by those records.
+
+This ADR does not authorize canonical policy YAML, broker/runtime behavior,
+reconciler code, service-account creation, vault inventory mutation, OpenTofu
+changes, provider mutation, operation registration,
+`CredentialRuntimeInjectionReceipt`, `CredentialReconcilerReceipt`,
+`CredentialIssuanceReceipt`, or `RemoteMutationReceipt`.
 
 ## Date
 
-2026-05-07
+2026-05-07 (proposed); 2026-05-07 (accepted)
+
+## Acceptance note
+
+The four required reviewers completed a pre-acceptance pass:
+
+- `hcs-architect`
+- `hcs-ontology-reviewer`
+- `hcs-policy-reviewer`
+- `hcs-security-reviewer`
+
+The first pass found blockers around evidence-envelope requirements,
+subject/reference discipline, excessive v1 scope, reconciler apply semantics,
+gate/ApprovalGrant policy boundaries, and runtime-injection attribution. Those
+blockers were addressed by narrowing v1 to two evidence observations, adding a
+shared evidence contract, deferring runtime injection and reconciler receipts,
+rejecting gate/policy behavior from this ADR, and defining the
+`machine_identity_kind` / `machine_identity_ref` reference shape.
+
+The re-review returned no remaining blockers. Acceptance remains limited to
+the schema/evidence slice named above; runtime, policy, provider, reconciler,
+broker, and credential-issuance work require separate accepted ADRs or policy
+lanes.
 
 ## Charter version
 

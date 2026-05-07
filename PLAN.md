@@ -30,20 +30,21 @@ logic.
 
 **Q-013 credential-plane posture (accepted 2026-05-05):** ADR 0040 accepts
 credential-plane integration as generic HCS posture only. Credential-plane
-implementation is outside ADR 0038's accepted Phase 2.1-2.6 landing train and
-is a Phase 2.7 / Wave-2 candidate unless a separate ADR 0038 sequencing
-amendment is accepted. No credential-plane schema, policy YAML, reconciler,
-service-account, vault inventory, OpenTofu, broker, or runtime change may land
-from this intake before a follow-on accepted ADR or approved sequencing
-amendment authorizes the implementation lane. Lane plan:
+implementation is outside ADR 0038's accepted Phase 2.1-2.6 landing train.
+ADR 0043, accepted 2026-05-07, authorizes the first Phase 2.7 Q-013
+implementation slice: schema/evidence work for
+`CredentialAuthorityObservation`, `MachineIdentityBindingObservation`, and
+the minimum subject/ref vocabulary those records require. It does not
+authorize credential-plane policy YAML, reconciler, service-account, vault
+inventory, OpenTofu, broker, runtime, provider mutation, operation
+registration, `CredentialRuntimeInjectionReceipt`,
+`CredentialReconcilerReceipt`, `CredentialIssuanceReceipt`, or
+`RemoteMutationReceipt`. Lane plan:
 `docs/host-capability-substrate/research/local/2026-05-06-q-013-implementation-lane-plan.md`.
 Deferred-lane sequencing:
 `docs/host-capability-substrate/research/local/2026-05-06-phase-2-7-deferred-lane-sequencing-plan.md`.
-Proposed implementation ADR:
+Accepted implementation ADR:
 `docs/host-capability-substrate/adr/0043-q-013-credential-plane-implementation.md`.
-Until accepted, ADR 0043 is planning authority only and does not authorize
-schema, policy, broker, runtime, reconciler, service-account, vault,
-OpenTofu, or provider changes.
 
 **Project-substrate admission standard intake (2026-05-06; accepted ADR
 0041):** Citadel PR #37
@@ -199,8 +200,8 @@ Q-007 carry-overs).
 (ADR 0037 follow-up); `AgentClient × WorkspaceContext` cardinality;
 `system.cleanup.plan.v1` composition (ADR 0036 follow-up); cross-cutting
 derived-content subject_kind grounding rule extension (ADR 0036
-extensibility principle); Q-013 credential-plane implementation (first
-Phase 2.7 dependency; proposed ADR:
+extensibility principle); Q-013 credential-plane schema/evidence
+implementation (first Phase 2.7 dependency; accepted ADR:
 `docs/host-capability-substrate/adr/0043-q-013-credential-plane-implementation.md`;
 lane plan:
 `docs/host-capability-substrate/research/local/2026-05-06-q-013-implementation-lane-plan.md`);

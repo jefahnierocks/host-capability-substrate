@@ -2,19 +2,22 @@
 
 Date: 2026-05-06
 
-Status: planning only. This document does not amend ADR 0038 and does not
-authorize schema source, generated JSON Schema, canonical policy YAML,
-validators, adapters, dashboard routes, hooks, broker/runtime behavior,
-runner registration, Proxmox changes, Hetzner changes, OpenTofu changes,
-service-account creation, machine-identity issuance, backup execution,
-restore execution, project workload provisioning, or operation registration.
+Status: deferred-lane sequencing plan. ADR 0043 now authorizes the first
+Q-013 schema/evidence slice only; this document does not independently amend
+ADR 0038 or authorize canonical policy YAML, validators, adapters, dashboard
+routes, hooks, broker/runtime behavior, runner registration, Proxmox changes,
+Hetzner changes, OpenTofu changes, service-account creation, machine-identity
+issuance, backup execution, restore execution, project workload provisioning,
+provider mutation, operation registration, Q-014 schema work, or Q-015 schema
+work.
 
 ## Purpose
 
 ADR 0038 accepts the Phase 2.1-2.6 schema landing train. ADR 0040, ADR 0041,
 and ADR 0042 accept three posture lanes that are outside that train:
 
-- Q-013 credential-plane implementation.
+- Q-013 credential-plane implementation, with the v1 schema/evidence slice
+  accepted by ADR 0043.
 - Q-014 project-substrate contract validation and admission evidence.
 - Q-015 backup-readiness and restore-drill evidence posture.
 
@@ -33,7 +36,7 @@ or under a separately accepted sequencing amendment.
   `docs/host-capability-substrate/adr/0042-q-015-backup-readiness-posture.md`
 - Q-013 lane plan:
   `docs/host-capability-substrate/research/local/2026-05-06-q-013-implementation-lane-plan.md`
-- Proposed Q-013 implementation ADR:
+- Accepted Q-013 implementation ADR:
   `docs/host-capability-substrate/adr/0043-q-013-credential-plane-implementation.md`
 - Q-014 lane plan:
   `docs/host-capability-substrate/research/local/2026-05-06-q-014-implementation-lane-plan.md`
@@ -46,9 +49,11 @@ or under a separately accepted sequencing amendment.
 
 Default order:
 
-1. Finish Phase 2.1-2.6 as accepted by ADR 0038.
-2. Open a Q-013 implementation ADR.
-3. Land Q-013 implementation evidence needed for credential-source and
+1. Finish Phase 2.1-2.6 as accepted by ADR 0038. Completed before ADR 0043
+   acceptance.
+2. Accept a Q-013 implementation ADR. Completed by ADR 0043 for the v1
+   schema/evidence slice only.
+3. Land ADR 0043 implementation evidence needed for credential-source and
    machine-identity validation.
 4. Open a Q-014 implementation ADR.
 5. Land Q-014 contract-validation and admission-evidence shapes.
@@ -71,7 +76,7 @@ Accelerated order:
 
 | Lane | Opens after | Blocks | Notes |
 |---|---|---|---|
-| Q-013 credential plane | Phase 2.1-2.6 completion, or accepted sequencing amendment | Credential-source refinement, credential-authority evidence, broker/runtime credential posture, reconciler receipts, machine-identity evidence dependencies | Implementation ADR must compose with ADRs 0012, 0015, 0018, 0019, 0029, 0034, 0038, and 0040. |
+| Q-013 credential plane | ADR 0043 accepted after Phase 2.1-2.6 completion | `CredentialAuthorityObservation`, `MachineIdentityBindingObservation`, and required subject/ref vocabulary | Runtime injection, broker behavior, reconciler receipts, provider mutation, credential issuance, policy YAML, and operation registration remain blocked behind future ADRs or policy lanes. |
 | Q-014 project substrate | Q-013 implementation evidence needed for machine identity, plus Phase 2.1-2.6 completion or accepted sequencing amendment | `project_substrate_contract` source-kind implementation, contract-validation receipt, admission observation, teardown receipts, project admission gate posture | Implementation ADR must compose with ADRs 0036, 0035, 0034, 0032, 0033, 0040, and 0041. |
 | Q-015 backup readiness | Q-013 credential-source evidence and Q-014 project-substrate contract/admission evidence, plus accepted Q-015 implementation ADR | `BackupReadinessObservation` or `BackupReadinessReceipt`, `StorageClassReadiness`, `RestoreDrillReceipt`, `BackupLayerThreatModel`, `BackupCredentialCustody`, `BackupMonitoringRequirement`, `ProjectSubstrateBackupRequirement`, possible `QualityGate.gate_kind: "backup_readiness"` | Posture can be drafted before implementation, but schema/registry/policy/runtime work remains blocked. Preserve `pending` -> `configured` -> `usable` -> `ready` with optional `expired`; restore drill with boot/service verification is the promotion gate to `ready`; keep runner-substrate Proxmox/Synology evidence separate from Hetzner VPS restic / Storage Box evidence. |
 | Source-control access follow-on | Q-006/Q-005 follow-on shapes prove selected-repository/workflow-policy gaps remain | `SelectedRepositoryAccessObservation`, `WorkflowPolicyCheckReceipt` | Keep GitHub runner groups, selected repository access, rulesets, and workflow policy outside HCS mutation authority. |
@@ -100,8 +105,10 @@ move together.
 
 Stop and return to human review if a task tries to:
 
-- implement Q-013 or Q-014 before Phase 2.1-2.6 completes without a sequencing
-  amendment;
+- expand Q-013 beyond ADR 0043's accepted schema/evidence slice without a
+  follow-on ADR or policy lane;
+- implement Q-014 before Q-013 implementation evidence exists and a Q-014
+  implementation ADR is accepted;
 - implement Q-015 before Q-013 and Q-014 implementation dependencies exist and
   a Q-015 implementation ADR is accepted;
 - treat this plan as schema, policy, runtime, broker, runner, Proxmox,
@@ -122,15 +129,15 @@ Stop and return to human review if a task tries to:
 
 ## Next Safe Action
 
-Continue with docs-only posture work for deferred lanes unless an accepted
-implementation ADR or sequencing amendment authorizes more. Keep Q-013,
-Q-014, and Q-015 implementation in the deferred Phase 2.7 queue until their
+Proceed with the ADR 0043 Q-013 schema/evidence implementation slice. Keep
+Q-014 and Q-015 implementation in the deferred Phase 2.7 queue until their
 entry conditions are satisfied or a sequencing amendment is accepted.
 
 ## Change Log
 
 | Version | Date | Change |
 |---|---:|---|
+| 0.3.0 | 2026-05-07 | Updated after ADR 0043 acceptance; Q-013 v1 schema/evidence implementation opens while Q-014/Q-015 and runtime/provider/policy work remain blocked. |
 | 0.2.4 | 2026-05-07 | Added proposed ADR 0043 as the Q-013 implementation ADR input without changing implementation authority. |
 | 0.2.3 | 2026-05-07 | Added the Q-015 implementation-lane plan as an input while keeping Q-015 implementation blocked. |
 | 0.2.2 | 2026-05-07 | Added Q-015 surfaces to the planning-only status block and generalized the acceleration rule to all three deferred lanes. |

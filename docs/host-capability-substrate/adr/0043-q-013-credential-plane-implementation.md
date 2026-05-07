@@ -338,6 +338,8 @@ Constraints:
 - Charter: `docs/host-capability-substrate/implementation-charter.md` v1.4.0
 - Decision ledger: `DECISIONS.md` Q-013
 - Plan: `PLAN.md` Current Focus
+- Research plan:
+  `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`
 - ADR 0012:
   `docs/host-capability-substrate/adr/0012-credential-broker.md`
 - ADR 0015:

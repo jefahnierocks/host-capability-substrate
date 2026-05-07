@@ -293,8 +293,9 @@ amended.
   a standalone Ring 0 entity.
 - Reopen when Q-013 implementation lands and machine-identity validation
   evidence can be specified concretely.
-- Reopen if backup readiness and restore expectation require a separate
-  Q-015 backup/restore evidence model.
+- Backup readiness and restore expectation were resolved at the posture level
+  by ADR 0042 / Q-015. Reopen Q-014 only if the future Q-015 implementation
+  lane changes project-substrate contract or admission composition.
 - Reopen if selected-repository access or workflow-policy check evidence
   cannot compose cleanly through Q-005/Q-006 follow-on receipts.
 - Reopen if dashboard requirements require a dedicated read-only

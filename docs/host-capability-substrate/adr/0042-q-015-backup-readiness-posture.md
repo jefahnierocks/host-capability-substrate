@@ -29,6 +29,23 @@ implementation ADR and reviewer dispatch for:
 - `hcs-policy-reviewer`
 - `hcs-security-reviewer`
 
+## Review completion
+
+Accepted on 2026-05-07 by human approval before the standard four-reviewer
+subagent dispatch completed. A retrospective post-acceptance review then ran
+the standard ADR 0040 / ADR 0041 reviewer set:
+
+- `hcs-architect`: ACCEPT-WITH-MECHANICAL-TWEAKS
+- `hcs-ontology-reviewer`: ACCEPT-AS-IS
+- `hcs-policy-reviewer`: ACCEPT-WITH-MECHANICAL-TWEAKS
+- `hcs-security-reviewer`: ACCEPT-WITH-MECHANICAL-TWEAKS
+
+Net: ACCEPT-WITH-MECHANICAL-TWEAKS. No reviewer found a substantive blocker or
+reason to reopen the posture decision. This section records the retrospective
+review; it does not backfill fictitious pre-acceptance attestations. The
+mechanical follow-up folded the review record, charter / ADR authority
+citations in §Rejects, and the ADR 0041 forward pointer resolved by Q-015.
+
 ## Date
 
 2026-05-07 (proposed); 2026-05-07 (accepted)
@@ -252,14 +269,15 @@ validator, dashboard, adapter, hook, broker, runtime, and provider work.
 - Treating runner readiness as project workload admission.
 - Making HCS a backup executor, restore executor, Proxmox control plane,
   Hetzner control plane, Citadel runner/admission control plane, OpenTofu
-  control plane, or project workload provisioner.
+  control plane, or project workload provisioner. Authority: charter
+  invariants 7 and 16 plus ADR 0015.
 - Editing `runner-substrate`, `hetzner`, Citadel, `HomeNetOps`, or
-  `system-config` from the HCS repo as part of Q-015.
+  `system-config` from the HCS repo as part of Q-015. Authority: ADR 0001.
 - Reading, resolving, or storing secret material in HCS docs, schemas,
   fixtures, generated JSON Schema, policy snapshots, logs, audit artifacts, or
-  contract chunks.
+  contract chunks. Authority: charter invariant 5.
 - Duplicating upstream backup or admission policy into HCS canonical policy
-  YAML.
+  YAML. Authority: charter invariant 1 and ADR 0006.
 
 ### Future amendments
 

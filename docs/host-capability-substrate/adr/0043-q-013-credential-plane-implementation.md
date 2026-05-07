@@ -155,14 +155,16 @@ backup readiness as one Phase 2.7 implementation train.
 
 ## Decision
 
-Choose Option C. If accepted, Q-013 implementation v1 is a narrow
-schema/evidence slice. It may add HCS generic evidence subtypes for credential
-authority observation, runtime injection receipt, reconciler receipt, and
-machine-identity binding observation. It must not add new
-`CredentialSource.source_type` values, must not create a
+Choose Option C, narrowed by reviewer pre-acceptance feedback. If accepted,
+Q-013 implementation v1 is a schema/evidence slice for only the dependency
+Q-014 needs next: credential-source authority posture and machine-identity
+binding posture. It may add HCS generic evidence subtypes for
+`CredentialAuthorityObservation` and `MachineIdentityBindingObservation`, plus
+the minimum subject-kind vocabulary those two records require. It must not add
+new `CredentialSource.source_type` values, must not create a
 `credential_plane_mutation` operation class, and must not add broker/runtime,
-provider, OpenTofu, service-account, vault-inventory, or canonical policy YAML
-behavior.
+provider, OpenTofu, service-account, vault-inventory, reconciler, runtime
+injection, or canonical policy YAML behavior.
 
 The implementation PR must follow `.agents/skills/hcs-schema-change`: Zod
 source, generated JSON Schema, `ontology.md`, `ontology-registry.md`, tests,
@@ -174,13 +176,40 @@ accepted policy lane.
 
 The implementation slice may define these HCS-side records.
 
+### Shared evidence contract
+
+All Q-013 v1 records are direct `Evidence` observations. They must satisfy the
+base `Evidence` shape plus stricter subtype rules:
+
+- `valid_until` is non-null. Credential authority and machine-identity claims
+  expire; downstream facts cannot extend freshness.
+- `source`, optional `source_ref`, `observed_at`, `authority`, `confidence`,
+  `parser_version`, `redaction_mode`, and producer/authority discipline are
+  explicit per ADR 0040 and charter invariant 19.
+- Each record carries at least one target binding through base Evidence fields
+  or typed payload fields: `execution_context_id`, `workspace_id`,
+  `credential_source_id`, or a kind-tagged authority/provider reference.
+- `subject_refs` name the underlying subject, not the envelope. Schema work
+  must not add subject-kind values such as
+  `credential_authority_observation` or
+  `machine_identity_binding_observation`.
+- Secret-bearing fields are reference-only. Use `SecretReference` or
+  `credential_source_id` language where a credential pointer is needed; never
+  resolved secret material, token fragments, private keys, recovery codes,
+  provider item bodies, environment dumps, or shell history.
+- Gate consumption is not accepted by this ADR. Future policy may consume
+  these records only through accepted `QualityGate` / `ApprovalGrant` /
+  `allowed_for_gate` rules in the proper policy lane.
+
 ### `CredentialAuthorityObservation`
 
 Direct `Evidence` observation for the current authority posture of a
 `CredentialSource`.
 
-Expected grain: per `(credential_source_id, authority surface, observed_at)`
-or tighter if a provider/API requires a narrower identity.
+Expected grain: per `(credential_source_id, authority_surface_ref,
+observed_at)` or tighter if a provider/API requires a narrower identity.
+`subject_refs` must include `subject_kind: "credential_source"` with
+`subject_id` matching the observed `credential_source_id`.
 
 Purpose:
 
@@ -193,61 +222,12 @@ Constraints:
 
 - No raw secret value, token fragment, private key material, recovery code, or
   provider item body.
+- `authority_surface_ref` is a kind-tagged reference-form field. If the schema
+  needs a discriminator, the discriminator is `authority_surface_kind`, not a
+  free-form `authority` field that collides with `Evidence.authority`.
 - Provider-specific item/vault/project names remain in owning repos or
   reference-form fields only; HCS core enum values stay generic.
 - Provider labels and source types are not gate authority by themselves.
-
-### `CredentialRuntimeInjectionReceipt`
-
-Direct `Evidence` receipt for a bounded runtime credential-injection event.
-
-Expected grain: per injection attempt or per bounded invocation.
-
-Purpose:
-
-- Record that a narrow execution context received credential material through
-  a declared injection mechanism.
-- Bind the injection event to `ExecutionContext`, `CredentialSource`,
-  command/tool invocation evidence when available, start/end timestamps,
-  declared `secret_ref` references, and names-only environment bindings.
-- Support later broker/runtime work without implementing broker behavior in
-  this ADR.
-
-Constraints:
-
-- No resolved secret material, environment dumps, shell-history text, process
-  environment captures, or long-running session wrappers.
-- `op run`, `op inject`, SSH Agent, Environments, and future broker paths are
-  event evidence only until a broker/runtime ADR authorizes enforcement.
-- Login shells, daemons, long-running agent sessions, and persistent config
-  materialization remain rejected patterns.
-
-### `CredentialReconcilerReceipt`
-
-Direct `Evidence` receipt for desired-state reconciliation posture from an
-owning repo or external control-plane reconciler.
-
-Expected grain: per reconciler run and action kind (`plan`, `apply`, or
-`drift_check`) if the schema PR accepts a shared discriminator; split into
-separate receipts if review finds the lifecycle semantics differ.
-
-Purpose:
-
-- Record reconciler input references, content hashes, SDK/tool provenance,
-  action kind, target authority surface, redacted outcome summary, and
-  mutation/result evidence refs.
-- Let HCS consume a reconciler's typed conformance evidence without owning the
-  manifest, SDK implementation, vault hierarchy, or apply behavior.
-
-Constraints:
-
-- Manifest bodies and provider-specific inventory live outside HCS or as ADR
-  0036 `KnowledgeSource` references when appropriate.
-- Apply behavior remains external-control-plane posture per ADR 0015 and ADR
-  0029; this receipt does not create a new operation class.
-- Provider mutation receipts such as future `RemoteMutationReceipt` or
-  `CredentialIssuanceReceipt` remain separate follow-on work unless a reviewer
-  requires them for this slice.
 
 ### `MachineIdentityBindingObservation`
 
@@ -255,7 +235,33 @@ Direct `Evidence` observation mapping a nonhuman identity claim to credential
 authority evidence.
 
 Expected grain: per `(machine_identity_ref, credential_source_id,
-authority_surface, observed_at)`.
+authority_surface_ref, observed_at)`. This ADR reserves
+`Evidence.subject_kind: "machine_identity"` for this subject. `subject_refs`
+must include `subject_kind: "machine_identity"` with `subject_id` matching the
+reference-form identity target, plus `subject_kind: "credential_source"` for
+the credential source being bound. The subject kind names the nonhuman identity
+being observed, not the envelope.
+
+Reference shape: `machine_identity_ref` is not a free-form prose field. The v1
+schema uses a two-field, kind-tagged reference shape:
+
+- `machine_identity_kind` is the discriminator. Initial values are limited to
+  generic HCS terms: `provider_principal`, `federated_subject`, and
+  `runner_principal`.
+- `machine_identity_ref` is an `entityIdSchema`-compatible, non-secret,
+  reference-form identifier whose interpretation is selected by
+  `machine_identity_kind`.
+- `provider_principal` references a `ProviderObjectReference`-class provider
+  principal or workload identity object. If `ProviderObjectReference` lands as a
+  Ring 0 value type before this schema PR, the implementation uses that value
+  type; otherwise the payload keeps the reference as an opaque,
+  provider-neutral identifier and does not inline provider object bodies.
+- `federated_subject` references a non-secret issuer/subject binding such as an
+  OIDC or workload-identity subject. It never carries an assertion, token, JWT
+  body, or claim dump.
+- `runner_principal` references a non-secret runner or runner-host identity that
+  is cited from runner evidence. It does not register, deregister, or mutate the
+  runner.
 
 Purpose:
 
@@ -271,22 +277,43 @@ Constraints:
 - HCS does not mint project identities, issue service-account tokens, register
   runners, or mutate provider identity state.
 - Human 1Password SSH Agent use is not unattended machine identity.
+- `machine_identity_ref` is a reference-only nonhuman identity target. It is
+  never a token, private key, service-account secret, provider item body,
+  recovery code, or human SSH-agent state.
 - Service-account-backed machine identity remains a scoped exception requiring
   expiry/rotation evidence, scope evidence, health evidence, auditability, and
-  approval gates.
+  approval gates. Service accounts are not preferred over GitHub Apps, OIDC,
+  or platform-native short-lived credentials where those are available.
+
+## Deferred follow-on candidates
+
+ADR 0043 v1 does not accept these records:
+
+- `CredentialRuntimeInjectionReceipt`. A future ADR may propose it only with
+  mandatory kernel-set or kernel-resolved attribution (`agent_client_id`,
+  `session_id`, and principal identity, or explicit typed unknown/absence
+  reason), invocation evidence or typed absence reason, `execution_context_id`,
+  `credential_source_id`, names-only environment binding, `SecretReference`
+  usage, non-null freshness, and no environment dumps or shell-history content.
+- `CredentialReconcilerReceipt`. A future ADR may propose plan/drift-check
+  receipts. Reconciler `apply` evidence requires a separate accepted provider
+  mutation / credential issuance / provider-audit receipt path with approval
+  and audit linkage; reviewer objections may block ADR 0043 or require a
+  follow-on ADR, but they cannot expand this slice into provider-mutation
+  receipt territory.
+- `RemoteMutationReceipt` and `CredentialIssuanceReceipt`. These remain
+  separate ADR 0015 follow-on work and are not accepted by implication.
 
 ## Consequences
 
 ### Accepts
 
 - Q-013 v1 is schema/evidence work only; implementation PRs must be scoped to
-  the named evidence records and their generated artifacts.
+  `CredentialAuthorityObservation`, `MachineIdentityBindingObservation`, and
+  their required subject/ref vocabulary and generated artifacts.
 - Existing `CredentialSource.source_type` values are enough for this slice.
   Provider-specific refinement remains a future amendment, not a default.
 - Machine identity enters HCS as evidence observation, not identity issuance.
-- Runtime injection enters HCS as a receipt shape, not broker behavior.
-- Reconciler output enters HCS as receipts and references, not as HCS-owned
-  manifest authority or SDK implementation.
 - Q-014 may proceed only after the needed Q-013 credential-source and
   machine-identity evidence lands or a later ADR changes that dependency.
 - Review must include `hcs-architect`, `hcs-ontology-reviewer`,
@@ -301,6 +328,8 @@ Constraints:
   ontology, generated schemas, fixtures, policy snapshots, or registry enums.
 - Treating a provider label, source type, contract field, or reconciler status
   as gate authority by itself.
+- Defining `ApprovalGrant.scope`, `QualityGate.gate_kind`, `allowed_for_gate`,
+  or grant-clearing behavior in this ADR.
 - Storing resolved secret material in HCS docs, schemas, fixtures, generated
   JSON Schema, policy snapshots, logs, audit artifacts, or ADR 0036 chunks.
 - Implementing the credential broker, `host_secret_*` behavior, `op run`,
@@ -309,21 +338,29 @@ Constraints:
   this ADR.
 - Treating human workstation custody or human SSH Agent use as unattended
   machine identity.
+- Adding `CredentialRuntimeInjectionReceipt` or `CredentialReconcilerReceipt`
+  to the v1 implementation PR.
 - Treating future `CredentialIssuanceReceipt` or `RemoteMutationReceipt` as
-  accepted by implication. Those names remain follow-on ADR work unless the
-  Q-013 v1 review proves they are necessary for this slice.
+  accepted by implication. Reviewer findings may block this ADR or require a
+  follow-on ADR; they do not add those receipts to this slice.
 
 ### Future amendments
 
 - Reopen if implementation evidence proves a new
   `CredentialSource.source_type` value or provider-source discriminator is
   necessary.
-- Reopen if `CredentialReconcilerReceipt` must split into separate plan/apply
-  receipt classes.
+- Reopen if runtime injection evidence is ready for a dedicated
+  `CredentialRuntimeInjectionReceipt` ADR with attribution, freshness, and
+  no-secret-material constraints.
+- Reopen if reconciler plan/drift-check evidence is ready for a dedicated
+  `CredentialReconcilerReceipt` ADR.
 - Reopen if `RemoteMutationReceipt` or `CredentialIssuanceReceipt` becomes a
   prerequisite for correct credential-plane audit semantics.
+- Reopen if provider-mutation `apply` evidence is ready and can cite separately
+  accepted mutation/issuance/provider-audit receipts with approval and audit
+  linkage.
 - Reopen if broker/runtime implementation is ready and needs to enforce
-  `CredentialRuntimeInjectionReceipt` production.
+  runtime-injection evidence production.
 - Reopen if Q-014 project-substrate implementation requires identity issuance
   evidence rather than identity-binding observation.
 - Reopen if canonical policy YAML needs new gate or operation-class rules that
@@ -352,6 +389,8 @@ Constraints:
   `docs/host-capability-substrate/adr/0029-q-008-b-anomalous-capture-blocking-thresholds.md`
 - ADR 0034:
   `docs/host-capability-substrate/adr/0034-q-007-b-f-boundary-evidence-composition-quality-gate-posture.md`
+- ADR 0035:
+  `docs/host-capability-substrate/adr/0035-q-007-g-quality-gate-standalone-entity.md`
 - ADR 0038:
   `docs/host-capability-substrate/adr/0038-phase-2-schema-landing-sequence.md`
 - ADR 0040:

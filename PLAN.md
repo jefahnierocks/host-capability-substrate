@@ -92,6 +92,8 @@ the Q-015 intake structure and points at accepted ADR 0042:
 `docs/host-capability-substrate/adr/0042-q-015-backup-readiness-posture.md`.
 Intake doc:
 `docs/host-capability-substrate/research/local/2026-05-06-q-015-backup-readiness-intake.md`.
+Lane plan:
+`docs/host-capability-substrate/research/local/2026-05-07-q-015-implementation-lane-plan.md`.
 No backup/restore schema, registry, validator, canonical policy YAML, adapter,
 dashboard, hook, runner, Proxmox, Hetzner, OpenTofu, machine-identity, or
 runtime change is authorized by this intake. Q-015 implementation, if
@@ -200,7 +202,9 @@ Q-014 project-substrate contract validation and admission-receipt composition
 `docs/host-capability-substrate/research/local/2026-05-06-q-014-implementation-lane-plan.md`);
 Q-015 backup-readiness implementation ADR (after Q-013 and Q-014
 implementation evidence and only if backup/readiness remains an independent
-evidence need); joint sequencing:
+evidence need; lane plan:
+`docs/host-capability-substrate/research/local/2026-05-07-q-015-implementation-lane-plan.md`);
+joint sequencing:
 `docs/host-capability-substrate/research/local/2026-05-06-phase-2-7-deferred-lane-sequencing-plan.md`.
 
 ### Historical record — Phase 0b closeout / Phase 1 prep / synthesis-window

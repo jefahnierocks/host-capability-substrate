@@ -28,6 +28,9 @@ import {
   pullRequestAbsenceReceiptSchema,
   pullRequestReceiptSchema,
   qualityGateSchema,
+  remoteAgentBaseImageObservationSchema,
+  remoteAgentNetworkPostureObservationSchema,
+  remoteAgentSetupReceiptSchema,
   repositoryIdentityReconciliationObservationSchema,
   resourceBudgetObservationSchema,
   rulesetObservationSchema,
@@ -184,6 +187,21 @@ const schemaEntries = [
     file: 'QualityGate.schema.json',
     title: 'QualityGate',
     schema: qualityGateSchema,
+  },
+  {
+    file: 'RemoteAgentBaseImageObservation.schema.json',
+    title: 'RemoteAgentBaseImageObservation',
+    schema: remoteAgentBaseImageObservationSchema,
+  },
+  {
+    file: 'RemoteAgentSetupReceipt.schema.json',
+    title: 'RemoteAgentSetupReceipt',
+    schema: remoteAgentSetupReceiptSchema,
+  },
+  {
+    file: 'RemoteAgentNetworkPostureObservation.schema.json',
+    title: 'RemoteAgentNetworkPostureObservation',
+    schema: remoteAgentNetworkPostureObservationSchema,
   },
   {
     file: 'ResourceBudgetObservation.schema.json',

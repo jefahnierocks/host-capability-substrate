@@ -535,6 +535,10 @@ Phase 2.3.3 widens `Evidence.subject_kind` with Q-006 source-control subjects:
 `pull_request_absence`; it reuses `git_repository` and `git_ref`, bumping the
 Evidence schema to `0.7.0`.
 
+Phase 2.3.4 widens `Evidence.subject_kind` with Q-010 remote-agent subjects:
+`remote_agent_base_image`, `remote_agent_setup`, and
+`remote_agent_network_posture`, bumping the Evidence schema to `0.8.0`.
+
 The legacy `evidenceRefSchema` remains as a lightweight reference or embedded
 provenance preview for entities that have not yet been migrated to full
 Evidence records. It is not a competing fact model.
@@ -799,6 +803,56 @@ authority shape only; canonical mutation policy and GitHub credential
 provisioning remain out of scope. The generated JSON Schema set includes this
 as a reusable value-type schema even though it is not a Ring 0 lifecycle entity.
 
+## Phase 2.3 Q-010 Remote-Agent Evidence
+
+ADR 0037 lands the Q-010 remote-agent evidence model as schemas only. These
+records observe remote cloud-agent environment facts; they do not execute
+remote agents, trust cloud test results by themselves, mutate vendor control
+planes, grant host authority, or define per-product adapter schemas.
+
+All three Q-010 remote-agent records require `authority: derived`, non-null
+`valid_until`, `execution_context_id`, `agent_client_id` in the payload, and a
+`containment_boundary_evidence_ref` pointing at the corresponding
+`containment_class` boundary evidence. Remote-agent-produced evidence remains
+external-control-plane evidence; stronger authority requires a linked evidence
+chain through host-observation evidence at Ring 1 / policy consumption time.
+
+### `RemoteAgentBaseImageObservation`
+
+Source: `packages/schemas/src/entities/remote-agent-evidence.ts`
+
+Direct `Evidence` observation with `subject_kind: remote_agent_base_image`.
+The payload records `base_image_id`, `agent_client_id`,
+`execution_context_id`, `containment_boundary_evidence_ref`,
+`base_image_kind`, `base_image_digest`, `base_image_provenance`,
+`image_published_at`, and `vendor_observed_via_evidence_ref`. Checkout commit
+identity is intentionally outside the payload; it composes through
+source-control evidence such as `GitRepositoryObservation` to avoid duplicate
+commit facts.
+
+### `RemoteAgentSetupReceipt`
+
+Direct `Evidence` receipt with `subject_kind: remote_agent_setup`. The payload
+records `setup_execution_id`, `agent_client_id`, `execution_context_id`,
+`containment_boundary_evidence_ref`, `setup_script_evidence_ref`,
+`setup_exit_code`, `setup_observed_at`, `secret_injection_kind`,
+`setup_duration_ms`, and `setup_log_evidence_ref`. Setup logs are referenced as
+separate evidence, not embedded inline. `secret_injection_kind` uses
+`none_required` for the requirement-state absence case; bare `none` is not a
+valid value for that field.
+
+### `RemoteAgentNetworkPostureObservation`
+
+Direct `Evidence` observation with `subject_kind:
+remote_agent_network_posture`. The payload records `network_posture_id`,
+`agent_client_id`, `execution_context_id`,
+`containment_boundary_evidence_ref`, `egress_kind`, `firewall_kind`,
+`egress_observed_via_evidence_ref`, and `network_posture_observed_at`.
+Non-PR-mediated remote-agent gate consumption still requires Ring 1 / policy to
+derive the `(execution_context_id, observed_at window)` binding across all
+three Q-010 records; this schema does not add the future
+`RemoteAgentInvocationReceipt` aggregator.
+
 ## Phase 1 Boundary Observation Envelope
 
 ### `BoundaryObservation`
@@ -1023,7 +1077,7 @@ Every `Evidence` record:
 
 ```json
 {
-  "schema_version": "0.7.0",
+  "schema_version": "0.8.0",
   "evidence_id": "evidence:example",
   "evidence_kind": "observation",
   "subject_refs": [
@@ -1063,6 +1117,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.8.0 | 2026-05-07 | Added Phase 2.3.4 Q-010 remote-agent Evidence subtype docs and noted the Evidence schema bump to `0.8.0`. |
 | 1.7.0 | 2026-05-06 | Added Phase 2.3.3 Q-006 source-control evidence subtype docs, documented `branch_protection`, `GitHubMutationAuthority`, noted the Evidence schema bump to `0.7.0` plus BoundaryObservation schema bump to `0.4.0`, and documented BoundaryObservation envelope-level provenance plus non-null freshness. |
 | 1.6.0 | 2026-05-06 | Added Phase 2.3.2 Q-005 runner/check evidence subtype docs, documented `runner_isolation`, and noted the Evidence schema bump to `0.6.0` plus BoundaryObservation schema bump to `0.3.0`. |
 | 1.5.0 | 2026-05-06 | Added Phase 2.3.1 `GitIdentityBinding` and `ToolProvenance` direct Evidence subtype docs and noted the Evidence schema bump to `0.5.0`. |

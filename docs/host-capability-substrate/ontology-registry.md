@@ -1539,6 +1539,85 @@ Mirror notes:
   canonical policy YAML, GitHub mutation operation, GitHub App provisioning,
   or source-control hook behavior.
 
+### ADR 0037 Q-010 remote-agent evidence enum mirrors
+
+Source: ADR 0037 and ADR 0038 Phase 2.3.4.
+
+`Evidence.schema_version`:
+
+- `0.8.0`
+
+`Evidence.subject_kind` Phase 2.3.4 extensions:
+
+- `remote_agent_base_image`
+- `remote_agent_setup`
+- `remote_agent_network_posture`
+
+`RemoteAgentBaseImageObservation.payload.base_image_kind`:
+
+- `vendor_runtime`
+- `container_image`
+- `vm_image`
+- `self_hosted_runner_image`
+- `unknown`
+
+`RemoteAgentBaseImageObservation.payload.base_image_provenance`:
+
+- `vendor_managed`
+- `user_specified`
+- `unknown`
+
+`RemoteAgentSetupReceipt.payload.secret_injection_kind`:
+
+- `env_at_setup`
+- `env_at_runtime`
+- `mounted_secret_volume`
+- `brokered_at_request`
+- `none_required`
+
+`RemoteAgentNetworkPostureObservation.payload.egress_kind`:
+
+- `none`
+- `allowlist_only`
+- `proxy_mediated`
+- `open`
+- `unknown`
+
+`RemoteAgentNetworkPostureObservation.payload.firewall_kind`:
+
+- `none`
+- `vendor_managed`
+- `user_managed`
+- `unknown`
+
+`Decision.reason_kind` reservations from ADR 0037:
+
+- `containment_evidence_absent`
+- `containment_evidence_producer_supplied`
+- `containment_runtime_capability_exceeded`
+- `agent_client_axis_self_asserted`
+- `remote_agent_evidence_authority_overreach`
+- `non_pr_remote_agent_binding_partial`
+
+Mirror notes:
+
+- The three Q-010 remote-agent records are direct Evidence subtypes, not
+  `BoundaryObservation` payloads.
+- `RemoteAgentSetupReceipt.secret_injection_kind` had an early mirror under
+  the ADR 0037 AgentClient section because ADR 0038 listed it with Phase
+  2.1.1. Phase 2.3.4 is the schema consumer that now implements the field.
+- Remote-agent records require `authority: derived` and non-null freshness in
+  the subtype schemas. Stronger authority requires linked host-observation
+  evidence at Ring 1 / policy consumption time.
+- Checkout commit identity is outside `RemoteAgentBaseImageObservation`; it
+  composes through source-control evidence to avoid duplicate commit facts.
+- `RemoteAgentInvocationReceipt` remains a future ADR. Phase 2.3.4 preserves
+  the ADR 0037 `(execution_context_id, observed_at window)` binding posture
+  without authoring the aggregator.
+- This schema slice does not author a `Decision`, `ApprovalGrant.scope`,
+  canonical policy YAML, vendor API adapter, remote-agent invocation broker, or
+  provider mutation operation.
+
 ## Boundary dimension registry
 
 Entries are alphabetised by name. Status reflects ontology review on this
@@ -1880,6 +1959,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.3.14 | 2026-05-07 | Added Phase 2.3.4 enum mirrors for ADR 0037 Q-010 remote-agent Evidence subtypes and recorded `Evidence.schema_version` `0.8.0`. |
 | 0.3.13 | 2026-05-06 | Added Phase 2.3.3 enum mirrors for ADR 0027/0030/0033 Q-006 source-control evidence, promoted `branch_protection` to accepted, corrected `check_source` overlap notes to the ADR 0033 direct-Evidence posture, recorded `Evidence.schema_version` `0.7.0`, recorded `BoundaryObservation.schema_version` `0.4.0`, and aligned the BoundaryObservation envelope with charter invariant 19 by requiring envelope-level provenance plus non-null freshness. |
 | 0.3.12 | 2026-05-06 | Added Phase 2.3.2 enum mirrors for ADR 0032 Q-005 runner/check evidence, promoted `runner_isolation` to accepted, recorded `Evidence.schema_version` `0.6.0`, and recorded `BoundaryObservation.schema_version` `0.3.0`. |
 | 0.3.11 | 2026-05-06 | Added Phase 2.3.1 enum mirrors for ADR 0034 `GitIdentityBinding` and `ToolProvenance` direct Evidence subtypes and recorded the Evidence schema bump to `0.5.0`. |

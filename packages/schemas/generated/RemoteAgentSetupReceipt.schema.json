@@ -1,0 +1,447 @@
+{
+  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/RemoteAgentSetupReceipt.schema.json",
+  "title": "RemoteAgentSetupReceipt",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.8.0",
+      "description": "Evidence schema version after ADR 0037 Q-010 remote-agent subject-kind extensions."
+    },
+    "evidence_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+      "description": "RFC 3339 timestamp with an explicit UTC offset."
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+      "description": "RFC 3339 timestamp with an explicit UTC offset."
+    },
+    "authority": {
+      "type": "string",
+      "const": "derived"
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "authoritative",
+        "high",
+        "best-effort",
+        "stale",
+        "unknown"
+      ],
+      "description": "Confidence assigned to an observation by the producer."
+    },
+    "parser_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "producer": {
+      "type": "string",
+      "minLength": 1
+    },
+    "host_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "workspace_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "execution_context_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "session_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "redaction_mode": {
+      "type": "string",
+      "enum": [
+        "none",
+        "redacted",
+        "classified",
+        "hash_only",
+        "reference_only",
+        "mixed"
+      ],
+      "description": "How sensitive payload material was handled before persistence."
+    },
+    "evidence_kind": {
+      "type": "string",
+      "const": "receipt"
+    },
+    "subject_refs": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "subject_kind": {
+            "type": "string",
+            "const": "remote_agent_setup"
+          },
+          "subject_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+            "description": "Stable local entity identifier. It is not a secret value."
+          },
+          "relation": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "subject_kind",
+          "subject_id"
+        ],
+        "additionalProperties": false,
+        "description": "Subject reference for a RemoteAgentSetupReceipt Evidence subtype."
+      }
+    },
+    "payload_schema_version": {
+      "type": "string",
+      "const": "remote-agent-setup-receipt:v1"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "agent_client_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "execution_context_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "containment_boundary_evidence_ref": {
+          "type": "object",
+          "properties": {
+            "evidence_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Reference to an Evidence record or fixture."
+            },
+            "source": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Human-readable source name or artifact path."
+            },
+            "observed_at": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            "valid_until": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "authority": {
+              "type": "string",
+              "enum": [
+                "project-local",
+                "workspace-local",
+                "user-global",
+                "system",
+                "derived",
+                "sandbox-observation",
+                "host-observation",
+                "vendor-doc",
+                "installed-runtime",
+                "human-observed"
+              ],
+              "description": "Authority plane for a fact or observation."
+            },
+            "parser_version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "confidence": {
+              "type": "string",
+              "enum": [
+                "authoritative",
+                "high",
+                "best-effort",
+                "stale",
+                "unknown"
+              ],
+              "description": "Confidence assigned to an observation by the producer."
+            }
+          },
+          "required": [
+            "evidence_id",
+            "source",
+            "observed_at",
+            "authority",
+            "confidence"
+          ],
+          "additionalProperties": false,
+          "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+        },
+        "setup_execution_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "setup_script_evidence_ref": {
+          "type": "object",
+          "properties": {
+            "evidence_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Reference to an Evidence record or fixture."
+            },
+            "source": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Human-readable source name or artifact path."
+            },
+            "observed_at": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            "valid_until": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "authority": {
+              "type": "string",
+              "enum": [
+                "project-local",
+                "workspace-local",
+                "user-global",
+                "system",
+                "derived",
+                "sandbox-observation",
+                "host-observation",
+                "vendor-doc",
+                "installed-runtime",
+                "human-observed"
+              ],
+              "description": "Authority plane for a fact or observation."
+            },
+            "parser_version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "confidence": {
+              "type": "string",
+              "enum": [
+                "authoritative",
+                "high",
+                "best-effort",
+                "stale",
+                "unknown"
+              ],
+              "description": "Confidence assigned to an observation by the producer."
+            }
+          },
+          "required": [
+            "evidence_id",
+            "source",
+            "observed_at",
+            "authority",
+            "confidence"
+          ],
+          "additionalProperties": false,
+          "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+        },
+        "setup_exit_code": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "setup_observed_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        "secret_injection_kind": {
+          "type": "string",
+          "enum": [
+            "env_at_setup",
+            "env_at_runtime",
+            "mounted_secret_volume",
+            "brokered_at_request",
+            "none_required"
+          ],
+          "description": "ADR 0037 remote-agent secret injection discriminator."
+        },
+        "setup_duration_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "setup_log_evidence_ref": {
+          "type": "object",
+          "properties": {
+            "evidence_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Reference to an Evidence record or fixture."
+            },
+            "source": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Human-readable source name or artifact path."
+            },
+            "observed_at": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            "valid_until": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "authority": {
+              "type": "string",
+              "enum": [
+                "project-local",
+                "workspace-local",
+                "user-global",
+                "system",
+                "derived",
+                "sandbox-observation",
+                "host-observation",
+                "vendor-doc",
+                "installed-runtime",
+                "human-observed"
+              ],
+              "description": "Authority plane for a fact or observation."
+            },
+            "parser_version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "confidence": {
+              "type": "string",
+              "enum": [
+                "authoritative",
+                "high",
+                "best-effort",
+                "stale",
+                "unknown"
+              ],
+              "description": "Confidence assigned to an observation by the producer."
+            }
+          },
+          "required": [
+            "evidence_id",
+            "source",
+            "observed_at",
+            "authority",
+            "confidence"
+          ],
+          "additionalProperties": false,
+          "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+        }
+      },
+      "required": [
+        "agent_client_id",
+        "execution_context_id",
+        "containment_boundary_evidence_ref",
+        "setup_execution_id",
+        "setup_script_evidence_ref",
+        "setup_exit_code",
+        "setup_observed_at",
+        "secret_injection_kind",
+        "setup_duration_ms",
+        "setup_log_evidence_ref"
+      ],
+      "additionalProperties": false,
+      "description": "ADR 0037 RemoteAgentSetupReceipt typed Evidence payload."
+    }
+  },
+  "required": [
+    "schema_version",
+    "evidence_id",
+    "source",
+    "observed_at",
+    "valid_until",
+    "authority",
+    "confidence",
+    "parser_version",
+    "execution_context_id",
+    "evidence_kind",
+    "subject_refs",
+    "payload_schema_version",
+    "payload"
+  ],
+  "additionalProperties": false,
+  "description": "ADR 0037 RemoteAgentSetupReceipt direct Evidence subtype."
+}

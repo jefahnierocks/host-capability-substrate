@@ -7,10 +7,8 @@ import {
 } from '../common.ts';
 
 export const evidenceSchemaVersionSchema = z
-  .literal('0.7.0')
-  .describe(
-    'Evidence schema version after ADR 0027/0030/0033 Q-006 source-control subject-kind extensions.',
-  );
+  .literal('0.8.0')
+  .describe('Evidence schema version after ADR 0037 Q-010 remote-agent subject-kind extensions.');
 
 export const evidenceKindSchema = z
   .enum(['observation', 'receipt', 'derived', 'human_decision', 'fixture'])
@@ -22,6 +20,9 @@ export const evidenceSubjectKindSchema = z
     'workspace',
     'principal',
     'agent_client',
+    'remote_agent_base_image',
+    'remote_agent_setup',
+    'remote_agent_network_posture',
     'session',
     'tool_provider',
     'tool_installation',

@@ -8,8 +8,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.7.0",
-          "description": "Evidence schema version after ADR 0027/0030/0033 Q-006 source-control subject-kind extensions."
+          "const": "0.8.0",
+          "description": "Evidence schema version after ADR 0037 Q-010 remote-agent subject-kind extensions."
         },
         "evidence_id": {
           "type": "string",
@@ -240,8 +240,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.7.0",
-          "description": "Evidence schema version after ADR 0027/0030/0033 Q-006 source-control subject-kind extensions."
+          "const": "0.8.0",
+          "description": "Evidence schema version after ADR 0037 Q-010 remote-agent subject-kind extensions."
         },
         "evidence_id": {
           "type": "string",
@@ -472,8 +472,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.7.0",
-          "description": "Evidence schema version after ADR 0027/0030/0033 Q-006 source-control subject-kind extensions."
+          "const": "0.8.0",
+          "description": "Evidence schema version after ADR 0037 Q-010 remote-agent subject-kind extensions."
         },
         "evidence_id": {
           "type": "string",
@@ -704,8 +704,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.7.0",
-          "description": "Evidence schema version after ADR 0027/0030/0033 Q-006 source-control subject-kind extensions."
+          "const": "0.8.0",
+          "description": "Evidence schema version after ADR 0037 Q-010 remote-agent subject-kind extensions."
         },
         "evidence_id": {
           "type": "string",

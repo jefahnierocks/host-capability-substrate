@@ -149,13 +149,18 @@ Q-015 schema implementation opened only after all of these became true:
    `system-config`, not HCS core ontology.
 
 10. Regression traps.
-   Add traps for the failure classes listed below once the eval fixture lane
-   opens for Q-015.
+   Add executable fixtures for the failure classes listed below once the eval
+   fixture lane opens for Q-015. Trap scaffold #58 now records the
+   reviewer-observed generic/sandbox restore-ref promotion failure.
 
 ## Regression Trap Queue
 
 Future eval fixtures should cover:
 
+- Generic, sandbox-only, freshness-unknown, or non-restore evidence refs
+  promoted to `ready` restore-drill proof. Scaffolded as
+  `packages/evals/regression/backup-readiness-generic-restore-ref-promotion.md`
+  (#58).
 - Reachability promoted from `configured` to `usable`.
 - Successful backup jobs promoted from `usable` to `ready` without restore
   drill evidence.
@@ -209,6 +214,7 @@ monitoring, and gate behavior blocked.
 
 | Version | Date | Change |
 |---|---:|---|
+| 0.5.2 | 2026-05-07 | Recorded regression scaffold #58 for the generic/sandbox restore-ref promotion reviewer finding. |
 | 0.5.1 | 2026-05-07 | Added reviewer-cleanup notes for proof-bearing nested evidence refs and future cross-record readiness checks. |
 | 0.5.0 | 2026-05-07 | Recorded the ADR 0045 schema/evidence landing and kept all runtime, policy, provider, monitoring, dashboard, adapter, hook, backup/restore execution, and gate behavior out of scope. |
 | 0.4.0 | 2026-05-07 | Recorded ADR 0045 acceptance after reviewer pass and human approval; Q-015 schema/evidence implementation slice is now authorized while runtime/policy/provider/gate work remains blocked. |

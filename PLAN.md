@@ -23,10 +23,11 @@ renumbering existing shell/environment or coordination seeds. Coordination
 seeds #31-#35 now have scaffold files. ADR 0036 Q-009 traps land as #46-#48;
 ADR 0037 Q-010 traps land as #49-#51; ADR 0037 security-review candidates land
 as #52-#56; the Phase 2.4 registry-summary union-narrowing incident lands as
-#57. This packet is eval/docs only: it adds trajectory-scored trap definitions
-and seed-index bookkeeping, not executable harness fixtures, schema behavior,
-policy YAML, runtime probes, adapters, hooks, dashboard routes, or gateway
-logic.
+#57; the ADR 0045 Q-015 generic restore-ref promotion reviewer incident lands
+as #58. This packet is eval/docs only: it adds trajectory-scored trap
+definitions and seed-index bookkeeping, not executable harness fixtures,
+schema behavior, policy YAML, runtime probes, adapters, hooks, dashboard
+routes, or gateway logic.
 
 **Q-013 credential-plane posture (accepted 2026-05-05):** ADR 0040 accepts
 credential-plane integration as generic HCS posture only. Credential-plane

@@ -5,7 +5,7 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Upstream research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — Q-015 posture accepted; Phase 2.7 deferred lanes next
+## Current Focus — Q-014 implementation ADR accepted; Phase 2.7 schema lane next
 
 As of 2026-05-04, the **Phase 1 synthesis-window is closed**. All nine
 pending Q-rows in `DECISIONS.md` (Q-003, Q-005, Q-006, Q-007, Q-008,
@@ -55,23 +55,25 @@ project-substrate contract/admission standard. HCS treats it as compatibility
 input only. Component facts fit existing lanes (Q-005 runner/check evidence,
 Q-006 check-source identity, Q-007 BoundaryObservation/QualityGate posture,
 Q-009 workspace-manifest projection, Q-013 credential-plane posture), but the
-whole project-substrate contract envelope is accepted as Q-014 posture only;
-future implementation still requires its own ADR/schema lane. Accepted
-posture: compose with ADR 0036 via candidate
-`KnowledgeSource.source_kind: "project_substrate_contract"` plus typed
-validation receipts; treat contract lifecycle status and `guardian_approval`
-as evidence inputs, not HCS gate authority or `ApprovalGrant`; group v1
-evidence shape commitments into contract validation, admission observation,
-teardown plan receipts, and teardown completion receipts; defer
-machine-identity validation to Q-013 implementation. No contract schema, policy
-YAML, validator, runner, Proxmox, OpenTofu, machine-identity, adapter,
-dashboard, hook, project workload/provisioning, or runtime change may land from
-this intake before a follow-on implementation ADR or approved sequencing
-amendment authorizes the implementation lane. Q-014 implementation is a Phase
-2.7 / Wave-2 candidate that should sequence jointly with Q-013. Proposed
-implementation ADR:
-`docs/host-capability-substrate/adr/0044-q-014-project-substrate-implementation.md`;
-while proposed, it is planning only and does not authorize schema/runtime work.
+whole project-substrate contract envelope was accepted as Q-014 posture only
+until its implementation ADR landed. Accepted posture: compose with ADR 0036
+via candidate `KnowledgeSource.source_kind: "project_substrate_contract"`
+plus typed validation receipts; treat contract lifecycle status and
+`guardian_approval` as evidence inputs, not HCS gate authority or
+`ApprovalGrant`; group v1 evidence shape commitments into contract validation,
+admission observation, teardown plan receipts, and teardown completion
+receipts; defer machine-identity validation to Q-013 implementation. ADR 0044,
+accepted 2026-05-07, now authorizes only the first Q-014 schema/evidence
+implementation slice: `project_substrate_contract`,
+`project_admission_authority`, `ProjectSubstrateContractValidationReceipt`,
+`ProjectSubstrateAdmissionObservation`, `ProjectTeardownPlanReceipt`,
+`ProjectTeardownCompletionReceipt`, and required subject/ref vocabulary. No
+canonical policy YAML, runtime/live validator, runner, Proxmox, OpenTofu,
+machine-identity issuance, adapter, dashboard, hook, project
+workload/provisioning, provider mutation, operation registration, backup
+readiness, or runtime change is authorized by this intake or ADR 0044.
+Accepted implementation ADR:
+`docs/host-capability-substrate/adr/0044-q-014-project-substrate-implementation.md`.
 Deferred-lane sequencing:
 `docs/host-capability-substrate/research/local/2026-05-06-phase-2-7-deferred-lane-sequencing-plan.md`.
 
@@ -210,7 +212,7 @@ implementation (first Phase 2.7 dependency; accepted ADR:
 lane plan:
 `docs/host-capability-substrate/research/local/2026-05-06-q-013-implementation-lane-plan.md`);
 Q-014 project-substrate contract validation and admission-receipt composition
-after Q-013 implementation evidence (proposed implementation ADR:
+after Q-013 implementation evidence (accepted ADR:
 `docs/host-capability-substrate/adr/0044-q-014-project-substrate-implementation.md`;
 lane plan:
 `docs/host-capability-substrate/research/local/2026-05-06-q-014-implementation-lane-plan.md`);

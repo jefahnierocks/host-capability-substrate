@@ -1,7 +1,7 @@
 ---
 adr_number: 0044
 title: Q-014 project-substrate implementation slice
-status: proposed
+status: accepted
 date: 2026-05-07
 charter_version: 1.4.0
 tags: [project-substrate, contract-validation, admission, knowledge-source, boundary-observation, evidence, q-014, phase-2-7]
@@ -11,24 +11,46 @@ tags: [project-substrate, contract-validation, admission, knowledge-source, boun
 
 ## Status
 
-proposed
+accepted
 
-This ADR is a proposal for the first Q-014 implementation slice. While
-proposed, it authorizes no Zod schema source, generated JSON Schema,
-canonical policy YAML, validators, adapters, dashboard routes, hooks, runner
-registration, GitHub runner-group mutation, Proxmox changes, OpenTofu changes,
-machine-identity issuance, project workload provisioning, provider mutation,
-operation registration, or runtime behavior.
+Accepted on 2026-05-07 after reviewer pass and human approval. This ADR
+authorizes only schema/evidence work for the narrow Q-014 v1 slice named
+below: project-substrate contract source-kind support, admission-authority
+boundary evidence, contract validation, admission observation, teardown plan
+receipt, teardown completion receipt, and the minimum subject/ref vocabulary
+required by those records.
 
-If accepted, this ADR authorizes only schema/evidence work for the narrow
-Q-014 v1 slice named below: project-substrate contract source-kind support,
-admission-authority boundary evidence, contract validation, admission
-observation, teardown plan receipt, teardown completion receipt, and the
-minimum subject/ref vocabulary required by those records.
+This ADR does not authorize canonical policy YAML, runtime/live validators,
+adapters, dashboard routes, hooks, runner registration, GitHub runner-group
+mutation, Proxmox changes, OpenTofu changes, machine-identity issuance,
+project workload provisioning, provider mutation, operation registration, or
+runtime behavior.
+
+## Acceptance note
+
+The four required reviewers completed the acceptance-readiness pass:
+
+- `hcs-architect`: ACCEPT-AS-IS
+- `hcs-ontology-reviewer`: READY-FOR-ACCEPTANCE
+- `hcs-policy-reviewer`: READY-FOR-ACCEPTANCE
+- `hcs-security-reviewer`: READY-FOR-ACCEPTANCE
+
+No reviewer found blocking issues. Mechanical hardening from ontology, policy,
+and security review is folded into this accepted revision: runtime/live
+validator wording, schema-validator policy-boundary text, typed
+`project_admission_authority` branch requirements, `BoundaryObservation`
+contract-source binding placement, sandbox-observation non-promotion,
+teardown attribution, runner escape rejection, and reject-list authority
+citations.
+
+Acceptance remains limited to the Ring 0 schema/evidence slice named above.
+Runtime, policy, provider, runner, Proxmox, OpenTofu, identity issuance,
+project provisioning, backup-readiness, dashboard, adapter, hook, and gate
+behavior require separate accepted ADRs or policy lanes.
 
 ## Date
 
-2026-05-07
+2026-05-07 (proposed); 2026-05-07 (accepted)
 
 ## Charter version
 
@@ -197,7 +219,7 @@ minimum subject/ref vocabulary required by those records.
 
 This ADR does not authorize a standalone `ProjectSubstrateContract` entity,
 `QualityGate.gate_kind: "project_substrate_admission"`, `ApprovalGrant`
-scope changes, canonical policy YAML, live validators, adapters, dashboard
+scope changes, canonical policy YAML, runtime/live validators, adapters, dashboard
 routes, hooks, runner registration, GitHub runner-group mutation,
 Proxmox/OpenTofu/provider mutation, machine-identity issuance, project
 workload provisioning, backup-readiness schema, or runtime behavior.
@@ -226,6 +248,9 @@ plus stricter subtype rules:
 - Each record binds to the relevant `workspace_id`, `execution_context_id`,
   `knowledge_source_id`, contract content hash, and cited operational
   evidence as applicable.
+- For `BoundaryObservation`, `knowledge_source_id` and contract-hash binding
+  belong in typed payload fields or `evidence_refs`, not as a new envelope
+  target-reference field.
 - `subject_refs` name the underlying subject, not the envelope. Schema work
   must not add subject-kind values such as
   `project_substrate_contract_validation_receipt`,
@@ -245,6 +270,10 @@ plus stricter subtype rules:
   `SecretReference` / `op://`-style pointers but must not contain resolved
   secret values, token fragments, private keys, recovery codes, provider item
   bodies, environment dumps, or shell history.
+- Evidence with `authority: "sandbox-observation"` may document parser or
+  contract observations, but must not satisfy admission readiness,
+  deletion-authority, teardown completion, or future `allowed_for_gate`
+  promotion.
 - Gate consumption is not accepted by this ADR. Future policy may consume
   these records only through accepted `QualityGate` / `ApprovalGrant` /
   `allowed_for_gate` rules in the proper policy lane.
@@ -294,6 +323,8 @@ Expected payload posture:
 Constraints:
 
 - The payload is not an HCS runtime approval.
+- Implementation must land this as a typed `BoundaryObservation` payload
+  branch, not as a generic boundary-dimension enum-only addition.
 - It must not mint, rotate, or retire identities.
 - It must not bypass future per-operation `ApprovalGrant` requirements.
 - If implementation proves the `BoundaryObservation` envelope is wrong for
@@ -321,6 +352,12 @@ Constraints:
 
 - This receipt validates structure and reference-form constraints only. It
   does not approve the project, provision anything, or pass an HCS gate.
+- Schema validators may enforce only structural shape, required field
+  presence, reference-form constraints, hashes, schema/provenance fields,
+  non-null `valid_until`, and no-resolved-secret constraints. They must not
+  encode Citadel OPA controls, lane admission policy, status-to-gate
+  promotion, freshness-window durations, denial semantics,
+  `allowed_for_gate` promotion, or `ApprovalGrant.scope` behavior.
 - It must not resolve `secret_refs`.
 - It must not duplicate Citadel OPA rules or canonical HCS policy YAML.
 - Contract `active` / `accepted` / `provisionable` status remains
@@ -377,7 +414,8 @@ Constraints:
 - Contract self-assertion and `.gitignore` state are never deletion authority.
 - This receipt does not execute teardown and does not mutate provider state.
 - Any future execution must cite separately accepted operation, grant, audit,
-  and external-control-plane evidence.
+  and external-control-plane evidence with `agent_client_id`, `session_id`,
+  and principal identity recorded, or typed unknown/absence reasons.
 
 ### `ProjectTeardownCompletionReceipt`
 
@@ -440,33 +478,48 @@ This ADR does not accept these records, enum values, or behaviors:
 - Q-013 `CredentialAuthorityObservation` and
   `MachineIdentityBindingObservation` are the credential/machine-identity
   evidence inputs for this slice.
-- Review must include `hcs-architect`, `hcs-ontology-reviewer`,
-  `hcs-policy-reviewer`, and `hcs-security-reviewer` before acceptance or
-  implementation.
+- Acceptance review included `hcs-architect`, `hcs-ontology-reviewer`,
+  `hcs-policy-reviewer`, and `hcs-security-reviewer`; future implementation
+  review remains scoped by the schema-change workflow and this ADR.
 
 ### Rejects
 
 - Making HCS a CI, runner, Proxmox, GitHub, OpenTofu, identity,
-  backup/restore, or project workload control plane.
+  backup/restore, or project workload control plane. Authority: charter
+  invariants 1, 7, and 16; ADR 0015; ADR 0032.
 - Adding a standalone `ProjectSubstrateContract` entity in this slice.
+  Authority: ADR 0036, ADR 0041, and charter invariant 18.
 - Adding `QualityGate.gate_kind: "project_substrate_admission"` in this
-  slice.
+  slice. Authority: ADR 0035 and ADR 0041; policy/gate semantics remain a
+  future lane.
 - Defining `ApprovalGrant.scope`, `allowed_for_gate`, gate-promotion, or
-  canonical policy behavior in this ADR.
+  canonical policy behavior in this ADR. Authority: charter invariants 1, 7,
+  10, 18, and 19.
 - Treating contract status, `guardian_approval`, provider labels, runner
   labels, check names, or source chunks as gate authority by themselves.
-- Treating `guardian_approval` as HCS `ApprovalGrant`.
-- Registering or deregistering runners.
+  Authority: charter invariant 18; ADR 0032; ADR 0033; ADR 0041.
+- Treating `guardian_approval` as HCS `ApprovalGrant`. Authority: ADR 0041
+  and charter invariant 7.
+- Registering or deregistering runners. Authority: ADR 0032.
 - Mutating GitHub runner groups, selected-repository access, repository
   rulesets, workflow policy, Proxmox host state, OpenTofu state, vault state,
-  service-account state, or project workload state from HCS.
-- Minting, rotating, or retiring project machine identities.
-- Collapsing project-owned contract YAML into HCS live policy.
+  service-account state, or project workload state from HCS. Authority:
+  charter invariants 7 and 16; ADR 0015; ADR 0032; ADR 0033; ADR 0040.
+- Minting, rotating, or retiring project machine identities. Authority:
+  ADR 0040 and ADR 0043.
+- Treating public fork code on self-hosted runners, generic `runs-on:
+  self-hosted`, Docker socket exposure to untrusted jobs, or runner tokens in
+  state as guardian-overridable exceptions. Authority: ADR 0032 and charter
+  invariants 6, 7, and 16.
+- Collapsing project-owned contract YAML into HCS live policy. Authority:
+  ADR 0006 and charter invariant 10.
 - Duplicating Citadel OPA rules inside HCS policy YAML or schema validators.
+  Authority: charter invariant 1 and ADR 0006.
 - Storing resolved secret material in HCS docs, schemas, fixtures, generated
   JSON Schema, policy snapshots, logs, audit artifacts, contract chunks,
-  receipts, or validator output.
-- Adding Q-015 backup-readiness schema work by implication.
+  receipts, or validator output. Authority: charter invariants 5 and 10.
+- Adding Q-015 backup-readiness schema work by implication. Authority:
+  ADR 0042 and the Phase 2.7 deferred-lane sequencing plan.
 
 ### Future amendments
 

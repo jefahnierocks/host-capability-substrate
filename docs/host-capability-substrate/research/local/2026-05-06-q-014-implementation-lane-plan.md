@@ -2,13 +2,15 @@
 
 Date: 2026-05-06
 
-Status: implementation ADR drafted as proposed ADR 0044. ADR 0043 has landed
-the Q-013 credential-source and machine-identity evidence dependency, but ADR
-0044 is not accepted yet. This document and proposed ADR 0044 do not authorize
-Q-014 schema source, generated JSON Schema, validators, canonical policy YAML,
-adapters, dashboard routes, hooks, runner registration, Proxmox changes,
-OpenTofu changes, machine-identity issuance, project workload provisioning,
-provider mutation, operation registration, or runtime behavior.
+Status: implementation ADR accepted. ADR 0043 has landed the Q-013
+credential-source and machine-identity evidence dependency, and ADR 0044 has
+accepted the first Q-014 schema/evidence implementation slice. This document
+and ADR 0044 authorize only that narrow slice. They do not authorize canonical
+policy YAML, runtime/live validators, adapters, dashboard routes, hooks,
+runner registration, GitHub runner-group mutation, Proxmox changes, OpenTofu
+changes, machine-identity issuance, project workload provisioning, provider
+mutation, operation registration, backup-readiness schema, `QualityGate`
+project-admission gate behavior, or runtime behavior.
 
 ## Authority
 
@@ -24,7 +26,7 @@ Accepted posture:
   `docs/host-capability-substrate/research/external/2026-05-06-citadel-project-substrate-standard.md`
 - Q-013 v1 evidence dependency:
   `docs/host-capability-substrate/adr/0043-q-013-credential-plane-implementation.md`
-- Proposed Q-014 implementation ADR:
+- Accepted Q-014 implementation ADR:
   `docs/host-capability-substrate/adr/0044-q-014-project-substrate-implementation.md`
 
 External source authority remains Citadel PR #37, merged to
@@ -46,12 +48,14 @@ ADR 0041 accepts posture only for the cohort-2 evidence names:
 - `ProjectTeardownPlanReceipt`
 - `ProjectTeardownCompletionReceipt`
 
-It also reserves candidate values for future ontology review:
+ADR 0044 accepts the first implementation values:
 
 - `KnowledgeSource.source_kind: "project_substrate_contract"`
-- `QualityGate.gate_kind: "project_substrate_admission"`
 - `BoundaryObservation.boundary_dimension:
   "project_admission_authority"`
+
+It keeps `QualityGate.gate_kind: "project_substrate_admission"` as a deferred
+future candidate requiring separate gate/policy acceptance.
 
 The external `guardian_approval` fact has one v1 ontology home:
 `boundary_dimension: "project_admission_authority"`. A future
@@ -65,20 +69,22 @@ Q-014 schema implementation should not open until all of these are true:
 - Phase 2.1-2.6 schema train completed per ADR 0038.
 - Q-013 implementation landed the credential-source and machine-identity
   evidence dependencies needed by project-substrate validation via ADR 0043.
-- ADR 0044, or a follow-on replacement, is accepted for Q-014 schema scope,
-  including registry changes, Zod source, generated JSON Schema, fixtures,
-  docs, and tests.
-- Reviewer dispatch is planned for `hcs-architect`,
+- ADR 0044 is accepted for Q-014 schema scope, including registry changes,
+  Zod source, generated JSON Schema, fixtures, docs, and tests.
+- Reviewer dispatch completed for `hcs-architect`,
   `hcs-ontology-reviewer`, `hcs-policy-reviewer`, and
   `hcs-security-reviewer`.
 
+These entry conditions are now satisfied for the ADR 0044 slice only. Any
+scope beyond ADR 0044 requires a follow-on accepted ADR or policy lane.
+
 ## Future Work Packages
 
-1. ADR/schema proposal.
+1. Schema/evidence implementation.
    Define the exact cohort-2 payload shapes, subject refs, target refs,
    content-hash grain, parser/version fields, evidence refs, and
-   execution-context bindings. Proposed ADR 0044 now carries the initial
-   scope; acceptance is still required before schema work.
+   execution-context bindings. ADR 0044 now carries the accepted scope; schema
+   work must follow `.agents/skills/hcs-schema-change`.
 
 2. Ontology registry update.
    Add candidate enum values only with the normal schema-change lane:
@@ -134,8 +140,8 @@ Future eval fixtures should cover:
 
 Stop and return to human review if a task tries to:
 
-- start Q-014 schema, validator, adapter, dashboard, hook, policy, or runtime
-  implementation before a follow-on implementation ADR is accepted;
+- expand Q-014 beyond ADR 0044's accepted schema/evidence slice without a
+  follow-on accepted ADR or policy lane;
 - make HCS a CI, Proxmox, GitHub, OpenTofu, identity, or project workload
   control plane;
 - register or deregister runners;
@@ -145,21 +151,23 @@ Stop and return to human review if a task tries to:
 - treat Citadel contract status as HCS approval;
 - treat `guardian_approval` as HCS `ApprovalGrant`;
 - collapse project contract YAML into HCS live policy;
-- duplicate Citadel OPA rules in HCS policy YAML;
+- duplicate Citadel OPA rules in HCS policy YAML or schema validators;
 - store resolved secret material in HCS docs, schemas, fixtures, policy
   snapshots, logs, or audit artifacts.
 
 ## Next Safe Action
 
-Complete the ADR 0044 review/acceptance cycle. Keep schema, validator,
-adapter, dashboard, hook, policy, and runtime implementation blocked until ADR
-0044 or a replacement implementation ADR is accepted and the required reviewer
-pass completes.
+Implement the ADR 0044 schema/evidence slice. Keep runtime/live validators,
+adapter, dashboard, hook, policy, runner, Proxmox, OpenTofu,
+machine-identity issuance, provider mutation, backup-readiness, gate-kind, and
+runtime work blocked until separate accepted ADRs or policy lanes authorize
+them.
 
 ## Change Log
 
 | Version | Date | Change |
 |---|---:|---|
+| 0.4.0 | 2026-05-07 | Updated after ADR 0044 acceptance; Q-014 schema/evidence implementation may open for the accepted slice only. |
 | 0.3.0 | 2026-05-07 | Added proposed ADR 0044 as the Q-014 implementation ADR draft; Q-014 schema/runtime work remains blocked until acceptance and reviewer pass. |
 | 0.2.0 | 2026-05-07 | Updated after ADR 0043 schema/evidence landing; Q-014 implementation ADR planning may open while Q-014 schema/runtime work remains blocked. |
 | 0.1.0 | 2026-05-06 | Initial docs-only implementation-lane plan following ADR 0041 acceptance. |

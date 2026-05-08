@@ -42,16 +42,18 @@ registration, `CredentialRuntimeInjectionReceipt`,
 
 Implementation ADR note: ADR 0044
 (`docs/host-capability-substrate/adr/0044-q-014-project-substrate-implementation.md`)
-is proposed as the first Phase 2.7 Q-014 implementation slice. While
-proposed, it is planning only and authorizes no schema, generated schema,
-canonical policy YAML, validator, adapter, dashboard, hook, runner, Proxmox,
-OpenTofu, identity, provider mutation, project workload, or runtime change. If
-accepted after reviewer pass and human approval, it would authorize only the
-narrow schema/evidence slice for `project_substrate_contract`,
-`project_admission_authority`,
-`ProjectSubstrateContractValidationReceipt`,
+was accepted on 2026-05-07 as the first Phase 2.7 Q-014 implementation slice
+after four-reviewer pass and human approval. It authorizes only the narrow
+schema/evidence slice for `project_substrate_contract`,
+`project_admission_authority`, `ProjectSubstrateContractValidationReceipt`,
 `ProjectSubstrateAdmissionObservation`, `ProjectTeardownPlanReceipt`,
-`ProjectTeardownCompletionReceipt`, and required subject/ref vocabulary.
+`ProjectTeardownCompletionReceipt`, and required subject/ref vocabulary. It
+does not authorize canonical policy YAML, runtime/live validators, adapters,
+dashboard routes, hooks, runner registration, GitHub runner-group mutation,
+Proxmox changes, OpenTofu changes, machine-identity issuance, provider
+mutation, operation registration, project workload provisioning, backup
+readiness, `QualityGate.gate_kind: "project_substrate_admission"`,
+`ApprovalGrant.scope`, `allowed_for_gate`, or runtime behavior.
 
 ## Accepted
 

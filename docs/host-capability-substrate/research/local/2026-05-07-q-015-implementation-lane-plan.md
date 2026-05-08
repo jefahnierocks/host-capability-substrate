@@ -153,6 +153,15 @@ Q-015 schema implementation opened only after all of these became true:
    fixture lane opens for Q-015. Trap scaffold #58 now records the
    reviewer-observed generic/sandbox restore-ref promotion failure.
 
+11. Citadel readiness compatibility follow-up.
+   Track 2026-05-07 Citadel compatibility inputs without extending live
+   ontology: runner readiness remains a pending structured concept; alert
+   delivery is future readiness evidence; file-level/meta-backup and VM/CT
+   image backup must stay distinct; cross-repo receipts from Citadel,
+   `ci-runner`, `runner-substrate`, `HomeNetOps`, and `hetzner` remain generic
+   source/evidence refs. See
+   `docs/host-capability-substrate/research/local/2026-05-07-citadel-readiness-compatibility-followup.md`.
+
 ## Regression Trap Queue
 
 Future eval fixtures should cover:
@@ -181,6 +190,12 @@ Future eval fixtures should cover:
   readiness.
 - `BackupLayerThreatModel.accepted_risks` copied into public HCS fixtures,
   generated schemas, or policy snapshots as project-specific content.
+- Alert delivery treated as proven because a route is declared or configured,
+  without typed delivery evidence and freshness.
+- File-level/meta-backup evidence promoted as VM/CT image backup readiness, or
+  VM/CT image evidence promoted as file-level/project data readiness.
+- Cross-repo design packets treated as live readiness receipts without parser,
+  provenance, authority, freshness, and source-binding evidence.
 
 ## Stop Rules
 
@@ -203,6 +218,8 @@ Stop and return to human review if a task tries to:
 - duplicate upstream backup, runner, Hetzner, Citadel, or project policy into
   HCS canonical policy YAML;
 - import brand/provider storage-class names into HCS core ontology.
+- add runner-readiness, alert-delivery, or artifact-grain schema/policy
+  behavior without a follow-on accepted ADR or policy lane.
 
 ## Next Safe Action
 
@@ -214,6 +231,7 @@ monitoring, and gate behavior blocked.
 
 | Version | Date | Change |
 |---|---:|---|
+| 0.5.3 | 2026-05-07 | Added Citadel compatibility follow-up for runner readiness, alert-delivery evidence, artifact grain, and cross-repo receipts without opening schema or policy work. |
 | 0.5.2 | 2026-05-07 | Recorded regression scaffold #58 for the generic/sandbox restore-ref promotion reviewer finding. |
 | 0.5.1 | 2026-05-07 | Added reviewer-cleanup notes for proof-bearing nested evidence refs and future cross-record readiness checks. |
 | 0.5.0 | 2026-05-07 | Recorded the ADR 0045 schema/evidence landing and kept all runtime, policy, provider, monitoring, dashboard, adapter, hook, backup/restore execution, and gate behavior out of scope. |

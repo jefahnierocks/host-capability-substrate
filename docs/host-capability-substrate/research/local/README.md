@@ -3,9 +3,9 @@ title: HCS local research artifacts
 category: research
 component: host_capability_substrate
 status: active
-version: 1.10.9
+version: 1.11.0
 last_updated: 2026-05-07
-tags: [research, local, host-evidence, github, version-control, quality-management, codex, worktree, branch-cleanup, diagnostics, workspace-context, isolation, ontology, process-inspection, project-substrate, runner-substrate, backup-readiness]
+tags: [research, local, host-evidence, github, version-control, quality-management, codex, worktree, branch-cleanup, diagnostics, workspace-context, isolation, ontology, process-inspection, project-substrate, runner-substrate, backup-readiness, runner-readiness, alert-delivery]
 priority: medium
 ---
 
@@ -46,11 +46,13 @@ summaries.
 | `2026-05-06-q-014-implementation-lane-plan.md` | 2026-05-06 | Q-014 lane plan updated through ADR 0044 acceptance and schema landing. Records landed project-substrate Ring 0 evidence scope plus deferred follow-ups, while keeping policy, validator, adapter, dashboard, hook, runner, Proxmox, OpenTofu, identity issuance, project workload, provider mutation, gate behavior, and runtime work blocked. |
 | `2026-05-06-q-015-backup-readiness-intake.md` | 2026-05-06 | Intake and HCS framing for backup-readiness posture. Preserves the advisor directive, records ADR 0042 accepted posture, keeps `pending` -> `configured` -> `usable` -> `ready` lifecycle discipline, and blocks schema, registry, policy, validator, adapter, dashboard, hook, runner, Proxmox, Hetzner, OpenTofu, machine-identity, backup/restore execution, project workload, and runtime work pending a future implementation ADR. |
 | `2026-05-07-q-015-implementation-lane-plan.md` | 2026-05-07 | Q-015 lane plan updated through ADR 0045 acceptance and schema landing. Records landed Ring 0 backup-readiness evidence scope plus deferred follow-ups, while keeping policy, validator, adapter, dashboard, hook, runner, Proxmox, Hetzner, OpenTofu, machine-identity, backup/restore execution, project workload, provider mutation, gate behavior, and runtime work blocked. |
+| `2026-05-07-citadel-readiness-compatibility-followup.md` | 2026-05-07 | Follow-up Citadel compatibility intake for runner readiness, backup readiness lifecycle discipline, alert-delivery evidence, file/meta versus VM/CT image backup distinction, and cross-repo evidence receipts. Records future-policy/schema inputs only; no live readiness, schema, ontology, policy, or runtime authority. |
 
 ## Change Log
 
 | Version | Date | Change |
 |---|---:|---|
+| 1.11.0 | 2026-05-07 | Added Citadel readiness compatibility follow-up and updated Q-015 intake/lane pointers. |
 | 1.10.9 | 2026-05-07 | Updated Q-013 and Q-014 implementation-lane index entries after ADR 0043 and ADR 0044 schema/evidence landing. |
 | 1.10.8 | 2026-05-07 | Updated the Phase 2.7 sequencing-plan index entry after ADR 0045 schema/evidence landing and follow-on lane reblocking. |
 | 1.10.7 | 2026-05-07 | Updated the Q-015 implementation-lane index entry after ADR 0045 acceptance and schema landing. |

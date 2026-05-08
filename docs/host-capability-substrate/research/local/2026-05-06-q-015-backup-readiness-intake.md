@@ -3,8 +3,8 @@ title: Q-015 backup-readiness substrate-contract intake
 category: research
 component: host_capability_substrate
 status: planning-input
-version: 0.1.0
-last_updated: 2026-05-06
+version: 0.2.0
+last_updated: 2026-05-07
 tags: [backup-readiness, restore-drill, storage-class, project-substrate, runner-substrate, hetzner, citadel, boundary-observation, quality-gate, q-015]
 priority: high
 ---
@@ -30,6 +30,9 @@ Q-014 (ADR 0041), or under a separately accepted sequencing amendment.
 
 External advisor directive, 2026-05-06. Verbatim payload preserved in
 §Advisor directive (verbatim) below.
+
+Follow-up Citadel compatibility updates, 2026-05-07. Normalized follow-up:
+`docs/host-capability-substrate/research/local/2026-05-07-citadel-readiness-compatibility-followup.md`.
 
 ## Framing
 
@@ -74,6 +77,29 @@ or schema unchanged in substance:
   storage.
 - Backup readiness does not imply runner readiness.
 - Runner readiness does not imply project workload admission.
+
+## Follow-up compatibility intake (2026-05-07)
+
+Citadel provided additional compatibility guidance after ADR 0045 landed. HCS
+tracks it as future-policy and future-schema input only:
+
+- Runner readiness remains a pending structured evidence concept. HCS has no
+  accepted `RunnerReadiness` entity or evidence subtype.
+- The backup readiness lifecycle remains `pending` -> `configured` ->
+  `usable` -> `ready`, with `expired` and `unknown` represented in the
+  accepted ADR 0045 schema.
+- Alert-delivery evidence is a future readiness-schema and policy input. The
+  current schema has generic `monitoring_evidence_refs`, but no accepted
+  alert-delivery receipt, observation, freshness window, or gate policy.
+- File-level or metadata backup must stay distinct from VM/CT image backup.
+  Current `storage_class_kind` is provider-neutral storage classification; it
+  is not sufficient by itself to prove artifact grain.
+- Cross-repo evidence receipts may arrive from Citadel, `ci-runner`,
+  `runner-substrate`, `HomeNetOps`, and `hetzner`, but HCS core ontology must
+  keep provider-neutral names and consume those as generic source/evidence
+  refs.
+- No HCS docs, policy, ontology, schemas, or runtime claims should describe
+  live readiness from design packets alone.
 
 ## Lifecycle states (advisor input)
 
@@ -412,4 +438,5 @@ skip ADR-first review and the accepted Phase 2.1–2.6 schema train.
 
 | Version | Date | Change |
 |---|---:|---|
+| 0.2.0 | 2026-05-07 | Added Citadel follow-up compatibility guidance for runner readiness, alert delivery, artifact grain, and cross-repo evidence receipts. |
 | 0.1.0 | 2026-05-06 | Initial intake; advisor directive captured verbatim; HCS framing applied; implementation deferred to Phase 2.7 / Wave-2 lane. |

@@ -130,7 +130,14 @@ ontology/registry mirrors, and focused tests. The landed slice reuses existing
 No Q-015 runtime, validator, canonical policy YAML, adapter, dashboard, hook,
 runner, Proxmox, Hetzner, OpenTofu, provider mutation, project workload,
 gate-kind, or backup/restore execution work is authorized by ADR 0045 or this
-schema landing.
+schema landing. A 2026-05-07 Citadel compatibility follow-up is recorded at
+`docs/host-capability-substrate/research/local/2026-05-07-citadel-readiness-compatibility-followup.md`.
+It tracks runner readiness as pending structured future evidence, alert
+delivery as future readiness evidence, file/meta backup versus VM/CT image
+backup as a future artifact-grain distinction, and cross-repo receipts as
+generic source/evidence refs. It does not authorize live readiness claims,
+host-local policy, ontology, schema, validator, adapter, dashboard, hook, or
+runtime changes.
 
 **Phase 2 sequencing meta-ADR (accepted 2026-05-04):** ADR 0038
 (`docs/host-capability-substrate/adr/0038-phase-2-schema-landing-sequence.md`)

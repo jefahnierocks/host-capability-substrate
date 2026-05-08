@@ -81,6 +81,16 @@ machine-identity issuance, project workload provisioning, provider mutation,
 gate-kind behavior, `ApprovalGrant.scope`, `allowed_for_gate`, or runtime
 behavior.
 
+Compatibility intake note: Citadel follow-up guidance delivered 2026-05-07 is
+recorded at
+`docs/host-capability-substrate/research/local/2026-05-07-citadel-readiness-compatibility-followup.md`.
+It is future-policy/schema input only: runner readiness remains pending
+structured evidence, alert delivery is a future readiness-evidence input,
+file-level/meta-backup remains distinct from VM/CT image backup, and
+cross-repo receipts remain generic source/evidence references. This note does
+not authorize live readiness claims, schema/ontology additions, host-local
+policy, provider mutation, upstream repo edits, or runtime behavior.
+
 ## Accepted
 
 | ID | Decision | Rationale | ADR | Date |

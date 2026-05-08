@@ -3,9 +3,9 @@ title: HCS local research artifacts
 category: research
 component: host_capability_substrate
 status: active
-version: 1.12.0
+version: 1.13.0
 last_updated: 2026-05-07
-tags: [research, local, host-evidence, github, version-control, quality-management, codex, worktree, branch-cleanup, diagnostics, workspace-context, isolation, ontology, process-inspection, project-substrate, runner-substrate, backup-readiness, runner-readiness, alert-delivery, regression-corpus]
+tags: [research, local, host-evidence, github, version-control, quality-management, codex, worktree, branch-cleanup, diagnostics, workspace-context, isolation, ontology, process-inspection, project-substrate, runner-substrate, backup-readiness, runner-readiness, alert-delivery, regression-corpus, adr-0039, charter-v1-4-0]
 priority: medium
 ---
 
@@ -48,11 +48,13 @@ summaries.
 | `2026-05-07-q-015-implementation-lane-plan.md` | 2026-05-07 | Q-015 lane plan updated through ADR 0045 acceptance and schema landing. Records landed Ring 0 backup-readiness evidence scope plus deferred follow-ups, while keeping policy, validator, adapter, dashboard, hook, runner, Proxmox, Hetzner, OpenTofu, machine-identity, backup/restore execution, project workload, provider mutation, gate behavior, and runtime work blocked. |
 | `2026-05-07-citadel-readiness-compatibility-followup.md` | 2026-05-07 | Follow-up Citadel compatibility intake for runner readiness, backup readiness lifecycle discipline, alert-delivery evidence, file/meta versus VM/CT image backup distinction, and cross-repo evidence receipts. Records future-policy/schema inputs only; no live readiness, schema, ontology, policy, or runtime authority. |
 | `2026-05-07-trap-scaffold-audit.md` | 2026-05-07 | Phase 2.6 audit classifying the 22 unscaffolded seeds in `packages/evals/regression/seed.md` against the no-synthetic-traps rule in `.agents/skills/hcs-regression-trap/SKILL.md`. Two seeds are Ready (#17, #44), five are Blocked on Codex/ScopeCam transcript prerequisites (#39–#43), fifteen are No-citation (#1–#15). Docs only; no scaffold authoring, no seed-md changes, no schema or policy effect. |
+| `2026-05-07-adr-0039-forward-looking-obs-audit.md` | 2026-05-07 | Audit walking the 13 forward-looking observations deferred by ADR 0039 (charter v1.4.0 amendment) against landed Phase 2.x work. Two Owed (#1 ADR 0019 v3 four-class alignment; #3 registry §Producer-vs-kernel-set five-FK extension), one Effectively handled (#2), one Active sequencing dependency (#5 evidenceAuthoritySchema enum extension), five Deferred (#4, #6, #7, #8, #9), two Closed at acceptance (#10, #11). Docs only; no schema, registry, charter, or policy effect. |
 
 ## Change Log
 
 | Version | Date | Change |
 |---|---:|---|
+| 1.13.0 | 2026-05-07 | Added the ADR 0039 forward-looking observations absorption audit memo. |
 | 1.12.0 | 2026-05-07 | Added the Phase 2.6 trap scaffold completeness audit memo. |
 | 1.11.1 | 2026-05-07 | Updated the Phase 2.7 sequencing-plan index entry after adding the Citadel readiness compatibility follow-up. |
 | 1.11.0 | 2026-05-07 | Added Citadel readiness compatibility follow-up and updated Q-015 intake/lane pointers. |

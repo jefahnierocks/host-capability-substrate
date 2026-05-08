@@ -3,7 +3,7 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.4.5
+version: 0.4.6
 last_updated: 2026-05-07
 tags: [ontology, registry, registry-consolidation, phase-2-4, phase-2-7, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, remote-agent, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
 priority: high
@@ -364,6 +364,36 @@ Examples surfaced during the ADR 0027 / ADR 0028 review cycle:
 - ADR 0037's `ExecutionContext.latest_containment_evidence_ref` and
   `ExecutionContext.kernel_sandbox_kind`: kernel-set containment cache fields
   projected from accepted `containment_class` `BoundaryObservation` records.
+
+Examples committed by charter v1.4.0 invariant 19 (Phase 2.2.3
+`BoundaryObservation` payload bundle and related Evidence subtype
+envelopes):
+
+- `BoundaryObservation.execution_context_id`: kernel-set FK to the
+  `ExecutionContext` the observation binds to. Producer-supplied values
+  are rejected at the typed-grant minting layer per inv. 19.
+- `BoundaryObservation.surface_id`: kernel-set FK to the surface
+  (e.g., `AgentClient.surface`-resolved record) the observation binds
+  to. Producer-supplied values rejected.
+- `BoundaryObservation.workspace_id`: kernel-set FK to the
+  `WorkspaceContext` the observation binds to. Producer-supplied values
+  rejected.
+- `BoundaryObservation.credential_source_id`: kernel-set FK to the
+  `CredentialSource` the observation binds to. Producer-supplied values
+  rejected.
+- `BoundaryObservation.tool_or_provider_ref`: kernel-set typed reference
+  to the tool or provider the observation binds to. Producer-supplied
+  values rejected.
+
+These five execution-context binding fields are charter-binding under
+invariant 19 and apply to `BoundaryObservation` envelopes plus the
+related Evidence subtype envelopes that inv. 19 covers (any envelope
+whose semantic asserts a boundary, freshness, or context-bound claim).
+At least one binding must be present per inv. 19; the binding fields
+present are kernel-set without exception. Cross-context substitution
+(claiming a forged binding to launder evidence into a different
+execution context) fails at the kernel-set rule before the cross-
+context-evidence-reuse rule (charter v1.3.2 line 140) is consulted.
 
 **`Evidence.producer` is kernel-set when its value names a
 kernel-trusted producer class.** Per the post-merge re-review of
@@ -2773,6 +2803,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.4.6 | 2026-05-07 | Extended §Producer-vs-kernel-set authority fields to enumerate the five charter v1.4.0 invariant 19 execution-context binding FKs (`execution_context_id`, `surface_id`, `workspace_id`, `credential_source_id`, `tool_or_provider_ref`) as kernel-set on `BoundaryObservation` envelopes and related Evidence subtype envelopes. Aligns the registry with inv. 19 charter authority and the Phase 2.2.3 `BoundaryObservation` payload bundle landing. Closes ADR 0039 §Forward-looking observations Ont-N9 per the 2026-05-07 absorption audit. |
 | 0.4.5 | 2026-05-07 | Added §Predicate-kind vocabulary section authoritative for `CoordinationFact.predicate_kind` values, paralleling §Boundary dimension registry per ADR 0019 reservation. Documents twelve currently-landed predicates (six ADR 0019 candidates accepted at enum level; `leased_to` accepted via ADR 0031; `attached_to`, `held_by`, `claimed_to_contain`, `confirmed_to_contain`, `claim_superseded_by_snapshot` reserved). Adds matching §Adding or removing a predicate_kind procedure note. ADR 0019 / ADR 0031 added to §References. Closes the Q-003 / ADR 0019 reservation that named this section as a schema-PR precondition. |
 | 0.4.4 | 2026-05-07 | Recorded `KnowledgeSource.schema_version` `0.2.0` for the ADR 0045 `threat_model` source-kind extension and tightened Q-015 proof-bearing nested evidence-ref registry notes. |
 | 0.4.3 | 2026-05-07 | Added ADR 0045 Q-015 backup-readiness enum mirrors, recorded `threat_model` as a `KnowledgeSource.source_kind`, added the backup readiness/restore drill/credential custody/project backup requirement direct Evidence subtypes, and noted that Q-015 reuses existing `Evidence.subject_kind` values without an Evidence schema-version bump. |

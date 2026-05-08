@@ -2,12 +2,14 @@
 
 Date: 2026-05-07
 
-Status: planning only. This document does not authorize schema source,
-generated JSON Schema, registry entries, canonical policy YAML, validators,
-adapters, dashboard routes, hooks, runner registration, Proxmox changes,
-Hetzner changes, OpenTofu changes, machine-identity issuance, backup
-execution, restore execution, project workload provisioning, broker behavior,
-runtime behavior, provider actions, or operation registration.
+Status: planning only. Proposed ADR 0045 now names a candidate Q-015
+implementation slice for reviewer deliberation. This document does not
+authorize schema source, generated JSON Schema, registry entries, canonical
+policy YAML, validators, adapters, dashboard routes, hooks, runner
+registration, Proxmox changes, Hetzner changes, OpenTofu changes,
+machine-identity issuance, backup execution, restore execution, project
+workload provisioning, broker behavior, runtime behavior, provider actions,
+or operation registration.
 
 ## Authority
 
@@ -21,10 +23,13 @@ Accepted posture:
   `docs/host-capability-substrate/research/local/2026-05-06-q-015-backup-readiness-intake.md`
 - Phase 2.7 deferred-lane sequencing:
   `docs/host-capability-substrate/research/local/2026-05-06-phase-2-7-deferred-lane-sequencing-plan.md`
+- Proposed Q-015 implementation ADR:
+  `docs/host-capability-substrate/adr/0045-q-015-backup-readiness-implementation.md`
 
 ADR 0042 closes Q-015 at posture level only. Q-013 v1 schema/evidence landed
-via ADR 0043, but Q-015 implementation remains a Phase 2.7 / Wave-2 candidate
-behind Q-014 unless a separate ADR 0038 sequencing amendment is accepted.
+via ADR 0043, and Q-014 v1 schema/evidence landed via ADR 0044. Proposed ADR
+0045 now carries the candidate Q-015 implementation scope, but implementation
+remains blocked until that ADR is reviewed and human-accepted.
 
 ## Accepted Shape
 
@@ -73,7 +78,8 @@ Q-015 implementation should not open until all of these are true:
 - Q-013 implementation landed the credential-source and machine-identity
   evidence dependencies needed by backup credential custody via ADR 0043.
 - Q-014 implementation lands the project-substrate contract validation and
-  admission evidence that project backup requirements can cite.
+  admission evidence that project backup requirements can cite. Completed by
+  ADR 0044's v1 schema/evidence slice.
 - Backup/readiness remains an independent evidence need after Q-014
   implementation review.
 - A follow-on implementation ADR is accepted for Q-015 schema scope, including
@@ -187,13 +193,14 @@ Stop and return to human review if a task tries to:
 
 ## Next Safe Action
 
-Leave implementation blocked. Keep Q-015 in the Phase 2.7 / Wave-2 queue and
-revisit only after Q-014 implementation dependencies exist, or after a
-sequencing amendment explicitly changes that order.
+Dispatch `hcs-architect`, `hcs-ontology-reviewer`, `hcs-policy-reviewer`, and
+`hcs-security-reviewer` against proposed ADR 0045. Leave implementation
+blocked until ADR 0045 is reviewed and human-accepted.
 
 ## Change Log
 
 | Version | Date | Change |
 |---|---:|---|
+| 0.3.0 | 2026-05-07 | Added proposed ADR 0045 as the Q-015 implementation ADR draft and recorded that Q-013/Q-014 dependencies exist while Q-015 implementation remains blocked pending reviewer pass and human acceptance. |
 | 0.2.0 | 2026-05-07 | Updated after ADR 0043 schema/evidence landing; Q-015 remains blocked behind Q-014 implementation evidence. |
 | 0.1.0 | 2026-05-07 | Initial docs-only implementation-lane plan following ADR 0042 acceptance. |

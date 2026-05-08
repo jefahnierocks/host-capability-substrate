@@ -5,7 +5,7 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Upstream research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — Q-014 schema/evidence slice landed; Phase 2.7 follow-ons queued
+## Current Focus — Q-015 implementation ADR proposed; schema still blocked
 
 As of 2026-05-04, the **Phase 1 synthesis-window is closed**. All nine
 pending Q-rows in `DECISIONS.md` (Q-003, Q-005, Q-006, Q-007, Q-008,
@@ -118,7 +118,12 @@ Q-014, or under a separately accepted ADR 0038 sequencing amendment. Q-010
 (remote-agent receipts; Phase 2.3.4) has since landed in the accepted
 Phase 2.1–2.6 train. ADR 0042 accepts posture only; Q-015 implementation
 remains blocked behind a separate accepted implementation ADR and reviewer
-dispatch.
+dispatch. Proposed ADR 0045 now records the candidate Q-015 implementation
+slice for reviewer deliberation: `BackupReadinessObservation`,
+`RestoreDrillReceipt`, `BackupCredentialCustodyObservation`,
+`ProjectSubstrateBackupRequirementObservation`, and generic
+`KnowledgeSource.source_kind: "threat_model"`. No Q-015 schema or runtime
+work is authorized until ADR 0045 is accepted.
 
 **Phase 2 sequencing meta-ADR (accepted 2026-05-04):** ADR 0038
 (`docs/host-capability-substrate/adr/0038-phase-2-schema-landing-sequence.md`)
@@ -222,7 +227,9 @@ lane plan:
 `docs/host-capability-substrate/research/local/2026-05-06-q-014-implementation-lane-plan.md`);
 Q-015 backup-readiness implementation ADR (after Q-013 and Q-014
 implementation evidence and only if backup/readiness remains an independent
-evidence need; lane plan:
+evidence need; proposed ADR:
+`docs/host-capability-substrate/adr/0045-q-015-backup-readiness-implementation.md`;
+lane plan:
 `docs/host-capability-substrate/research/local/2026-05-07-q-015-implementation-lane-plan.md`);
 joint sequencing:
 `docs/host-capability-substrate/research/local/2026-05-06-phase-2-7-deferred-lane-sequencing-plan.md`.

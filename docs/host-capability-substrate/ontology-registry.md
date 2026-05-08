@@ -3,9 +3,9 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.4.2
+version: 0.4.3
 last_updated: 2026-05-07
-tags: [ontology, registry, registry-consolidation, phase-2-4, phase-2-7, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, remote-agent, credential-plane, machine-identity, project-substrate, teardown, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
+tags: [ontology, registry, registry-consolidation, phase-2-4, phase-2-7, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, remote-agent, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
 priority: high
 ---
 
@@ -637,6 +637,10 @@ work can cite one stable registry index.
 | `ProjectSubstrateAdmissionObservation` | 2.7 | ADR 0044 | `observation` | `workspace` + `knowledge_source` | `project_substrate_admission_observation:v1` |
 | `ProjectTeardownPlanReceipt` | 2.7 | ADR 0044 | `receipt` | `workspace` + optional `knowledge_source` | `project_teardown_plan_receipt:v1` |
 | `ProjectTeardownCompletionReceipt` | 2.7 | ADR 0044 | `receipt` | `workspace` | `project_teardown_completion_receipt:v1` |
+| `BackupReadinessObservation` | 2.7 | ADR 0045 | `observation` | `workspace` / `provider_object` / `external_control_plane` | `backup_readiness_observation:v1` |
+| `RestoreDrillReceipt` | 2.7 | ADR 0045 | `receipt` | `workspace` / `provider_object` / `external_control_plane` | `restore_drill_receipt:v1` |
+| `BackupCredentialCustodyObservation` | 2.7 | ADR 0045 | `observation` | `credential_source` + optional surface subjects | `backup_credential_custody_observation:v1` |
+| `ProjectSubstrateBackupRequirementObservation` | 2.7 | ADR 0045 | `observation` | `workspace` + `knowledge_source` | `project_substrate_backup_requirement_observation:v1` |
 
 ### Typed `BoundaryObservation` branches landed through Phase 2.7
 
@@ -654,7 +658,7 @@ work can cite one stable registry index.
 
 | Schema family | Current version | Last Phase 2 change | Notes |
 |---|---:|---|---|
-| `Evidence` | `0.9.0` | Phase 2.7 Q-013 machine-identity subject-kind extension | Direct Evidence subtype payloads use the base envelope and their own `payload_schema_version` values. |
+| `Evidence` | `0.9.0` | Phase 2.7 Q-013 machine-identity subject-kind extension | Direct Evidence subtype payloads use the base envelope and their own `payload_schema_version` values. ADR 0045 Q-015 reuses existing subject kinds and does not bump this version. |
 | `BoundaryObservation` | `0.5.0` | Phase 2.7 Q-014 `project_admission_authority` branch | `evidence_schema_version` is an independent envelope field that cites the base `Evidence` contract; current fixtures use the base `Evidence` version without requiring future lockstep bumps. |
 | `ExecutionContext` | `0.2.0` | Phase 2.2.1 containment-cache refactor | Cache is kernel-set and points to typed containment evidence. |
 | `OperationShape` | `0.2.0` | Phase 2.2.2 deletion-authority extension | No mutation/execute behavior is authorized by this registry record. |
@@ -1007,6 +1011,7 @@ Source: ADR 0019, ADR 0031, ADR 0036, and ADR 0038 Phase 2.1.3.
 - `audit_profile_yaml`
 - `cycle_history`
 - `project_substrate_contract`
+- `threat_model`
 
 `KnowledgeSource.security_label`:
 
@@ -1107,6 +1112,10 @@ Mirror notes:
 - `project_substrate_contract` is a Layer 2 `KnowledgeSource` kind for Q-014
   contract intake. Contract chunks are retrieval/display records; gateable
   claims come from typed evidence records that cite the source hash.
+- `threat_model` is a Layer 2 `KnowledgeSource` kind for Q-015 backup
+  readiness. Project-specific accepted-risk content remains in owning repos or
+  private sources; HCS public schemas cite the source and do not inline risk
+  lists.
 - `secret_pointer` is distinct from `secret_referenced`: pointer-form
   references may remain indexable, while resolved secret material is forbidden
   and `secret_referenced` chunks cannot carry `embedding_ref`.
@@ -1963,6 +1972,152 @@ Mirror notes:
   Sandbox observations cannot satisfy admission readiness, deletion authority,
   teardown completion, or gate authority.
 
+### ADR 0045 Q-015 backup-readiness evidence enum mirrors
+
+Source: ADR 0045.
+
+`KnowledgeSource.source_kind` Phase 2.7 extension:
+
+- `threat_model`
+
+`BackupReadinessObservation.payload.storage_class_kind` and
+`ProjectSubstrateBackupRequirementObservation.payload.required_storage_class_kind`:
+
+- `object_store`
+- `nfs_backup_target`
+- `vps_native_snapshot`
+- `backup_repository`
+- `filesystem_snapshot`
+- `unknown`
+
+`BackupReadinessObservation.payload.readiness_state_kind` and
+`ProjectSubstrateBackupRequirementObservation.payload.required_readiness_state_kind`:
+
+- `pending`
+- `configured`
+- `usable`
+- `ready`
+- `expired`
+- `unknown`
+
+`BackupReadinessObservation.payload.tombstone_state_kind`:
+
+- `not_tombstoned`
+- `tombstoned`
+- `unknown`
+
+`RestoreDrillReceipt.payload.drill_result_kind`:
+
+- `succeeded`
+- `failed`
+- `partial`
+- `unknown`
+
+`RestoreDrillReceipt.payload.boot_verification_kind` and
+`RestoreDrillReceipt.payload.service_verification_kind`:
+
+- `verified`
+- `failed`
+- `not_observed`
+- `unknown`
+
+`RestoreDrillReceipt.payload.cleanup_disposition_kind`:
+
+- `cleanup_completed`
+- `cleanup_pending`
+- `retained_for_review`
+- `unknown`
+
+`BackupCredentialCustodyObservation.payload.custody_posture_kind`:
+
+- `reference_only`
+- `brokered_runtime_read`
+- `break_glass_only`
+- `not_observed`
+- `unknown`
+
+`BackupCredentialCustodyObservation.payload.expiry_posture_kind`:
+
+- `expires`
+- `non_expiring`
+- `unknown`
+
+`BackupCredentialCustodyObservation.payload.rotation_posture_kind`:
+
+- `rotating`
+- `manual`
+- `not_observed`
+- `unknown`
+
+`BackupCredentialCustodyObservation.payload.auditability_kind`:
+
+- `audit_log_available`
+- `audit_log_partial`
+- `not_observed`
+- `unknown`
+
+`ProjectSubstrateBackupRequirementObservation.payload.persistent_data_kind`:
+
+- `persistent_data_present`
+- `no_persistent_data`
+- `disposable_rebuildable`
+- `unknown`
+
+`ProjectSubstrateBackupRequirementObservation.payload.data_minimization_posture_kind`:
+
+- `minimal`
+- `bounded`
+- `not_observed`
+- `unknown`
+
+`ProjectSubstrateBackupRequirementObservation.payload.retention_expectation_kind`:
+
+- `retain`
+- `delete_after_expiry`
+- `tombstone`
+- `mixed`
+- `unknown`
+
+`ProjectSubstrateBackupRequirementObservation.payload.teardown_expectation_kind`:
+
+- `teardown_required`
+- `not_required`
+- `unknown`
+
+`RestoreDrillReceipt.payload.*_ref.target_kind` and
+`BackupCredentialCustodyObservation.payload.backup_surface_ref.target_kind`:
+
+- `workspace`
+- `provider_object`
+- `external_control_plane`
+- `unknown`
+
+Mirror notes:
+
+- Q-015 direct evidence records reuse existing `workspace`,
+  `provider_object`, `external_control_plane`, `credential_source`, and
+  `knowledge_source` subject kinds. This schema slice does not widen base
+  `Evidence.subject_kind` and therefore does not bump
+  `Evidence.schema_version`.
+- `BackupReadinessObservation` is a direct Evidence subtype, not a
+  `BoundaryObservation` branch and not a standalone `StorageClassReadiness`
+  entity.
+- `ready` requires restore-drill evidence and `not_tombstoned`; `configured`,
+  `usable`, `expired`, and `unknown` are not gate authority by themselves.
+- Backup-operation and monitoring evidence refs are references to separately
+  accepted upstream/external evidence if present. ADR 0045 does not accept a
+  Q-015 backup execution receipt or monitoring entity.
+- `RestoreDrillReceipt.restored_environment_ref` is a typed reference only;
+  restored payloads, dumps, environment values, secret material, and raw data
+  samples are not schema fields.
+- `BackupCredentialCustodyObservation.break_glass_recovery_path_source_ref`
+  is a `KnowledgeSource` reference. Recovery procedures, recovery codes,
+  provider item bodies, token fragments, shell history, and resolved secret
+  material are not schema fields.
+- `ProjectSubstrateBackupRequirementObservation` records contract requirement
+  evidence only. It is not project admission, `QualityGate.gate_kind`,
+  `ApprovalGrant.scope`, `allowed_for_gate`, or policy behavior.
+
 ## Boundary dimension registry
 
 Entries are alphabetised by name. Status reflects ontology review on this
@@ -2317,6 +2472,7 @@ Changes to this registry follow the schema-change workflow at
 - ADR 0038: `docs/host-capability-substrate/adr/0038-phase-2-schema-landing-sequence.md`
 - ADR 0043: `docs/host-capability-substrate/adr/0043-q-013-credential-plane-implementation.md`
 - ADR 0044: `docs/host-capability-substrate/adr/0044-q-014-project-substrate-implementation.md`
+- ADR 0045: `docs/host-capability-substrate/adr/0045-q-015-backup-readiness-implementation.md`
 - Q-011: `DECISIONS.md`
 - Ontology overview: `docs/host-capability-substrate/ontology.md`
 - Schema-change skill: `.agents/skills/hcs-schema-change/SKILL.md`
@@ -2325,6 +2481,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.4.3 | 2026-05-07 | Added ADR 0045 Q-015 backup-readiness enum mirrors, recorded `threat_model` as a `KnowledgeSource.source_kind`, added the backup readiness/restore drill/credential custody/project backup requirement direct Evidence subtypes, and noted that Q-015 reuses existing `Evidence.subject_kind` values without an Evidence schema-version bump. |
 | 0.4.2 | 2026-05-07 | Added ADR 0044 Q-014 project-substrate enum mirrors, recorded `project_substrate_contract` as a `KnowledgeSource.source_kind`, promoted `project_admission_authority` as a typed `BoundaryObservation` branch, added the project teardown receipt mirrors, and bumped `BoundaryObservation.schema_version` to `0.5.0`. |
 | 0.4.1 | 2026-05-07 | Added ADR 0043 Q-013 credential-plane enum mirrors for `CredentialAuthorityObservation` and `MachineIdentityBindingObservation`, recorded `machine_identity` as an `Evidence.subject_kind`, and bumped `Evidence.schema_version` to `0.9.0`. |
 | 0.4.0 | 2026-05-07 | Phase 2.4 registry consolidation: added summary tables for Phase 2.1 standalone entities, Phase 2.2 base-shape extensions, Phase 2.3 direct Evidence subtypes, typed `BoundaryObservation` branches, schema-version ledger, and kernel-trusted producer allowlist final state; aligned frontmatter with the Q-010 `0.3.14` registry state; recorded `kernel_agent_client_resolver` in the producer allowlist per ADR 0037. |

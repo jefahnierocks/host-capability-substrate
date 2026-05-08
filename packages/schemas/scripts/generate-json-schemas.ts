@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 import {
   agentClientSchema,
+  backupCredentialCustodyObservationSchema,
+  backupReadinessObservationSchema,
   boundaryObservationSchema,
   cleanRoomSmokeReceiptSchema,
   coordinationFactSchema,
@@ -28,6 +30,7 @@ import {
   operationShapeSchema,
   policyPlanReceiptSchema,
   projectSubstrateAdmissionObservationSchema,
+  projectSubstrateBackupRequirementObservationSchema,
   projectSubstrateContractValidationReceiptSchema,
   projectTeardownCompletionReceiptSchema,
   projectTeardownPlanReceiptSchema,
@@ -39,6 +42,7 @@ import {
   remoteAgentSetupReceiptSchema,
   repositoryIdentityReconciliationObservationSchema,
   resourceBudgetObservationSchema,
+  restoreDrillReceiptSchema,
   rulesetObservationSchema,
   runnerHostObservationSchema,
   runnerIsolationObservationSchema,
@@ -63,6 +67,16 @@ const schemaEntries = [
     file: 'BoundaryObservation.schema.json',
     title: 'BoundaryObservation',
     schema: boundaryObservationSchema,
+  },
+  {
+    file: 'BackupReadinessObservation.schema.json',
+    title: 'BackupReadinessObservation',
+    schema: backupReadinessObservationSchema,
+  },
+  {
+    file: 'BackupCredentialCustodyObservation.schema.json',
+    title: 'BackupCredentialCustodyObservation',
+    schema: backupCredentialCustodyObservationSchema,
   },
   {
     file: 'CredentialSource.schema.json',
@@ -220,6 +234,11 @@ const schemaEntries = [
     schema: projectTeardownCompletionReceiptSchema,
   },
   {
+    file: 'ProjectSubstrateBackupRequirementObservation.schema.json',
+    title: 'ProjectSubstrateBackupRequirementObservation',
+    schema: projectSubstrateBackupRequirementObservationSchema,
+  },
+  {
     file: 'QualityGate.schema.json',
     title: 'QualityGate',
     schema: qualityGateSchema,
@@ -253,6 +272,11 @@ const schemaEntries = [
     file: 'RunnerIsolationObservation.schema.json',
     title: 'RunnerIsolationObservation',
     schema: runnerIsolationObservationSchema,
+  },
+  {
+    file: 'RestoreDrillReceipt.schema.json',
+    title: 'RestoreDrillReceipt',
+    schema: restoreDrillReceiptSchema,
   },
   {
     file: 'StartupPhase.schema.json',

@@ -1,0 +1,705 @@
+{
+  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/ProjectSubstrateBackupRequirementObservation.schema.json",
+  "title": "ProjectSubstrateBackupRequirementObservation",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.9.0",
+      "description": "Evidence schema version after ADR 0043 Q-013 machine-identity subject-kind extension."
+    },
+    "evidence_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+      "description": "RFC 3339 timestamp with an explicit UTC offset."
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+      "description": "RFC 3339 timestamp with an explicit UTC offset."
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "authoritative",
+        "high",
+        "best-effort",
+        "stale",
+        "unknown"
+      ],
+      "description": "Confidence assigned to an observation by the producer."
+    },
+    "parser_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "producer": {
+      "type": "string",
+      "minLength": 1
+    },
+    "host_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "workspace_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "execution_context_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "session_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "authority": {
+      "type": "string",
+      "enum": [
+        "project-local",
+        "workspace-local",
+        "user-global",
+        "system",
+        "derived",
+        "host-observation",
+        "vendor-doc",
+        "installed-runtime",
+        "human-observed"
+      ]
+    },
+    "redaction_mode": {
+      "type": "string",
+      "enum": [
+        "redacted",
+        "classified",
+        "hash_only",
+        "reference_only",
+        "mixed"
+      ],
+      "description": "ADR 0045 backup-readiness records require an explicit non-none redaction mode."
+    },
+    "evidence_kind": {
+      "type": "string",
+      "const": "observation"
+    },
+    "subject_refs": {
+      "minItems": 2,
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "subject_kind": {
+                "type": "string",
+                "const": "workspace"
+              },
+              "subject_id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                "description": "Stable local entity identifier. It is not a secret value."
+              },
+              "relation": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "subject_kind",
+              "subject_id"
+            ],
+            "additionalProperties": false,
+            "description": "Workspace subject reference for ADR 0045 backup-readiness evidence."
+          },
+          {
+            "type": "object",
+            "properties": {
+              "subject_kind": {
+                "type": "string",
+                "const": "knowledge_source"
+              },
+              "subject_id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                "description": "Stable local entity identifier. It is not a secret value."
+              },
+              "relation": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "subject_kind",
+              "subject_id"
+            ],
+            "additionalProperties": false,
+            "description": "KnowledgeSource subject reference for ADR 0045 backup-readiness evidence."
+          }
+        ]
+      }
+    },
+    "payload_schema_version": {
+      "type": "string",
+      "const": "project_substrate_backup_requirement_observation:v1"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "workspace_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "knowledge_source_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "contract_content_hash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "SHA-256 digest with algorithm prefix. It is not reversible secret material."
+        },
+        "persistent_data_kind": {
+          "type": "string",
+          "enum": [
+            "persistent_data_present",
+            "no_persistent_data",
+            "disposable_rebuildable",
+            "unknown"
+          ],
+          "description": "ADR 0045 project backup data persistence posture."
+        },
+        "required_storage_class_kind": {
+          "type": "string",
+          "enum": [
+            "object_store",
+            "nfs_backup_target",
+            "vps_native_snapshot",
+            "backup_repository",
+            "filesystem_snapshot",
+            "unknown"
+          ],
+          "description": "ADR 0045 provider-neutral backup storage class discriminator."
+        },
+        "required_readiness_state_kind": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "configured",
+            "usable",
+            "ready",
+            "expired",
+            "unknown"
+          ],
+          "description": "ADR 0045 backup readiness lifecycle state."
+        },
+        "require_restore_drill_before_active_use": {
+          "type": "boolean"
+        },
+        "rpo_seconds": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "rto_seconds": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "data_minimization_posture_kind": {
+          "type": "string",
+          "enum": [
+            "minimal",
+            "bounded",
+            "not_observed",
+            "unknown"
+          ],
+          "description": "ADR 0045 project backup data-minimization posture."
+        },
+        "retention_expectation_kind": {
+          "type": "string",
+          "enum": [
+            "retain",
+            "delete_after_expiry",
+            "tombstone",
+            "mixed",
+            "unknown"
+          ],
+          "description": "ADR 0045 backup retention expectation."
+        },
+        "teardown_expectation_kind": {
+          "type": "string",
+          "enum": [
+            "teardown_required",
+            "not_required",
+            "unknown"
+          ],
+          "description": "ADR 0045 project backup teardown expectation."
+        },
+        "disposability_declared": {
+          "type": "boolean"
+        },
+        "contract_validation_evidence_ref": {
+          "type": "object",
+          "properties": {
+            "evidence_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Reference to an Evidence record or fixture."
+            },
+            "source": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Human-readable source name or artifact path."
+            },
+            "observed_at": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            "valid_until": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "authority": {
+              "type": "string",
+              "enum": [
+                "project-local",
+                "workspace-local",
+                "user-global",
+                "system",
+                "derived",
+                "sandbox-observation",
+                "host-observation",
+                "vendor-doc",
+                "installed-runtime",
+                "human-observed"
+              ],
+              "description": "Authority plane for a fact or observation."
+            },
+            "parser_version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "confidence": {
+              "type": "string",
+              "enum": [
+                "authoritative",
+                "high",
+                "best-effort",
+                "stale",
+                "unknown"
+              ],
+              "description": "Confidence assigned to an observation by the producer."
+            }
+          },
+          "required": [
+            "evidence_id",
+            "source",
+            "observed_at",
+            "authority",
+            "confidence"
+          ],
+          "additionalProperties": false,
+          "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+        },
+        "admission_evidence_ref": {
+          "type": "object",
+          "properties": {
+            "evidence_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Reference to an Evidence record or fixture."
+            },
+            "source": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Human-readable source name or artifact path."
+            },
+            "observed_at": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
+            },
+            "valid_until": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                  "description": "RFC 3339 timestamp with an explicit UTC offset."
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "authority": {
+              "type": "string",
+              "enum": [
+                "project-local",
+                "workspace-local",
+                "user-global",
+                "system",
+                "derived",
+                "sandbox-observation",
+                "host-observation",
+                "vendor-doc",
+                "installed-runtime",
+                "human-observed"
+              ],
+              "description": "Authority plane for a fact or observation."
+            },
+            "parser_version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "confidence": {
+              "type": "string",
+              "enum": [
+                "authoritative",
+                "high",
+                "best-effort",
+                "stale",
+                "unknown"
+              ],
+              "description": "Confidence assigned to an observation by the producer."
+            }
+          },
+          "required": [
+            "evidence_id",
+            "source",
+            "observed_at",
+            "authority",
+            "confidence"
+          ],
+          "additionalProperties": false,
+          "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+        },
+        "backup_readiness_evidence_refs": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "evidence_id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                "description": "Reference to an Evidence record or fixture."
+              },
+              "source": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Human-readable source name or artifact path."
+              },
+              "observed_at": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "description": "RFC 3339 timestamp with an explicit UTC offset."
+              },
+              "valid_until": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                    "description": "RFC 3339 timestamp with an explicit UTC offset."
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "authority": {
+                "type": "string",
+                "enum": [
+                  "project-local",
+                  "workspace-local",
+                  "user-global",
+                  "system",
+                  "derived",
+                  "sandbox-observation",
+                  "host-observation",
+                  "vendor-doc",
+                  "installed-runtime",
+                  "human-observed"
+                ],
+                "description": "Authority plane for a fact or observation."
+              },
+              "parser_version": {
+                "type": "string",
+                "minLength": 1
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "authoritative",
+                  "high",
+                  "best-effort",
+                  "stale",
+                  "unknown"
+                ],
+                "description": "Confidence assigned to an observation by the producer."
+              }
+            },
+            "required": [
+              "evidence_id",
+              "source",
+              "observed_at",
+              "authority",
+              "confidence"
+            ],
+            "additionalProperties": false,
+            "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+          }
+        },
+        "restore_drill_evidence_refs": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "evidence_id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                "description": "Reference to an Evidence record or fixture."
+              },
+              "source": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Human-readable source name or artifact path."
+              },
+              "observed_at": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "description": "RFC 3339 timestamp with an explicit UTC offset."
+              },
+              "valid_until": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                    "description": "RFC 3339 timestamp with an explicit UTC offset."
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "authority": {
+                "type": "string",
+                "enum": [
+                  "project-local",
+                  "workspace-local",
+                  "user-global",
+                  "system",
+                  "derived",
+                  "sandbox-observation",
+                  "host-observation",
+                  "vendor-doc",
+                  "installed-runtime",
+                  "human-observed"
+                ],
+                "description": "Authority plane for a fact or observation."
+              },
+              "parser_version": {
+                "type": "string",
+                "minLength": 1
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "authoritative",
+                  "high",
+                  "best-effort",
+                  "stale",
+                  "unknown"
+                ],
+                "description": "Confidence assigned to an observation by the producer."
+              }
+            },
+            "required": [
+              "evidence_id",
+              "source",
+              "observed_at",
+              "authority",
+              "confidence"
+            ],
+            "additionalProperties": false,
+            "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+          }
+        },
+        "teardown_evidence_refs": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "evidence_id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                "description": "Reference to an Evidence record or fixture."
+              },
+              "source": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Human-readable source name or artifact path."
+              },
+              "observed_at": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "description": "RFC 3339 timestamp with an explicit UTC offset."
+              },
+              "valid_until": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                    "description": "RFC 3339 timestamp with an explicit UTC offset."
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "authority": {
+                "type": "string",
+                "enum": [
+                  "project-local",
+                  "workspace-local",
+                  "user-global",
+                  "system",
+                  "derived",
+                  "sandbox-observation",
+                  "host-observation",
+                  "vendor-doc",
+                  "installed-runtime",
+                  "human-observed"
+                ],
+                "description": "Authority plane for a fact or observation."
+              },
+              "parser_version": {
+                "type": "string",
+                "minLength": 1
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "authoritative",
+                  "high",
+                  "best-effort",
+                  "stale",
+                  "unknown"
+                ],
+                "description": "Confidence assigned to an observation by the producer."
+              }
+            },
+            "required": [
+              "evidence_id",
+              "source",
+              "observed_at",
+              "authority",
+              "confidence"
+            ],
+            "additionalProperties": false,
+            "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+          }
+        }
+      },
+      "required": [
+        "workspace_id",
+        "knowledge_source_id",
+        "contract_content_hash",
+        "persistent_data_kind",
+        "required_storage_class_kind",
+        "required_readiness_state_kind",
+        "require_restore_drill_before_active_use",
+        "data_minimization_posture_kind",
+        "retention_expectation_kind",
+        "teardown_expectation_kind",
+        "disposability_declared",
+        "contract_validation_evidence_ref",
+        "backup_readiness_evidence_refs",
+        "restore_drill_evidence_refs",
+        "teardown_evidence_refs"
+      ],
+      "additionalProperties": false,
+      "description": "ADR 0045 ProjectSubstrateBackupRequirementObservation typed Evidence payload."
+    }
+  },
+  "required": [
+    "schema_version",
+    "evidence_id",
+    "source",
+    "observed_at",
+    "valid_until",
+    "confidence",
+    "parser_version",
+    "workspace_id",
+    "authority",
+    "redaction_mode",
+    "evidence_kind",
+    "subject_refs",
+    "payload_schema_version",
+    "payload"
+  ],
+  "additionalProperties": false,
+  "description": "ADR 0045 ProjectSubstrateBackupRequirementObservation direct Evidence subtype."
+}

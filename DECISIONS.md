@@ -64,11 +64,14 @@ authorizes only the narrow schema/evidence slice for
 `BackupReadinessObservation`, `RestoreDrillReceipt`,
 `BackupCredentialCustodyObservation`,
 `ProjectSubstrateBackupRequirementObservation`, and generic
-`KnowledgeSource.source_kind: "threat_model"`. It does not authorize
-backup/restore execution, runtime validators, canonical policy YAML, adapters,
-dashboard routes, hooks, runner registration, Proxmox changes, Hetzner
-changes, OpenTofu changes, machine-identity issuance, project workload
-provisioning, provider mutation, gate-kind behavior, `ApprovalGrant.scope`,
+`KnowledgeSource.source_kind: "threat_model"`. That slice landed on
+2026-05-07 as schema source, generated JSON Schema, ontology/registry docs,
+and focused tests. It reuses existing `Evidence.subject_kind` values and does
+not bump `Evidence.schema_version`. It does not authorize backup/restore
+execution, runtime validators, canonical policy YAML, adapters, dashboard
+routes, hooks, runner registration, Proxmox changes, Hetzner changes,
+OpenTofu changes, machine-identity issuance, project workload provisioning,
+provider mutation, gate-kind behavior, `ApprovalGrant.scope`,
 `allowed_for_gate`, or runtime behavior.
 
 ## Accepted

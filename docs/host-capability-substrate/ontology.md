@@ -3,9 +3,9 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.10.0
+version: 1.11.0
 last_updated: 2026-05-07
-tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown]
+tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill]
 priority: high
 ---
 
@@ -31,8 +31,9 @@ Q-005 runner/check evidence cohort and the typed `runner_isolation`
 ADR 0033 Q-006 source-control evidence cohort and the typed
 `branch_protection` `BoundaryObservation` branch. Phase 2.3.4 landed the ADR
 0037 Q-010 remote-agent evidence cohort. Phase 2.7 now opens with ADR 0043's
-Q-013 credential-plane schema/evidence slice and ADR 0044's Q-014
-project-substrate schema/evidence slice.
+Q-013 credential-plane schema/evidence slice, ADR 0044's Q-014
+project-substrate schema/evidence slice, and ADR 0045's Q-015 backup-readiness
+schema/evidence slice.
 
 Canonical research plan sketch: `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md` §2 (Ontology) and §Appendix A.
 
@@ -79,6 +80,10 @@ ProjectSubstrateContractValidationReceipt direct Evidence receipt for project-su
 ProjectSubstrateAdmissionObservation direct Evidence observation for project-substrate admission posture
 ProjectTeardownPlanReceipt direct Evidence receipt for project-scoped teardown planning
 ProjectTeardownCompletionReceipt direct Evidence receipt for project-scoped teardown completion
+BackupReadinessObservation direct Evidence observation for backup storage-class readiness
+RestoreDrillReceipt direct Evidence receipt for restore drill events
+BackupCredentialCustodyObservation direct Evidence observation for backup credential custody
+ProjectSubstrateBackupRequirementObservation direct Evidence observation for project backup requirements
 ProjectAdmissionAuthorityObservation BoundaryObservation subtype for project admission authority posture
 KnowledgeSource      canonical source indexed for retrieval, never gate authority
 KnowledgeChunk       display-only chunk derived from a KnowledgeSource
@@ -198,8 +203,8 @@ Key fields:
 - `uri` is the canonical location string for the source.
 - `content_hash` is a `sha256:` digest of the source content at index time.
 - `source_kind` is one of `charter`, `adr`, `decision_ledger`, `runbook`,
-  `vendor_doc`, `audit_summary`, `schema`, `code`, `audit_profile_yaml`, or
-  `cycle_history`, or `project_substrate_contract`.
+  `vendor_doc`, `audit_summary`, `schema`, `code`, `audit_profile_yaml`,
+  `cycle_history`, `project_substrate_contract`, or `threat_model`.
 - `security_label` is `public`, `internal`, `confidential`,
   `secret_pointer`, or `secret_referenced`. `secret_pointer` covers
   reference-form pointers such as `op://...`; resolved secret material remains
@@ -211,6 +216,11 @@ The Q-014 `project_substrate_contract` source kind composes with ADR 0036's
 Layer 2 source model. Contract chunks remain display-only retrieval artifacts;
 gate-consumed project admission facts come from typed validation receipts and
 observations that cite the source content hash.
+
+The Q-015 `threat_model` source kind is also Layer 2 source material.
+Project-specific accepted-risk content stays in the owning repo or private
+source; HCS public schemas and fixtures cite the source by reference and do
+not inline accepted-risk lists.
 
 ### `KnowledgeChunk`
 
@@ -991,6 +1001,88 @@ Completion evidence cannot promote backup readiness, admission readiness, or
 gate authority by itself. It remains project-scope evidence for later deletion
 authority composition.
 
+## Phase 2.7 Backup-Readiness Evidence
+
+ADR 0045 opens the Q-015 backup-readiness implementation lane as
+schema/evidence work only. The slice models upstream backup and restore
+surfaces as typed, freshness-bound evidence that HCS can compose with
+project-substrate admission. It does not execute backups or restores, mutate
+providers, add runtime validators, define canonical policy YAML, create
+dashboard or adapter behavior, or add `QualityGate.gate_kind:
+backup_readiness`.
+
+All Q-015 records require non-null `valid_until`, explicit non-`none`
+`redaction_mode`, non-sandbox authority, strict payloads, and existing
+subject kinds. This schema slice does not widen base `Evidence.subject_kind`
+and therefore does not bump `Evidence.schema_version`. Source/runbook/threat
+model material is cited through `KnowledgeSource` references; chunks and
+runbooks remain discovery inputs, not gate authority.
+
+### `BackupReadinessObservation`
+
+Source: `packages/schemas/src/entities/backup-readiness-evidence.ts`
+
+Direct `Evidence` observation over one or more existing `workspace`,
+`provider_object`, or `external_control_plane` subject refs. The payload
+records `storage_class_ref`, provider-neutral `storage_class_kind`, lifecycle
+`readiness_state_kind`, `readiness_observed_at`, `tombstone_state_kind`,
+restore-drill evidence refs, separately accepted upstream backup-operation and
+monitoring evidence refs, credential-custody refs, threat-model source refs,
+and project backup requirement evidence refs.
+
+`ready` requires restore-drill evidence and `not_tombstoned`. `configured`,
+`usable`, `expired`, and `unknown` remain distinct evidence states and are not
+gate authority by themselves.
+
+### `RestoreDrillReceipt`
+
+Source: `packages/schemas/src/entities/backup-readiness-evidence.ts`
+
+Direct `Evidence` receipt over a backup/restore surface. The payload records
+`restore_drill_id`, typed source artifact / restore target / restored
+environment refs, `restore_completed_at`, drill result, boot and service
+verification states, optional RTO/RPO measurements, optional runbook source
+ref, cleanup disposition, and evidence refs for the source artifact,
+boot/service verification, and cleanup.
+
+`restored_environment_ref` is a typed reference, never an inline restored
+payload, database dump, environment dump, secret dump, or restored data
+sample. A succeeded drill requires boot and service verification evidence.
+
+### `BackupCredentialCustodyObservation`
+
+Source: `packages/schemas/src/entities/backup-readiness-evidence.ts`
+
+Direct `Evidence` observation over `credential_source` plus optional
+workspace/provider/control-plane subjects. The payload records the
+`credential_source_id`, backup surface ref, optional runtime-read-pattern
+source ref, optional break-glass recovery path source ref, secret-reference
+evidence refs, custody posture, expiry/rotation/auditability posture, and
+credential-authority / machine-identity evidence refs.
+
+Recovery procedures and break-glass paths are `KnowledgeSource` references
+only. The schema does not carry procedure bodies, recovery codes, resolved
+secrets, provider item bodies, shell history, environment dumps, or token
+fragments.
+
+### `ProjectSubstrateBackupRequirementObservation`
+
+Source: `packages/schemas/src/entities/backup-readiness-evidence.ts`
+
+Direct `Evidence` observation over `workspace` and `knowledge_source`. The
+payload records the backup-shaped slice of a project-substrate contract:
+`workspace_id`, `knowledge_source_id`, `contract_content_hash`, persistent
+data posture, required storage class, required readiness state, whether a
+restore drill is required before active use, RPO/RTO expectations, data
+minimization, retention and teardown expectations, disposability declaration,
+contract validation evidence, optional admission evidence, backup readiness
+refs, restore drill refs, and teardown evidence refs.
+
+Disposable/rebuildable project data requires source-declared disposability and
+teardown evidence refs. Future policy decides whether that satisfies any
+waiver or admission condition; this observation is not project admission or
+gate authority by itself.
+
 ## Phase 1 Boundary Observation Envelope
 
 ### `BoundaryObservation`
@@ -1262,6 +1354,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.11.0 | 2026-05-07 | Added ADR 0045 Q-015 backup-readiness Evidence subtype docs, `threat_model` KnowledgeSource source kind docs, and noted that this slice reuses existing Evidence subject kinds without an Evidence schema-version bump. |
 | 1.10.0 | 2026-05-07 | Added ADR 0044 Q-014 project-substrate Evidence subtype docs, `project_substrate_contract` KnowledgeSource source kind docs, `project_admission_authority` BoundaryObservation docs, and noted the BoundaryObservation schema bump to `0.5.0`. |
 | 1.9.0 | 2026-05-07 | Added ADR 0043 Q-013 credential-plane Evidence subtype docs for `CredentialAuthorityObservation` and `MachineIdentityBindingObservation`, and noted the Evidence schema bump to `0.9.0`. |
 | 1.8.0 | 2026-05-07 | Added Phase 2.3.4 Q-010 remote-agent Evidence subtype docs and noted the Evidence schema bump to `0.8.0`. |

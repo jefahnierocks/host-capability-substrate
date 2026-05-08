@@ -2,11 +2,11 @@
 
 Date: 2026-05-07
 
-Status: planning complete. ADR 0045 is accepted and authorizes the narrow
-Q-015 schema/evidence implementation slice named there. This document does
-not authorize canonical policy YAML, validators, adapters, dashboard routes,
-hooks, runner
-registration, Proxmox changes, Hetzner changes, OpenTofu changes,
+Status: schema slice landed. ADR 0045 accepted the narrow Q-015
+schema/evidence implementation slice, and that slice has landed. This
+document does not authorize canonical policy YAML, validators, adapters,
+dashboard routes, hooks, runner registration, Proxmox changes, Hetzner
+changes, OpenTofu changes,
 machine-identity issuance, backup execution, restore execution, project
 workload provisioning, broker behavior, runtime behavior, provider actions,
 or operation registration.
@@ -27,9 +27,9 @@ Accepted posture:
   `docs/host-capability-substrate/adr/0045-q-015-backup-readiness-implementation.md`
 
 ADR 0042 closes Q-015 at posture level only. Q-013 v1 schema/evidence landed
-via ADR 0043, and Q-014 v1 schema/evidence landed via ADR 0044. ADR 0045 now
-accepts the Q-015 schema/evidence scope. Implementation remains limited to
-the Ring 0 schema/evidence slice named in ADR 0045.
+via ADR 0043, and Q-014 v1 schema/evidence landed via ADR 0044. ADR 0045
+accepted the Q-015 schema/evidence scope, which landed as Ring 0 schema
+source, generated JSON Schema, ontology/registry docs, and focused tests.
 
 ## Accepted Shape
 
@@ -88,38 +88,37 @@ Q-015 implementation should not open until all of these are true:
   `hcs-ontology-reviewer`, `hcs-policy-reviewer`, and
   `hcs-security-reviewer`. Completed for ADR 0045.
 
-## Future Work Packages
+## Landed Work Package and Deferred Follow-ups
 
-1. Schema implementation.
-   Implement the exact HCS-side scope accepted by ADR 0045 and explicitly
-   compose with ADRs 0015, 0022, 0034, 0035, 0036, 0038, 0040, 0041, and
-   0042.
+1. Schema implementation. Completed by the ADR 0045 schema/evidence landing:
+   `BackupReadinessObservation`, `RestoreDrillReceipt`,
+   `BackupCredentialCustodyObservation`,
+   `ProjectSubstrateBackupRequirementObservation`, and
+   `KnowledgeSource.source_kind: "threat_model"`.
 
-2. Shape triage.
-   Decide the single ontology home for `StorageClassReadiness`: standalone
-   Ring 0 entity, Evidence subtype, or `BoundaryObservation` payload. Avoid
-   duplicate fact homes.
+2. Shape triage. Completed for v1: no standalone `StorageClassReadiness`
+   entity and no `boundary_dimension: "backup_readiness"` branch. Reopen only
+   if direct evidence observations cannot remain the single fact home.
 
-3. Restore-drill receipt.
-   Define `RestoreDrillReceipt` as event-shaped evidence with source artifact
-   reference, restore target reference, restored environment reference, boot /
-   service verification record, RTO, RPO, runbook revision reference, cleanup
-   disposition record, evidence expiration, provenance, and execution-context
-   binding. `restored_environment_ref` must be a typed provider/object
-   reference, never an inline payload, file dump, or environment dump.
+3. Restore-drill receipt. Completed for v1 as event-shaped evidence with
+   source artifact reference, restore target reference, restored environment
+   reference, boot / service verification record, RTO, RPO, runbook revision
+   reference, cleanup disposition record, evidence expiration, provenance, and
+   execution-context binding. `restored_environment_ref` must be a typed
+   provider/object reference, never an inline payload, file dump, or
+   environment dump.
 
-4. Backup readiness observation.
-   Define how a readiness observation summarizes lifecycle state without
-   making lifecycle status gate authority by itself. Evidence refs must include
-   freshness-bound restore-drill receipts for `ready`.
+4. Backup readiness observation. Completed for v1 as a lifecycle observation
+   that does not make lifecycle status gate authority by itself. Evidence refs
+   must include freshness-bound restore-drill receipts for `ready`.
 
-5. Backup credential custody.
-   Compose with ADR 0040 `CredentialSource` and broker posture. Secret fields
-   are reference-only. `break_glass_recovery_path` should be a
-   `KnowledgeSource` reference, not an inline procedure body.
+5. Backup credential custody. Completed for v1 as a `CredentialSource`
+   composition record. Secret fields are reference-only. Break-glass recovery
+   path material is a `KnowledgeSource` reference, not an inline procedure
+   body.
 
-6. Project substrate backup requirement.
-   Compose with ADR 0041 contract validation and admission observations.
+6. Project substrate backup requirement. Completed for v1 as a composition
+   record over ADR 0041/0044 contract validation and admission observations.
    Capture whether persistent data exists, required backup class, required
    restore evidence before active use, RPO/RTO expectation, data-minimization
    posture, teardown and retention expectation, evidence refs, and expiration.
@@ -193,14 +192,15 @@ Stop and return to human review if a task tries to:
 
 ## Next Safe Action
 
-Implement the ADR 0045 Ring 0 schema/evidence slice using the schema-change
-workflow. Leave runtime, policy, provider, dashboard, adapter, hook,
-backup/restore execution, monitoring, and gate behavior blocked.
+Future Q-015 work requires a separate accepted ADR or policy lane. Leave
+runtime, policy, provider, dashboard, adapter, hook, backup/restore execution,
+monitoring, and gate behavior blocked.
 
 ## Change Log
 
 | Version | Date | Change |
 |---|---:|---|
+| 0.5.0 | 2026-05-07 | Recorded the ADR 0045 schema/evidence landing and kept all runtime, policy, provider, monitoring, dashboard, adapter, hook, backup/restore execution, and gate behavior out of scope. |
 | 0.4.0 | 2026-05-07 | Recorded ADR 0045 acceptance after reviewer pass and human approval; Q-015 schema/evidence implementation slice is now authorized while runtime/policy/provider/gate work remains blocked. |
 | 0.3.0 | 2026-05-07 | Added proposed ADR 0045 as the Q-015 implementation ADR draft and recorded that Q-013/Q-014 dependencies exist while Q-015 implementation remains blocked pending reviewer pass and human acceptance. |
 | 0.2.0 | 2026-05-07 | Updated after ADR 0043 schema/evidence landing; Q-015 remains blocked behind Q-014 implementation evidence. |

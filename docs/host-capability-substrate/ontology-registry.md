@@ -3,9 +3,9 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.4.1
+version: 0.4.2
 last_updated: 2026-05-07
-tags: [ontology, registry, registry-consolidation, phase-2-4, phase-2-7, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, remote-agent, credential-plane, machine-identity, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
+tags: [ontology, registry, registry-consolidation, phase-2-4, phase-2-7, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, remote-agent, credential-plane, machine-identity, project-substrate, teardown, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
 priority: high
 ---
 
@@ -603,7 +603,7 @@ work can cite one stable registry index.
 |---|---:|---|---|---|---|
 | `ExecutionContext` | 2.2.1 | ADR 0037 | `packages/schemas/src/entities/execution-context.ts` | Added `latest_containment_evidence_ref`; renamed cache to `kernel_sandbox_kind`; schema version `0.2.0`. | Cache fields are kernel-set authority fields. |
 | `OperationShape` | 2.2.2 | ADR 0036 | `packages/schemas/src/entities/operation-shape.ts` | Added `deletion_authority_kind` and `deletion_authority_source_ref`; schema version `0.2.0`. | Deletion-authority enum mirrors recorded; no execute lane behavior authorized. |
-| `BoundaryObservation` | 2.2.3, 2.3.2, 2.3.3 | ADR 0022, ADR 0036, ADR 0037, ADR 0032, ADR 0027 | `packages/schemas/src/entities/boundary-observation.ts` | Typed payload bundle and later branch additions; current schema version `0.4.0`. | Accepted typed branches are summarized below. |
+| `BoundaryObservation` | 2.2.3, 2.3.2, 2.3.3, 2.7 | ADR 0022, ADR 0036, ADR 0037, ADR 0032, ADR 0027, ADR 0044 | `packages/schemas/src/entities/boundary-observation.ts` | Typed payload bundle and later branch additions; current schema version `0.5.0`. | Accepted typed branches are summarized below. |
 
 ### Direct Evidence subtypes landed through Phase 2.7
 
@@ -633,8 +633,12 @@ work can cite one stable registry index.
 | `RemoteAgentNetworkPostureObservation` | 2.3.4 | ADR 0037 | `observation` | `remote_agent_network_posture` | `remote-agent-network-posture-observation:v1` |
 | `CredentialAuthorityObservation` | 2.7 | ADR 0043 | `observation` | `credential_source` | `credential_authority_observation:v1` |
 | `MachineIdentityBindingObservation` | 2.7 | ADR 0043 | `observation` | `machine_identity` | `machine_identity_binding_observation:v1` |
+| `ProjectSubstrateContractValidationReceipt` | 2.7 | ADR 0044 | `receipt` | `workspace` + `knowledge_source` | `project_substrate_contract_validation_receipt:v1` |
+| `ProjectSubstrateAdmissionObservation` | 2.7 | ADR 0044 | `observation` | `workspace` + `knowledge_source` | `project_substrate_admission_observation:v1` |
+| `ProjectTeardownPlanReceipt` | 2.7 | ADR 0044 | `receipt` | `workspace` + optional `knowledge_source` | `project_teardown_plan_receipt:v1` |
+| `ProjectTeardownCompletionReceipt` | 2.7 | ADR 0044 | `receipt` | `workspace` | `project_teardown_completion_receipt:v1` |
 
-### Typed `BoundaryObservation` branches landed through Phase 2.3
+### Typed `BoundaryObservation` branches landed through Phase 2.7
 
 | Boundary dimension | Phase | Source ADR | Primary target | Payload schema | Current status |
 |---|---:|---|---|---|---|
@@ -644,13 +648,14 @@ work can cite one stable registry index.
 | `mcp_canonical_authority` | 2.2.3 | ADR 0036 | `execution_context_id` | `mcpCanonicalAuthorityPayloadSchema` | accepted |
 | `runner_isolation` | 2.3.2 | ADR 0032 | `execution_context_id` | `runnerIsolationPayloadSchema` | accepted |
 | `branch_protection` | 2.3.3 | ADR 0027 | `tool_or_provider_ref` | `branchProtectionPayloadSchema` | accepted |
+| `project_admission_authority` | 2.7 | ADR 0044 | `workspace_id` | `projectAdmissionAuthorityPayloadSchema` | accepted |
 
 ### Current schema-version ledger
 
 | Schema family | Current version | Last Phase 2 change | Notes |
 |---|---:|---|---|
 | `Evidence` | `0.9.0` | Phase 2.7 Q-013 machine-identity subject-kind extension | Direct Evidence subtype payloads use the base envelope and their own `payload_schema_version` values. |
-| `BoundaryObservation` | `0.4.0` | Phase 2.3.3 `branch_protection` branch and invariant-19 envelope tightening | `evidence_schema_version` is an independent envelope field that cites the base `Evidence` contract; current fixtures use the base `Evidence` version without requiring future lockstep bumps. |
+| `BoundaryObservation` | `0.5.0` | Phase 2.7 Q-014 `project_admission_authority` branch | `evidence_schema_version` is an independent envelope field that cites the base `Evidence` contract; current fixtures use the base `Evidence` version without requiring future lockstep bumps. |
 | `ExecutionContext` | `0.2.0` | Phase 2.2.1 containment-cache refactor | Cache is kernel-set and points to typed containment evidence. |
 | `OperationShape` | `0.2.0` | Phase 2.2.2 deletion-authority extension | No mutation/execute behavior is authorized by this registry record. |
 | Standalone Phase 2.1 entities | `0.1.0` | Phase 2.1 entity introductions | Uses common `schemaVersionSchema`; future breaking changes require their own ADR. |
@@ -1001,6 +1006,7 @@ Source: ADR 0019, ADR 0031, ADR 0036, and ADR 0038 Phase 2.1.3.
 - `code`
 - `audit_profile_yaml`
 - `cycle_history`
+- `project_substrate_contract`
 
 `KnowledgeSource.security_label`:
 
@@ -1098,9 +1104,9 @@ Source: ADR 0019, ADR 0031, ADR 0036, and ADR 0038 Phase 2.1.3.
 
 Mirror notes:
 
-- `project_substrate_contract` is not added to `KnowledgeSource.source_kind`
-  in this schema slice. ADR 0041 keeps it as a future Q-014 Phase 2.7
-  implementation-lane candidate.
+- `project_substrate_contract` is a Layer 2 `KnowledgeSource` kind for Q-014
+  contract intake. Contract chunks are retrieval/display records; gateable
+  claims come from typed evidence records that cite the source hash.
 - `secret_pointer` is distinct from `secret_referenced`: pointer-form
   references may remain indexable, while resolved secret material is forbidden
   and `secret_referenced` chunks cannot carry `embedding_ref`.
@@ -1834,6 +1840,129 @@ Mirror notes:
   broker/runtime behavior, provider mutation, and operation registration remain
   outside this schema slice.
 
+### ADR 0044 Q-014 project-substrate evidence enum mirrors
+
+Source: ADR 0044.
+
+`KnowledgeSource.source_kind` Phase 2.7 extension:
+
+- `project_substrate_contract`
+
+`BoundaryObservation.schema_version`:
+
+- `0.5.0`
+
+`BoundaryObservation.boundary_dimension` Phase 2.7 extension:
+
+- `project_admission_authority`
+
+`ProjectSubstrateContractValidationReceipt.payload.validation_outcome_kind`:
+
+- `valid`
+- `invalid`
+- `warning`
+- `unknown`
+
+`ProjectSubstrateContractValidationReceipt.payload.secret_reference_posture_kind`:
+
+- `none_observed`
+- `reference_only`
+- `resolved_secret_detected`
+- `unknown`
+
+`ProjectSubstrateAdmissionObservation.payload.contract_lifecycle_status` and
+`ProjectAdmissionAuthorityObservation.observed_payload.observed_lifecycle_status`:
+
+- `draft`
+- `accepted`
+- `provisionable`
+- `active`
+- `suspended`
+- `retired`
+- `unknown`
+
+`ProjectSubstrateAdmissionObservation.payload.admission_state_kind`:
+
+- `observed_admissible`
+- `observed_not_admissible`
+- `pending`
+- `suspended`
+- `retired`
+- `unknown`
+
+`ProjectAdmissionAuthorityObservation.observed_payload.approval_status_kind`:
+
+- `asserted_approved`
+- `asserted_not_approved`
+- `not_observed`
+- `contradictory`
+- `unknown`
+
+`ProjectTeardownPlanReceipt.payload.teardown_scope_kind`:
+
+- `full_project`
+- `partial_resource`
+- `unknown`
+
+`ProjectTeardownPlanReceipt.payload.retention_expectation_kind`:
+
+- `delete`
+- `retain`
+- `tombstone`
+- `mixed`
+- `unknown`
+
+`ProjectTeardownPlanReceipt.payload.data_minimization_posture_kind`:
+
+- `minimal`
+- `bounded`
+- `not_observed`
+- `unknown`
+
+`ProjectTeardownCompletionReceipt.payload.completion_state_kind`:
+
+- `completed`
+- `partially_completed`
+- `failed`
+- `unknown`
+
+`ProjectTeardownCompletionReceipt.payload.residual_risk_kind`:
+
+- `none`
+- `accepted`
+- `present`
+- `unknown`
+
+`ProjectTeardownCompletionReceipt.payload.tombstone_state_kind`:
+
+- `not_applicable`
+- `tombstone_recorded`
+- `retained_until_expiry`
+- `unknown`
+
+Mirror notes:
+
+- Q-014 direct evidence records reuse `workspace` and `knowledge_source`
+  subject kinds. This schema slice does not widen base `Evidence.subject_kind`
+  and therefore does not bump `Evidence.schema_version`.
+- `project_admission_authority` is a typed `BoundaryObservation` branch with
+  `workspace_id` as the primary target. `knowledge_source_id` and
+  `contract_content_hash` are typed payload fields, not new envelope targets.
+- Contract lifecycle status is producer-asserted evidence input, not
+  `QualityGate.gate_state` or HCS authorization by itself.
+- `guardian_approval`-style source facts are modeled as admission authority
+  evidence and may be cited by future operation-specific `ApprovalGrant`
+  records. They are not `ApprovalGrant` records directly.
+- The Zod schemas enforce structural/reference/hash/provenance/no-secret
+  constraints only. Runtime/live validators, OPA policy, canonical policy
+  YAML, `QualityGate.gate_kind`, `ApprovalGrant.scope`, `allowed_for_gate`,
+  broker/runtime behavior, provider mutation, runner registration, project
+  workload provisioning, and backup readiness remain outside this schema
+  slice.
+- Sandbox-authority contract validation receipts are parser observations only.
+  Sandbox observations cannot satisfy admission readiness, deletion authority,
+  teardown completion, or gate authority.
+
 ## Boundary dimension registry
 
 Entries are alphabetised by name. Status reflects ontology review on this
@@ -2068,6 +2197,24 @@ registry, not the surrounding ADRs.
 - Sample observed payload sketch:
   `{ provider, ruleset_id, covered_paths, uncovered_paths, observed_at }`.
 
+### `project_admission_authority`
+
+- Status: accepted (typed payload landed in Phase 2.7)
+- Description: Reference-only project-substrate admission authority evidence
+  for a workspace and contract content hash, including the source guardian
+  authority reference, authority source reference, asserted approval status,
+  and observed contract lifecycle status.
+- Primary target: `workspace_id`
+- Supplemental targets: `tool_or_provider_ref` only when a future producer
+  needs a provider object reference; `knowledge_source_id` remains inside the
+  typed payload to avoid widening the BoundaryObservation envelope.
+- Overlap notes: distinct from `ApprovalGrant`, which authorizes a specific
+  runtime operation. `project_admission_authority` records project-level
+  authority posture that later gates may cite as one evidence input.
+- Source: ADR 0044, Phase 2.7 schema implementation.
+- Observed payload schema: `ProjectAdmissionAuthorityObservation.observed_payload`
+  (`project_admission_authority:v1`).
+
 ### `runner_isolation`
 
 - Status: accepted
@@ -2168,6 +2315,8 @@ Changes to this registry follow the schema-change workflow at
 - ADR 0036: `docs/host-capability-substrate/adr/0036-q-009-workspace-manifest-projection-and-diagnostic-surface.md`
 - ADR 0037: `docs/host-capability-substrate/adr/0037-q-010-cross-agent-isolation-and-compatibility-taxonomy.md`
 - ADR 0038: `docs/host-capability-substrate/adr/0038-phase-2-schema-landing-sequence.md`
+- ADR 0043: `docs/host-capability-substrate/adr/0043-q-013-credential-plane-implementation.md`
+- ADR 0044: `docs/host-capability-substrate/adr/0044-q-014-project-substrate-implementation.md`
 - Q-011: `DECISIONS.md`
 - Ontology overview: `docs/host-capability-substrate/ontology.md`
 - Schema-change skill: `.agents/skills/hcs-schema-change/SKILL.md`
@@ -2176,6 +2325,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.4.2 | 2026-05-07 | Added ADR 0044 Q-014 project-substrate enum mirrors, recorded `project_substrate_contract` as a `KnowledgeSource.source_kind`, promoted `project_admission_authority` as a typed `BoundaryObservation` branch, added the project teardown receipt mirrors, and bumped `BoundaryObservation.schema_version` to `0.5.0`. |
 | 0.4.1 | 2026-05-07 | Added ADR 0043 Q-013 credential-plane enum mirrors for `CredentialAuthorityObservation` and `MachineIdentityBindingObservation`, recorded `machine_identity` as an `Evidence.subject_kind`, and bumped `Evidence.schema_version` to `0.9.0`. |
 | 0.4.0 | 2026-05-07 | Phase 2.4 registry consolidation: added summary tables for Phase 2.1 standalone entities, Phase 2.2 base-shape extensions, Phase 2.3 direct Evidence subtypes, typed `BoundaryObservation` branches, schema-version ledger, and kernel-trusted producer allowlist final state; aligned frontmatter with the Q-010 `0.3.14` registry state; recorded `kernel_agent_client_resolver` in the producer allowlist per ADR 0037. |
 | 0.3.14 | 2026-05-07 | Added Phase 2.3.4 enum mirrors for ADR 0037 Q-010 remote-agent Evidence subtypes and recorded `Evidence.schema_version` `0.8.0`. |

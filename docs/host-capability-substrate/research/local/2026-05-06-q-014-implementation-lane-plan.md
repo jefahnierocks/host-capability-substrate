@@ -157,16 +157,17 @@ Stop and return to human review if a task tries to:
 
 ## Next Safe Action
 
-Implement the ADR 0044 schema/evidence slice. Keep runtime/live validators,
+ADR 0044's schema/evidence slice has landed. Keep runtime/live validators,
 adapter, dashboard, hook, policy, runner, Proxmox, OpenTofu,
-machine-identity issuance, provider mutation, backup-readiness, gate-kind, and
-runtime work blocked until separate accepted ADRs or policy lanes authorize
-them.
+machine-identity issuance, provider mutation, backup-readiness, gate-kind,
+selected-repository access, workflow-policy checks, and runtime work blocked
+until separate accepted ADRs or policy lanes authorize them.
 
 ## Change Log
 
 | Version | Date | Change |
 |---|---:|---|
+| 0.5.0 | 2026-05-07 | Recorded ADR 0044 schema/evidence landing; all Q-014 runtime, policy, dashboard, adapter, hook, runner, provider, backup-readiness, and gate-kind follow-ons remain blocked. |
 | 0.4.0 | 2026-05-07 | Updated after ADR 0044 acceptance; Q-014 schema/evidence implementation may open for the accepted slice only. |
 | 0.3.0 | 2026-05-07 | Added proposed ADR 0044 as the Q-014 implementation ADR draft; Q-014 schema/runtime work remains blocked until acceptance and reviewer pass. |
 | 0.2.0 | 2026-05-07 | Updated after ADR 0043 schema/evidence landing; Q-014 implementation ADR planning may open while Q-014 schema/runtime work remains blocked. |

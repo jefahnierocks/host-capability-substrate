@@ -5,14 +5,15 @@ import {
   evidenceConfidenceSchema,
   evidenceRefSchema,
   isoDateTimeSchema,
+  sha256DigestSchema,
 } from '../common.ts';
 import { evidenceRedactionModeSchema } from './evidence.ts';
 import { sandboxProfileSchema } from './execution-context.ts';
 
 const boundaryObservationSchemaVersionSchema = z
-  .literal('0.4.0')
+  .literal('0.5.0')
   .describe(
-    'BoundaryObservation schema version after ADR 0027 branch_protection payload branch landed in Phase 2.3.3.',
+    'BoundaryObservation schema version after ADR 0044 project_admission_authority payload branch landed in Phase 2.7.',
   );
 
 const boundaryObservationEvidenceSchemaVersionSchema = z
@@ -37,6 +38,7 @@ export const boundaryDimensionSchema = z
     'mcp_canonical_authority',
     'origin_access_validation',
     'path_coverage',
+    'project_admission_authority',
     'runner_isolation',
     'sandbox',
     'tcc',
@@ -310,12 +312,36 @@ export const branchProtectionPayloadSchema = z
   ])
   .describe('ADR 0027 branch_protection BoundaryObservation payload.');
 
+export const projectAdmissionAuthorityStatusKindSchema = z
+  .enum(['asserted_approved', 'asserted_not_approved', 'not_observed', 'contradictory', 'unknown'])
+  .describe('ADR 0044 project admission authority assertion status.');
+
+export const projectAdmissionAuthorityPayloadSchema = z
+  .object({
+    workspace_id: entityIdSchema,
+    knowledge_source_id: entityIdSchema,
+    contract_content_hash: sha256DigestSchema,
+    guardian_authority_ref: entityIdSchema,
+    authority_source_ref: entityIdSchema,
+    approval_status_kind: projectAdmissionAuthorityStatusKindSchema,
+    observed_lifecycle_status: z
+      .enum(['draft', 'accepted', 'provisionable', 'active', 'suspended', 'retired', 'unknown'])
+      .describe('Producer-asserted lifecycle status observed from the project contract.'),
+    authority_observed_at: isoDateTimeSchema,
+    contract_source_evidence_ref: evidenceRefSchema,
+    authority_record_evidence_refs: z.array(evidenceRefSchema).default([]),
+    redaction_mode: z.literal('reference_only'),
+  })
+  .strict()
+  .describe('ADR 0044 project_admission_authority BoundaryObservation payload.');
+
 const typedBoundaryDimensions = [
   'branch_protection',
   'containment_class',
   'filesystem_inheritance',
   'filesystem_protected_paths',
   'mcp_canonical_authority',
+  'project_admission_authority',
   'runner_isolation',
 ] as const;
 
@@ -399,6 +425,20 @@ const mcpCanonicalAuthorityBoundaryObservationSchema = boundaryObservationBaseSc
   })
   .strict();
 
+export const projectAdmissionAuthorityObservationSchema = boundaryObservationBaseSchema
+  .extend({
+    workspace_id: entityIdSchema,
+    boundary_dimension: z.literal('project_admission_authority'),
+    observed_payload: projectAdmissionAuthorityPayloadSchema,
+    expected_payload: projectAdmissionAuthorityPayloadSchema.optional(),
+  })
+  .strict()
+  .refine((value) => value.workspace_id === value.observed_payload.workspace_id, {
+    message: 'project_admission_authority workspace_id must match observed_payload.',
+    path: ['observed_payload', 'workspace_id'],
+  })
+  .describe('ADR 0044 ProjectAdmissionAuthority BoundaryObservation subtype.');
+
 export const runnerIsolationObservationSchema = boundaryObservationBaseSchema
   .extend({
     execution_context_id: entityIdSchema,
@@ -416,6 +456,7 @@ export const boundaryObservationSchema = z
     filesystemInheritanceBoundaryObservationSchema,
     filesystemProtectedPathsBoundaryObservationSchema,
     mcpCanonicalAuthorityBoundaryObservationSchema,
+    projectAdmissionAuthorityObservationSchema,
     runnerIsolationObservationSchema,
     genericBoundaryObservationSchema,
   ])
@@ -459,3 +500,12 @@ export type BranchProtectionKind = z.infer<typeof branchProtectionKindSchema>;
 export type BranchProtectionRestrictionKind = z.infer<typeof branchProtectionRestrictionKindSchema>;
 export type BranchProtectionPayload = z.infer<typeof branchProtectionPayloadSchema>;
 export type BranchProtectionObservation = z.infer<typeof branchProtectionObservationSchema>;
+export type ProjectAdmissionAuthorityStatusKind = z.infer<
+  typeof projectAdmissionAuthorityStatusKindSchema
+>;
+export type ProjectAdmissionAuthorityPayload = z.infer<
+  typeof projectAdmissionAuthorityPayloadSchema
+>;
+export type ProjectAdmissionAuthorityObservation = z.infer<
+  typeof projectAdmissionAuthorityObservationSchema
+>;

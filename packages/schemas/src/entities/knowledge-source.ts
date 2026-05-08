@@ -20,6 +20,7 @@ export const knowledgeSourceKindSchema = z
     'code',
     'audit_profile_yaml',
     'cycle_history',
+    'project_substrate_contract',
   ])
   .describe('Canonical source kind for ADR 0019 KnowledgeSource records.');
 

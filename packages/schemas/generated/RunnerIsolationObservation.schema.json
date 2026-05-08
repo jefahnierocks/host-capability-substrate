@@ -6,8 +6,8 @@
   "properties": {
     "schema_version": {
       "type": "string",
-      "const": "0.4.0",
-      "description": "BoundaryObservation schema version after ADR 0027 branch_protection payload branch landed in Phase 2.3.3."
+      "const": "0.5.0",
+      "description": "BoundaryObservation schema version after ADR 0044 project_admission_authority payload branch landed in Phase 2.7."
     },
     "evidence_schema_version": {
       "type": "string",

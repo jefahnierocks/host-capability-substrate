@@ -27,6 +27,10 @@ import {
   mcpCredentialAudienceObservationSchema,
   operationShapeSchema,
   policyPlanReceiptSchema,
+  projectSubstrateAdmissionObservationSchema,
+  projectSubstrateContractValidationReceiptSchema,
+  projectTeardownCompletionReceiptSchema,
+  projectTeardownPlanReceiptSchema,
   pullRequestAbsenceReceiptSchema,
   pullRequestReceiptSchema,
   qualityGateSchema,
@@ -194,6 +198,26 @@ const schemaEntries = [
     file: 'PolicyPlanReceipt.schema.json',
     title: 'PolicyPlanReceipt',
     schema: policyPlanReceiptSchema,
+  },
+  {
+    file: 'ProjectSubstrateContractValidationReceipt.schema.json',
+    title: 'ProjectSubstrateContractValidationReceipt',
+    schema: projectSubstrateContractValidationReceiptSchema,
+  },
+  {
+    file: 'ProjectSubstrateAdmissionObservation.schema.json',
+    title: 'ProjectSubstrateAdmissionObservation',
+    schema: projectSubstrateAdmissionObservationSchema,
+  },
+  {
+    file: 'ProjectTeardownPlanReceipt.schema.json',
+    title: 'ProjectTeardownPlanReceipt',
+    schema: projectTeardownPlanReceiptSchema,
+  },
+  {
+    file: 'ProjectTeardownCompletionReceipt.schema.json',
+    title: 'ProjectTeardownCompletionReceipt',
+    schema: projectTeardownCompletionReceiptSchema,
   },
   {
     file: 'QualityGate.schema.json',

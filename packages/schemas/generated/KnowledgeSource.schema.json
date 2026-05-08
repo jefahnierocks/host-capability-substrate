@@ -36,7 +36,8 @@
         "schema",
         "code",
         "audit_profile_yaml",
-        "cycle_history"
+        "cycle_history",
+        "project_substrate_contract"
       ],
       "description": "Canonical source kind for ADR 0019 KnowledgeSource records."
     },

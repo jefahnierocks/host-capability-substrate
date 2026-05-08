@@ -167,7 +167,7 @@ describe('ADR 0032 Q-005 runner/check evidence subtypes', () => {
 
   it('validates RunnerIsolationObservation as a typed BoundaryObservation branch', () => {
     const obs = runnerIsolationObservationSchema.parse({
-      schema_version: '0.4.0',
+      schema_version: '0.5.0',
       evidence_schema_version: '0.9.0',
       ...boundaryEvidenceBase,
       payload_schema_version: 'runner-isolation:v1',
@@ -192,7 +192,7 @@ describe('ADR 0032 Q-005 runner/check evidence subtypes', () => {
   it('rejects ad-hoc runner_isolation payloads', () => {
     expect(
       runnerIsolationObservationSchema.safeParse({
-        schema_version: '0.4.0',
+        schema_version: '0.5.0',
         evidence_schema_version: '0.9.0',
         ...boundaryEvidenceBase,
         boundary_observation_id: 'bo:runner-isolation:bad',
@@ -210,7 +210,7 @@ describe('ADR 0032 Q-005 runner/check evidence subtypes', () => {
   it('rejects ad-hoc runner_isolation payloads through the aggregate BoundaryObservation schema', () => {
     expect(
       boundaryObservationSchema.safeParse({
-        schema_version: '0.4.0',
+        schema_version: '0.5.0',
         evidence_schema_version: '0.9.0',
         ...boundaryEvidenceBase,
         boundary_observation_id: 'bo:runner-isolation:aggregate-bad',

@@ -5,7 +5,7 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Upstream research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — Q-014 implementation ADR accepted; Phase 2.7 schema lane next
+## Current Focus — Q-014 schema/evidence slice landed; Phase 2.7 follow-ons queued
 
 As of 2026-05-04, the **Phase 1 synthesis-window is closed**. All nine
 pending Q-rows in `DECISIONS.md` (Q-003, Q-005, Q-006, Q-007, Q-008,
@@ -63,11 +63,15 @@ plus typed validation receipts; treat contract lifecycle status and
 `ApprovalGrant`; group v1 evidence shape commitments into contract validation,
 admission observation, teardown plan receipts, and teardown completion
 receipts; defer machine-identity validation to Q-013 implementation. ADR 0044,
-accepted 2026-05-07, now authorizes only the first Q-014 schema/evidence
-implementation slice: `project_substrate_contract`,
+accepted 2026-05-07, authorized only the first Q-014 schema/evidence
+implementation slice. That slice landed on 2026-05-07 with
+`project_substrate_contract`,
 `project_admission_authority`, `ProjectSubstrateContractValidationReceipt`,
 `ProjectSubstrateAdmissionObservation`, `ProjectTeardownPlanReceipt`,
-`ProjectTeardownCompletionReceipt`, and required subject/ref vocabulary. No
+`ProjectTeardownCompletionReceipt`, generated JSON Schema, ontology/registry
+mirrors, and required subject/ref vocabulary. It bumps
+`BoundaryObservation.schema_version` to `0.5.0` but does not widen
+`Evidence.subject_kind`. No
 canonical policy YAML, runtime/live validator, runner, Proxmox, OpenTofu,
 machine-identity issuance, adapter, dashboard, hook, project
 workload/provisioning, provider mutation, operation registration, backup
@@ -211,8 +215,8 @@ implementation (first Phase 2.7 dependency; accepted ADR:
 `docs/host-capability-substrate/adr/0043-q-013-credential-plane-implementation.md`;
 lane plan:
 `docs/host-capability-substrate/research/local/2026-05-06-q-013-implementation-lane-plan.md`);
-Q-014 project-substrate contract validation and admission-receipt composition
-after Q-013 implementation evidence (accepted ADR:
+Q-014 project-substrate contract validation and admission-receipt schema slice
+landed via accepted ADR:
 `docs/host-capability-substrate/adr/0044-q-014-project-substrate-implementation.md`;
 lane plan:
 `docs/host-capability-substrate/research/local/2026-05-06-q-014-implementation-lane-plan.md`);

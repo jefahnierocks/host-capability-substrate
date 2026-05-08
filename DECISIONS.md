@@ -48,7 +48,9 @@ schema/evidence slice for `project_substrate_contract`,
 `project_admission_authority`, `ProjectSubstrateContractValidationReceipt`,
 `ProjectSubstrateAdmissionObservation`, `ProjectTeardownPlanReceipt`,
 `ProjectTeardownCompletionReceipt`, and required subject/ref vocabulary. It
-does not authorize canonical policy YAML, runtime/live validators, adapters,
+landed on 2026-05-07 as schema source, generated JSON Schema,
+ontology/registry docs, and focused tests. It does not authorize canonical
+policy YAML, runtime/live validators, adapters,
 dashboard routes, hooks, runner registration, GitHub runner-group mutation,
 Proxmox changes, OpenTofu changes, machine-identity issuance, provider
 mutation, operation registration, project workload provisioning, backup

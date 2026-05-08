@@ -128,7 +128,7 @@ describe('ADR 0027/0030/0033 Q-006 source-control evidence subtypes', () => {
 
   it('validates BranchProtectionObservation as a typed BoundaryObservation branch', () => {
     const obs = branchProtectionObservationSchema.parse({
-      schema_version: '0.4.0',
+      schema_version: '0.5.0',
       evidence_schema_version: '0.9.0',
       source: 'source-control-boundary-fixture',
       observed_at: observedAt,

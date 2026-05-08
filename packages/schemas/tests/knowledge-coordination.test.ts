@@ -48,6 +48,23 @@ describe('Knowledge and coordination schemas', () => {
 
     expect(source.source_kind).toBe('audit_profile_yaml');
     expect(source.security_label).toBe('secret_pointer');
+
+    const projectContractSource = knowledgeSourceSchema.parse({
+      ...source,
+      knowledge_source_id: 'knowledge-source:project-substrate-contract:hcs',
+      uri: 'repo://project-substrate-contract.yaml',
+      source_kind: 'project_substrate_contract',
+      security_label: 'internal',
+      target_refs: [
+        {
+          target_kind: 'workspace_context',
+          target_id: 'workspace-context:host-capability-substrate',
+          relation: 'declares_project_substrate_contract',
+        },
+      ],
+    });
+
+    expect(projectContractSource.source_kind).toBe('project_substrate_contract');
   });
 
   it('keeps secret_referenced KnowledgeChunk records out of embedding storage', () => {

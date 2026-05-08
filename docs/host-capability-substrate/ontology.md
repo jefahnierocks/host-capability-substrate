@@ -3,9 +3,9 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.9.0
+version: 1.10.0
 last_updated: 2026-05-07
-tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity]
+tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown]
 priority: high
 ---
 
@@ -31,7 +31,8 @@ Q-005 runner/check evidence cohort and the typed `runner_isolation`
 ADR 0033 Q-006 source-control evidence cohort and the typed
 `branch_protection` `BoundaryObservation` branch. Phase 2.3.4 landed the ADR
 0037 Q-010 remote-agent evidence cohort. Phase 2.7 now opens with ADR 0043's
-Q-013 credential-plane schema/evidence slice.
+Q-013 credential-plane schema/evidence slice and ADR 0044's Q-014
+project-substrate schema/evidence slice.
 
 Canonical research plan sketch: `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md` §2 (Ontology) and §Appendix A.
 
@@ -74,6 +75,11 @@ ResourceBudgetObservation direct Evidence observation feeding ResourceBudget
 PolicyPlanReceipt    direct Evidence receipt for redacted OpenTofu/conftest plans
 CredentialAuthorityObservation direct Evidence observation for credential-source authority posture
 MachineIdentityBindingObservation direct Evidence observation for machine identity binding posture
+ProjectSubstrateContractValidationReceipt direct Evidence receipt for project-substrate contract structure
+ProjectSubstrateAdmissionObservation direct Evidence observation for project-substrate admission posture
+ProjectTeardownPlanReceipt direct Evidence receipt for project-scoped teardown planning
+ProjectTeardownCompletionReceipt direct Evidence receipt for project-scoped teardown completion
+ProjectAdmissionAuthorityObservation BoundaryObservation subtype for project admission authority posture
 KnowledgeSource      canonical source indexed for retrieval, never gate authority
 KnowledgeChunk       display-only chunk derived from a KnowledgeSource
 CoordinationFact     promoted gateable assertion about cross-session state
@@ -193,7 +199,7 @@ Key fields:
 - `content_hash` is a `sha256:` digest of the source content at index time.
 - `source_kind` is one of `charter`, `adr`, `decision_ledger`, `runbook`,
   `vendor_doc`, `audit_summary`, `schema`, `code`, `audit_profile_yaml`, or
-  `cycle_history`.
+  `cycle_history`, or `project_substrate_contract`.
 - `security_label` is `public`, `internal`, `confidential`,
   `secret_pointer`, or `secret_referenced`. `secret_pointer` covers
   reference-form pointers such as `op://...`; resolved secret material remains
@@ -201,9 +207,10 @@ Key fields:
 - `indexable`, `indexed_at`, `execution_context_id`, `target_refs`, and
   `evidence_refs` bind the source to index state, context, and provenance.
 
-The Q-014 `project_substrate_contract` source kind is intentionally not present
-in this Phase 2.1.3 schema slice; ADR 0041 keeps that as a future Phase 2.7
-implementation-lane candidate.
+The Q-014 `project_substrate_contract` source kind composes with ADR 0036's
+Layer 2 source model. Contract chunks remain display-only retrieval artifacts;
+gate-consumed project admission facts come from typed validation receipts and
+observations that cite the source content hash.
 
 ### `KnowledgeChunk`
 
@@ -547,6 +554,11 @@ Phase 2.7 widens `Evidence.subject_kind` with Q-013 `machine_identity` for
 `MachineIdentityBindingObservation`; `CredentialAuthorityObservation` reuses
 the existing `credential_source` subject kind. This bumps the Evidence schema
 to `0.9.0`.
+
+ADR 0044 Q-014 project-substrate records reuse existing `workspace` and
+`knowledge_source` subject kinds, so they do not bump the base `Evidence`
+schema. Their record-specific schemas carry typed `payload_schema_version`
+values and Zod target-binding refinements.
 
 The legacy `evidenceRefSchema` remains as a lightweight reference or embedded
 provenance preview for entities that have not yet been migrated to full
@@ -912,6 +924,73 @@ service-account secret, provider item body, recovery code, raw assertion, JWT
 body, or human SSH-agent state. HCS does not mint, rotate, retire, register, or
 mutate machine identities through this evidence record.
 
+## Phase 2.7 Project-Substrate Evidence
+
+ADR 0044 opens the Q-014 project-substrate implementation lane as
+schema/evidence work only. The slice models project-substrate contract
+admission as external compatibility evidence that HCS can validate and compose.
+It does not create a parallel CI control plane, approve contract lifecycle
+state as gate authority, mint project identities, register runners, mutate
+GitHub runner groups or repository access, run backup/restore workflows, or
+provision project workloads.
+
+All Q-014 records require non-null `valid_until`, explicit non-`none`
+`redaction_mode`, workspace binding, and strict payloads. The contract itself
+is represented as `KnowledgeSource.source_kind: project_substrate_contract`;
+the typed evidence records cite the source hash and validation/admission
+evidence chain. Contract lifecycle values such as `active` are producer
+assertions inside evidence payloads, not `QualityGate.gate_state` values.
+
+### `ProjectSubstrateContractValidationReceipt`
+
+Source: `packages/schemas/src/entities/project-substrate-evidence.ts`
+
+Direct `Evidence` receipt over the existing `workspace` and
+`knowledge_source` subject kinds. The payload records `workspace_id`,
+`knowledge_source_id`, `contract_content_hash`, `validation_run_id`,
+`standard_ref`, `standard_version`, `validation_outcome_kind`,
+`checked_field_paths`, `secret_reference_posture_kind`, optional
+`contract_source_evidence_ref`, and `structural_evidence_refs`.
+
+This receipt is structural/reference/hash validation. Sandbox authority is
+allowed only for parser-level contract observations with the base Evidence
+trace fields; it is not sufficient admission readiness or gate authority.
+
+### `ProjectSubstrateAdmissionObservation`
+
+Direct `Evidence` observation over `workspace` and `knowledge_source`. The
+payload records the observed contract lifecycle state, the computed admission
+state, validation receipt reference, project-admission-authority boundary
+reference, credential and machine-identity evidence refs, boundary/runner/check
+evidence refs, resource-budget/policy-plan evidence refs, and the
+`no_secret_material_observed` structural assertion.
+
+This observation does not add `QualityGate.gate_kind`,
+`QualityGate.gate_state`, `ApprovalGrant.scope`, or `allowed_for_gate`.
+Admission consumption remains future Ring 1 / policy work.
+
+### `ProjectTeardownPlanReceipt`
+
+Direct `Evidence` receipt over `workspace` and optional `knowledge_source`.
+The payload records `teardown_plan_id`, teardown scope, target refs, retention
+expectation, data-minimization posture, plan timestamp, required
+`deletion_authority_evidence_refs`, optional contract/admission evidence refs,
+and approval evidence refs.
+
+`gitignore` is not deletion authority. The receipt records plan evidence only;
+it does not execute teardown or mutate provider state.
+
+### `ProjectTeardownCompletionReceipt`
+
+Direct `Evidence` receipt over `workspace`. The payload records
+`teardown_plan_id`, completion timestamp, completion state, completion evidence
+refs, required deletion-authority evidence refs, removed and retained target
+refs, residual-risk posture, and tombstone/retention state.
+
+Completion evidence cannot promote backup readiness, admission readiness, or
+gate authority by itself. It remains project-scope evidence for later deletion
+authority composition.
+
 ## Phase 1 Boundary Observation Envelope
 
 ### `BoundaryObservation`
@@ -994,6 +1073,13 @@ Phase 2.3.3 adds the ADR 0027 `branch_protection` typed payload branch and
 bumps `BoundaryObservation.schema_version` to `0.4.0`. The branch requires
 `tool_or_provider_ref` and records branch/ruleset protection posture for a
 repository/ref target.
+
+Phase 2.7 adds the ADR 0044 `project_admission_authority` typed payload branch
+and bumps `BoundaryObservation.schema_version` to `0.5.0`. The branch requires
+`workspace_id` and records reference-only guardian/project-admission authority
+posture for a project-substrate contract content hash. `knowledge_source_id`
+and `contract_content_hash` live in the typed payload, not as new envelope
+target fields.
 
 `BoundaryObservation` does not introduce a new policy tier, dashboard route,
 runtime probe, or mutation operation. Remaining generic domain payload schemas,
@@ -1176,6 +1262,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.10.0 | 2026-05-07 | Added ADR 0044 Q-014 project-substrate Evidence subtype docs, `project_substrate_contract` KnowledgeSource source kind docs, `project_admission_authority` BoundaryObservation docs, and noted the BoundaryObservation schema bump to `0.5.0`. |
 | 1.9.0 | 2026-05-07 | Added ADR 0043 Q-013 credential-plane Evidence subtype docs for `CredentialAuthorityObservation` and `MachineIdentityBindingObservation`, and noted the Evidence schema bump to `0.9.0`. |
 | 1.8.0 | 2026-05-07 | Added Phase 2.3.4 Q-010 remote-agent Evidence subtype docs and noted the Evidence schema bump to `0.8.0`. |
 | 1.7.0 | 2026-05-06 | Added Phase 2.3.3 Q-006 source-control evidence subtype docs, documented `branch_protection`, `GitHubMutationAuthority`, noted the Evidence schema bump to `0.7.0` plus BoundaryObservation schema bump to `0.4.0`, and documented BoundaryObservation envelope-level provenance plus non-null freshness. |

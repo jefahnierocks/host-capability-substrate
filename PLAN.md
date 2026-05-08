@@ -7,6 +7,33 @@ Upstream research plan (canonical): `~/Organizations/jefahnierocks/system-config
 
 ## Current Focus — Q-015 schema slice landed; runtime/policy lanes blocked
 
+**2026-05-08 audit closures (eight commits 2026-05-07 → 2026-05-08):**
+D-033 shared-state naming discipline landed in `DECISIONS.md` §Accepted
+plus a matching `AGENTS.md` §Hard boundaries bullet, closing the
+Q-003 / ADR 0019 v3 acceptance-text reservation. §Predicate-kind
+vocabulary registry section landed in `ontology-registry.md` v0.4.5,
+paralleling §Boundary dimension registry per ADR 0019's reserved name,
+closing the schema-PR precondition. Phase 2.6 trap-scaffold
+completeness audit landed at
+`docs/host-capability-substrate/research/local/2026-05-07-trap-scaffold-audit.md`,
+classifying the 22 unscaffolded seeds (2 Ready, 5 Blocked on
+ScopeCam transcript, 15 No-citation); the two Ready items #17
+(`harness-config-boolean-type`) and #44 (`inline-pr-body-shell-expansion`)
+were promoted to scaffolds in separate commits per the trap skill.
+ADR 0039 forward-looking observations absorption audit landed at
+`docs/host-capability-substrate/research/local/2026-05-07-adr-0039-forward-looking-obs-audit.md`,
+classifying the 13 deferred observations (2 Owed, 1 Effectively handled,
+1 Active sequencing dependency, 5 Deferred, 2 Closed at acceptance);
+the two Owed items closed in separate commits — ADR 0019 v3.1
+editorial alignment of `DerivedSummary.derived_from` to four-class
+membership, and `ontology-registry.md` v0.4.6 §Producer-vs-kernel-set
+extension enumerating the five inv. 19 execution-context binding FKs.
+The single actionable open lane that remains from those audits is
+ADR 0039 #5 — the `evidenceAuthoritySchema` enum extension PR for
+the `self-asserted` authority class, which is a schema-change PR
+(not docs) and requires `hcs-ontology-reviewer` objections per
+`IMPLEMENT.md`.
+
 As of 2026-05-04, the **Phase 1 synthesis-window is closed**. All nine
 pending Q-rows in `DECISIONS.md` (Q-003, Q-005, Q-006, Q-007, Q-008,
 Q-009, Q-010, Q-011, Q-012) are accepted via ADRs 0019, 0021, 0029-0037
@@ -17,16 +44,27 @@ completed in earlier waves; their content remains below as audit trail.
 Phase 2 begins schema + registry + canonical-policy-YAML sequencing
 from the §Out of scope sections of the ten settled ADRs.
 
-**Phase 2.6 regression-trap scaffold expansion (2026-05-07):** The eval
-corpus deconflicts the provisional ADR 0036 / ADR 0037 trap numbers without
-renumbering existing shell/environment or coordination seeds. Coordination
-seeds #31-#35 now have scaffold files. ADR 0036 Q-009 traps land as #46-#48;
-ADR 0037 Q-010 traps land as #49-#51; ADR 0037 security-review candidates land
+**Phase 2.6 regression-trap scaffold expansion (2026-05-07; #17 / #44
+promotion 2026-05-07):** The eval corpus deconflicts the provisional
+ADR 0036 / ADR 0037 trap numbers without renumbering existing
+shell/environment or coordination seeds. Coordination seeds #31-#35
+now have scaffold files. ADR 0036 Q-009 traps land as #46-#48; ADR 0037
+Q-010 traps land as #49-#51; ADR 0037 security-review candidates land
 as #52-#56; the Phase 2.4 registry-summary union-narrowing incident lands as
 #57; the ADR 0045 Q-015 generic restore-ref promotion reviewer incident lands
-as #58. This packet is eval/docs only: it adds trajectory-scored trap
-definitions and seed-index bookkeeping, not executable harness fixtures,
-schema behavior, policy YAML, runtime probes, adapters, hooks, dashboard
+as #58. The 2026-05-07 trap-scaffold audit promoted two previously-
+unscaffolded Ready seeds: #17 (`harness-config-boolean-type`) cites
+the 2026-04-23 Claude Code 2.1.119 startup-block incident with
+charter v1.2.0 inv. 14 / D-026 authority, and #44
+(`inline-pr-body-shell-expansion`) cites the 2026-04-30 Codex/ScopeCam
+exchange with Q-008(e) settlement and the matching `AGENTS.md` rule
+as eligibility. The corpus now has 38/58 scaffolds; #39-#43 remain
+seeded-only pending ScopeCam redacted transcript or human-approved
+fixture, and #1-#15 remain seeded-only pending observed-incident
+citations per the trap skill's no-synthetic-traps rule. This packet
+is eval/docs only: it adds trajectory-scored trap definitions and
+seed-index bookkeeping, not executable harness fixtures, schema
+behavior, policy YAML, runtime probes, adapters, hooks, dashboard
 routes, or gateway logic.
 
 **Q-013 credential-plane posture (accepted 2026-05-05):** ADR 0040 accepts

@@ -50,6 +50,8 @@ or under a separately accepted sequencing amendment.
   `docs/host-capability-substrate/research/local/2026-05-06-q-015-backup-readiness-intake.md`
 - Q-015 lane plan:
   `docs/host-capability-substrate/research/local/2026-05-07-q-015-implementation-lane-plan.md`
+- Citadel readiness compatibility follow-up:
+  `docs/host-capability-substrate/research/local/2026-05-07-citadel-readiness-compatibility-followup.md`
 - Accepted Q-015 implementation ADR:
   `docs/host-capability-substrate/adr/0045-q-015-backup-readiness-implementation.md`
 
@@ -92,7 +94,7 @@ Accelerated order:
 |---|---|---|---|
 | Q-013 credential plane | Landed on 2026-05-07 via ADR 0043 | `CredentialAuthorityObservation`, `MachineIdentityBindingObservation`, and required subject/ref vocabulary | Runtime injection, broker behavior, reconciler receipts, provider mutation, credential issuance, policy YAML, and operation registration remain blocked behind future ADRs or policy lanes. |
 | Q-014 project substrate | Landed on 2026-05-07 via ADR 0044 | `project_substrate_contract` source-kind implementation, `project_admission_authority` boundary branch, contract-validation receipt, admission observation, teardown receipts | ADR 0044 deliberately defers `QualityGate.gate_kind: "project_substrate_admission"` to a future policy/gate lane. It composes with ADRs 0036, 0035, 0034, 0032, 0033, 0040, 0041, and the landed ADR 0043 evidence shapes. |
-| Q-015 backup readiness | Landed on 2026-05-07 via ADR 0045 | `BackupReadinessObservation`, `RestoreDrillReceipt`, `BackupCredentialCustodyObservation`, `ProjectSubstrateBackupRequirementObservation`, generic `KnowledgeSource.source_kind: "threat_model"`, and `KnowledgeSource.schema_version` `0.2.0` | Policy/runtime/gate/provider work remains blocked behind future ADRs or policy lanes. Preserve `pending` -> `configured` -> `usable` -> `ready` with optional `expired`; restore drill with boot/service verification is the promotion gate to `ready`; keep runner-substrate Proxmox/Synology evidence separate from Hetzner VPS restic / Storage Box evidence. |
+| Q-015 backup readiness | Landed on 2026-05-07 via ADR 0045 | `BackupReadinessObservation`, `RestoreDrillReceipt`, `BackupCredentialCustodyObservation`, `ProjectSubstrateBackupRequirementObservation`, generic `KnowledgeSource.source_kind: "threat_model"`, and `KnowledgeSource.schema_version` `0.2.0` | Policy/runtime/gate/provider work remains blocked behind future ADRs or policy lanes. Preserve `pending` -> `configured` -> `usable` -> `ready` with optional `expired`; restore drill with boot/service verification is the promotion gate to `ready`; keep runner-substrate Proxmox/Synology evidence separate from Hetzner VPS restic / Storage Box evidence. The 2026-05-07 Citadel follow-up adds future inputs only: runner readiness remains pending structured evidence; alert delivery is future readiness evidence; file/meta backup and VM/CT image backup remain distinct; cross-repo receipts stay generic source/evidence refs. |
 | Source-control access follow-on | Q-006/Q-005 follow-on shapes prove selected-repository/workflow-policy gaps remain | `SelectedRepositoryAccessObservation`, `WorkflowPolicyCheckReceipt` | Keep GitHub runner groups, selected repository access, rulesets, and workflow policy outside HCS mutation authority. |
 | Dashboard projection | Q-014 evidence shapes exist and read-only rendering requirements are concrete | Read-only project-substrate admission view | Dashboard remains Ring 2 projection only; no gate authority or mutation surface. |
 
@@ -140,18 +142,24 @@ Stop and return to human review if a task tries to:
   evidence with boot/service verification;
 - conflate runner-substrate Proxmox/Synology backup evidence with Hetzner VPS
   restic / Storage Box evidence.
+- treat runner readiness, alert-delivery routes, backup artifact grain, or
+  cross-repo design packets as accepted HCS ontology, policy, gate, or live
+  readiness authority without a follow-on accepted ADR or policy lane.
 
 ## Next Safe Action
 
 Keep Q-014 and Q-015 runtime, gate-kind, provider, runner, policy, dashboard,
 adapter, hook, and broader schema work blocked without a follow-on accepted
-ADR or policy lane. The next safe action is reviewer cleanup and verification
-for the landed ADR 0045 schema/evidence slice, not provider or execution work.
+ADR or policy lane. Treat the 2026-05-07 Citadel readiness follow-up as
+compatibility intake only until a future accepted task decides whether runner
+readiness, alert delivery, backup artifact grain, or cross-repo receipt
+parsing belongs in a follow-on Q-row, ADR, policy lane, or eval fixture.
 
 ## Change Log
 
 | Version | Date | Change |
 |---|---:|---|
+| 0.4.6 | 2026-05-07 | Added Citadel readiness compatibility follow-up to the Phase 2.7 sequencing surface while keeping runner-readiness, alert-delivery, artifact-grain, and cross-repo receipt work blocked behind future authority. |
 | 0.4.5 | 2026-05-07 | Recorded ADR 0045 schema/evidence landing and moved Q-015 follow-on policy/runtime/gate/provider work back to blocked posture. |
 | 0.4.4 | 2026-05-07 | Added proposed ADR 0045 as the Q-015 implementation ADR draft and moved Q-015 from dependency-waiting to reviewer-deliberation posture while keeping implementation blocked. |
 | 0.4.3 | 2026-05-07 | Recorded ADR 0044 schema/evidence landing and moved the next safe action to blocked follow-on lanes plus future Q-015 implementation-ADR review. |

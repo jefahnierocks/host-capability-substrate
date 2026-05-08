@@ -3,7 +3,7 @@ title: HCS local research artifacts
 category: research
 component: host_capability_substrate
 status: active
-version: 1.11.0
+version: 1.11.1
 last_updated: 2026-05-07
 tags: [research, local, host-evidence, github, version-control, quality-management, codex, worktree, branch-cleanup, diagnostics, workspace-context, isolation, ontology, process-inspection, project-substrate, runner-substrate, backup-readiness, runner-readiness, alert-delivery]
 priority: medium
@@ -40,7 +40,7 @@ summaries.
 | `2026-05-01-ontology-promotion-receipt-dedupe-plan.md` | 2026-05-01 | Cross-Q planning document for ontology promotion buckets, candidate receipt dedupe, naming discipline, and dependency order before additional Ring 0 schema work. Queues Q-011. |
 | `2026-05-01-codex-import-dialog-hang.md` | 2026-05-01 | Live Codex macOS app import-dialog hang investigation. Corrects stale repo-target assumptions, records app/log/process evidence, and reinforces Q-009 safe process inspection for app-managed MCP children. |
 | `2026-05-05-credential-plane-integration-synthesis.md` | 2026-05-05 | Synthesis of the 1Password credential-plane research plus Citadel guidance. Records Q-013 acceptance via ADR 0040 at posture level only, blocks implementation pending follow-on acceptance, and defines the approval contract for future HCS-side implementation. |
-| `2026-05-06-phase-2-7-deferred-lane-sequencing-plan.md` | 2026-05-06 | Docs-only sequencing plan tying the accepted Q-013, Q-014, and Q-015 deferred implementation lanes together. Keeps ADR 0038 intact, records the landed first schema/evidence slices, and requires separate accepted authority for follow-on runtime, policy, gate, provider, dashboard, adapter, or execution lanes. |
+| `2026-05-06-phase-2-7-deferred-lane-sequencing-plan.md` | 2026-05-06 | Docs-only sequencing plan tying the accepted Q-013, Q-014, and Q-015 deferred implementation lanes together. Keeps ADR 0038 intact, records the landed first schema/evidence slices plus the Citadel readiness compatibility follow-up, and requires separate accepted authority for follow-on runtime, policy, gate, provider, dashboard, adapter, or execution lanes. |
 | `2026-05-06-q-013-implementation-lane-plan.md` | 2026-05-06 | Q-013 lane plan updated through ADR 0043 acceptance and schema landing. Records landed credential-plane Ring 0 evidence scope plus deferred follow-ups, while keeping policy, broker, runtime, reconciler, OpenTofu, service-account, vault, provider mutation, operation registration, and credential material work blocked. |
 | `2026-05-06-project-substrate-compatibility-synthesis.md` | 2026-05-06 | Synthesis of Citadel PR #37 project-substrate admission standard. Maps contract fields to HCS vocabulary, records ADR 0041 accepted posture around ADR 0036 composition / evidence cohorts / sequencing, and blocks schema, policy, runner, Proxmox, OpenTofu, identity, adapter, dashboard, hook, project workload, and runtime implementation until follow-on implementation acceptance. |
 | `2026-05-06-q-014-implementation-lane-plan.md` | 2026-05-06 | Q-014 lane plan updated through ADR 0044 acceptance and schema landing. Records landed project-substrate Ring 0 evidence scope plus deferred follow-ups, while keeping policy, validator, adapter, dashboard, hook, runner, Proxmox, OpenTofu, identity issuance, project workload, provider mutation, gate behavior, and runtime work blocked. |
@@ -52,6 +52,7 @@ summaries.
 
 | Version | Date | Change |
 |---|---:|---|
+| 1.11.1 | 2026-05-07 | Updated the Phase 2.7 sequencing-plan index entry after adding the Citadel readiness compatibility follow-up. |
 | 1.11.0 | 2026-05-07 | Added Citadel readiness compatibility follow-up and updated Q-015 intake/lane pointers. |
 | 1.10.9 | 2026-05-07 | Updated Q-013 and Q-014 implementation-lane index entries after ADR 0043 and ADR 0044 schema/evidence landing. |
 | 1.10.8 | 2026-05-07 | Updated the Phase 2.7 sequencing-plan index entry after ADR 0045 schema/evidence landing and follow-on lane reblocking. |

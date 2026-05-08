@@ -163,6 +163,18 @@ Written against charter v1.3.2 and
   commitment, dashboard views, MCP surface; (viii) charter
   inv. 18 amendment lands per change-policy in a separate
   charter-edit PR.
+- **v3.1 editorial** (2026-05-07): post-acceptance editorial
+  alignment. §DerivedSummary domain shape `derived_from`
+  membership tightened from three classes (`Evidence` /
+  `CoordinationFact` / `KnowledgeChunk`) to four classes
+  (`Evidence` / `CoordinationFact` / `DerivedSummary` /
+  `KnowledgeChunk`) to match the §Chain promotion rule (line
+  640-650), charter v1.4.0 inv. 18 committed semantics, and the
+  Phase 2.1.3 schema mirror at
+  `ontology-registry.md` §Knowledge and coordination enum
+  mirrors. Editorial only; no semantic change. Closes ADR 0039
+  §Forward-looking observations Arch-N10 / Pol-N1 / Ont-N8 per
+  the 2026-05-07 absorption audit.
 
 ## Context
 
@@ -609,8 +621,11 @@ An agent-authored summary aggregating multiple sources.
 
 - `derived_summary_id` — primary key.
 - `derived_from` — array of `evidenceRefSchema` references to
-  source `Evidence` / `CoordinationFact` / `KnowledgeChunk`
-  records.
+  source `Evidence` / `CoordinationFact` / `DerivedSummary` /
+  `KnowledgeChunk` records (closed four-class membership per
+  charter v1.4.0 inv. 18, aligned with the §Chain promotion rule
+  below and the Phase 2.1.3 schema mirror in
+  `ontology-registry.md` §Knowledge and coordination enum mirrors).
 - `generated_by` — producer reference (kernel-set per registry
   v0.3.2 when value names a kernel-trusted producer class).
 - `generated_at` — timestamp.

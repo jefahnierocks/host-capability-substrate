@@ -67,12 +67,19 @@ authorizes only the narrow schema/evidence slice for
 `KnowledgeSource.source_kind: "threat_model"`. That slice landed on
 2026-05-07 as schema source, generated JSON Schema, ontology/registry docs,
 and focused tests. It reuses existing `Evidence.subject_kind` values and does
-not bump `Evidence.schema_version`. It does not authorize backup/restore
-execution, runtime validators, canonical policy YAML, adapters, dashboard
-routes, hooks, runner registration, Proxmox changes, Hetzner changes,
-OpenTofu changes, machine-identity issuance, project workload provisioning,
-provider mutation, gate-kind behavior, `ApprovalGrant.scope`,
-`allowed_for_gate`, or runtime behavior.
+not bump `Evidence.schema_version`; it does bump `KnowledgeSource` to
+`schema_version: "0.2.0"` for the `threat_model` source-kind extension. The
+post-landing reviewer cleanup in commit `ab38dc8` tightened Q-015
+proof-bearing nested evidence refs, preserved generated JSON Schema
+conditional guards, and added negative tests for sandbox/missing-freshness
+restore refs. Regression scaffold #58
+(`packages/evals/regression/backup-readiness-generic-restore-ref-promotion.md`)
+landed in commit `1ae3bac`. It does not authorize backup/restore execution,
+runtime validators, canonical policy YAML, adapters, dashboard routes, hooks,
+runner registration, Proxmox changes, Hetzner changes, OpenTofu changes,
+machine-identity issuance, project workload provisioning, provider mutation,
+gate-kind behavior, `ApprovalGrant.scope`, `allowed_for_gate`, or runtime
+behavior.
 
 ## Accepted
 

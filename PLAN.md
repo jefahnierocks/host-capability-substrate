@@ -211,9 +211,10 @@ numbers. Existing shell/environment scaffolds keep #26-#30; coordination-store
 brief reservations keep #31-#35 and now have scaffold files; ADR 0036 Q-009
 traps land as #46-#48; ADR 0037 Q-010 traps land as #49-#51; ADR 0037
 security-review candidates land as #52-#56; the Phase 2.4 registry-summary
-union-narrowing incident lands as #57. Executable fixture packets and scanner
-heuristics remain future work and should land only when their specific evidence
-dependencies and harness expectations are available.
+union-narrowing incident lands as #57; the ADR 0045 Q-015 generic restore-ref
+promotion reviewer incident lands as #58. Executable fixture packets and
+scanner heuristics remain future work and should land only when their specific
+evidence dependencies and harness expectations are available.
 
 **Charter v1.4.0 amendment**: invariants 18 + 19 candidates (Q-003 +
 Q-007 carry-overs).

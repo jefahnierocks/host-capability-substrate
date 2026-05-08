@@ -1,7 +1,7 @@
 ---
 adr_number: 0045
 title: Q-015 backup-readiness implementation slice
-status: proposed
+status: accepted
 date: 2026-05-07
 charter_version: 1.4.0
 tags: [backup-readiness, restore-drill, storage-class, credential-source, project-substrate, evidence, q-015, phase-2-7]
@@ -11,13 +11,14 @@ tags: [backup-readiness, restore-drill, storage-class, credential-source, projec
 
 ## Status
 
-proposed
+accepted
 
-If accepted, this ADR authorizes only Ring 0 schema/evidence work for the
-narrow Q-015 v1 slice named below: backup readiness observation, restore drill
-receipt, backup credential custody observation, project-substrate backup
-requirement observation, generic source-kind support for threat-model
-documents, and the minimum subject/ref vocabulary required by those records.
+Accepted on 2026-05-07 after reviewer pass and human approval. This ADR
+authorizes only Ring 0 schema/evidence work for the narrow Q-015 v1 slice
+named below: backup readiness observation, restore drill receipt, backup
+credential custody observation, project-substrate backup requirement
+observation, generic source-kind support for threat-model documents, and the
+minimum subject/ref vocabulary required by those records.
 
 This ADR does not authorize backup execution, restore execution, provider
 mutation, runner registration, GitHub runner-group mutation, Proxmox changes,
@@ -27,9 +28,34 @@ dashboard routes, hooks, broker behavior, `QualityGate.gate_kind:
 "backup_readiness"`, `ApprovalGrant.scope`, `allowed_for_gate`, or runtime
 behavior.
 
+## Acceptance note
+
+The four required reviewers completed the acceptance-readiness pass:
+
+- `hcs-architect`: ACCEPT-WITH-MECHANICAL-TWEAKS
+- `hcs-ontology-reviewer`: ACCEPT-WITH-MECHANICAL-TWEAKS
+- `hcs-policy-reviewer`: ACCEPT-WITH-MECHANICAL-TWEAKS
+- `hcs-security-reviewer`: ACCEPT-WITH-MECHANICAL-TWEAKS
+
+No reviewer found blocking issues. Mechanical hardening from the reviewer
+pass is folded into this accepted revision: `knowledge_source_id` is source
+citation only, tombstoned/expired/stale/missing/contradictory/sandbox-only
+evidence cannot satisfy readiness, `unknown` is not positive readiness,
+backup-operation and monitoring refs must be separately accepted
+external/upstream evidence refs, `ready` requires freshness-valid
+non-tombstoned restore-drill evidence with boot/service verification, storage
+class examples remain provider-neutral, and stop rules cite their governing
+invariants/ADRs.
+
+Acceptance remains limited to the Ring 0 schema/evidence slice named above.
+Runtime, policy, provider, runner, Proxmox, Hetzner, OpenTofu, identity,
+project provisioning, dashboard, adapter, hook, backup execution, restore
+execution, monitoring, and gate behavior require separate accepted ADRs or
+policy lanes.
+
 ## Date
 
-2026-05-07 (proposed)
+2026-05-07 (proposed); 2026-05-07 (accepted)
 
 ## Charter version
 

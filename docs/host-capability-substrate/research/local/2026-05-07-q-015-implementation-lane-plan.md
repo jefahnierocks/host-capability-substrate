@@ -2,10 +2,10 @@
 
 Date: 2026-05-07
 
-Status: planning only. Proposed ADR 0045 now names a candidate Q-015
-implementation slice for reviewer deliberation. This document does not
-authorize schema source, generated JSON Schema, registry entries, canonical
-policy YAML, validators, adapters, dashboard routes, hooks, runner
+Status: planning complete. ADR 0045 is accepted and authorizes the narrow
+Q-015 schema/evidence implementation slice named there. This document does
+not authorize canonical policy YAML, validators, adapters, dashboard routes,
+hooks, runner
 registration, Proxmox changes, Hetzner changes, OpenTofu changes,
 machine-identity issuance, backup execution, restore execution, project
 workload provisioning, broker behavior, runtime behavior, provider actions,
@@ -23,13 +23,13 @@ Accepted posture:
   `docs/host-capability-substrate/research/local/2026-05-06-q-015-backup-readiness-intake.md`
 - Phase 2.7 deferred-lane sequencing:
   `docs/host-capability-substrate/research/local/2026-05-06-phase-2-7-deferred-lane-sequencing-plan.md`
-- Proposed Q-015 implementation ADR:
+- Accepted Q-015 implementation ADR:
   `docs/host-capability-substrate/adr/0045-q-015-backup-readiness-implementation.md`
 
 ADR 0042 closes Q-015 at posture level only. Q-013 v1 schema/evidence landed
-via ADR 0043, and Q-014 v1 schema/evidence landed via ADR 0044. Proposed ADR
-0045 now carries the candidate Q-015 implementation scope, but implementation
-remains blocked until that ADR is reviewed and human-accepted.
+via ADR 0043, and Q-014 v1 schema/evidence landed via ADR 0044. ADR 0045 now
+accepts the Q-015 schema/evidence scope. Implementation remains limited to
+the Ring 0 schema/evidence slice named in ADR 0045.
 
 ## Accepted Shape
 
@@ -42,6 +42,7 @@ The storage-class readiness lifecycle is:
 ```text
 pending -> configured -> usable -> ready
                                 -> expired
+                                -> unknown
 ```
 
 The lifecycle is load-bearing:
@@ -53,17 +54,15 @@ The lifecycle is load-bearing:
 - `ready` requires a restore drill with boot/service verification inside the
   evidence-freshness window.
 - `expired` demotes prior readiness when restore-drill evidence ages out.
+- `unknown` is not positive readiness.
 
-Candidate names remain posture-only pending implementation ADR and Q-011
-naming review:
+Accepted v1 names from ADR 0045:
 
-- `BackupReadinessObservation` or `BackupReadinessReceipt`
-- `StorageClassReadiness` or `StorageClassReadinessObservation`
+- `BackupReadinessObservation`
 - `RestoreDrillReceipt`
-- `BackupLayerThreatModel`
-- `BackupCredentialCustody` or `BackupCredentialCustodyObservation`
-- `BackupMonitoringRequirement`
-- `ProjectSubstrateBackupRequirement`
+- `BackupCredentialCustodyObservation`
+- `ProjectSubstrateBackupRequirementObservation`
+- `KnowledgeSource.source_kind: "threat_model"`
 
 Backup contract YAML, backup requirement declarations, recovery runbooks, and
 threat-model documents may compose as ADR 0036 Layer 2 `KnowledgeSource`
@@ -84,16 +83,17 @@ Q-015 implementation should not open until all of these are true:
   implementation review.
 - A follow-on implementation ADR is accepted for Q-015 schema scope, including
   registry changes, Zod source, generated JSON Schema, fixtures, docs, and
-  tests.
-- Reviewer dispatch is planned for `hcs-architect`,
+  tests. Completed by ADR 0045.
+- Reviewer dispatch completes for `hcs-architect`,
   `hcs-ontology-reviewer`, `hcs-policy-reviewer`, and
-  `hcs-security-reviewer`.
+  `hcs-security-reviewer`. Completed for ADR 0045.
 
 ## Future Work Packages
 
-1. Implementation ADR.
-   Define the exact HCS-side scope and explicitly compose with ADRs 0015,
-   0022, 0034, 0035, 0036, 0038, 0040, 0041, and 0042.
+1. Schema implementation.
+   Implement the exact HCS-side scope accepted by ADR 0045 and explicitly
+   compose with ADRs 0015, 0022, 0034, 0035, 0036, 0038, 0040, 0041, and
+   0042.
 
 2. Shape triage.
    Decide the single ontology home for `StorageClassReadiness`: standalone
@@ -193,14 +193,15 @@ Stop and return to human review if a task tries to:
 
 ## Next Safe Action
 
-Dispatch `hcs-architect`, `hcs-ontology-reviewer`, `hcs-policy-reviewer`, and
-`hcs-security-reviewer` against proposed ADR 0045. Leave implementation
-blocked until ADR 0045 is reviewed and human-accepted.
+Implement the ADR 0045 Ring 0 schema/evidence slice using the schema-change
+workflow. Leave runtime, policy, provider, dashboard, adapter, hook,
+backup/restore execution, monitoring, and gate behavior blocked.
 
 ## Change Log
 
 | Version | Date | Change |
 |---|---:|---|
+| 0.4.0 | 2026-05-07 | Recorded ADR 0045 acceptance after reviewer pass and human approval; Q-015 schema/evidence implementation slice is now authorized while runtime/policy/provider/gate work remains blocked. |
 | 0.3.0 | 2026-05-07 | Added proposed ADR 0045 as the Q-015 implementation ADR draft and recorded that Q-013/Q-014 dependencies exist while Q-015 implementation remains blocked pending reviewer pass and human acceptance. |
 | 0.2.0 | 2026-05-07 | Updated after ADR 0043 schema/evidence landing; Q-015 remains blocked behind Q-014 implementation evidence. |
 | 0.1.0 | 2026-05-07 | Initial docs-only implementation-lane plan following ADR 0042 acceptance. |

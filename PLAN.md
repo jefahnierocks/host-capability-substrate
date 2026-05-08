@@ -5,7 +5,7 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Upstream research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — Q-015 implementation ADR proposed; schema still blocked
+## Current Focus — Q-015 implementation ADR accepted; schema slice open
 
 As of 2026-05-04, the **Phase 1 synthesis-window is closed**. All nine
 pending Q-rows in `DECISIONS.md` (Q-003, Q-005, Q-006, Q-007, Q-008,
@@ -117,13 +117,17 @@ subsequently accepted, opens as a Phase 2.7 / Wave-2 lane behind Q-013 and
 Q-014, or under a separately accepted ADR 0038 sequencing amendment. Q-010
 (remote-agent receipts; Phase 2.3.4) has since landed in the accepted
 Phase 2.1–2.6 train. ADR 0042 accepts posture only; Q-015 implementation
-remains blocked behind a separate accepted implementation ADR and reviewer
-dispatch. Proposed ADR 0045 now records the candidate Q-015 implementation
-slice for reviewer deliberation: `BackupReadinessObservation`,
+was blocked behind a separate accepted implementation ADR and reviewer
+dispatch. ADR 0045 is now accepted after reviewer pass and human approval. It
+authorizes the narrow Q-015 implementation slice:
+`BackupReadinessObservation`,
 `RestoreDrillReceipt`, `BackupCredentialCustodyObservation`,
 `ProjectSubstrateBackupRequirementObservation`, and generic
-`KnowledgeSource.source_kind: "threat_model"`. No Q-015 schema or runtime
-work is authorized until ADR 0045 is accepted.
+`KnowledgeSource.source_kind: "threat_model"`. The authorization is
+schema/evidence only. No Q-015 runtime, validator, canonical policy YAML,
+adapter, dashboard, hook, runner, Proxmox, Hetzner, OpenTofu, provider
+mutation, project workload, gate-kind, or backup/restore execution work is
+authorized by ADR 0045.
 
 **Phase 2 sequencing meta-ADR (accepted 2026-05-04):** ADR 0038
 (`docs/host-capability-substrate/adr/0038-phase-2-schema-landing-sequence.md`)

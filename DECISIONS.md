@@ -57,18 +57,19 @@ mutation, operation registration, project workload provisioning, backup
 readiness, `QualityGate.gate_kind: "project_substrate_admission"`,
 `ApprovalGrant.scope`, `allowed_for_gate`, or runtime behavior.
 
-Implementation ADR note: proposed ADR 0045
+Implementation ADR note: ADR 0045
 (`docs/host-capability-substrate/adr/0045-q-015-backup-readiness-implementation.md`)
-opens Q-015 reviewer deliberation only. It proposes a narrow schema/evidence
-slice for `BackupReadinessObservation`, `RestoreDrillReceipt`,
+was accepted on 2026-05-07 after four-reviewer pass and human approval. It
+authorizes only the narrow schema/evidence slice for
+`BackupReadinessObservation`, `RestoreDrillReceipt`,
 `BackupCredentialCustodyObservation`,
 `ProjectSubstrateBackupRequirementObservation`, and generic
-`KnowledgeSource.source_kind: "threat_model"`. Q-015 implementation remains
-blocked until ADR 0045 is reviewed and human-accepted. No backup/restore
-schema, registry, validator, canonical policy YAML, adapter, dashboard, hook,
-runner, Proxmox, Hetzner, OpenTofu, machine-identity, project workload,
-provider mutation, gate-kind, or runtime change is authorized by the proposed
-ADR.
+`KnowledgeSource.source_kind: "threat_model"`. It does not authorize
+backup/restore execution, runtime validators, canonical policy YAML, adapters,
+dashboard routes, hooks, runner registration, Proxmox changes, Hetzner
+changes, OpenTofu changes, machine-identity issuance, project workload
+provisioning, provider mutation, gate-kind behavior, `ApprovalGrant.scope`,
+`allowed_for_gate`, or runtime behavior.
 
 ## Accepted
 

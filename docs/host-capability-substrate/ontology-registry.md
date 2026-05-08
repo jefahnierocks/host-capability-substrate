@@ -3,7 +3,7 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.4.4
+version: 0.4.5
 last_updated: 2026-05-07
 tags: [ontology, registry, registry-consolidation, phase-2-4, phase-2-7, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, remote-agent, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
 priority: high
@@ -2472,10 +2472,292 @@ Changes to this registry follow the schema-change workflow at
    `BoundaryObservation` payload depends on it, plus an explicit deprecation
    note in this registry.
 
+## Predicate-kind vocabulary
+
+Authoritative registry for `CoordinationFact.predicate_kind` values. ADR 0019
+reserved this registry section name as the closed-enum vocabulary store for
+the predicate axis, paralleling §Boundary dimension registry from ADR 0022.
+Entries are alphabetised by name. Status reflects ontology review on this
+registry, not the surrounding ADRs. The schema enum mirror lives in §Schema
+enum mirrors → §Knowledge and coordination enum mirrors and must stay in sync
+with this registry; per registry §Adding a new suffix or convention, registry
+updates land before any schema PR using a new `predicate_kind`.
+
+Per-`predicate_kind` maximum freshness windows, verifier-class privileges,
+and promotion-grant scope detail are canonical-policy concerns owned by
+`system-config/policies/host-capability-substrate/` and are not duplicated
+here. See ADR 0019 §Promotion workflow shape for the kernel-side gateway
+re-derivation rules and registry §Cross-context enforcement layer for the
+mint API / broker FSM / gateway discipline applied at decision time.
+
+### `attached_to`
+
+- Status: reserved (schema enum landed Phase 2.1.3; no committed use yet)
+- Description: Generic attachment relationship between a subject and an
+  object — reserved for future use such as branch-worktree attachment as
+  a separately gateable assertion.
+- Subject-kind compatibility: reserved; ADR 0031 names `branch` / `worktree`
+  as candidate subject kinds when this predicate is committed.
+- Object-kind compatibility: reserved; expected `scoped_assertion`.
+- Overlap notes: distinct from `leased_to` (lease-shaped ownership with
+  kernel-set holder fields) and `held_by` (generic ownership; also reserved).
+  No `CoordinationFact` may be minted with `predicate_kind: "attached_to"`
+  until a follow-up ADR commits the subject/object shape.
+- Source: ADR 0031 §Predicate-kind reservations.
+- Sample assertion sketch: deferred until a committing ADR lands.
+
+### `blocked_until`
+
+- Status: accepted (schema enum landed Phase 2.1.3; canonical-policy
+  freshness windows deferred to Milestone 2)
+- Description: A subject is blocked from advancing until a stated condition
+  is met. Used for release/feature gates, deployment holds, and cross-repo
+  coordination handoffs (e.g., a webui release tag blocked until a producer
+  pod reaches a specific phase).
+- Subject-kind compatibility: `release`, `branch`, `deployment`,
+  `external_target`.
+- Object-kind compatibility: `status_block` (carries
+  `{status, reason?, valid_until?}`).
+- Overlap notes: distinct from `phase_lock` (subject is positively at a
+  named phase, not negatively blocked) and `gate_token` (the gate is
+  represented by a typed token, not a status object).
+- Source: ADR 0019 §Domain shape, candidate value list.
+- Sample assertion sketch (illustrative only):
+  `{ subject_kind: "release", subject_ref: <release-id>,
+     predicate_kind: "blocked_until", object_kind: "status_block",
+     object: { status: "blocked", reason: "producer-phase4-not-green",
+               valid_until: "<iso>" } }`.
+
+### `claim_superseded_by_snapshot`
+
+- Status: reserved (schema enum landed Phase 2.1.3; tied to ADR 0036
+  audit-profile snapshot lifecycle)
+- Description: A prior claim record (typically `claimed_to_contain`) is
+  superseded by a newer audit-profile snapshot. Renamed from ADR 0036 v1's
+  ambiguous `superseded_by`; binding is claim-level only — it is not the
+  generic `CoordinationFact` lifecycle supersession marker, and it is not
+  the `KnowledgeSource` re-index lifecycle marker.
+- Subject-kind compatibility: `audit_profile_snapshot`.
+- Object-kind compatibility: `scoped_assertion` carrying the superseding
+  snapshot reference and the prior-claim reference.
+- Overlap notes: claim-level only. Does not signal `CoordinationFact`
+  expiry, `KnowledgeSource.content_hash` change, or `Evidence` rotation.
+- Source: ADR 0036 §Predicate-kind reservations.
+- Sample assertion sketch: deferred until ADR 0036 schema implementation
+  PR commits the audit-profile snapshot subject shape.
+
+### `claimed_to_contain`
+
+- Status: reserved (schema enum landed Phase 2.1.3; tied to ADR 0036
+  audit-profile snapshot lifecycle)
+- Description: An audit profile claims that a workspace contains a specific
+  bounded context. Default `allowed_for_gate: false` until promoted via
+  Q-003 verifier workflow with Layer 1 host-observation grounding.
+- Subject-kind compatibility: `audit_profile_snapshot`, `workspace_context`.
+- Object-kind compatibility: `scoped_assertion` (workspace bounded-context
+  claim).
+- Overlap notes: composes with `confirmed_to_contain` (host-grounded
+  confirmation) and `claim_superseded_by_snapshot` (newer snapshot wins).
+  ADR 0036 §Layer 1 host-observation grounding requirement: a
+  `CoordinationFact` cited via `deletion_authority_kind:
+  "coordination_fact"` MUST also cite host-grounded Evidence; a bare
+  `claimed_to_contain` fact is not deletion authority by itself.
+- Source: ADR 0036 §Predicate-kind reservations.
+- Sample assertion sketch: deferred until ADR 0036 schema implementation
+  PR commits the audit-profile snapshot subject shape.
+
+### `confirmed_to_contain`
+
+- Status: reserved (schema enum landed Phase 2.1.3; tied to ADR 0036
+  audit framework smoke-test)
+- Description: The audit framework's smoke-test (ADR 0036 Phase 10.5)
+  confirmed a prior `claimed_to_contain` assertion through Layer 1
+  evidence. Composes with the verifier visibility-authority rule
+  (ADR 0019 §Verifier visibility-authority).
+- Subject-kind compatibility: `audit_profile_snapshot`, `workspace_context`.
+- Object-kind compatibility: `scoped_assertion` (host-grounded confirmation
+  of the prior claim).
+- Overlap notes: a `confirmed_to_contain` fact must additionally cite
+  host-grounded Evidence (e.g., `GitRepositoryObservation` proving the
+  workspace is the one named in the claim). Without that grounding, the
+  fact remains `derived` and not gate-eligible.
+- Source: ADR 0036 §Predicate-kind reservations.
+- Sample assertion sketch: deferred until ADR 0036 schema implementation
+  PR commits the audit-profile snapshot subject shape.
+
+### `depends_on`
+
+- Status: accepted (schema enum landed Phase 2.1.3; canonical-policy
+  freshness windows deferred to Milestone 2)
+- Description: A typed dependency relationship between coordination
+  subjects — release-on-release, deployment-on-release, branch-on-branch,
+  or cross-repo dependency assertions consumed by gates that need to
+  know whether a referenced dependency is satisfied.
+- Subject-kind compatibility: `release`, `branch`, `deployment`,
+  `external_target`.
+- Object-kind compatibility: `dependency` (carries `{dependency_refs}`).
+- Overlap notes: distinct from `Evidence` linkage (`evidence_refs` cite
+  observed facts, not relationships between coordination subjects).
+- Source: ADR 0019 §Domain shape, candidate value list.
+- Sample assertion sketch (illustrative only):
+  `{ subject_kind: "release", subject_ref: <release-id>,
+     predicate_kind: "depends_on", object_kind: "dependency",
+     object: { dependency_refs: [<other-release-id>] } }`.
+
+### `gate_token`
+
+- Status: accepted (schema enum landed Phase 2.1.3; canonical-policy
+  token semantics deferred to Milestone 2)
+- Description: A token-shaped gate authority asserts that a named token
+  is the current authority for a release/deployment gate. Consumers
+  dereference the token reference; the typed object form carries
+  `token_kind`, `token_ref`, and optional `valid_until`.
+- Subject-kind compatibility: `release`, `deployment`, `external_target`.
+- Object-kind compatibility: `gate_token` (carries
+  `{token_kind, token_ref, valid_until?}`).
+- Overlap notes: distinct from `ApprovalGrant` (an `ApprovalGrant` is a
+  typed grant scoped to an operation; a `gate_token` `CoordinationFact`
+  is a typed assertion that a token is the current authority).
+- Source: ADR 0019 §Domain shape, candidate value list.
+- Sample assertion sketch (illustrative only):
+  `{ subject_kind: "release", subject_ref: <release-id>,
+     predicate_kind: "gate_token", object_kind: "gate_token",
+     object: { token_kind: "<kind>", token_ref: <ref>,
+               valid_until: "<iso>" } }`.
+
+### `held_by`
+
+- Status: reserved (schema enum landed Phase 2.1.3; no committed use yet)
+- Description: Generic ownership predicate, less specific than
+  `leased_to`. Reserved for future use; ADR 0031 records that any
+  generic ownership semantics belong here, while lease-shaped ownership
+  with kernel-set holder fields belongs on `leased_to`.
+- Subject-kind compatibility: reserved.
+- Object-kind compatibility: reserved.
+- Overlap notes: distinct from `leased_to` (lease has kernel-set
+  `held_by_session_id` / `held_by_agent_client_id` plus a typed force-break
+  grant path). No `CoordinationFact` may be minted with
+  `predicate_kind: "held_by"` until a follow-up ADR commits the
+  subject/object shape.
+- Source: ADR 0031 §Predicate-kind reservations.
+- Sample assertion sketch: deferred until a committing ADR lands.
+
+### `leased_to`
+
+- Status: accepted (committed by ADR 0031; canonical-policy
+  per-`lease_kind` windows deferred to Milestone 2)
+- Description: A worktree (or other lease-shaped subject) is leased to
+  a named session for a bounded period. The `object` form carries the
+  lease holder identity, lease identifier, freshness anchor, and lease
+  acquisition time per registry §Naming suffix discipline Sub-rule 5.
+- Subject-kind compatibility: `worktree` (subject_ref:
+  `{repository_id, worktree_path}`).
+- Object-kind compatibility: `scoped_assertion` carrying exactly
+  `{session_id, lease_id, valid_until, lease_acquired_at}` per ADR 0031.
+- Overlap notes: a worktree-mutation operation is gated against the
+  active lease's `held_by_session_id`; non-holders cannot release leases
+  except via the typed force-break-glass grant path. The
+  `worktree_lease_held_by_other_session` rejection class is registered
+  on `Decision.reason_kind` per ADR 0031 / registry §Cross-context
+  enforcement layer.
+- Source: ADR 0031 (Q-008(d) worktree-ownership composition).
+- Sample assertion sketch (illustrative only):
+  `{ subject_kind: "worktree",
+     subject_ref: { repository_id: <id>, worktree_path: <path> },
+     predicate_kind: "leased_to", object_kind: "scoped_assertion",
+     object: { session_id: <id>, lease_id: <id>,
+               valid_until: "<iso>", lease_acquired_at: "<iso>" } }`.
+
+### `phase_lock`
+
+- Status: accepted (schema enum landed Phase 2.1.3; canonical-policy
+  freshness windows deferred to Milestone 2)
+- Description: A subject is locked at a named phase — a positive
+  assertion of phase-lock state for a release or deployment, distinct
+  from a negative `blocked_until` assertion.
+- Subject-kind compatibility: `release`, `deployment`.
+- Object-kind compatibility: `status_block` (carries
+  `{status, reason?, valid_until?}`).
+- Overlap notes: distinct from `release_phase` (which names the current
+  lifecycle phase as ground state) and `blocked_until` (which names a
+  blocking condition rather than a positive lock).
+- Source: ADR 0019 §Domain shape, candidate value list.
+- Sample assertion sketch (illustrative only):
+  `{ subject_kind: "release", subject_ref: <release-id>,
+     predicate_kind: "phase_lock", object_kind: "status_block",
+     object: { status: "locked-at-phase-5", valid_until: "<iso>" } }`.
+
+### `release_phase`
+
+- Status: accepted (schema enum landed Phase 2.1.3; canonical-policy
+  freshness windows deferred to Milestone 2)
+- Description: A subject's current release-lifecycle phase as a typed
+  assertion (e.g., "phase 5", "phase 6"). The motivating Q-003 incident
+  row 1 ("docs say Phase 6, live stack says pre-Phase-1") is the
+  canonical failure-class this predicate exists to prevent —
+  `release_phase` facts must come from typed evidence and live probes,
+  never from retrieved prose.
+- Subject-kind compatibility: `release`, `deployment`.
+- Object-kind compatibility: `status_block` (carries
+  `{status, reason?, valid_until?}`).
+- Overlap notes: distinct from `phase_lock` (lock-at-phase is a stronger
+  assertion). Charter invariant 18 (derived retrieval ≠ gate authority)
+  applies: a retrieved chunk asserting "Phase 6 complete" cannot be
+  promoted to a `release_phase` fact without typed evidence and Layer 1
+  grounding.
+- Source: ADR 0019 §Domain shape, candidate value list; coordination-
+  lessons brief incident row 1.
+- Sample assertion sketch (illustrative only):
+  `{ subject_kind: "release", subject_ref: <release-id>,
+     predicate_kind: "release_phase", object_kind: "status_block",
+     object: { status: "phase-5", valid_until: "<iso>" } }`.
+
+### `scope_assertion`
+
+- Status: accepted (schema enum landed Phase 2.1.3; canonical-policy
+  freshness windows deferred to Milestone 2)
+- Description: Generic scoped assertion predicate for cases where the
+  more specific predicates do not apply. The accompanying object form
+  is `scoped_assertion` carrying free-form `{assertion}` content.
+- Subject-kind compatibility: any registered `subject_kind`.
+- Object-kind compatibility: `scoped_assertion`.
+- Overlap notes: should not be used as a catch-all for facts that
+  belong under a more specific predicate. New predicate values are
+  preferable to overloading `scope_assertion`. The promotion workflow
+  rejects `scope_assertion` facts whose semantic could be expressed by
+  one of the typed predicate values registered above.
+- Source: ADR 0019 §Domain shape, candidate value list.
+- Sample assertion sketch (illustrative only):
+  `{ subject_kind: "external_target", subject_ref: <ref>,
+     predicate_kind: "scope_assertion", object_kind: "scoped_assertion",
+     object: { assertion: "<typed-domain-statement>" } }`.
+
+## Adding or removing a predicate_kind
+
+Changes to this registry follow the schema-change workflow at
+`.agents/skills/hcs-schema-change`:
+
+1. Open a PR that updates this file and any matching enum in
+   `packages/schemas/src/entities/coordination-fact.ts`.
+2. Cite the motivating ADR or synthesis source. Speculative additions
+   without a primary citation cannot be promoted from `reserved` and
+   remain ineligible for `CoordinationFact` minting.
+3. `hcs-ontology-reviewer` files objections before human review.
+4. Status moves from `reserved` to `accepted` only after a follow-up
+   ADR commits the subject-kind / object-kind shape and a human owner
+   accepts the registry change.
+5. Removing or renaming a `predicate_kind` value requires evidence that
+   no `CoordinationFact` record depends on it, plus an explicit
+   deprecation note in this registry. Per registry §Cross-context
+   enforcement layer, deprecated values remain rejected at the mint
+   API even after schema enum removal.
+
 ## References
 
+- ADR 0019: `docs/host-capability-substrate/adr/0019-knowledge-and-coordination-store.md`
 - ADR 0022: `docs/host-capability-substrate/adr/0022-boundary-observation-envelope.md`
 - ADR 0023: `docs/host-capability-substrate/adr/0023-evidence-base-shape.md`
+- ADR 0031: `docs/host-capability-substrate/adr/0031-q-008-d-worktree-ownership-composition.md`
 - ADR 0034: `docs/host-capability-substrate/adr/0034-q-007-b-f-boundary-evidence-composition-quality-gate-posture.md`
 - ADR 0036: `docs/host-capability-substrate/adr/0036-q-009-workspace-manifest-projection-and-diagnostic-surface.md`
 - ADR 0037: `docs/host-capability-substrate/adr/0037-q-010-cross-agent-isolation-and-compatibility-taxonomy.md`
@@ -2491,6 +2773,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.4.5 | 2026-05-07 | Added §Predicate-kind vocabulary section authoritative for `CoordinationFact.predicate_kind` values, paralleling §Boundary dimension registry per ADR 0019 reservation. Documents twelve currently-landed predicates (six ADR 0019 candidates accepted at enum level; `leased_to` accepted via ADR 0031; `attached_to`, `held_by`, `claimed_to_contain`, `confirmed_to_contain`, `claim_superseded_by_snapshot` reserved). Adds matching §Adding or removing a predicate_kind procedure note. ADR 0019 / ADR 0031 added to §References. Closes the Q-003 / ADR 0019 reservation that named this section as a schema-PR precondition. |
 | 0.4.4 | 2026-05-07 | Recorded `KnowledgeSource.schema_version` `0.2.0` for the ADR 0045 `threat_model` source-kind extension and tightened Q-015 proof-bearing nested evidence-ref registry notes. |
 | 0.4.3 | 2026-05-07 | Added ADR 0045 Q-015 backup-readiness enum mirrors, recorded `threat_model` as a `KnowledgeSource.source_kind`, added the backup readiness/restore drill/credential custody/project backup requirement direct Evidence subtypes, and noted that Q-015 reuses existing `Evidence.subject_kind` values without an Evidence schema-version bump. |
 | 0.4.2 | 2026-05-07 | Added ADR 0044 Q-014 project-substrate enum mirrors, recorded `project_substrate_contract` as a `KnowledgeSource.source_kind`, promoted `project_admission_authority` as a typed `BoundaryObservation` branch, added the project teardown receipt mirrors, and bumped `BoundaryObservation.schema_version` to `0.5.0`. |

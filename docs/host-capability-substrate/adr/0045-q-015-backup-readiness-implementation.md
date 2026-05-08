@@ -205,9 +205,12 @@ plus stricter subtype rules:
 - `source`, optional `source_ref`, `observed_at`, `authority`, `confidence`,
   `parser_version`, `redaction_mode`, and producer/authority discipline are
   explicit.
-- Records bind to the relevant `workspace_id`, `execution_context_id`,
-  `credential_source_id`, `knowledge_source_id`, `provider_object`, or
-  external-control-plane reference as applicable.
+- Records bind to at least one applicable runtime or target reference such as
+  `workspace_id`, `execution_context_id`, `credential_source_id`,
+  `provider_object`, or external-control-plane reference.
+  `knowledge_source_id` is source citation only; by itself it is not
+  sufficient execution-context or freshness binding under charter invariant
+  19.
 - `subject_refs` name the underlying subject, not the evidence envelope.
   Schema work must not add subject-kind values such as
   `backup_readiness_observation`, `restore_drill_receipt`,
@@ -217,11 +220,16 @@ plus stricter subtype rules:
   `workspace`, `knowledge_source`, `credential_source`, `provider_object`,
   `external_control_plane`, `resource_budget`, `policy_plan`, and
   `machine_identity`. A new subject kind requires reviewer justification.
+- Final payload discriminators use Q-011 `_kind` names such as
+  `storage_class_kind`, `readiness_state_kind`, and
+  `custody_posture_kind`; `_ref` fields remain kind-tagged references.
 - `authority: "sandbox-observation"` must not satisfy backup readiness,
   restore-drill completion, credential custody, project admission,
   deletion authority, `allowed_for_gate`, or any future gate authority.
 - Source chunks, runbooks, threat models, and derived summaries remain
   display/discovery inputs only. Gate-consumed facts must be typed evidence.
+- Tombstoned, expired, stale, missing, contradictory, or sandbox-only evidence
+  must not satisfy backup readiness or future gate consumption.
 
 ### `KnowledgeSource.source_kind: "threat_model"`
 
@@ -259,21 +267,26 @@ Purpose:
 - Record the current readiness lifecycle state:
   `pending`, `configured`, `usable`, `ready`, `expired`, or `unknown`.
 - Record a generic storage class kind such as `object_store`,
-  `nfs_backup_target`, `vps_native_snapshot`, `restic_repository`,
+  `nfs_backup_target`, `vps_native_snapshot`, `backup_repository`,
   `filesystem_snapshot`, or `unknown`.
-- Cite restore-drill receipts, backup-operation evidence, monitoring evidence,
-  credential-custody evidence, threat-model source refs, and project backup
-  requirement evidence as applicable.
+- Cite restore-drill receipts, separately accepted external/upstream
+  backup-operation evidence refs if present, separately accepted monitoring
+  evidence refs if present, credential-custody evidence, threat-model source
+  refs, and project backup requirement evidence as applicable.
 - Preserve the rule that lifecycle state is evidence input, not gate authority
   by itself.
 
 Constraints:
 
-- `ready` requires at least one freshness-valid `RestoreDrillReceipt` evidence
-  ref with boot/service verification.
+- `ready` requires at least one freshness-valid, non-tombstoned
+  `RestoreDrillReceipt` evidence ref with boot/service verification. This ADR
+  does not set the duration, maximum age, or renewal window; those remain
+  policy-owned.
 - `configured` must not be interpreted as `usable`.
 - `usable` must not be interpreted as `ready`.
 - `expired` is a demotion state, not positive readiness.
+- `unknown` is not positive readiness and must not be treated as
+  `configured`, `usable`, or `ready`.
 - Storage-class enum values must be provider-neutral. Brand/provider labels
   belong in owning repos or external config, not HCS core enums.
 - This ADR does not add a standalone `StorageClassReadiness` entity.
@@ -296,6 +309,8 @@ Purpose:
 
 Constraints:
 
+- `ready` consumption requires a freshness-valid, non-tombstoned restore drill
+  receipt with boot and service verification.
 - `restored_environment_ref` is a typed reference to a provider/object or
   external-control-plane target. It is never an inline payload, file dump,
   database dump, environment dump, secret dump, or restored data sample.
@@ -355,8 +370,9 @@ Constraints:
 
 - This observation validates the backup requirement slice. It does not replace
   Q-014 contract validation or project admission evidence.
-- Rebuildable/disposable project data may waive backup readiness only when the
-  contract explicitly declares disposability and teardown evidence exists.
+- Rebuildable/disposable project data records source-declared disposability
+  and teardown evidence refs; future policy decides whether that satisfies a
+  waiver or admission condition.
 - Project backup requirements do not register runners, provision workloads, or
   pass project-substrate admission by themselves.
 
@@ -398,7 +414,7 @@ This ADR does not accept these records, enum values, or behaviors:
 - Generic storage class enum values are accepted in principle; brand/provider
   names remain outside HCS core ontology.
 
-### Rejects
+### Rejects / Stop Rules
 
 - Making HCS a backup executor, restore executor, runner, Proxmox, Hetzner,
   GitHub, OpenTofu, identity, or project workload control plane. Authority:
@@ -410,11 +426,15 @@ This ADR does not accept these records, enum values, or behaviors:
 - Adding `QualityGate.gate_kind: "backup_readiness"`, `ApprovalGrant.scope`,
   `allowed_for_gate`, gate-promotion, or canonical policy behavior in this
   ADR. Authority: charter invariants 1, 7, 18, and 19; ADR 0035.
-- Treating `pending`, `configured`, `usable`, `ready`, or `expired` lifecycle
-  status as gate authority by itself. Authority: ADR 0035 and ADR 0042.
+- Treating `pending`, `configured`, `usable`, `ready`, `expired`, or
+  `unknown` lifecycle status as gate authority by itself. Authority: ADR 0035
+  and ADR 0042.
 - Treating reachability as usability, successful backup jobs as readiness, or
   expired restore-drill evidence as still ready. Authority: ADR 0042 and
   charter invariant 19.
+- Treating tombstoned, stale, missing, contradictory, sandbox-only, or
+  unknown evidence as positive readiness. Authority: ADR 0042 and charter
+  invariant 19.
 - Treating backup readiness as runner readiness, or runner readiness as
   project workload admission. Authority: ADR 0032, ADR 0041, and ADR 0042.
 - Importing brand/provider storage-class enum names into HCS core ontology.
@@ -475,16 +495,28 @@ This ADR does not accept these records, enum values, or behaviors:
 - Charter: `docs/host-capability-substrate/implementation-charter.md` v1.4.0
 - Decision ledger: `DECISIONS.md` Q-015
 - Plan: `PLAN.md` Q-015 backup-readiness substrate-contract posture
+- Research plan:
+  `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`
 - Q-015 intake:
   `docs/host-capability-substrate/research/local/2026-05-06-q-015-backup-readiness-intake.md`
 - Q-015 lane plan:
   `docs/host-capability-substrate/research/local/2026-05-07-q-015-implementation-lane-plan.md`
 - Phase 2.7 deferred-lane sequencing:
   `docs/host-capability-substrate/research/local/2026-05-06-phase-2-7-deferred-lane-sequencing-plan.md`
+- Ontology registry:
+  `docs/host-capability-substrate/ontology-registry.md`
+- ADR 0006:
+  `docs/host-capability-substrate/adr/0006-policy-source-location.md`
 - ADR 0015:
   `docs/host-capability-substrate/adr/0015-external-control-plane-automation.md`
+- ADR 0019:
+  `docs/host-capability-substrate/adr/0019-knowledge-and-coordination-store.md`
 - ADR 0022:
   `docs/host-capability-substrate/adr/0022-boundary-observation-envelope.md`
+- ADR 0023:
+  `docs/host-capability-substrate/adr/0023-evidence-base-shape.md`
+- ADR 0032:
+  `docs/host-capability-substrate/adr/0032-q-005-ci-runner-evidence-model.md`
 - ADR 0034:
   `docs/host-capability-substrate/adr/0034-q-007-b-f-boundary-evidence-composition-quality-gate-posture.md`
 - ADR 0035:
@@ -495,6 +527,8 @@ This ADR does not accept these records, enum values, or behaviors:
   `docs/host-capability-substrate/adr/0038-phase-2-schema-landing-sequence.md`
 - ADR 0040:
   `docs/host-capability-substrate/adr/0040-credential-plane-integration.md`
+- ADR 0041:
+  `docs/host-capability-substrate/adr/0041-q-014-project-substrate-contract-validation.md`
 - ADR 0042:
   `docs/host-capability-substrate/adr/0042-q-015-backup-readiness-posture.md`
 - ADR 0043:

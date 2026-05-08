@@ -2,14 +2,14 @@
 
 Date: 2026-05-06
 
-Status: implementation ADR accepted. ADR 0043 has landed the Q-013
-credential-source and machine-identity evidence dependency, and ADR 0044 has
-accepted the first Q-014 schema/evidence implementation slice. This document
-and ADR 0044 authorize only that narrow slice. They do not authorize canonical
-policy YAML, runtime/live validators, adapters, dashboard routes, hooks,
-runner registration, GitHub runner-group mutation, Proxmox changes, OpenTofu
-changes, machine-identity issuance, project workload provisioning, provider
-mutation, operation registration, backup-readiness schema, `QualityGate`
+Status: schema slice landed. ADR 0043 landed the Q-013 credential-source and
+machine-identity evidence dependency, and ADR 0044 accepted and landed the
+first Q-014 schema/evidence implementation slice. This document and ADR 0044
+authorize only that narrow slice. They do not authorize canonical policy YAML,
+runtime/live validators, adapters, dashboard routes, hooks, runner
+registration, GitHub runner-group mutation, Proxmox changes, OpenTofu changes,
+machine-identity issuance, project workload provisioning, provider mutation,
+operation registration, backup-readiness schema, `QualityGate`
 project-admission gate behavior, or runtime behavior.
 
 ## Authority
@@ -35,11 +35,11 @@ External source authority remains Citadel PR #37, merged to
 
 ## Accepted Shape
 
-Q-014 composes with ADR 0036. Project-owned contract YAML is a future
-`KnowledgeSource` input with candidate
-`source_kind: "project_substrate_contract"`. Contract chunks are
-display/discovery input only; gate-eligible facts must be typed validation
-evidence that cites both the contract source and Layer 1 operational evidence.
+Q-014 composes with ADR 0036. Project-owned contract YAML is represented as a
+`KnowledgeSource` input with `source_kind: "project_substrate_contract"`.
+Contract chunks are display/discovery input only; gate-eligible facts must be
+typed validation evidence that cites both the contract source and Layer 1
+operational evidence.
 
 ADR 0041 accepts posture only for the cohort-2 evidence names:
 
@@ -48,7 +48,7 @@ ADR 0041 accepts posture only for the cohort-2 evidence names:
 - `ProjectTeardownPlanReceipt`
 - `ProjectTeardownCompletionReceipt`
 
-ADR 0044 accepts the first implementation values:
+ADR 0044 accepts and lands the first implementation values:
 
 - `KnowledgeSource.source_kind: "project_substrate_contract"`
 - `BoundaryObservation.boundary_dimension:
@@ -58,13 +58,13 @@ It keeps `QualityGate.gate_kind: "project_substrate_admission"` as a deferred
 future candidate requiring separate gate/policy acceptance.
 
 The external `guardian_approval` fact has one v1 ontology home:
-`boundary_dimension: "project_admission_authority"`. A future
+`boundary_dimension: "project_admission_authority"`.
 `ProjectSubstrateAdmissionObservation` may cite that `BoundaryObservation` and
 summarize its state, but must not duplicate the payload as a second fact home.
 
 ## Entry Conditions
 
-Q-014 schema implementation should not open until all of these are true:
+Q-014 schema implementation opened only after all of these became true:
 
 - Phase 2.1-2.6 schema train completed per ADR 0038.
 - Q-013 implementation landed the credential-source and machine-identity
@@ -78,33 +78,33 @@ Q-014 schema implementation should not open until all of these are true:
 These entry conditions are now satisfied for the ADR 0044 slice only. Any
 scope beyond ADR 0044 requires a follow-on accepted ADR or policy lane.
 
-## Future Work Packages
+## Landed Work Package and Deferred Follow-ups
 
 1. Schema/evidence implementation.
-   Define the exact cohort-2 payload shapes, subject refs, target refs,
-   content-hash grain, parser/version fields, evidence refs, and
-   execution-context bindings. ADR 0044 now carries the accepted scope; schema
-   work must follow `.agents/skills/hcs-schema-change`.
+   Completed by the ADR 0044 schema/evidence landing: exact cohort-2 payload
+   shapes, subject refs, target refs, content-hash grain, parser/version
+   fields, evidence refs, and execution-context bindings landed through the
+   schema-change workflow.
 
 2. Ontology registry update.
-   Add candidate enum values only with the normal schema-change lane:
-   registry entry, Zod source, generated JSON Schema, ontology docs, tests,
-   and fixtures in the same PR.
+   Completed for v1: registry entry, Zod source, generated JSON Schema,
+   ontology docs, tests, and fixtures moved in the same PR. Future gate-kind
+   or policy values remain deferred.
 
 3. Contract validation receipt.
-   Define `ProjectSubstrateContractValidationReceipt` as point-in-time
-   validation of contract structure against the accepted project-substrate
-   standard, keyed by contract content hash and validation run.
+   Completed for v1 as point-in-time validation of contract structure against
+   the accepted project-substrate standard, keyed by contract content hash and
+   validation run.
 
 4. Admission observation.
-   Define `ProjectSubstrateAdmissionObservation` as freshness-bound admission
-   state evidence that cites contract validation, Citadel authority records,
-   the `project_admission_authority` boundary observation, identity bindings,
+   Completed for v1 as freshness-bound admission state evidence that cites
+   contract validation, Citadel authority records, the
+   `project_admission_authority` boundary observation, identity bindings,
    boundary observations, and runner/check evidence as applicable.
 
 5. Teardown receipts.
-   Define `ProjectTeardownPlanReceipt` and
-   `ProjectTeardownCompletionReceipt` so both require typed deletion-authority
+   Completed for v1 as `ProjectTeardownPlanReceipt` and
+   `ProjectTeardownCompletionReceipt`; both require typed deletion-authority
    evidence. Contract self-assertion and `.gitignore` state are never deletion
    authority.
 
@@ -167,6 +167,7 @@ until separate accepted ADRs or policy lanes authorize them.
 
 | Version | Date | Change |
 |---|---:|---|
+| 0.5.1 | 2026-05-07 | Updated current-facing lane text after ADR 0044 schema/evidence values landed. |
 | 0.5.0 | 2026-05-07 | Recorded ADR 0044 schema/evidence landing; all Q-014 runtime, policy, dashboard, adapter, hook, runner, provider, backup-readiness, and gate-kind follow-ons remain blocked. |
 | 0.4.0 | 2026-05-07 | Updated after ADR 0044 acceptance; Q-014 schema/evidence implementation may open for the accepted slice only. |
 | 0.3.0 | 2026-05-07 | Added proposed ADR 0044 as the Q-014 implementation ADR draft; Q-014 schema/runtime work remains blocked until acceptance and reviewer pass. |

@@ -72,22 +72,23 @@ were satisfied:
   `hcs-architect`, `hcs-ontology-reviewer`, `hcs-policy-reviewer`, and
   `hcs-security-reviewer`.
 
-## Future Work Packages
+## Landed Work Package and Deferred Follow-ups
 
 1. Schema and registry implementation.
-   Implement ADR 0043 through `.agents/skills/hcs-schema-change`: Zod source,
-   generated JSON Schema, ontology docs, ontology registry entries, fixtures,
-   and tests move together.
+   Completed by the ADR 0043 schema/evidence landing: Zod source, generated
+   JSON Schema, ontology docs, ontology registry entries, fixtures, and tests
+   moved together.
 
 2. Credential authority observation.
-   Define typed evidence for authority, source posture, scope/audience posture,
-   health, expiry/rotation, provenance, and auditability without resolving
-   credential material.
+   Completed for v1 as typed evidence for authority, source posture,
+   scope/audience posture, health, expiry/rotation, provenance, and
+   auditability without resolving credential material.
 
 3. Machine identity binding observation.
-   Define typed evidence binding a nonhuman identity claim to credential-source
-   authority evidence through the ADR 0043 `machine_identity_kind` /
-   `machine_identity_ref` reference shape. HCS does not mint, rotate, retire,
+   Completed for v1 as typed evidence binding a nonhuman identity claim to
+   credential-source authority evidence through the ADR 0043
+   `machine_identity_kind` / `machine_identity_ref` reference shape. HCS does
+   not mint, rotate, retire,
    register, or mutate identities.
 
 4. Broker and runtime contract.
@@ -106,9 +107,11 @@ were satisfied:
    secret material. Reopen a separate policy Q-row only if Q-013 cannot contain
    state-leakage risk.
 
-7. Machine-identity dependency.
-   Land the credential-source and machine-identity evidence needed before Q-014
-   project-substrate implementation opens.
+7. Downstream dependency.
+   Completed for Q-014/Q-015 v1: the credential-source and machine-identity
+   evidence dependency exists. Future Q-013 runtime, broker, policy,
+   reconciler, credential-issuance, and provider-mutation work remains blocked
+   behind separate authority.
 
 ## Regression Trap Queue
 
@@ -152,17 +155,16 @@ Stop and return to human review if a task tries to:
 
 ## Next Safe Action
 
-Treat Q-013 v1 schema/evidence as landed. The next downstream lane is the
-Q-014 implementation ADR for project-substrate contract validation and
-admission evidence, now that the credential-source and machine-identity
-evidence dependency exists. Any Q-013 runtime, policy, broker, reconciler,
-provider-mutation, or credential-issuance work still requires a separate
-accepted ADR or policy lane.
+Treat Q-013 v1 schema/evidence as landed and consumed by the landed Q-014 and
+Q-015 schema/evidence slices. Any Q-013 runtime, policy, broker, reconciler,
+provider-mutation, credential-issuance, or additional schema work still
+requires a separate accepted ADR or policy lane.
 
 ## Change Log
 
 | Version | Date | Change |
 |---|---:|---|
+| 0.3.1 | 2026-05-07 | Updated downstream status after Q-014 and Q-015 v1 schema/evidence slices consumed the Q-013 dependency. |
 | 0.3.0 | 2026-05-07 | Recorded the ADR 0043 v1 schema/evidence landing and moved the next safe action to Q-014 implementation ADR planning. |
 | 0.2.0 | 2026-05-07 | Updated after ADR 0043 acceptance; Q-013 v1 schema/evidence implementation may open with runtime, policy, provider, and reconciler work still blocked. |
 | 0.1.0 | 2026-05-06 | Initial docs-only implementation-lane plan following ADR 0040 acceptance. |

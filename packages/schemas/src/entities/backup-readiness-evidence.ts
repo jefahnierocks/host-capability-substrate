@@ -3,7 +3,6 @@ import {
   entityIdSchema,
   evidenceAuthoritySchema,
   evidenceConfidenceSchema,
-  evidenceRefSchema,
   isoDateTimeSchema,
   sha256DigestSchema,
 } from '../common.ts';
@@ -86,8 +85,89 @@ const projectRequirementSubjectRefSchema = z.union([
   knowledgeSourceSubjectRefSchema,
 ]);
 
-const evidenceRefArraySchema = z.array(evidenceRefSchema).default([]);
-const requiredEvidenceRefArraySchema = z.array(evidenceRefSchema).min(1);
+const backupReadinessProofEvidenceRefSchema = z
+  .object({
+    evidence_id: entityIdSchema.describe('Reference to an Evidence record or fixture.'),
+    source: z.string().min(1).describe('Human-readable source name or artifact path.'),
+    observed_at: isoDateTimeSchema,
+    valid_until: isoDateTimeSchema,
+    authority: evidenceAuthoritySchema.exclude(['sandbox-observation']),
+    parser_version: z.string().min(1),
+    confidence: evidenceConfidenceSchema,
+    payload_schema_version: z.string().min(1).optional(),
+  })
+  .strict()
+  .describe(
+    'ADR 0045 proof-bearing EvidenceRef preview. It excludes sandbox-only observations and requires freshness metadata.',
+  );
+
+const proofEvidenceRefArraySchema = z.array(backupReadinessProofEvidenceRefSchema).default([]);
+const requiredProofEvidenceRefArraySchema = z.array(backupReadinessProofEvidenceRefSchema).min(1);
+
+const evidenceRefForPayloadSchemaVersion = (
+  payloadSchemaVersion: z.ZodType<string, string>,
+  description: string,
+) =>
+  backupReadinessProofEvidenceRefSchema
+    .extend({
+      payload_schema_version: payloadSchemaVersion,
+    })
+    .describe(description);
+
+const restoreDrillReceiptEvidenceRefSchema = evidenceRefForPayloadSchemaVersion(
+  z.literal('restore_drill_receipt:v1'),
+  'ADR 0045 typed proof ref to a RestoreDrillReceipt record.',
+);
+
+const backupReadinessObservationEvidenceRefSchema = evidenceRefForPayloadSchemaVersion(
+  z.literal('backup_readiness_observation:v1'),
+  'ADR 0045 typed proof ref to a BackupReadinessObservation record.',
+);
+
+const backupCredentialCustodyObservationEvidenceRefSchema = evidenceRefForPayloadSchemaVersion(
+  z.literal('backup_credential_custody_observation:v1'),
+  'ADR 0045 typed proof ref to a BackupCredentialCustodyObservation record.',
+);
+
+const projectSubstrateContractValidationReceiptEvidenceRefSchema =
+  evidenceRefForPayloadSchemaVersion(
+    z.literal('project_substrate_contract_validation_receipt:v1'),
+    'ADR 0045 typed proof ref to a ProjectSubstrateContractValidationReceipt record.',
+  );
+
+const projectSubstrateAdmissionObservationEvidenceRefSchema = evidenceRefForPayloadSchemaVersion(
+  z.literal('project_substrate_admission_observation:v1'),
+  'ADR 0045 typed proof ref to a ProjectSubstrateAdmissionObservation record.',
+);
+
+const projectSubstrateBackupRequirementObservationEvidenceRefSchema =
+  evidenceRefForPayloadSchemaVersion(
+    z.literal('project_substrate_backup_requirement_observation:v1'),
+    'ADR 0045 typed proof ref to a ProjectSubstrateBackupRequirementObservation record.',
+  );
+
+const projectTeardownEvidenceRefSchema = evidenceRefForPayloadSchemaVersion(
+  z.enum(['project_teardown_plan_receipt:v1', 'project_teardown_completion_receipt:v1']),
+  'ADR 0045 typed proof ref to project teardown plan or completion evidence.',
+);
+
+const restoreDrillReceiptEvidenceRefArraySchema = z
+  .array(restoreDrillReceiptEvidenceRefSchema)
+  .default([]);
+
+const backupReadinessObservationEvidenceRefArraySchema = z
+  .array(backupReadinessObservationEvidenceRefSchema)
+  .default([]);
+
+const backupCredentialCustodyObservationEvidenceRefArraySchema = z
+  .array(backupCredentialCustodyObservationEvidenceRefSchema)
+  .default([]);
+
+const projectSubstrateBackupRequirementObservationEvidenceRefArraySchema = z
+  .array(projectSubstrateBackupRequirementObservationEvidenceRefSchema)
+  .default([]);
+
+const projectTeardownEvidenceRefArraySchema = z.array(projectTeardownEvidenceRefSchema).default([]);
 
 export const backupStorageClassKindSchema = z
   .enum([
@@ -189,12 +269,13 @@ export const backupReadinessPayloadSchema = z
     readiness_state_kind: backupReadinessStateKindSchema,
     readiness_observed_at: isoDateTimeSchema,
     tombstone_state_kind: backupEvidenceTombstoneStateKindSchema,
-    restore_drill_evidence_refs: evidenceRefArraySchema,
-    backup_operation_evidence_refs: evidenceRefArraySchema,
-    monitoring_evidence_refs: evidenceRefArraySchema,
-    credential_custody_evidence_refs: evidenceRefArraySchema,
+    restore_drill_evidence_refs: restoreDrillReceiptEvidenceRefArraySchema,
+    backup_operation_evidence_refs: proofEvidenceRefArraySchema,
+    monitoring_evidence_refs: proofEvidenceRefArraySchema,
+    credential_custody_evidence_refs: backupCredentialCustodyObservationEvidenceRefArraySchema,
     threat_model_source_refs: z.array(backupThreatModelSourceRefSchema).default([]),
-    project_backup_requirement_evidence_refs: evidenceRefArraySchema,
+    project_backup_requirement_evidence_refs:
+      projectSubstrateBackupRequirementObservationEvidenceRefArraySchema,
   })
   .strict()
   .describe('ADR 0045 BackupReadinessObservation typed Evidence payload.');
@@ -281,10 +362,10 @@ export const restoreDrillPayloadSchema = z
     rpo_seconds: z.number().int().nonnegative().optional(),
     runbook_source_ref: backupKnowledgeSourceRefSchema.optional(),
     cleanup_disposition_kind: backupCleanupDispositionKindSchema,
-    source_artifact_evidence_refs: requiredEvidenceRefArraySchema,
-    boot_verification_evidence_refs: evidenceRefArraySchema,
-    service_verification_evidence_refs: evidenceRefArraySchema,
-    cleanup_evidence_refs: evidenceRefArraySchema,
+    source_artifact_evidence_refs: requiredProofEvidenceRefArraySchema,
+    boot_verification_evidence_refs: proofEvidenceRefArraySchema,
+    service_verification_evidence_refs: proofEvidenceRefArraySchema,
+    cleanup_evidence_refs: proofEvidenceRefArraySchema,
   })
   .strict()
   .describe('ADR 0045 RestoreDrillReceipt typed Evidence payload.');
@@ -319,13 +400,13 @@ export const backupCredentialCustodyPayloadSchema = z
     backup_surface_ref: backupTargetRefSchema,
     runtime_read_pattern_source_ref: backupKnowledgeSourceRefSchema.optional(),
     break_glass_recovery_path_source_ref: backupKnowledgeSourceRefSchema.optional(),
-    secret_reference_evidence_refs: requiredEvidenceRefArraySchema,
+    secret_reference_evidence_refs: requiredProofEvidenceRefArraySchema,
     custody_posture_kind: backupCustodyPostureKindSchema,
     expiry_posture_kind: backupCredentialExpiryPostureKindSchema,
     rotation_posture_kind: backupCredentialRotationPostureKindSchema,
     auditability_kind: backupCredentialAuditabilityKindSchema,
-    credential_authority_evidence_refs: evidenceRefArraySchema,
-    machine_identity_binding_evidence_refs: evidenceRefArraySchema,
+    credential_authority_evidence_refs: proofEvidenceRefArraySchema,
+    machine_identity_binding_evidence_refs: proofEvidenceRefArraySchema,
   })
   .strict()
   .describe('ADR 0045 BackupCredentialCustodyObservation typed Evidence payload.');
@@ -370,11 +451,11 @@ export const projectBackupRequirementPayloadSchema = z
     retention_expectation_kind: backupRetentionExpectationKindSchema,
     teardown_expectation_kind: backupTeardownExpectationKindSchema,
     disposability_declared: z.boolean(),
-    contract_validation_evidence_ref: evidenceRefSchema,
-    admission_evidence_ref: evidenceRefSchema.optional(),
-    backup_readiness_evidence_refs: evidenceRefArraySchema,
-    restore_drill_evidence_refs: evidenceRefArraySchema,
-    teardown_evidence_refs: evidenceRefArraySchema,
+    contract_validation_evidence_ref: projectSubstrateContractValidationReceiptEvidenceRefSchema,
+    admission_evidence_ref: projectSubstrateAdmissionObservationEvidenceRefSchema.optional(),
+    backup_readiness_evidence_refs: backupReadinessObservationEvidenceRefArraySchema,
+    restore_drill_evidence_refs: restoreDrillReceiptEvidenceRefArraySchema,
+    teardown_evidence_refs: projectTeardownEvidenceRefArraySchema,
   })
   .strict()
   .describe('ADR 0045 ProjectSubstrateBackupRequirementObservation typed Evidence payload.');

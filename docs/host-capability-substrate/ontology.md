@@ -3,7 +3,7 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.11.0
+version: 1.11.1
 last_updated: 2026-05-07
 tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill]
 priority: high
@@ -200,6 +200,9 @@ a policy rule, live source of truth, or gate authority by itself.
 Key fields:
 
 - `knowledge_source_id` is the stable local identifier.
+- `schema_version` is currently `0.2.0`; ADR 0045 bumped it because
+  `source_kind: "threat_model"` widens the existing `KnowledgeSource` enum
+  contract.
 - `uri` is the canonical location string for the source.
 - `content_hash` is a `sha256:` digest of the source content at index time.
 - `source_kind` is one of `charter`, `adr`, `decision_ledger`, `runbook`,
@@ -1013,10 +1016,13 @@ backup_readiness`.
 
 All Q-015 records require non-null `valid_until`, explicit non-`none`
 `redaction_mode`, non-sandbox authority, strict payloads, and existing
-subject kinds. This schema slice does not widen base `Evidence.subject_kind`
-and therefore does not bump `Evidence.schema_version`. Source/runbook/threat
-model material is cited through `KnowledgeSource` references; chunks and
-runbooks remain discovery inputs, not gate authority.
+subject kinds. Proof-bearing nested evidence refs also require non-sandbox
+authority, non-null `valid_until`, `parser_version`, and typed
+`payload_schema_version` where the referenced subtype is load-bearing. This
+schema slice does not widen base `Evidence.subject_kind` and therefore does
+not bump `Evidence.schema_version`. Source/runbook/threat model material is
+cited through `KnowledgeSource` references; chunks and runbooks remain
+discovery inputs, not gate authority.
 
 ### `BackupReadinessObservation`
 
@@ -1030,9 +1036,13 @@ restore-drill evidence refs, separately accepted upstream backup-operation and
 monitoring evidence refs, credential-custody refs, threat-model source refs,
 and project backup requirement evidence refs.
 
-`ready` requires restore-drill evidence and `not_tombstoned`. `configured`,
-`usable`, `expired`, and `unknown` remain distinct evidence states and are not
-gate authority by themselves.
+`ready` requires a typed restore-drill receipt evidence ref and
+`not_tombstoned`. `configured`, `usable`, `expired`, and `unknown` remain
+distinct evidence states and are not gate authority by themselves. Future
+policy and kernel consumers must still dereference the cited
+`RestoreDrillReceipt` and verify freshness, boot verification, service
+verification, and contradictions before treating readiness as positive
+admission or gate evidence.
 
 ### `RestoreDrillReceipt`
 
@@ -1354,6 +1364,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.11.1 | 2026-05-07 | Tightened Q-015 proof-bearing nested evidence ref docs and recorded `KnowledgeSource.schema_version` `0.2.0` for the ADR 0045 `threat_model` source-kind extension. |
 | 1.11.0 | 2026-05-07 | Added ADR 0045 Q-015 backup-readiness Evidence subtype docs, `threat_model` KnowledgeSource source kind docs, and noted that this slice reuses existing Evidence subject kinds without an Evidence schema-version bump. |
 | 1.10.0 | 2026-05-07 | Added ADR 0044 Q-014 project-substrate Evidence subtype docs, `project_substrate_contract` KnowledgeSource source kind docs, `project_admission_authority` BoundaryObservation docs, and noted the BoundaryObservation schema bump to `0.5.0`. |
 | 1.9.0 | 2026-05-07 | Added ADR 0043 Q-013 credential-plane Evidence subtype docs for `CredentialAuthorityObservation` and `MachineIdentityBindingObservation`, and noted the Evidence schema bump to `0.9.0`. |

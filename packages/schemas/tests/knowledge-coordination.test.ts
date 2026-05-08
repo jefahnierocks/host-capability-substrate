@@ -27,7 +27,7 @@ const derivedEvidenceRef = {
 describe('Knowledge and coordination schemas', () => {
   it('validates KnowledgeSource records with ADR 0036 source_kind and security_label extensions', () => {
     const source = knowledgeSourceSchema.parse({
-      schema_version: '0.1.0',
+      schema_version: '0.2.0',
       knowledge_source_id: 'knowledge-source:hcs:audit-profile',
       uri: 'repo://docs/audit/project_profile.yaml',
       content_hash: hash,
@@ -65,6 +65,13 @@ describe('Knowledge and coordination schemas', () => {
     });
 
     expect(projectContractSource.source_kind).toBe('project_substrate_contract');
+    expect(
+      knowledgeSourceSchema.safeParse({
+        ...source,
+        schema_version: '0.1.0',
+        knowledge_source_id: 'knowledge-source:hcs:old-schema-version',
+      }).success,
+    ).toBe(false);
   });
 
   it('keeps secret_referenced KnowledgeChunk records out of embedding storage', () => {

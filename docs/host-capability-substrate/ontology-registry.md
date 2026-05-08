@@ -3,7 +3,7 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.4.3
+version: 0.4.4
 last_updated: 2026-05-07
 tags: [ontology, registry, registry-consolidation, phase-2-4, phase-2-7, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, remote-agent, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
 priority: high
@@ -591,7 +591,7 @@ work can cite one stable registry index.
 |---|---:|---|---|---|---|
 | `AgentClient` | 2.1.1 | ADR 0037 | `packages/schemas/src/entities/agent-client.ts` | `packages/schemas/generated/AgentClient.schema.json` | Identity-axis enum mirrors and `remote_cloud_agent` surface extension recorded. |
 | `VerificationCommandSpec` | 2.1.2 | ADR 0036 | `packages/schemas/src/entities/verification-command-spec.ts` | `packages/schemas/generated/VerificationCommandSpec.schema.json` | `workspace_verify` operation-class posture and `kernel_workspace_diagnose` producer class recorded. |
-| `KnowledgeSource` | 2.1.3 | ADR 0019 v3 | `packages/schemas/src/entities/knowledge-source.ts` | `packages/schemas/generated/KnowledgeSource.schema.json` | Source-kind and security-label mirrors recorded; `KnowledgeChunk` output remains display-only. |
+| `KnowledgeSource` | 2.1.3 | ADR 0019 v3 + ADR 0045 | `packages/schemas/src/entities/knowledge-source.ts` | `packages/schemas/generated/KnowledgeSource.schema.json` | Source-kind and security-label mirrors recorded; `KnowledgeChunk` output remains display-only; `schema_version` is `0.2.0` after the ADR 0045 `threat_model` source-kind extension. |
 | `KnowledgeChunk` | 2.1.3 | ADR 0019 v3 | `packages/schemas/src/entities/knowledge-chunk.ts` | `packages/schemas/generated/KnowledgeChunk.schema.json` | Not gate authority directly per charter invariant 18. |
 | `CoordinationFact` | 2.1.3 | ADR 0019 v3 | `packages/schemas/src/entities/coordination-fact.ts` | `packages/schemas/generated/CoordinationFact.schema.json` | Promotion vocabulary and coordination subject/object/predicate mirrors recorded. |
 | `DerivedSummary` | 2.1.3 | ADR 0019 v3 | `packages/schemas/src/entities/derived-summary.ts` | `packages/schemas/generated/DerivedSummary.schema.json` | Derived graph record-kind mirror recorded; promotion constraints stay Ring 1 / gate consumption posture. |
@@ -660,9 +660,10 @@ work can cite one stable registry index.
 |---|---:|---|---|
 | `Evidence` | `0.9.0` | Phase 2.7 Q-013 machine-identity subject-kind extension | Direct Evidence subtype payloads use the base envelope and their own `payload_schema_version` values. ADR 0045 Q-015 reuses existing subject kinds and does not bump this version. |
 | `BoundaryObservation` | `0.5.0` | Phase 2.7 Q-014 `project_admission_authority` branch | `evidence_schema_version` is an independent envelope field that cites the base `Evidence` contract; current fixtures use the base `Evidence` version without requiring future lockstep bumps. |
+| `KnowledgeSource` | `0.2.0` | Phase 2.7 Q-015 `threat_model` source-kind extension | The enum contract widened after the Phase 2.1.3 introduction; ADR 0045 owns this schema-version bump. |
 | `ExecutionContext` | `0.2.0` | Phase 2.2.1 containment-cache refactor | Cache is kernel-set and points to typed containment evidence. |
 | `OperationShape` | `0.2.0` | Phase 2.2.2 deletion-authority extension | No mutation/execute behavior is authorized by this registry record. |
-| Standalone Phase 2.1 entities | `0.1.0` | Phase 2.1 entity introductions | Uses common `schemaVersionSchema`; future breaking changes require their own ADR. |
+| Other standalone Phase 2.1 entities | `0.1.0` | Phase 2.1 entity introductions | Uses common `schemaVersionSchema`; future breaking changes require their own ADR. |
 
 ### Kernel-trusted producer allowlist final state
 
@@ -1980,6 +1981,10 @@ Source: ADR 0045.
 
 - `threat_model`
 
+`KnowledgeSource.schema_version`:
+
+- `0.2.0`
+
 `BackupReadinessObservation.payload.storage_class_kind` and
 `ProjectSubstrateBackupRequirementObservation.payload.required_storage_class_kind`:
 
@@ -2102,8 +2107,13 @@ Mirror notes:
 - `BackupReadinessObservation` is a direct Evidence subtype, not a
   `BoundaryObservation` branch and not a standalone `StorageClassReadiness`
   entity.
-- `ready` requires restore-drill evidence and `not_tombstoned`; `configured`,
-  `usable`, `expired`, and `unknown` are not gate authority by themselves.
+- `ready` requires typed, freshness-bearing restore-drill receipt evidence
+  refs and `not_tombstoned`; `configured`, `usable`, `expired`, and
+  `unknown` are not gate authority by themselves.
+- Q-015 proof-bearing nested evidence refs exclude `sandbox-observation`,
+  require non-null `valid_until` and `parser_version`, and require
+  `payload_schema_version` where a specific Q-013/Q-014/Q-015 subtype is the
+  load-bearing referenced record.
 - Backup-operation and monitoring evidence refs are references to separately
   accepted upstream/external evidence if present. ADR 0045 does not accept a
   Q-015 backup execution receipt or monitoring entity.
@@ -2481,6 +2491,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.4.4 | 2026-05-07 | Recorded `KnowledgeSource.schema_version` `0.2.0` for the ADR 0045 `threat_model` source-kind extension and tightened Q-015 proof-bearing nested evidence-ref registry notes. |
 | 0.4.3 | 2026-05-07 | Added ADR 0045 Q-015 backup-readiness enum mirrors, recorded `threat_model` as a `KnowledgeSource.source_kind`, added the backup readiness/restore drill/credential custody/project backup requirement direct Evidence subtypes, and noted that Q-015 reuses existing `Evidence.subject_kind` values without an Evidence schema-version bump. |
 | 0.4.2 | 2026-05-07 | Added ADR 0044 Q-014 project-substrate enum mirrors, recorded `project_substrate_contract` as a `KnowledgeSource.source_kind`, promoted `project_admission_authority` as a typed `BoundaryObservation` branch, added the project teardown receipt mirrors, and bumped `BoundaryObservation.schema_version` to `0.5.0`. |
 | 0.4.1 | 2026-05-07 | Added ADR 0043 Q-013 credential-plane enum mirrors for `CredentialAuthorityObservation` and `MachineIdentityBindingObservation`, recorded `machine_identity` as an `Evidence.subject_kind`, and bumped `Evidence.schema_version` to `0.9.0`. |

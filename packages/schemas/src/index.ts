@@ -282,6 +282,7 @@ export {
   knowledgeSecurityLabelSchema,
   knowledgeSourceKindSchema,
   knowledgeSourceSchema,
+  knowledgeSourceSchemaVersionSchema,
 } from './entities/knowledge-source.ts';
 export {
   coordinationFactDeletionAuthorityRefSchema,

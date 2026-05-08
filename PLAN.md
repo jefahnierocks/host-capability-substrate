@@ -231,12 +231,13 @@ landed via accepted ADR:
 `docs/host-capability-substrate/adr/0044-q-014-project-substrate-implementation.md`;
 lane plan:
 `docs/host-capability-substrate/research/local/2026-05-06-q-014-implementation-lane-plan.md`);
-Q-015 backup-readiness implementation ADR (after Q-013 and Q-014
-implementation evidence and only if backup/readiness remains an independent
-evidence need; proposed ADR:
+Q-015 backup-readiness schema/evidence slice landed via accepted ADR:
 `docs/host-capability-substrate/adr/0045-q-015-backup-readiness-implementation.md`;
 lane plan:
-`docs/host-capability-substrate/research/local/2026-05-07-q-015-implementation-lane-plan.md`);
+`docs/host-capability-substrate/research/local/2026-05-07-q-015-implementation-lane-plan.md`;
+follow-on Q-015 policy, gate-kind, runtime validator, dashboard, adapter,
+backup/restore execution, and provider lanes remain blocked pending separate
+accepted authority);
 joint sequencing:
 `docs/host-capability-substrate/research/local/2026-05-06-phase-2-7-deferred-lane-sequencing-plan.md`.
 

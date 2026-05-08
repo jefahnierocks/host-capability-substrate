@@ -296,17 +296,10 @@
               "description": "RFC 3339 timestamp with an explicit UTC offset."
             },
             "valid_until": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "format": "date-time",
-                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
-                  "description": "RFC 3339 timestamp with an explicit UTC offset."
-                },
-                {
-                  "type": "null"
-                }
-              ]
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
             },
             "authority": {
               "type": "string",
@@ -316,13 +309,11 @@
                 "user-global",
                 "system",
                 "derived",
-                "sandbox-observation",
                 "host-observation",
                 "vendor-doc",
                 "installed-runtime",
                 "human-observed"
-              ],
-              "description": "Authority plane for a fact or observation."
+              ]
             },
             "parser_version": {
               "type": "string",
@@ -338,17 +329,24 @@
                 "unknown"
               ],
               "description": "Confidence assigned to an observation by the producer."
+            },
+            "payload_schema_version": {
+              "type": "string",
+              "const": "project_substrate_contract_validation_receipt:v1"
             }
           },
           "required": [
             "evidence_id",
             "source",
             "observed_at",
+            "valid_until",
             "authority",
-            "confidence"
+            "parser_version",
+            "confidence",
+            "payload_schema_version"
           ],
           "additionalProperties": false,
-          "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+          "description": "ADR 0045 typed proof ref to a ProjectSubstrateContractValidationReceipt record."
         },
         "admission_evidence_ref": {
           "type": "object",
@@ -371,17 +369,10 @@
               "description": "RFC 3339 timestamp with an explicit UTC offset."
             },
             "valid_until": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "format": "date-time",
-                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
-                  "description": "RFC 3339 timestamp with an explicit UTC offset."
-                },
-                {
-                  "type": "null"
-                }
-              ]
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "description": "RFC 3339 timestamp with an explicit UTC offset."
             },
             "authority": {
               "type": "string",
@@ -391,13 +382,11 @@
                 "user-global",
                 "system",
                 "derived",
-                "sandbox-observation",
                 "host-observation",
                 "vendor-doc",
                 "installed-runtime",
                 "human-observed"
-              ],
-              "description": "Authority plane for a fact or observation."
+              ]
             },
             "parser_version": {
               "type": "string",
@@ -413,17 +402,24 @@
                 "unknown"
               ],
               "description": "Confidence assigned to an observation by the producer."
+            },
+            "payload_schema_version": {
+              "type": "string",
+              "const": "project_substrate_admission_observation:v1"
             }
           },
           "required": [
             "evidence_id",
             "source",
             "observed_at",
+            "valid_until",
             "authority",
-            "confidence"
+            "parser_version",
+            "confidence",
+            "payload_schema_version"
           ],
           "additionalProperties": false,
-          "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+          "description": "ADR 0045 typed proof ref to a ProjectSubstrateAdmissionObservation record."
         },
         "backup_readiness_evidence_refs": {
           "default": [],
@@ -449,17 +445,10 @@
                 "description": "RFC 3339 timestamp with an explicit UTC offset."
               },
               "valid_until": {
-                "anyOf": [
-                  {
-                    "type": "string",
-                    "format": "date-time",
-                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
-                    "description": "RFC 3339 timestamp with an explicit UTC offset."
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "description": "RFC 3339 timestamp with an explicit UTC offset."
               },
               "authority": {
                 "type": "string",
@@ -469,13 +458,11 @@
                   "user-global",
                   "system",
                   "derived",
-                  "sandbox-observation",
                   "host-observation",
                   "vendor-doc",
                   "installed-runtime",
                   "human-observed"
-                ],
-                "description": "Authority plane for a fact or observation."
+                ]
               },
               "parser_version": {
                 "type": "string",
@@ -491,17 +478,24 @@
                   "unknown"
                 ],
                 "description": "Confidence assigned to an observation by the producer."
+              },
+              "payload_schema_version": {
+                "type": "string",
+                "const": "backup_readiness_observation:v1"
               }
             },
             "required": [
               "evidence_id",
               "source",
               "observed_at",
+              "valid_until",
               "authority",
-              "confidence"
+              "parser_version",
+              "confidence",
+              "payload_schema_version"
             ],
             "additionalProperties": false,
-            "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+            "description": "ADR 0045 typed proof ref to a BackupReadinessObservation record."
           }
         },
         "restore_drill_evidence_refs": {
@@ -528,17 +522,10 @@
                 "description": "RFC 3339 timestamp with an explicit UTC offset."
               },
               "valid_until": {
-                "anyOf": [
-                  {
-                    "type": "string",
-                    "format": "date-time",
-                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
-                    "description": "RFC 3339 timestamp with an explicit UTC offset."
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "description": "RFC 3339 timestamp with an explicit UTC offset."
               },
               "authority": {
                 "type": "string",
@@ -548,13 +535,11 @@
                   "user-global",
                   "system",
                   "derived",
-                  "sandbox-observation",
                   "host-observation",
                   "vendor-doc",
                   "installed-runtime",
                   "human-observed"
-                ],
-                "description": "Authority plane for a fact or observation."
+                ]
               },
               "parser_version": {
                 "type": "string",
@@ -570,17 +555,24 @@
                   "unknown"
                 ],
                 "description": "Confidence assigned to an observation by the producer."
+              },
+              "payload_schema_version": {
+                "type": "string",
+                "const": "restore_drill_receipt:v1"
               }
             },
             "required": [
               "evidence_id",
               "source",
               "observed_at",
+              "valid_until",
               "authority",
-              "confidence"
+              "parser_version",
+              "confidence",
+              "payload_schema_version"
             ],
             "additionalProperties": false,
-            "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+            "description": "ADR 0045 typed proof ref to a RestoreDrillReceipt record."
           }
         },
         "teardown_evidence_refs": {
@@ -607,17 +599,10 @@
                 "description": "RFC 3339 timestamp with an explicit UTC offset."
               },
               "valid_until": {
-                "anyOf": [
-                  {
-                    "type": "string",
-                    "format": "date-time",
-                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
-                    "description": "RFC 3339 timestamp with an explicit UTC offset."
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "description": "RFC 3339 timestamp with an explicit UTC offset."
               },
               "authority": {
                 "type": "string",
@@ -627,13 +612,11 @@
                   "user-global",
                   "system",
                   "derived",
-                  "sandbox-observation",
                   "host-observation",
                   "vendor-doc",
                   "installed-runtime",
                   "human-observed"
-                ],
-                "description": "Authority plane for a fact or observation."
+                ]
               },
               "parser_version": {
                 "type": "string",
@@ -649,17 +632,27 @@
                   "unknown"
                 ],
                 "description": "Confidence assigned to an observation by the producer."
+              },
+              "payload_schema_version": {
+                "type": "string",
+                "enum": [
+                  "project_teardown_plan_receipt:v1",
+                  "project_teardown_completion_receipt:v1"
+                ]
               }
             },
             "required": [
               "evidence_id",
               "source",
               "observed_at",
+              "valid_until",
               "authority",
-              "confidence"
+              "parser_version",
+              "confidence",
+              "payload_schema_version"
             ],
             "additionalProperties": false,
-            "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+            "description": "ADR 0045 typed proof ref to project teardown plan or completion evidence."
           }
         }
       },
@@ -701,5 +694,44 @@
     "payload"
   ],
   "additionalProperties": false,
-  "description": "ADR 0045 ProjectSubstrateBackupRequirementObservation direct Evidence subtype."
+  "description": "ADR 0045 ProjectSubstrateBackupRequirementObservation direct Evidence subtype.",
+  "allOf": [
+    {
+      "if": {
+        "required": [
+          "payload"
+        ],
+        "properties": {
+          "payload": {
+            "required": [
+              "persistent_data_kind"
+            ],
+            "properties": {
+              "persistent_data_kind": {
+                "const": "disposable_rebuildable"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "required": [
+              "disposability_declared",
+              "teardown_evidence_refs"
+            ],
+            "properties": {
+              "disposability_declared": {
+                "const": true
+              },
+              "teardown_evidence_refs": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }

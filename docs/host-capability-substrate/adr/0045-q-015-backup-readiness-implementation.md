@@ -256,11 +256,18 @@ plus stricter subtype rules:
   display/discovery inputs only. Gate-consumed facts must be typed evidence.
 - Tombstoned, expired, stale, missing, contradictory, or sandbox-only evidence
   must not satisfy backup readiness or future gate consumption.
+- Proof-bearing nested evidence refs must exclude sandbox authority, require
+  non-null `valid_until` and `parser_version`, and carry a typed
+  `payload_schema_version` when a specific Q-013/Q-014/Q-015 subtype is the
+  load-bearing referenced record.
 
 ### `KnowledgeSource.source_kind: "threat_model"`
 
 Threat-model documents are represented as generic Layer 2 `KnowledgeSource`
 records, not as standalone HCS policy or accepted-risk entities.
+Adding this source kind widens the existing `KnowledgeSource` enum contract;
+the implementation therefore bumps `KnowledgeSource.schema_version` to
+`0.2.0`.
 
 Purpose:
 
@@ -505,8 +512,9 @@ This ADR does not accept these records, enum values, or behaviors:
   control-plane expansion.
 - `hcs-ontology-reviewer`: Q-011 naming-suffix discipline; direct Evidence vs
   `BoundaryObservation` vs standalone entity placement; `threat_model`
-  source-kind addition; generic storage-class enum names; no upstream
-  brand/provider names in HCS core ontology.
+  source-kind addition and `KnowledgeSource.schema_version` bump; generic
+  storage-class enum names; no upstream brand/provider names in HCS core
+  ontology.
 - `hcs-policy-reviewer`: canonical policy YAML boundary; no upstream policy
   duplication; lifecycle status not gate authority; freshness windows
   deferred to policy; no `QualityGate.gate_kind` accepted here.

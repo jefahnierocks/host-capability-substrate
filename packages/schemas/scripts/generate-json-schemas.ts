@@ -57,7 +57,107 @@ const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const generatedDir = resolve(packageRoot, 'generated');
 const checkMode = process.argv.includes('--check');
 
-const schemaEntries = [
+type JsonSchemaObject = Record<string, unknown>;
+
+type SchemaEntry = {
+  file: string;
+  title: string;
+  schema: z.ZodType;
+  jsonSchemaTransform?: (schema: JsonSchemaObject) => JsonSchemaObject;
+};
+
+const withJsonSchemaAllOf =
+  (clauses: JsonSchemaObject[]) =>
+  (schema: JsonSchemaObject): JsonSchemaObject => ({
+    ...schema,
+    allOf: [...(Array.isArray(schema.allOf) ? schema.allOf : []), ...clauses],
+  });
+
+const jsonSchemaThenKey = 'then';
+
+const backupReadinessReadyGuard = {
+  if: {
+    required: ['payload'],
+    properties: {
+      payload: {
+        required: ['readiness_state_kind'],
+        properties: {
+          readiness_state_kind: { const: 'ready' },
+        },
+      },
+    },
+  },
+  [jsonSchemaThenKey]: {
+    properties: {
+      payload: {
+        required: ['restore_drill_evidence_refs', 'tombstone_state_kind'],
+        properties: {
+          restore_drill_evidence_refs: { minItems: 1 },
+          tombstone_state_kind: { const: 'not_tombstoned' },
+        },
+      },
+    },
+  },
+};
+
+const restoreDrillSucceededGuard = {
+  if: {
+    required: ['payload'],
+    properties: {
+      payload: {
+        required: ['drill_result_kind'],
+        properties: {
+          drill_result_kind: { const: 'succeeded' },
+        },
+      },
+    },
+  },
+  [jsonSchemaThenKey]: {
+    properties: {
+      payload: {
+        required: [
+          'boot_verification_kind',
+          'service_verification_kind',
+          'boot_verification_evidence_refs',
+          'service_verification_evidence_refs',
+        ],
+        properties: {
+          boot_verification_kind: { const: 'verified' },
+          service_verification_kind: { const: 'verified' },
+          boot_verification_evidence_refs: { minItems: 1 },
+          service_verification_evidence_refs: { minItems: 1 },
+        },
+      },
+    },
+  },
+};
+
+const projectBackupRequirementDisposableGuard = {
+  if: {
+    required: ['payload'],
+    properties: {
+      payload: {
+        required: ['persistent_data_kind'],
+        properties: {
+          persistent_data_kind: { const: 'disposable_rebuildable' },
+        },
+      },
+    },
+  },
+  [jsonSchemaThenKey]: {
+    properties: {
+      payload: {
+        required: ['disposability_declared', 'teardown_evidence_refs'],
+        properties: {
+          disposability_declared: { const: true },
+          teardown_evidence_refs: { minItems: 1 },
+        },
+      },
+    },
+  },
+};
+
+const schemaEntries: SchemaEntry[] = [
   {
     file: 'AgentClient.schema.json',
     title: 'AgentClient',
@@ -72,6 +172,7 @@ const schemaEntries = [
     file: 'BackupReadinessObservation.schema.json',
     title: 'BackupReadinessObservation',
     schema: backupReadinessObservationSchema,
+    jsonSchemaTransform: withJsonSchemaAllOf([backupReadinessReadyGuard]),
   },
   {
     file: 'BackupCredentialCustodyObservation.schema.json',
@@ -237,6 +338,7 @@ const schemaEntries = [
     file: 'ProjectSubstrateBackupRequirementObservation.schema.json',
     title: 'ProjectSubstrateBackupRequirementObservation',
     schema: projectSubstrateBackupRequirementObservationSchema,
+    jsonSchemaTransform: withJsonSchemaAllOf([projectBackupRequirementDisposableGuard]),
   },
   {
     file: 'QualityGate.schema.json',
@@ -277,6 +379,7 @@ const schemaEntries = [
     file: 'RestoreDrillReceipt.schema.json',
     title: 'RestoreDrillReceipt',
     schema: restoreDrillReceiptSchema,
+    jsonSchemaTransform: withJsonSchemaAllOf([restoreDrillSucceededGuard]),
   },
   {
     file: 'StartupPhase.schema.json',
@@ -298,17 +401,21 @@ const schemaEntries = [
     title: 'WorkflowRunReceipt',
     schema: workflowRunReceiptSchema,
   },
-] as const;
+];
 
 const drifted: string[] = [];
 
 await mkdir(generatedDir, { recursive: true });
 
 for (const entry of schemaEntries) {
+  const baseSchema = z.toJSONSchema(entry.schema) as JsonSchemaObject;
+  const transformedSchema = entry.jsonSchemaTransform
+    ? entry.jsonSchemaTransform(baseSchema)
+    : baseSchema;
   const generated = {
     $id: `https://jefahnierocks.local/host-capability-substrate/schemas/${entry.file}`,
     title: entry.title,
-    ...z.toJSONSchema(entry.schema),
+    ...transformedSchema,
   };
   const rendered = `${JSON.stringify(generated, null, 2)}\n`;
   const target = resolve(generatedDir, entry.file);

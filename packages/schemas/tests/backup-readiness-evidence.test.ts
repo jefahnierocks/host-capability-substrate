@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   backupCredentialCustodyObservationSchema,
@@ -15,14 +16,111 @@ const credentialSourceId = 'credential-source:backup:hcs';
 const knowledgeSourceId = 'knowledge-source:threat-model:hcs';
 const contractHash = 'sha256:abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd';
 
-const evidenceRef = {
-  evidence_id: 'evidence:backup:source',
+const proofEvidenceRef = {
+  evidence_id: 'evidence:backup:proof',
   source: 'backup-readiness-fixture',
   observed_at: observedAt,
   valid_until: validUntil,
   authority: 'host-observation',
   confidence: 'high',
   parser_version: 'backup-readiness-parser:v1',
+} as const;
+
+const backupOperationEvidenceRef = {
+  ...proofEvidenceRef,
+  evidence_id: 'evidence:backup-operation:hcs',
+} as const;
+
+const monitoringEvidenceRef = {
+  ...proofEvidenceRef,
+  evidence_id: 'evidence:backup-monitoring:hcs',
+} as const;
+
+const restoreDrillEvidenceRef = {
+  ...proofEvidenceRef,
+  evidence_id: 'evidence:restore-drill:hcs',
+  payload_schema_version: 'restore_drill_receipt:v1',
+} as const;
+
+const sourceArtifactEvidenceRef = {
+  ...proofEvidenceRef,
+  evidence_id: 'evidence:backup-source-artifact:hcs',
+} as const;
+
+const bootVerificationEvidenceRef = {
+  ...proofEvidenceRef,
+  evidence_id: 'evidence:restore-drill:boot-verification',
+} as const;
+
+const serviceVerificationEvidenceRef = {
+  ...proofEvidenceRef,
+  evidence_id: 'evidence:restore-drill:service-verification',
+} as const;
+
+const cleanupEvidenceRef = {
+  ...proofEvidenceRef,
+  evidence_id: 'evidence:restore-drill:cleanup',
+} as const;
+
+const secretReferenceEvidenceRef = {
+  ...proofEvidenceRef,
+  evidence_id: 'evidence:backup-secret-reference:hcs',
+} as const;
+
+const credentialAuthorityEvidenceRef = {
+  ...proofEvidenceRef,
+  evidence_id: 'evidence:backup-credential-authority:hcs',
+} as const;
+
+const machineIdentityBindingEvidenceRef = {
+  ...proofEvidenceRef,
+  evidence_id: 'evidence:backup-machine-identity-binding:hcs',
+} as const;
+
+const credentialCustodyEvidenceRef = {
+  ...proofEvidenceRef,
+  evidence_id: 'evidence:backup-credential-custody:hcs',
+  payload_schema_version: 'backup_credential_custody_observation:v1',
+} as const;
+
+const projectBackupRequirementEvidenceRef = {
+  ...proofEvidenceRef,
+  evidence_id: 'evidence:project-backup-requirement:hcs',
+  payload_schema_version: 'project_substrate_backup_requirement_observation:v1',
+} as const;
+
+const backupReadinessEvidenceRef = {
+  ...proofEvidenceRef,
+  evidence_id: 'evidence:backup-readiness:hcs',
+  payload_schema_version: 'backup_readiness_observation:v1',
+} as const;
+
+const contractValidationEvidenceRef = {
+  ...proofEvidenceRef,
+  evidence_id: 'evidence:project-substrate-contract-validation:hcs',
+  payload_schema_version: 'project_substrate_contract_validation_receipt:v1',
+} as const;
+
+const admissionEvidenceRef = {
+  ...proofEvidenceRef,
+  evidence_id: 'evidence:project-substrate-admission:hcs',
+  payload_schema_version: 'project_substrate_admission_observation:v1',
+} as const;
+
+const teardownEvidenceRef = {
+  ...proofEvidenceRef,
+  evidence_id: 'evidence:project-teardown-completion:hcs',
+  payload_schema_version: 'project_teardown_completion_receipt:v1',
+} as const;
+
+const restoreDrillEvidenceRefWithoutFreshness = {
+  evidence_id: 'evidence:restore-drill:missing-valid-until',
+  source: 'backup-readiness-fixture',
+  observed_at: observedAt,
+  authority: 'host-observation',
+  confidence: 'high',
+  parser_version: 'backup-readiness-parser:v1',
+  payload_schema_version: 'restore_drill_receipt:v1',
 } as const;
 
 const targetRef = {
@@ -66,15 +164,53 @@ const readinessObservation = {
     readiness_state_kind: 'ready',
     readiness_observed_at: observedAt,
     tombstone_state_kind: 'not_tombstoned',
-    restore_drill_evidence_refs: [evidenceRef],
-    backup_operation_evidence_refs: [evidenceRef],
-    monitoring_evidence_refs: [evidenceRef],
-    credential_custody_evidence_refs: [evidenceRef],
+    restore_drill_evidence_refs: [restoreDrillEvidenceRef],
+    backup_operation_evidence_refs: [backupOperationEvidenceRef],
+    monitoring_evidence_refs: [monitoringEvidenceRef],
+    credential_custody_evidence_refs: [credentialCustodyEvidenceRef],
     threat_model_source_refs: [threatModelSourceRef],
-    project_backup_requirement_evidence_refs: [evidenceRef],
+    project_backup_requirement_evidence_refs: [projectBackupRequirementEvidenceRef],
   },
   redaction_mode: 'reference_only',
 } as const;
+
+type GeneratedSchemaObject = Record<string, unknown>;
+
+const asRecord = (value: unknown): GeneratedSchemaObject =>
+  value && typeof value === 'object' && !Array.isArray(value)
+    ? (value as GeneratedSchemaObject)
+    : {};
+
+const asArray = (value: unknown): unknown[] => (Array.isArray(value) ? value : []);
+
+const recordAt = (value: unknown, key: string): GeneratedSchemaObject =>
+  asRecord(asRecord(value)[key]);
+
+const readGeneratedSchema = (file: string): GeneratedSchemaObject =>
+  JSON.parse(
+    readFileSync(new URL(`../generated/${file}`, import.meta.url), 'utf8'),
+  ) as GeneratedSchemaObject;
+
+const generatedPayloadProperties = (schema: GeneratedSchemaObject): GeneratedSchemaObject =>
+  recordAt(recordAt(recordAt(schema, 'properties'), 'payload'), 'properties');
+
+const findGeneratedPayloadGuard = (
+  schema: GeneratedSchemaObject,
+  discriminatorField: string,
+  discriminatorValue: string,
+): GeneratedSchemaObject | undefined =>
+  asArray(schema.allOf)
+    .map(asRecord)
+    .find((guard) => {
+      const ifPayloadProperties = recordAt(
+        recordAt(recordAt(guard, 'if'), 'properties'),
+        'payload',
+      );
+      return recordAt(ifPayloadProperties, 'properties')[discriminatorField] instanceof Object
+        ? recordAt(recordAt(ifPayloadProperties, 'properties'), discriminatorField).const ===
+            discriminatorValue
+        : false;
+    });
 
 describe('ADR 0045 Q-015 backup-readiness evidence subtypes', () => {
   it('adds threat_model as a KnowledgeSource source kind', () => {
@@ -119,6 +255,48 @@ describe('ADR 0045 Q-015 backup-readiness evidence subtypes', () => {
         ...readinessObservation,
         evidence_id: 'evidence:backup-readiness:allowed-for-gate',
         allowed_for_gate: true,
+      }).success,
+    ).toBe(false);
+    expect(
+      backupReadinessObservationSchema.safeParse({
+        ...readinessObservation,
+        evidence_id: 'evidence:backup-readiness:sandbox-restore-ref',
+        payload: {
+          ...readinessObservation.payload,
+          restore_drill_evidence_refs: [
+            {
+              ...restoreDrillEvidenceRef,
+              evidence_id: 'evidence:restore-drill:sandbox-ref',
+              authority: 'sandbox-observation',
+            },
+          ],
+        },
+      }).success,
+    ).toBe(false);
+    expect(
+      backupReadinessObservationSchema.safeParse({
+        ...readinessObservation,
+        evidence_id: 'evidence:backup-readiness:restore-ref-without-freshness',
+        payload: {
+          ...readinessObservation.payload,
+          restore_drill_evidence_refs: [restoreDrillEvidenceRefWithoutFreshness],
+        },
+      }).success,
+    ).toBe(false);
+    expect(
+      backupReadinessObservationSchema.safeParse({
+        ...readinessObservation,
+        evidence_id: 'evidence:backup-readiness:wrong-restore-ref-kind',
+        payload: {
+          ...readinessObservation.payload,
+          restore_drill_evidence_refs: [
+            {
+              ...restoreDrillEvidenceRef,
+              evidence_id: 'evidence:restore-drill:wrong-payload-kind',
+              payload_schema_version: 'backup_readiness_observation:v1',
+            },
+          ],
+        },
       }).success,
     ).toBe(false);
   });
@@ -186,10 +364,10 @@ describe('ADR 0045 Q-015 backup-readiness evidence subtypes', () => {
           source_kind: 'runbook',
         },
         cleanup_disposition_kind: 'cleanup_completed',
-        source_artifact_evidence_refs: [evidenceRef],
-        boot_verification_evidence_refs: [evidenceRef],
-        service_verification_evidence_refs: [evidenceRef],
-        cleanup_evidence_refs: [evidenceRef],
+        source_artifact_evidence_refs: [sourceArtifactEvidenceRef],
+        boot_verification_evidence_refs: [bootVerificationEvidenceRef],
+        service_verification_evidence_refs: [serviceVerificationEvidenceRef],
+        cleanup_evidence_refs: [cleanupEvidenceRef],
       },
       redaction_mode: 'reference_only',
     });
@@ -202,6 +380,41 @@ describe('ADR 0045 Q-015 backup-readiness evidence subtypes', () => {
         payload: {
           ...receipt.payload,
           service_verification_evidence_refs: [],
+        },
+      }).success,
+    ).toBe(false);
+    expect(
+      restoreDrillReceiptSchema.safeParse({
+        ...receipt,
+        evidence_id: 'evidence:restore-drill:sandbox-boot-proof',
+        payload: {
+          ...receipt.payload,
+          boot_verification_evidence_refs: [
+            {
+              ...bootVerificationEvidenceRef,
+              evidence_id: 'evidence:restore-drill:sandbox-boot-proof',
+              authority: 'sandbox-observation',
+            },
+          ],
+        },
+      }).success,
+    ).toBe(false);
+    expect(
+      restoreDrillReceiptSchema.safeParse({
+        ...receipt,
+        evidence_id: 'evidence:restore-drill:service-proof-without-freshness',
+        payload: {
+          ...receipt.payload,
+          service_verification_evidence_refs: [
+            {
+              evidence_id: 'evidence:restore-drill:missing-service-valid-until',
+              source: 'backup-readiness-fixture',
+              observed_at: observedAt,
+              authority: 'host-observation',
+              confidence: 'high',
+              parser_version: 'backup-readiness-parser:v1',
+            },
+          ],
         },
       }).success,
     ).toBe(false);
@@ -247,13 +460,13 @@ describe('ADR 0045 Q-015 backup-readiness evidence subtypes', () => {
           ...threatModelSourceRef,
           source_kind: 'runbook',
         },
-        secret_reference_evidence_refs: [evidenceRef],
+        secret_reference_evidence_refs: [secretReferenceEvidenceRef],
         custody_posture_kind: 'brokered_runtime_read',
         expiry_posture_kind: 'expires',
         rotation_posture_kind: 'rotating',
         auditability_kind: 'audit_log_available',
-        credential_authority_evidence_refs: [evidenceRef],
-        machine_identity_binding_evidence_refs: [evidenceRef],
+        credential_authority_evidence_refs: [credentialAuthorityEvidenceRef],
+        machine_identity_binding_evidence_refs: [machineIdentityBindingEvidenceRef],
       },
       redaction_mode: 'reference_only',
     });
@@ -274,6 +487,41 @@ describe('ADR 0045 Q-015 backup-readiness evidence subtypes', () => {
         ...custody,
         evidence_id: 'evidence:backup-credential-custody:no-redaction',
         redaction_mode: 'none',
+      }).success,
+    ).toBe(false);
+    expect(
+      backupCredentialCustodyObservationSchema.safeParse({
+        ...custody,
+        evidence_id: 'evidence:backup-credential-custody:sandbox-secret-ref',
+        payload: {
+          ...custody.payload,
+          secret_reference_evidence_refs: [
+            {
+              ...secretReferenceEvidenceRef,
+              evidence_id: 'evidence:backup-secret-reference:sandbox',
+              authority: 'sandbox-observation',
+            },
+          ],
+        },
+      }).success,
+    ).toBe(false);
+    expect(
+      backupCredentialCustodyObservationSchema.safeParse({
+        ...custody,
+        evidence_id: 'evidence:backup-credential-custody:secret-ref-without-freshness',
+        payload: {
+          ...custody.payload,
+          secret_reference_evidence_refs: [
+            {
+              evidence_id: 'evidence:backup-secret-reference:missing-valid-until',
+              source: 'backup-readiness-fixture',
+              observed_at: observedAt,
+              authority: 'host-observation',
+              confidence: 'high',
+              parser_version: 'backup-readiness-parser:v1',
+            },
+          ],
+        },
       }).success,
     ).toBe(false);
   });
@@ -315,11 +563,11 @@ describe('ADR 0045 Q-015 backup-readiness evidence subtypes', () => {
         retention_expectation_kind: 'delete_after_expiry',
         teardown_expectation_kind: 'teardown_required',
         disposability_declared: true,
-        contract_validation_evidence_ref: evidenceRef,
-        admission_evidence_ref: evidenceRef,
-        backup_readiness_evidence_refs: [evidenceRef],
-        restore_drill_evidence_refs: [evidenceRef],
-        teardown_evidence_refs: [evidenceRef],
+        contract_validation_evidence_ref: contractValidationEvidenceRef,
+        admission_evidence_ref: admissionEvidenceRef,
+        backup_readiness_evidence_refs: [backupReadinessEvidenceRef],
+        restore_drill_evidence_refs: [restoreDrillEvidenceRef],
+        teardown_evidence_refs: [teardownEvidenceRef],
       },
       redaction_mode: 'reference_only',
     });
@@ -338,6 +586,35 @@ describe('ADR 0045 Q-015 backup-readiness evidence subtypes', () => {
     expect(
       projectSubstrateBackupRequirementObservationSchema.safeParse({
         ...requirement,
+        evidence_id: 'evidence:project-backup-requirement:sandbox-teardown',
+        payload: {
+          ...requirement.payload,
+          teardown_evidence_refs: [
+            {
+              ...teardownEvidenceRef,
+              evidence_id: 'evidence:project-teardown:sandbox',
+              authority: 'sandbox-observation',
+            },
+          ],
+        },
+      }).success,
+    ).toBe(false);
+    expect(
+      projectSubstrateBackupRequirementObservationSchema.safeParse({
+        ...requirement,
+        evidence_id: 'evidence:project-backup-requirement:wrong-contract-ref-kind',
+        payload: {
+          ...requirement.payload,
+          contract_validation_evidence_ref: {
+            ...contractValidationEvidenceRef,
+            payload_schema_version: 'project_substrate_admission_observation:v1',
+          },
+        },
+      }).success,
+    ).toBe(false);
+    expect(
+      projectSubstrateBackupRequirementObservationSchema.safeParse({
+        ...requirement,
         evidence_id: 'evidence:project-backup-requirement:gate-kind',
         payload: {
           ...requirement.payload,
@@ -345,5 +622,67 @@ describe('ADR 0045 Q-015 backup-readiness evidence subtypes', () => {
         },
       }).success,
     ).toBe(false);
+  });
+
+  it('keeps generated JSON Schema guards for Q-015 conditional invariants', () => {
+    const backupReadinessSchema = readGeneratedSchema('BackupReadinessObservation.schema.json');
+    const readyGuard = findGeneratedPayloadGuard(
+      backupReadinessSchema,
+      'readiness_state_kind',
+      'ready',
+    );
+    const readyThenPayloadProperties = recordAt(
+      recordAt(recordAt(readyGuard, 'then'), 'properties'),
+      'payload',
+    );
+    const readyThenProperties = recordAt(readyThenPayloadProperties, 'properties');
+
+    expect(recordAt(readyThenProperties, 'restore_drill_evidence_refs').minItems).toBe(1);
+    expect(recordAt(readyThenProperties, 'tombstone_state_kind').const).toBe('not_tombstoned');
+
+    const restoreDrillRefSchema = recordAt(
+      generatedPayloadProperties(backupReadinessSchema),
+      'restore_drill_evidence_refs',
+    );
+    const restoreDrillRefItems = recordAt(restoreDrillRefSchema, 'items');
+    expect(asArray(restoreDrillRefItems.required)).toEqual(
+      expect.arrayContaining(['valid_until', 'parser_version', 'payload_schema_version']),
+    );
+    expect(
+      asArray(recordAt(recordAt(restoreDrillRefItems, 'properties'), 'authority').enum),
+    ).not.toContain('sandbox-observation');
+    expect(
+      recordAt(recordAt(restoreDrillRefItems, 'properties'), 'payload_schema_version').const,
+    ).toBe('restore_drill_receipt:v1');
+
+    const restoreSchema = readGeneratedSchema('RestoreDrillReceipt.schema.json');
+    const succeededGuard = findGeneratedPayloadGuard(
+      restoreSchema,
+      'drill_result_kind',
+      'succeeded',
+    );
+    const succeededThenProperties = recordAt(
+      recordAt(
+        recordAt(recordAt(recordAt(succeededGuard, 'then'), 'properties'), 'payload'),
+        'properties',
+      ),
+      'boot_verification_evidence_refs',
+    );
+    expect(succeededThenProperties.minItems).toBe(1);
+
+    const requirementSchema = readGeneratedSchema(
+      'ProjectSubstrateBackupRequirementObservation.schema.json',
+    );
+    const disposableGuard = findGeneratedPayloadGuard(
+      requirementSchema,
+      'persistent_data_kind',
+      'disposable_rebuildable',
+    );
+    const disposableThenProperties = recordAt(
+      recordAt(recordAt(recordAt(disposableGuard, 'then'), 'properties'), 'payload'),
+      'properties',
+    );
+    expect(recordAt(disposableThenProperties, 'disposability_declared').const).toBe(true);
+    expect(recordAt(disposableThenProperties, 'teardown_evidence_refs').minItems).toBe(1);
   });
 });

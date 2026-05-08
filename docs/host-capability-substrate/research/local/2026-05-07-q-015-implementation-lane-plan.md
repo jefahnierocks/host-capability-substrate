@@ -56,6 +56,14 @@ The lifecycle is load-bearing:
 - `expired` demotes prior readiness when restore-drill evidence ages out.
 - `unknown` is not positive readiness.
 
+The landed schema requires proof-bearing nested evidence refs to exclude
+`sandbox-observation`, carry non-null `valid_until`, carry `parser_version`,
+and include typed `payload_schema_version` when a specific Q-013/Q-014/Q-015
+subtype is the load-bearing referenced record. Future policy or kernel
+consumers must still dereference restore-drill refs and verify the referenced
+record's type, freshness, boot verification, service verification, and
+contradictions before treating `ready` as positive admission or gate evidence.
+
 Accepted v1 names from ADR 0045:
 
 - `BackupReadinessObservation`
@@ -71,7 +79,7 @@ evidence that cites both source material and Layer 1 operational evidence.
 
 ## Entry Conditions
 
-Q-015 implementation should not open until all of these are true:
+Q-015 schema implementation opened only after all of these became true:
 
 - Phase 2.1-2.6 schema train completed per ADR 0038.
 - Q-013 implementation landed the credential-source and machine-identity
@@ -81,7 +89,7 @@ Q-015 implementation should not open until all of these are true:
   ADR 0044's v1 schema/evidence slice.
 - Backup/readiness remains an independent evidence need after Q-014
   implementation review.
-- A follow-on implementation ADR is accepted for Q-015 schema scope, including
+- A Q-015 implementation ADR is accepted for schema scope, including
   registry changes, Zod source, generated JSON Schema, fixtures, docs, and
   tests. Completed by ADR 0045.
 - Reviewer dispatch completes for `hcs-architect`,
@@ -173,8 +181,9 @@ Future eval fixtures should cover:
 
 Stop and return to human review if a task tries to:
 
-- start Q-015 schema, registry, validator, adapter, dashboard, hook, policy,
-  fixture, broker, runtime, backup execution, or restore execution before a
+- start additional Q-015 schema, registry, validator, adapter, dashboard,
+  hook, policy, fixture, broker, runtime, backup execution, or restore
+  execution beyond ADR 0045's accepted schema/evidence slice before a
   follow-on implementation ADR is accepted;
 - mutate `runner-substrate`, `hetzner`, Citadel, `HomeNetOps`, `system-config`,
   Proxmox, Hetzner, OpenTofu, GitHub runner groups, selected repository access,
@@ -200,6 +209,7 @@ monitoring, and gate behavior blocked.
 
 | Version | Date | Change |
 |---|---:|---|
+| 0.5.1 | 2026-05-07 | Added reviewer-cleanup notes for proof-bearing nested evidence refs and future cross-record readiness checks. |
 | 0.5.0 | 2026-05-07 | Recorded the ADR 0045 schema/evidence landing and kept all runtime, policy, provider, monitoring, dashboard, adapter, hook, backup/restore execution, and gate behavior out of scope. |
 | 0.4.0 | 2026-05-07 | Recorded ADR 0045 acceptance after reviewer pass and human approval; Q-015 schema/evidence implementation slice is now authorized while runtime/policy/provider/gate work remains blocked. |
 | 0.3.0 | 2026-05-07 | Added proposed ADR 0045 as the Q-015 implementation ADR draft and recorded that Q-013/Q-014 dependencies exist while Q-015 implementation remains blocked pending reviewer pass and human acceptance. |

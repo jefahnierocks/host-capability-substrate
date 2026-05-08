@@ -3,10 +3,13 @@ import {
   entityIdSchema,
   evidenceRefSchema,
   isoDateTimeSchema,
-  schemaVersionSchema,
   sha256DigestSchema,
 } from '../common.ts';
 import { coordinationTargetRefSchema } from './coordination-common.ts';
+
+export const knowledgeSourceSchemaVersionSchema = z
+  .literal('0.2.0')
+  .describe('KnowledgeSource schema version after ADR 0045 source_kind extension.');
 
 export const knowledgeSourceKindSchema = z
   .enum([
@@ -31,7 +34,7 @@ export const knowledgeSecurityLabelSchema = z
 
 export const knowledgeSourceSchema = z
   .object({
-    schema_version: schemaVersionSchema,
+    schema_version: knowledgeSourceSchemaVersionSchema,
     knowledge_source_id: entityIdSchema,
     uri: z.string().min(1),
     content_hash: sha256DigestSchema,

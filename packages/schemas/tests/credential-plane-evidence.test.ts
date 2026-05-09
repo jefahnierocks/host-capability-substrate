@@ -39,7 +39,7 @@ const boundaryEvidenceRef = {
 } as const;
 
 const credentialAuthority = {
-  schema_version: '0.9.0',
+  schema_version: '0.10.0',
   evidence_id: 'evidence:credential-authority:hcs-ci',
   evidence_kind: 'observation',
   subject_refs: [
@@ -136,7 +136,7 @@ describe('ADR 0043 Q-013 credential-plane evidence subtypes', () => {
 
   it('validates MachineIdentityBindingObservation with both subject refs', () => {
     const obs = machineIdentityBindingObservationSchema.parse({
-      schema_version: '0.9.0',
+      schema_version: '0.10.0',
       evidence_id: 'evidence:machine-identity-binding:hcs-ci',
       evidence_kind: 'observation',
       subject_refs: [
@@ -217,7 +217,7 @@ describe('ADR 0043 Q-013 credential-plane evidence subtypes', () => {
 
   it('rejects missing machine-identity subject refs and provider-specific kinds', () => {
     const binding = machineIdentityBindingObservationSchema.parse({
-      schema_version: '0.9.0',
+      schema_version: '0.10.0',
       evidence_id: 'evidence:machine-identity-binding:hcs-ci-2',
       evidence_kind: 'observation',
       subject_refs: [
@@ -302,7 +302,7 @@ describe('ADR 0043 Q-013 credential-plane evidence subtypes', () => {
 
   it('widens the base Evidence subject-kind enum for machine identity', () => {
     const generic = evidenceSchema.parse({
-      schema_version: '0.9.0',
+      schema_version: '0.10.0',
       evidence_id: 'evidence:machine-identity:generic',
       evidence_kind: 'observation',
       subject_refs: [

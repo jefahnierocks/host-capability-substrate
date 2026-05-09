@@ -56,9 +56,10 @@
         "host-observation",
         "vendor-doc",
         "installed-runtime",
-        "human-observed"
+        "human-observed",
+        "self-asserted"
       ],
-      "description": "Authority plane for a fact or observation."
+      "description": "Authority plane for a fact or observation. `self-asserted` is the lowest class — producer claims with no observation behind them — and cannot be promoted to any higher class per charter inv. 8 / inv. 18 chain-walk rejection."
     },
     "confidence": {
       "type": "string",
@@ -194,9 +195,10 @@
               "host-observation",
               "vendor-doc",
               "installed-runtime",
-              "human-observed"
+              "human-observed",
+              "self-asserted"
             ],
-            "description": "Authority plane for a fact or observation."
+            "description": "Authority plane for a fact or observation. `self-asserted` is the lowest class — producer claims with no observation behind them — and cannot be promoted to any higher class per charter inv. 8 / inv. 18 chain-walk rejection."
           },
           "parser_version": {
             "type": "string",

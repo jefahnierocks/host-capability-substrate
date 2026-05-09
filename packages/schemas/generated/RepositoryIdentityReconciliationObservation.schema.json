@@ -8,8 +8,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.9.0",
-          "description": "Evidence schema version after ADR 0043 Q-013 machine-identity subject-kind extension."
+          "const": "0.10.0",
+          "description": "Evidence schema version after the `evidenceAuthoritySchema` `self-asserted` enum extension closing ADR 0039 §Forward-looking observations #5 (Arch-N12 / Pol-N2 / Sec-N-v2-2). Charter v1.4.0 inv. 18 chain-walk rejection now references a schema-operational authority class."
         },
         "evidence_id": {
           "type": "string",
@@ -215,9 +215,10 @@
                         "host-observation",
                         "vendor-doc",
                         "installed-runtime",
-                        "human-observed"
+                        "human-observed",
+                        "self-asserted"
                       ],
-                      "description": "Authority plane for a fact or observation."
+                      "description": "Authority plane for a fact or observation. `self-asserted` is the lowest class — producer claims with no observation behind them — and cannot be promoted to any higher class per charter inv. 8 / inv. 18 chain-walk rejection."
                     },
                     "parser_version": {
                       "type": "string",
@@ -353,9 +354,10 @@
                         "host-observation",
                         "vendor-doc",
                         "installed-runtime",
-                        "human-observed"
+                        "human-observed",
+                        "self-asserted"
                       ],
-                      "description": "Authority plane for a fact or observation."
+                      "description": "Authority plane for a fact or observation. `self-asserted` is the lowest class — producer claims with no observation behind them — and cannot be promoted to any higher class per charter inv. 8 / inv. 18 chain-walk rejection."
                     },
                     "parser_version": {
                       "type": "string",
@@ -469,8 +471,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.9.0",
-          "description": "Evidence schema version after ADR 0043 Q-013 machine-identity subject-kind extension."
+          "const": "0.10.0",
+          "description": "Evidence schema version after the `evidenceAuthoritySchema` `self-asserted` enum extension closing ADR 0039 §Forward-looking observations #5 (Arch-N12 / Pol-N2 / Sec-N-v2-2). Charter v1.4.0 inv. 18 chain-walk rejection now references a schema-operational authority class."
         },
         "evidence_id": {
           "type": "string",
@@ -676,9 +678,10 @@
                         "host-observation",
                         "vendor-doc",
                         "installed-runtime",
-                        "human-observed"
+                        "human-observed",
+                        "self-asserted"
                       ],
-                      "description": "Authority plane for a fact or observation."
+                      "description": "Authority plane for a fact or observation. `self-asserted` is the lowest class — producer claims with no observation behind them — and cannot be promoted to any higher class per charter inv. 8 / inv. 18 chain-walk rejection."
                     },
                     "parser_version": {
                       "type": "string",
@@ -814,9 +817,10 @@
                         "host-observation",
                         "vendor-doc",
                         "installed-runtime",
-                        "human-observed"
+                        "human-observed",
+                        "self-asserted"
                       ],
-                      "description": "Authority plane for a fact or observation."
+                      "description": "Authority plane for a fact or observation. `self-asserted` is the lowest class — producer claims with no observation behind them — and cannot be promoted to any higher class per charter inv. 8 / inv. 18 chain-walk rejection."
                     },
                     "parser_version": {
                       "type": "string",
@@ -930,8 +934,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.9.0",
-          "description": "Evidence schema version after ADR 0043 Q-013 machine-identity subject-kind extension."
+          "const": "0.10.0",
+          "description": "Evidence schema version after the `evidenceAuthoritySchema` `self-asserted` enum extension closing ADR 0039 §Forward-looking observations #5 (Arch-N12 / Pol-N2 / Sec-N-v2-2). Charter v1.4.0 inv. 18 chain-walk rejection now references a schema-operational authority class."
         },
         "evidence_id": {
           "type": "string",
@@ -1137,9 +1141,10 @@
                         "host-observation",
                         "vendor-doc",
                         "installed-runtime",
-                        "human-observed"
+                        "human-observed",
+                        "self-asserted"
                       ],
-                      "description": "Authority plane for a fact or observation."
+                      "description": "Authority plane for a fact or observation. `self-asserted` is the lowest class — producer claims with no observation behind them — and cannot be promoted to any higher class per charter inv. 8 / inv. 18 chain-walk rejection."
                     },
                     "parser_version": {
                       "type": "string",
@@ -1275,9 +1280,10 @@
                         "host-observation",
                         "vendor-doc",
                         "installed-runtime",
-                        "human-observed"
+                        "human-observed",
+                        "self-asserted"
                       ],
-                      "description": "Authority plane for a fact or observation."
+                      "description": "Authority plane for a fact or observation. `self-asserted` is the lowest class — producer claims with no observation behind them — and cannot be promoted to any higher class per charter inv. 8 / inv. 18 chain-walk rejection."
                     },
                     "parser_version": {
                       "type": "string",
@@ -1391,8 +1397,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.9.0",
-          "description": "Evidence schema version after ADR 0043 Q-013 machine-identity subject-kind extension."
+          "const": "0.10.0",
+          "description": "Evidence schema version after the `evidenceAuthoritySchema` `self-asserted` enum extension closing ADR 0039 §Forward-looking observations #5 (Arch-N12 / Pol-N2 / Sec-N-v2-2). Charter v1.4.0 inv. 18 chain-walk rejection now references a schema-operational authority class."
         },
         "evidence_id": {
           "type": "string",
@@ -1598,9 +1604,10 @@
                         "host-observation",
                         "vendor-doc",
                         "installed-runtime",
-                        "human-observed"
+                        "human-observed",
+                        "self-asserted"
                       ],
-                      "description": "Authority plane for a fact or observation."
+                      "description": "Authority plane for a fact or observation. `self-asserted` is the lowest class — producer claims with no observation behind them — and cannot be promoted to any higher class per charter inv. 8 / inv. 18 chain-walk rejection."
                     },
                     "parser_version": {
                       "type": "string",
@@ -1736,9 +1743,10 @@
                         "host-observation",
                         "vendor-doc",
                         "installed-runtime",
-                        "human-observed"
+                        "human-observed",
+                        "self-asserted"
                       ],
-                      "description": "Authority plane for a fact or observation."
+                      "description": "Authority plane for a fact or observation. `self-asserted` is the lowest class — producer claims with no observation behind them — and cannot be promoted to any higher class per charter inv. 8 / inv. 18 chain-walk rejection."
                     },
                     "parser_version": {
                       "type": "string",
@@ -1831,7 +1839,8 @@
             "host-observation",
             "vendor-doc",
             "installed-runtime",
-            "human-observed"
+            "human-observed",
+            "self-asserted"
           ]
         },
         "source_ref": {

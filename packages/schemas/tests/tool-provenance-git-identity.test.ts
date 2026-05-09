@@ -15,7 +15,7 @@ const miseTargetPath = '$' + '{HOME}/.local/share/mise/installs/git/2.46.0/bin/g
 describe('ADR 0034 direct Evidence subtypes', () => {
   it('validates GitIdentityBinding with a CredentialSource signing-key FK', () => {
     const binding = gitIdentityBindingSchema.parse({
-      schema_version: '0.9.0',
+      schema_version: '0.10.0',
       evidence_id: 'evidence:git-identity:hcs:codex-cli',
       evidence_kind: 'observation',
       subject_refs: [
@@ -54,7 +54,7 @@ describe('ADR 0034 direct Evidence subtypes', () => {
   it('rejects GitIdentityBinding records without the ADR 0034 redaction floor', () => {
     expect(
       gitIdentityBindingSchema.safeParse({
-        schema_version: '0.9.0',
+        schema_version: '0.10.0',
         evidence_id: 'evidence:git-identity:hcs:redaction-none',
         evidence_kind: 'observation',
         subject_refs: [
@@ -89,7 +89,7 @@ describe('ADR 0034 direct Evidence subtypes', () => {
   it('rejects raw signing key identifiers in GitIdentityBinding payloads', () => {
     expect(
       gitIdentityBindingSchema.safeParse({
-        schema_version: '0.9.0',
+        schema_version: '0.10.0',
         evidence_id: 'evidence:git-identity:hcs:raw-key',
         evidence_kind: 'observation',
         subject_refs: [
@@ -123,7 +123,7 @@ describe('ADR 0034 direct Evidence subtypes', () => {
 
   it('preserves the Evidence sandbox-observation trace rule on GitIdentityBinding', () => {
     const sandboxBinding = gitIdentityBindingSchema.parse({
-      schema_version: '0.9.0',
+      schema_version: '0.10.0',
       evidence_id: 'evidence:git-identity:hcs:sandbox',
       evidence_kind: 'observation',
       subject_refs: [
@@ -167,7 +167,7 @@ describe('ADR 0034 direct Evidence subtypes', () => {
   it('rejects GitIdentityBinding workspace mismatches', () => {
     expect(
       gitIdentityBindingSchema.safeParse({
-        schema_version: '0.9.0',
+        schema_version: '0.10.0',
         evidence_id: 'evidence:git-identity:hcs:workspace-mismatch',
         evidence_kind: 'observation',
         subject_refs: [
@@ -201,7 +201,7 @@ describe('ADR 0034 direct Evidence subtypes', () => {
 
   it('validates ToolProvenance with canonicalized shim paths', () => {
     const provenance = toolProvenanceSchema.parse({
-      schema_version: '0.9.0',
+      schema_version: '0.10.0',
       evidence_id: 'evidence:tool-provenance:git:codex-cli',
       evidence_kind: 'observation',
       subject_refs: [
@@ -246,7 +246,7 @@ describe('ADR 0034 direct Evidence subtypes', () => {
   it('rejects ToolProvenance raw user paths before persistence', () => {
     expect(
       toolProvenanceSchema.safeParse({
-        schema_version: '0.9.0',
+        schema_version: '0.10.0',
         evidence_id: 'evidence:tool-provenance:git:raw-path',
         evidence_kind: 'observation',
         subject_refs: [
@@ -281,7 +281,7 @@ describe('ADR 0034 direct Evidence subtypes', () => {
   it('rejects bare placeholder roots in ToolProvenance paths', () => {
     expect(
       toolProvenanceSchema.safeParse({
-        schema_version: '0.9.0',
+        schema_version: '0.10.0',
         evidence_id: 'evidence:tool-provenance:git:bare-placeholder',
         evidence_kind: 'observation',
         subject_refs: [
@@ -316,7 +316,7 @@ describe('ADR 0034 direct Evidence subtypes', () => {
   it('rejects ToolProvenance shim_depth drift from the shim_chain length', () => {
     expect(
       toolProvenanceSchema.safeParse({
-        schema_version: '0.9.0',
+        schema_version: '0.10.0',
         evidence_id: 'evidence:tool-provenance:git:bad-depth',
         evidence_kind: 'observation',
         subject_refs: [
@@ -351,7 +351,7 @@ describe('ADR 0034 direct Evidence subtypes', () => {
   it('rejects ToolProvenance execution context mismatches', () => {
     expect(
       toolProvenanceSchema.safeParse({
-        schema_version: '0.9.0',
+        schema_version: '0.10.0',
         evidence_id: 'evidence:tool-provenance:git:context-mismatch',
         evidence_kind: 'observation',
         subject_refs: [
@@ -385,7 +385,7 @@ describe('ADR 0034 direct Evidence subtypes', () => {
 
   it('preserves the Evidence sandbox-observation trace rule on direct subtypes', () => {
     const sandboxProvenance = toolProvenanceSchema.parse({
-      schema_version: '0.9.0',
+      schema_version: '0.10.0',
       evidence_id: 'evidence:tool-provenance:git:sandbox',
       evidence_kind: 'observation',
       subject_refs: [
@@ -429,7 +429,7 @@ describe('ADR 0034 direct Evidence subtypes', () => {
   it('widens Evidence.subject_kind for the Phase 2.3.1 direct subtype records', () => {
     expect(
       evidenceSchema.parse({
-        schema_version: '0.9.0',
+        schema_version: '0.10.0',
         evidence_id: 'evidence:subject-kind:tool-provenance',
         evidence_kind: 'observation',
         subject_refs: [

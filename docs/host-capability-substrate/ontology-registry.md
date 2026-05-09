@@ -3,8 +3,8 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.4.6
-last_updated: 2026-05-07
+version: 0.4.7
+last_updated: 2026-05-09
 tags: [ontology, registry, registry-consolidation, phase-2-4, phase-2-7, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, remote-agent, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
 priority: high
 ---
@@ -292,7 +292,7 @@ the kernel/mint API.
 
 ### Authority class ladder
 
-The current `evidenceAuthoritySchema` enum has ten values:
+The current `evidenceAuthoritySchema` enum has eleven values:
 
 ```text
 project-local
@@ -305,6 +305,7 @@ host-observation
 vendor-doc
 installed-runtime
 human-observed
+self-asserted
 ```
 
 Trust ordering (high to low, for promotion checks):
@@ -312,15 +313,15 @@ Trust ordering (high to low, for promotion checks):
 ```text
 host-observation > installed-runtime > vendor-doc > system >
 user-global > workspace-local > project-local > human-observed >
-derived > sandbox-observation
+derived > sandbox-observation > self-asserted
 ```
 
 Per inv. 8, no class promotes to a higher class without a separate
 evidence record at the higher class.
 
-### `self-asserted` authority class (new; schema landing pending)
+### `self-asserted` authority class
 
-A new class `self-asserted` lives below `sandbox-observation`. Producers
+The class `self-asserted` lives below `sandbox-observation`. Producers
 that supply observation data without backing telemetry — typical case:
 an agent claiming "I am running in normal mode" with no kernel /
 sandbox / host telemetry — emit `self-asserted` authority. The class
@@ -328,22 +329,18 @@ is below `sandbox-observation` because sandbox observations are real
 observations bounded by sandbox visibility, while self-assertion is a
 producer claim with no observation behind it.
 
-Updated trust ordering with `self-asserted` included:
-
-```text
-host-observation > installed-runtime > vendor-doc > system >
-user-global > workspace-local > project-local > human-observed >
-derived > sandbox-observation > self-asserted
-```
-
 `self-asserted` cannot be promoted to any higher class. Per inv. 8 and
 charter v1.3.2 wave-3's fabricated-evidence-envelope forbidden pattern,
 a separate evidence record at the higher class is required to substitute
 for the self-assertion.
 
-The actual `evidenceAuthoritySchema` enum extension lands in a separate
-schema-change PR per `.agents/skills/hcs-schema-change`. Until then, the
-class is registry-canonical and ADRs may forward-reference it.
+Charter v1.4.0 inv. 18 chain-walk rejection treats
+`Evidence.authority: "self-asserted"` as a stop class for typed-grant
+minting on `allowed_for_gate` transitions. The schema-level enum landed
+on 2026-05-09 (`Evidence.schema_version` `0.10.0`); the chain-walk
+rejection itself remains a posture commitment until the typed-grant
+minting layer lands. Closes ADR 0039 §Forward-looking observations
+#5 (Arch-N12 / Pol-N2 / Sec-N-v2-2).
 
 ### Producer-vs-kernel-set authority fields
 
@@ -688,7 +685,7 @@ work can cite one stable registry index.
 
 | Schema family | Current version | Last Phase 2 change | Notes |
 |---|---:|---|---|
-| `Evidence` | `0.9.0` | Phase 2.7 Q-013 machine-identity subject-kind extension | Direct Evidence subtype payloads use the base envelope and their own `payload_schema_version` values. ADR 0045 Q-015 reuses existing subject kinds and does not bump this version. |
+| `Evidence` | `0.10.0` | `evidenceAuthoritySchema` `self-asserted` enum extension (closes ADR 0039 §Forward-looking observations #5) | Direct Evidence subtype payloads use the base envelope and their own `payload_schema_version` values; prior Q-015 (ADR 0045) reused existing subject kinds and did not bump this contract. |
 | `BoundaryObservation` | `0.5.0` | Phase 2.7 Q-014 `project_admission_authority` branch | `evidence_schema_version` is an independent envelope field that cites the base `Evidence` contract; current fixtures use the base `Evidence` version without requiring future lockstep bumps. |
 | `KnowledgeSource` | `0.2.0` | Phase 2.7 Q-015 `threat_model` source-kind extension | The enum contract widened after the Phase 2.1.3 introduction; ADR 0045 owns this schema-version bump. |
 | `ExecutionContext` | `0.2.0` | Phase 2.2.1 containment-cache refactor | Cache is kernel-set and points to typed containment evidence. |
@@ -2803,6 +2800,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.4.7 | 2026-05-09 | Recorded the `evidenceAuthoritySchema` `self-asserted` enum extension landing. Updated §Authority class ladder from ten to eleven values; reframed §`self-asserted` authority class from "(new; schema landing pending)" to landed, citing the schema-operational state and clarifying that charter v1.4.0 inv. 18 chain-walk rejection at the typed-grant minting layer remains a posture commitment until that layer lands. Bumped the `Evidence` schema-version-ledger row to `0.10.0`. Closes ADR 0039 §Forward-looking observations #5 (Arch-N12 / Pol-N2 / Sec-N-v2-2) per the 2026-05-07 absorption audit. |
 | 0.4.6 | 2026-05-07 | Extended §Producer-vs-kernel-set authority fields to enumerate the five charter v1.4.0 invariant 19 execution-context binding FKs (`execution_context_id`, `surface_id`, `workspace_id`, `credential_source_id`, `tool_or_provider_ref`) as kernel-set on `BoundaryObservation` envelopes and related Evidence subtype envelopes. Aligns the registry with inv. 19 charter authority and the Phase 2.2.3 `BoundaryObservation` payload bundle landing. Closes ADR 0039 §Forward-looking observations Ont-N9 per the 2026-05-07 absorption audit. |
 | 0.4.5 | 2026-05-07 | Added §Predicate-kind vocabulary section authoritative for `CoordinationFact.predicate_kind` values, paralleling §Boundary dimension registry per ADR 0019 reservation. Documents twelve currently-landed predicates (six ADR 0019 candidates accepted at enum level; `leased_to` accepted via ADR 0031; `attached_to`, `held_by`, `claimed_to_contain`, `confirmed_to_contain`, `claim_superseded_by_snapshot` reserved). Adds matching §Adding or removing a predicate_kind procedure note. ADR 0019 / ADR 0031 added to §References. Closes the Q-003 / ADR 0019 reservation that named this section as a schema-PR precondition. |
 | 0.4.4 | 2026-05-07 | Recorded `KnowledgeSource.schema_version` `0.2.0` for the ADR 0045 `threat_model` source-kind extension and tightened Q-015 proof-bearing nested evidence-ref registry notes. |

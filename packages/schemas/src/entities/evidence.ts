@@ -7,9 +7,9 @@ import {
 } from '../common.ts';
 
 export const evidenceSchemaVersionSchema = z
-  .literal('0.9.0')
+  .literal('0.10.0')
   .describe(
-    'Evidence schema version after ADR 0043 Q-013 machine-identity subject-kind extension.',
+    'Evidence schema version after the `evidenceAuthoritySchema` `self-asserted` enum extension closing ADR 0039 §Forward-looking observations #5 (Arch-N12 / Pol-N2 / Sec-N-v2-2). Charter v1.4.0 inv. 18 chain-walk rejection now references a schema-operational authority class.',
   );
 
 export const evidenceKindSchema = z

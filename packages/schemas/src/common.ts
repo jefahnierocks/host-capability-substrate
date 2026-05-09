@@ -27,8 +27,11 @@ export const evidenceAuthoritySchema = z
     'vendor-doc',
     'installed-runtime',
     'human-observed',
+    'self-asserted',
   ])
-  .describe('Authority plane for a fact or observation.');
+  .describe(
+    'Authority plane for a fact or observation. `self-asserted` is the lowest class — producer claims with no observation behind them — and cannot be promoted to any higher class per charter inv. 8 / inv. 18 chain-walk rejection.',
+  );
 
 export const evidenceConfidenceSchema = z
   .enum(['authoritative', 'high', 'best-effort', 'stale', 'unknown'])

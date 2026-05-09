@@ -3,9 +3,9 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.11.1
-last_updated: 2026-05-07
-tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill]
+version: 1.12.0
+last_updated: 2026-05-09
+tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted]
 priority: high
 ---
 
@@ -572,6 +572,15 @@ ADR 0044 Q-014 project-substrate records reuse existing `workspace` and
 `knowledge_source` subject kinds, so they do not bump the base `Evidence`
 schema. Their record-specific schemas carry typed `payload_schema_version`
 values and Zod target-binding refinements.
+
+The `evidenceAuthoritySchema` enum extension closing ADR 0039
+§Forward-looking observations #5 adds `self-asserted` as the lowest authority
+class — producer claims with no observation behind them — bumping the
+Evidence schema to `0.10.0`. Charter v1.4.0 inv. 18 chain-walk rejection now
+references a schema-operational authority class; the chain-walk rejection
+itself remains a posture commitment until the typed-grant minting layer
+lands. See ontology-registry §`self-asserted` authority class for the trust
+ordering.
 
 The legacy `evidenceRefSchema` remains as a lightweight reference or embedded
 provenance preview for entities that have not yet been migrated to full
@@ -1324,7 +1333,7 @@ Every `Evidence` record:
 
 ```json
 {
-  "schema_version": "0.9.0",
+  "schema_version": "0.10.0",
   "evidence_id": "evidence:example",
   "evidence_kind": "observation",
   "subject_refs": [
@@ -1336,7 +1345,7 @@ Every `Evidence` record:
   "source": "...",
   "observed_at": "...",
   "valid_until": null,
-  "authority": "project-local | workspace-local | user-global | system | derived | sandbox-observation | host-observation | vendor-doc | installed-runtime | human-observed",
+  "authority": "project-local | workspace-local | user-global | system | derived | sandbox-observation | host-observation | vendor-doc | installed-runtime | human-observed | self-asserted",
   "parser_version": "...",
   "confidence": "authoritative | high | best-effort | stale | unknown",
   "execution_context_id": "...",
@@ -1364,6 +1373,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.12.0 | 2026-05-09 | Recorded the `evidenceAuthoritySchema` `self-asserted` enum extension closing ADR 0039 §Forward-looking observations #5 (Arch-N12 / Pol-N2 / Sec-N-v2-2). Added the §Phase 2.7 narrative paragraph documenting the `Evidence.schema_version` bump to `0.10.0` and the inv. 18 chain-walk linkage; updated the §Provenance on every fact JSON example to use `0.10.0` and the eleven-value authority union. |
 | 1.11.1 | 2026-05-07 | Tightened Q-015 proof-bearing nested evidence ref docs and recorded `KnowledgeSource.schema_version` `0.2.0` for the ADR 0045 `threat_model` source-kind extension. |
 | 1.11.0 | 2026-05-07 | Added ADR 0045 Q-015 backup-readiness Evidence subtype docs, `threat_model` KnowledgeSource source kind docs, and noted that this slice reuses existing Evidence subject kinds without an Evidence schema-version bump. |
 | 1.10.0 | 2026-05-07 | Added ADR 0044 Q-014 project-substrate Evidence subtype docs, `project_substrate_contract` KnowledgeSource source kind docs, `project_admission_authority` BoundaryObservation docs, and noted the BoundaryObservation schema bump to `0.5.0`. |

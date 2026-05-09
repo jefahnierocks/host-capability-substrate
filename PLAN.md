@@ -28,11 +28,18 @@ the two Owed items closed in separate commits — ADR 0019 v3.1
 editorial alignment of `DerivedSummary.derived_from` to four-class
 membership, and `ontology-registry.md` v0.4.6 §Producer-vs-kernel-set
 extension enumerating the five inv. 19 execution-context binding FKs.
-The single actionable open lane that remains from those audits is
 ADR 0039 #5 — the `evidenceAuthoritySchema` enum extension PR for
-the `self-asserted` authority class, which is a schema-change PR
-(not docs) and requires `hcs-ontology-reviewer` objections per
-`IMPLEMENT.md`.
+the `self-asserted` authority class — landed on 2026-05-09 as a
+schema-change PR with `hcs-ontology-reviewer` objections incorporated.
+It bumped `Evidence.schema_version` `0.9.0` → `0.10.0`, made charter
+v1.4.0 inv. 18 chain-walk rejection schema-operational (the chain-walk
+rejection itself remains a posture commitment until the typed-grant
+minting layer lands), updated `ontology.md` v1.12.0 and
+`ontology-registry.md` v0.4.7, and added focused `evidence-authority`
+parse tests. With #5 closed, all ADR 0039 audit "Owed" and "Active
+sequencing dependency" items have landed; remaining audit items
+(#4 Phase 2.5; #6/#7/#8 wave-2 reactive; #9 low-priority editorial)
+stay deferred behind their triggering conditions.
 
 As of 2026-05-04, the **Phase 1 synthesis-window is closed**. All nine
 pending Q-rows in `DECISIONS.md` (Q-003, Q-005, Q-006, Q-007, Q-008,
@@ -226,9 +233,13 @@ standalone Ring 0 entities (`AgentClient`, `VerificationCommandSpec`,
 subtypes for ADR 0034 (`ToolProvenance`, `GitIdentityBinding`), Q-005
 runner/check evidence, Q-006 source-control evidence, and Q-010 remote-agent
 evidence; typed `BoundaryObservation` branches for containment,
-filesystem/MCP authority, runner isolation, and branch protection. No
-additional schema work is authorized inside the accepted Phase 2.1-2.6 train
-without a follow-on accepted ADR or sequencing amendment.
+filesystem/MCP authority, runner isolation, and branch protection. The
+2026-05-09 ADR 0039 #5 closure landed the `evidenceAuthoritySchema`
+`self-asserted` enum extension and bumped `Evidence.schema_version` to
+`0.10.0`; this completes ADR 0039's schema-operational dependencies for
+charter inv. 18 chain-walk rejection. No additional schema work is
+authorized inside the accepted Phase 2.1-2.6 train without a follow-on
+accepted ADR or sequencing amendment.
 
 **Registry update PR** (`ontology-registry.md` extensions): Phase 2.4
 consolidation records the already-landed schema vocabulary in one stable

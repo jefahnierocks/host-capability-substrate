@@ -19,6 +19,7 @@ Read these before editing:
 5. `PLAN.md` — current milestone and acceptance criteria
 6. `IMPLEMENT.md` — workflow rules
 7. `DECISIONS.md` — human-readable decision ledger
+8. `docs/github-org-setup.md` — GitHub org / branch ruleset / CODEOWNERS recipe (repo administration; reproduces the GitHub-side configuration if rulesets, teams, or branch protection are lost)
 
 Upstream research plan (in system-config, canonical reference):
 `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.

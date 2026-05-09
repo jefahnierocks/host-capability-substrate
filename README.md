@@ -10,7 +10,7 @@ Phase 0b closeout — the April 23-25, 2026 measurement soak is captured and the
 
 ## Canonical governance
 
-Authoritative documents live in [`system-config`](https://github.com/verlyn13/system-config) (`~/Organizations/jefahnierocks/system-config/`):
+Authoritative documents live in [`system-config`](https://github.com/jefahnierocks/system-config) (`~/Organizations/jefahnierocks/system-config/`):
 
 - Research plan — `docs/host-capability-substrate-research-plan.md` (v0.3.0+)
 - Implementation charter — `docs/host-capability-substrate/implementation-charter.md` (v1.2.0+) — copy vendored here at `docs/host-capability-substrate/implementation-charter.md`
@@ -56,6 +56,7 @@ Read in order:
 4. `PLAN.md` — current milestone and acceptance criteria
 5. `IMPLEMENT.md` — per-PR workflow rules
 6. `DECISIONS.md` — human-readable decision ledger
+7. `docs/github-org-setup.md` — GitHub org / branch ruleset / CODEOWNERS recipe (repo administration)
 
 ## Runtime layout (not in this repo)
 

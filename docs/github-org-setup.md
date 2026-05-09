@@ -123,6 +123,16 @@ Add an `authorized pushers` allowlist once direct push is no longer the
 norm (today, the bypass actor list and the no-restriction-on-pushers
 default are equivalent for a single-developer org).
 
+The 2026-05-08 ownership transfer to the `jefahnierocks` org cleared
+GitHub's per-repo bypass-actor / authorized-pusher / authorized
+review-dismisser identity lists (those identities had been scoped to
+the previous owner). Those lists are intentionally empty today across
+both this repo and the sibling `jefahnierocks/system-config` —
+single-developer org, no collaborators, no review-required rule on
+either repo. Re-population is triggered case-by-case when collaborators
+land; at that point both repos need it in lockstep, and
+`docs/github-org-setup.md` in each repo is the canonical recipe.
+
 ## Related
 
 - [`.github/CODEOWNERS`](../.github/CODEOWNERS)

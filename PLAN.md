@@ -5,7 +5,62 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Upstream research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — ADR 0051 (ApprovalGrant) accepted; Step 1 entity #3 of 5 done; Phase 2.5 policy YAML in system-config parallel-OK
+## Current Focus — ADR 0052 (Lease) accepted; Step 1 entity #4 of 5 done; Phase 2.5 policy YAML in system-config parallel-OK; next is ADR 0053 Run (entity #5 final)
+
+**2026-05-10 ADR 0052 (Lease) accepted:** Fourth foundational-entity
+ADR per the workflow-sequencing investigation §Step 1 complete (entity
+#4 of 5). The `Lease` Ring 0 entity is committed with 15 envelope-level
+schema fields (12 kernel-set + 3 producer-asserted-kernel-verifiable
+per ADR 0031 v1 §Authority discipline). Single-`lease_kind` v1
+(`worktree` only; `credential_audience` and `external_target` are
+registry-canonical reservations per ADR 0031 v1 §Out of scope pending
+future schema PRs via the registered §Procedure rule). Worktree-
+specific cardinality discipline via atomic insert with unique
+constraint on `(repository_id, canonical(worktree_path), lease_state
+== 'active')` per ADR 0031 v1 Mechanical Tweak #6 / Security-G + TOCTOU
+defense. Sandbox-derived lease rejection (charter inv. 8) for
+`worktree` lease_kind per ADR 0031 v1 Security-F. 4 lifecycle
+transitions (acquire / release / expiry / force-break) with supersession-
+via-evidence_refs pattern; holder-only release rule (UUID-byte-equality
+session_id comparison; distinct from ADR 0051 v4 principal-string-
+canonicalization form). Force-break separation of duties per ADR 0031
+v1 Security-H; Phase 1 interim human-dashboard-only posture —
+`worktree_lease_force_break_acknowledgment` grant_kind deferred to
+coordinated `kernel_dashboard` producer ADR (which also discharges
+ADR 0051 v4 deferred pre-emptive grant infrastructure). D-037
+producer-disjointness additive cross-step extension to Lease-acquire-
+vs-authorizing-Decision per ADR 0049 + ADR 0051 v4 pattern; v1
+forced-binary `mint_api` ↔ `kernel_broker`. Charter inv. 6 preserved
+structurally upstream at `OperationShape.operation_class` enum
+closure + canonical policy YAML per ADR 0051 v4 scope-back; per-
+lease_kind `operation_class_scope` column is documentation-only.
+6 NEW Decision.reason_kind reservations (all deny-only):
+`worktree_lease_held_by_other_session`, `worktree_lease_expired_during_mutation`,
+`worktree_not_in_workspace_context`, `lease_acquire_sandbox_rejected`,
+`lease_release_unauthorized`, `lease_producer_assertion_unverifiable`.
+Phase 1 24h ceiling on `valid_until` per ADR 0031 v1. Envelope-level
+superRefine for chain-walk per ADR 0049/0050/0051 precedent; length-
+prefix canonical-concatenation discipline inherited from ADR 0051
+v4 retroactive posture rule. **One-revision cycle (smoothest of the
+foundational-entity train)**: architect + policy + security all
+returned ready-for-acceptance on v1; ontology returned 2 mechanical-
+text-only blocking items (field-count math + Evidence.subject_kind
+factual error) + 5 non-blocking; all absorbed as mechanical tweaks
+at acceptance (MT-1 through MT-5 + consolidated cosmetic items).
+The preemptive-absorption strategy worked: v1 → accepted in 1
+revision compared to ADR 0049 (2 revisions), ADR 0050 (3 revisions),
+ADR 0051 (4 revisions). D-040 records the decision. Registry v0.4.14
+→ v0.4.15 with 11 specific section additions/updates pending separate
+docs commit.
+
+**Step 1 progress** (per workflow-sequencing investigation): entity
+#1 `Decision` ✓ (ADR 0049 / D-037); entity #2 `WorkspaceContext` ✓
+(ADR 0050 / D-038); entity #3 `ApprovalGrant` ✓ (ADR 0051 / D-039);
+entity #4 `Lease` ✓ (ADR 0052 / D-040). **Final entity**: ADR 0053
+`Run` (entity #5 — `Evidence.run_id` field semantics + run lifecycle
++ run-execution-context binding).
+
+## Prior Focus — ADR 0051 (ApprovalGrant) accepted; Step 1 entity #3 of 5 done
 
 **2026-05-10 ADR 0051 (ApprovalGrant) accepted:** Third foundational-entity
 ADR per the workflow-sequencing investigation §Step 1 complete (entity

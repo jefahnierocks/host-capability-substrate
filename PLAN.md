@@ -5,7 +5,38 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Upstream research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — ADR 0049 (Decision) accepted; Step 1 entity #1 of 5 done; Phase 2.5 policy YAML in system-config parallel-OK
+## Current Focus — ADR 0050 (WorkspaceContext) accepted; Step 1 entity #2 of 5 done; Phase 2.5 policy YAML in system-config parallel-OK
+
+**2026-05-10 ADR 0050 (WorkspaceContext) accepted:** Second foundational-entity
+ADR per the workflow-sequencing investigation §Step 1 complete (entity
+#2 of 5). The `WorkspaceContext` Ring 0 entity is committed with 11
+schema fields including kernel-set `execution_context_id` per ADR 0031
+v1 Mechanical Tweak #8 (Security-C; Layer 1 mint API enforces
+`WorkspaceContext.execution_context_id == Session.execution_context_id`
+when leases are acquired), `repository_id` + `worktree_path` as
+producer-asserted-kernel-verifiable per ADR 0031 v1 §Authority
+discipline, `workspaceContextProducerSchema = z.enum
+(['kernel_workspace_diagnose'])` (named enum for forward-compatible
+allowlist widening), and audit-chain integration mirroring ADR 0049.
+Three-revision cycle: v1 returned 8 blocking items including a
+critical contradiction with ADR 0031 v1 Mechanical Tweak #8 (silently
+superseded `WorkspaceContext.execution_context_id`); v2 absorbed
+all 8 + expanded reviewer dispatch to include
+`hcs-security-reviewer`; v2 returned 4 blocking (lines 149/182 stale
+framing convergent across all 3 reviewers; lifecycle FK staleness;
+producer shape divergence); v3 absorbed all 4 + cardinality
+clarification + 3 implementation-detail acknowledgments; v3 returned
+ready-for-acceptance from architect + ontology. D-038 records the
+decision. Registry v0.4.12 → v0.4.13 with 5 specific section
+additions/updates.
+
+**Step 1 progress** (per workflow-sequencing investigation): entity
+#1 `Decision` ✓ (ADR 0049 / D-037); entity #2 `WorkspaceContext` ✓
+(ADR 0050 / D-038). Next: entity #3 `ApprovalGrant` (ADR 0051;
+ApprovalGrant-side mirror of D-037 producer-disjointness rule).
+Then ADR 0052 `Lease`, ADR 0053 `Run`.
+
+## Prior Focus — ADR 0049 (Decision) accepted; Step 1 entity #1 of 5 done
 
 **2026-05-10 ADR 0049 (Decision) accepted:** First foundational-entity
 ADR per the workflow-sequencing investigation §Step 1 complete. The

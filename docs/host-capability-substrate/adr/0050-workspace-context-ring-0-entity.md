@@ -1,7 +1,7 @@
 ---
 adr_number: 0050
 title: WorkspaceContext Ring 0 entity introduction
-status: proposed
+status: accepted
 date: 2026-05-10
 charter_version: 1.4.0
 tags: [workspace-context, ring-0, milestone-1, foundational-entity, adr-0031-followup, charter-v1-4-0, registry-v0-4-12, workflow-sequencing-step-1]
@@ -11,7 +11,9 @@ tags: [workspace-context, ring-0, milestone-1, foundational-entity, adr-0031-fol
 
 ## Status
 
-`proposed`
+`accepted`
+
+Accepted 2026-05-10 via a three-revision cycle. v1 dispatch returned 3 architect blocking + 5 ontology blocking (a critical contradiction with ADR 0031 v1 Mechanical Tweak #8 + #2 Authority discipline; producer-allowlist drift; audit_chain_link_hash field-set gap; precedent mis-citation; Worktree disposition missing; registry framing). v2 absorbed all 8 plus expanded the reviewer dispatch to include `hcs-security-reviewer` because the addition of `execution_context_id` as a kernel-set field is an authority-discipline boundary. v2 review returned 1 architect blocking (lines 149/182 residual stale framing) + 3 ontology blocking (lifecycle FK staleness, producer shape divergence, internal contradiction on inv. 19 applicability) + 3 security non-blocking; security gave ready-for-acceptance pending the lines 149/182 tweak. v3 absorbed: lines 149/182 rewrite per convergent architect+ontology+security; lifecycle FK staleness §Rejects entry + supersession-via-evidence_refs clarification at §Decision; producer shape changed from `z.literal` to `workspaceContextProducerSchema = z.enum(['kernel_workspace_diagnose'])` (Option 2 forward-compatibility); cardinality discipline statement at §Decision; §Compliance implementation-detail acknowledgments for prior_audit_chain_link_hash, genesis-collision defense, and field-order convention. v3 review returned ready-for-acceptance from architect + ontology with no new blockers. The v1 misconception that "workspace identity is execution-context-independent" was withdrawn at v2 and the residuals fully cleaned at v3.
 
 ## Date
 

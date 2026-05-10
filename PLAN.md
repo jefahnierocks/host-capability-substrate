@@ -5,7 +5,46 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Upstream research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — Foundational Ring 0 entities incomplete; Phase 2.5 policy YAML in system-config can proceed in parallel; Ring 1 services blocked
+## Current Focus — ADR 0049 (Decision) accepted; Step 1 entity #1 of 5 done; Phase 2.5 policy YAML in system-config parallel-OK
+
+**2026-05-10 ADR 0049 (Decision) accepted:** First foundational-entity
+ADR per the workflow-sequencing investigation §Step 1 complete. The
+`Decision` Ring 0 entity is committed with 12 schema fields, an initial
+15-value `reason_kind` Zod-defined enum (out of 35+ registered
+reservations; remainder stay registry-canonical pending future schema
+PRs), `outcome` discriminator (`'allow' | 'deny' | 'informational'`),
+`required_grant_kind` advisory-only enum (3 v1 values; charter inv. 6
+forbidden-tier non-escalable preserved), kernel-set audit-chain link
+hash (`sha256DigestSchema` covering 11 envelope fields including
+`prior_audit_chain_link_hash`; genesis policy via `'GENESIS'` sentinel),
+Ring 0 chain-walk Zod refinement on `evidence_refs` mirroring
+`qualityGateSchema` superRefine, redaction-mode floor on `reason_text`
+(`decisionRedactionModeSchema = evidenceRedactionModeSchema.exclude(['none'])`),
+and a producer-disjointness rule defending against Decision-ApprovalGrant
+self-approving chain-mint. Registry v0.4.11 → v0.4.12 with 7 specific
+section additions/updates. D-037 records the decision. ADR 0036 §Future
+amendments §Layer 1 grounding rule extensibility principle full
+discharge composes with this entity's enforcement contract; charter
+inv. 4 (audit logging is internal side effect) and registry §Audit-chain
+coverage of rejections rule now have a typed envelope to reference.
+v1 dispatch returned 9-10 blocking items across 4 reviewers (factual
+error on Evidence schema-version-bump, omitted `gate_target_already_active`,
+producer allowlist drift, registry change-set under-specification,
+audit-chain-hash shape gap, secrets-leak guard, chain-walk defense-
+in-depth, chain-mint defense); v2 absorbed all. All four required
+reviewers (`hcs-architect`, `hcs-ontology-reviewer`, `hcs-policy-reviewer`,
+`hcs-security-reviewer`) returned ready-for-acceptance; two mechanical
+tweaks at acceptance.
+
+**Step 1 progress** (per workflow-sequencing investigation): entity #1
+`Decision` ✓ done. Next: entity #2 `WorkspaceContext` (smallest scope;
+ADR 0031 v1 already commits 1:1 cardinality with worktree). Then
+`ApprovalGrant` (ADR 0050; ApprovalGrant-side mirror of D-037
+producer-disjointness rule), `Lease` (ADR 0051; ADR 0031 v1
+worktree-lease taxonomy schema landing), `Run` (ADR 0052;
+`Evidence.run_id` field semantics).
+
+## Prior Focus — Foundational Ring 0 entities incomplete; Phase 2.5 policy YAML in system-config can proceed in parallel; Ring 1 services blocked
 
 **2026-05-10 workflow-sequencing investigation:** A docs-only Ring 3
 investigation is recorded at

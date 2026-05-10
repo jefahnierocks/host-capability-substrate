@@ -1,7 +1,7 @@
 ---
 adr_number: 0049
 title: Decision Ring 0 entity introduction
-status: proposed
+status: accepted
 date: 2026-05-10
 charter_version: 1.4.0
 tags: [decision, ring-0, milestone-1, foundational-entity, reason-kind, audit-chain, gateway, mint-api, charter-v1-4-0, registry-v0-4-11, workflow-sequencing-step-1]
@@ -11,7 +11,9 @@ tags: [decision, ring-0, milestone-1, foundational-entity, reason-kind, audit-ch
 
 ## Status
 
-`proposed`
+`accepted`
+
+Accepted 2026-05-10 with two mechanical tweaks at acceptance: (1) line-number citations to `ontology-registry.md` updated to current registry state per architect cosmetic — §Audit-chain coverage of rejections cited as line 602+ (was 499+); §Subject-kind grounding requirement cited as line 443+ (was 461); these drifted as the registry grew; (2) cross-reference note added in §Compliance distinguishing the §Audit-chain coverage of rejections layer-name vocabulary (`mint_api | broker_fsm | gateway` — naming the three-layer enforcement model) from the §Kernel-trusted producer allowlist producer-name vocabulary (`mint_api | kernel_broker | kernel_gateway | ...` — naming the kernel-set producer classes) per ontology non-blocking caveat 2; the two vocabularies serve different purposes and the registry sections are not in drift. All four required reviewers (`hcs-architect`, `hcs-ontology-reviewer`, `hcs-policy-reviewer`, `hcs-security-reviewer`) returned ready-for-acceptance on v2. v1 dispatch had returned 9-10 blocking items; v2 absorbed them all (Evidence schema-version-bump withdrawal, gate_target_already_active inclusion, producer allowlist reconciliation, audit_chain_link_hash shape commitment, decisionRedactionModeSchema commitment, Ring 0 chain-walk refinement, producer-disjointness rule, outcome-compatibility classification).
 
 ## Date
 
@@ -41,7 +43,7 @@ The 2026-05-10 workflow-sequencing investigation (`docs/host-capability-substrat
 - charter v1.4.0 inv. 18 chain-walk rejection clause (typed-grant minting layer rejections)
 - charter v1.4.0 inv. 4 (audit logging — `Decision` records ARE the audit-chain entries for rejections)
 - charter v1.4.0 inv. 7 (mutation_scope discipline; Decisions gate operations)
-- registry §Audit-chain coverage of rejections (line 499+) — the rule that every rejection event produces a typed `Decision` record
+- registry §Audit-chain coverage of rejections (line 602+) — the rule that every rejection event produces a typed `Decision` record
 - ADR 0048 dispositions (which assume future Decision-mediated rejections enforce per-candidate classification)
 - M1 acceptance criterion (`PLAN.md` line 578) — `Decision` is one of the 22 canonical Ring 0 entities
 
@@ -120,7 +122,7 @@ Initial Zod-defined `reason_kind` union (v1 — 15 values, chosen by enforcement
 
 | Value | Source ADR | Why in v1 | Outcome compatibility |
 |---|---|---|---|
-| `coordination_promotion_no_layer1_grounding` | ADR 0036 §Sub-decision (b) §Layer 1 grounding requirement | Referenced by registry §Subject-kind grounding requirement §Rule (line 461) | `deny`-only |
+| `coordination_promotion_no_layer1_grounding` | ADR 0036 §Sub-decision (b) §Layer 1 grounding requirement | Referenced by registry §Subject-kind grounding requirement §Rule (line 443+) | `deny`-only |
 | `deletion_authority_kind_ref_mismatch` | ADR 0036 §Sub-decision (c) | Referenced by `OperationShape` Zod source today (`operation-shape.ts` discriminated union) | `deny`-only |
 | `cleanup_plan_authority_source_stale` | ADR 0047 §Accepts | Referenced by `OperationShape.cleanup_plan` branch (Zod source) and ADR 0047 §Future amendments gateway re-walk | `deny`-only |
 | `cleanup_plan_target_under_active_lease` | ADR 0047 §Accepts | Distinct from ADR 0031's `worktree_lease_held_by_other_session` | `deny`-only |
@@ -250,6 +252,8 @@ The Decision entity is **kernel-set throughout**. Producer-supplied `Decision` r
 
 This ADR is Ring 0 docs-only at the ADR layer; the schema PR that follows is a Ring 0 schema-change PR per `.agents/skills/hcs-schema-change`. No cross-ring imports authored. No canonical policy YAML, runtime probes, dashboard route React components, MCP adapter contracts, hook bodies, or charter invariant text changes in this commit. Registry-side changes (NEW §Decision entity section + §Procedure for adding a new reason_kind value rule + §Decision enum mirrors + producer allowlist extension + version bump) are bundled into this commit or a follow-on docs commit referencing this ADR. Complies with implementation charter v1.4.0.
 
+**Vocabulary note (acceptance non-blocking caveat 2 absorbed)**: registry §Audit-chain coverage of rejections uses **layer-name** vocabulary (`mint_api | broker_fsm | gateway`) to identify the three-layer enforcement model per ADR 0019 v3 §Three-layer enforcement model. Registry §Kernel-trusted producer allowlist final state uses **producer-name** vocabulary (`mint_api | kernel_broker | kernel_gateway | kernel_telemetry | kernel_agent_client_resolver | kernel_workspace_diagnose`) to identify kernel-set producers permitted on `Evidence.producer` and `Decision.decided_by`. The two vocabularies serve different purposes: layer-names describe the enforcement architecture (where rejection happens); producer-names describe the kernel-trusted classes (who emits records). The shared `mint_api` token is intentional — the layer-1 enforcement *is* the mint API, and the producer that emits Decision records *is* `mint_api`. The shared `kernel_broker | kernel_gateway` tokens follow the same pattern (broker FSM + gateway re-derive are layer-2 and layer-3 enforcement, and `kernel_broker | kernel_gateway` are the kernel-trusted producers that emit records at those layers). This vocabulary alignment is by design, not drift. Future readers should not interpret the two sections as competing taxonomies.
+
 ## References
 
 ### Internal
@@ -266,7 +270,7 @@ This ADR is Ring 0 docs-only at the ADR layer; the schema PR that follows is a R
   - ADR 0037 (Q-010 cross-agent isolation — `Decision.reason_kind` reservations from §Cross-cutting rules)
   - ADR 0047 (cleanup-plan composition)
   - ADR 0048 (Phase 2.7 subject-kind grounding evaluation — dispositions reference future Decision-mediated rejections)
-- Registry: `docs/host-capability-substrate/ontology-registry.md` v0.4.11 — §Authority discipline, §Cross-context enforcement layer (line 443+), §Audit-chain coverage of rejections (line 499+), §Subject-kind grounding requirement (line 443+), §Decision.reason_kind reservation sections from each consuming ADR
+- Registry: `docs/host-capability-substrate/ontology-registry.md` v0.4.11 — §Authority discipline (line 279+), §Cross-context enforcement layer (line 546+), §Audit-chain coverage of rejections (line 602+), §Subject-kind grounding requirement (line 443+), §Decision.reason_kind reservation sections from each consuming ADR
 - Workflow-sequencing investigation: `docs/host-capability-substrate/research/local/2026-05-10-workflow-sequencing-investigation.md` §Step 1 entity #1 (Decision priority highest)
 - Outstanding-work sequencing workflow: `docs/host-capability-substrate/research/local/2026-05-09-outstanding-work-sequencing-workflow.md`
 - Implementation rules: `IMPLEMENT.md` §Required subagent reviews, §Change classes

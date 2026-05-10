@@ -39,7 +39,7 @@ tweaks at acceptance.
 **Step 1 progress** (per workflow-sequencing investigation): entity #1
 `Decision` ✓ done. Next: entity #2 `WorkspaceContext` (smallest scope;
 ADR 0031 v1 already commits 1:1 cardinality with worktree). Then
-`ApprovalGrant` (ADR 0050; ApprovalGrant-side mirror of D-037
+`ApprovalGrant` (ADR 0051; ApprovalGrant-side mirror of D-037
 producer-disjointness rule), `Lease` (ADR 0051; ADR 0031 v1
 worktree-lease taxonomy schema landing), `Run` (ADR 0052;
 `Evidence.run_id` field semantics).

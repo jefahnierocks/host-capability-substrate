@@ -1,7 +1,7 @@
 ---
 adr_number: 0047
 title: system.cleanup.plan.v1 composition with workspace-diagnose summary
-status: proposed
+status: accepted
 date: 2026-05-09
 charter_version: 1.4.0
 tags: [cleanup-plan, deletion-authority, workspace-diagnose, derived-summary, operation-shape, charter-v1-4-0, registry-v0-4-7, adr-0036-followup, q-009-followup, architect-f4]
@@ -11,7 +11,9 @@ tags: [cleanup-plan, deletion-authority, workspace-diagnose, derived-summary, op
 
 ## Status
 
-`proposed`
+`accepted`
+
+Accepted 2026-05-09 with two mechanical tweaks at acceptance: `worktree_lease_completed` cleanup_scope value enumerated all three terminal-non-active `lease_state` values (`released | force_broken | expired`) per ADR 0031 v1 (ontology-reviewer non-blocking observation); §Future amendments registry-PR bullet expanded to enumerate the typed `summary_text` hint-status closed-enum vocabulary alongside the `summary_kind: cleanup_plan` reservation (policy-reviewer non-blocking observation). All three required reviewers (`hcs-architect`, `hcs-ontology-reviewer`, `hcs-policy-reviewer`) returned ready-for-acceptance on v2.
 
 ## Date
 
@@ -114,7 +116,7 @@ This matches the ADR 0036 reframe pattern (workspace manifest is a Layer 3 retri
 
 - **Input shape** — `(workspace_id, cleanup_scope, discovery_hint_summary_id?)`. `cleanup_scope` is a closed-enum discriminator over the cleanup population kind, with two initial values:
   - `audit_profile_claim_supersession` — cleanup driven by an audit-profile snapshot supersession (`KnowledgeSource.content_hash` change with `predicate_kind: "claim_superseded_by_snapshot"` per ADR 0019 v3 + ADR 0036 reservation)
-  - `worktree_lease_completed` — cleanup driven by a worktree lease reaching `lease_state: "released"` or `"force_broken"` per ADR 0031 v1
+  - `worktree_lease_completed` — cleanup driven by a worktree lease reaching `lease_state: "released"`, `"force_broken"`, or `"expired"` per ADR 0031 v1 (the three terminal-non-active states; the `cleanup_plan_target_under_active_lease` rejection class handles the `active` state)
   
   Per registry §Naming-discipline §Sub-rule 8 (bare-noun central-concept discriminator), `cleanup_scope` is the central-concept discriminator and does not take a `_kind` suffix; this matches the `boundary_dimension` precedent ADR 0022 set. Caller-driven `explicit_target_set` is deferred to a future amendment with redaction-posture discipline (see §Future amendments).
 
@@ -176,7 +178,7 @@ This matches the ADR 0036 reframe pattern (workspace manifest is a Layer 3 retri
 
 - **`cleanup_plan` operation_class schema PR** — follow-up Ring 0 schema-change PR per `.agents/skills/hcs-schema-change` requiring `hcs-ontology-reviewer` objections. Adds `cleanup_plan` to `operationShapeOperationClassSchema` enum, commits target-kind narrowing to `workspace`, and adds the new `Decision.reason_kind` reservations and the `cleanup_scope` enum. Also reconciles the `qualityGateOperationClassSchema` enum mirror at `quality-gate.ts:25-34` with the OperationShape enum (currently lacks `workspace_verify` per ADR 0036 acceptance and would lack `cleanup_plan` post-this-ADR).
 
-- **`DerivedSummary.summary_kind: cleanup_plan` registry reservation** — follow-up registry update PR, additive to existing summary-kind enum.
+- **`DerivedSummary.summary_kind: cleanup_plan` registry reservation** — follow-up registry update PR, additive to existing summary-kind enum. Same PR reserves the typed `summary_text` hint-status closed-enum vocabulary used by cleanup-plan summaries: `hint_resolved | hint_ignored_stale | hint_ignored_workspace_mismatch | hint_unresolvable | no_hint_provided`.
 
 - **Adapter-side cleanup-plan invocation surface** (MCP tool, CLI subcommand, dashboard view) — out of scope for this ADR per Phase 2 sequencing; deferred until canonical policy YAML lands.
 

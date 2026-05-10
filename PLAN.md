@@ -5,7 +5,7 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Upstream research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — Q-015 schema slice landed; runtime/policy lanes blocked
+## Current Focus — Q-015 schema slice + ADR 0039 #5 + ADR 0047 landed; runtime/policy lanes blocked
 
 **2026-05-08 audit closures (eight commits 2026-05-07 → 2026-05-08):**
 D-033 shared-state naming discipline landed in `DECISIONS.md` §Accepted
@@ -40,6 +40,28 @@ parse tests. With #5 closed, all ADR 0039 audit "Owed" and "Active
 sequencing dependency" items have landed; remaining audit items
 (#4 Phase 2.5; #6/#7/#8 wave-2 reactive; #9 low-priority editorial)
 stay deferred behind their triggering conditions.
+
+**2026-05-09 ADR 0047 cleanup-plan composition accepted:** ADR 0047
+(`docs/host-capability-substrate/adr/0047-cleanup-plan-composition.md`)
+resolves ADR 0036 architect F4 and commits the composition rule between
+`system.cleanup.plan.v1` and `system.workspace.diagnose.v1`: discovery
+hint summary as opt-in advisory only with re-derivation at plan time
+and gateway re-walk at class-I consumption time. Cleanup-plan operation
+is `operation_class: cleanup_plan` (NEW) with `mutation_scope: "none"`
+and target-kind narrowing to `workspace`; output is a population of
+typed `OperationShape` records (no reified composite) plus a mandatory
+`DerivedSummary` of `summary_kind: cleanup_plan` (NEW) carrying
+hint-resolution status as typed `summary_text` annotation. NEW
+`Decision.reason_kind`: `cleanup_plan_authority_source_stale`,
+`cleanup_plan_target_under_active_lease`. Initial `cleanup_scope`
+enum: `audit_profile_claim_supersession | worktree_lease_completed`;
+`explicit_target_set` deferred behind redaction-posture work.
+D-035 records the decision. All three required reviewers
+(`hcs-architect`, `hcs-ontology-reviewer`, `hcs-policy-reviewer`)
+returned ready-for-acceptance on v2; two mechanical tweaks at
+acceptance. Schema PR per `.agents/skills/hcs-schema-change` follows;
+canonical policy YAML for `cleanup_plan` lives in `system-config/`
+at Milestone 2 per ADR 0036 reservation.
 
 As of 2026-05-04, the **Phase 1 synthesis-window is closed**. All nine
 pending Q-rows in `DECISIONS.md` (Q-003, Q-005, Q-006, Q-007, Q-008,
@@ -277,9 +299,8 @@ Q-007 carry-overs).
 
 **Future ADRs queued**: `RemoteAgentInvocationReceipt` aggregator
 (ADR 0037 follow-up); `AgentClient × WorkspaceContext` cardinality;
-`system.cleanup.plan.v1` composition (ADR 0036 follow-up); cross-cutting
-derived-content subject_kind grounding rule extension (ADR 0036
-extensibility principle); Q-013 credential-plane schema/evidence
+cross-cutting derived-content subject_kind grounding rule extension
+(ADR 0036 extensibility principle); Q-013 credential-plane schema/evidence
 implementation (first Phase 2.7 dependency; accepted ADR:
 `docs/host-capability-substrate/adr/0043-q-013-credential-plane-implementation.md`;
 lane plan:

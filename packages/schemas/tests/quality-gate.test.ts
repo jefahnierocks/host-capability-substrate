@@ -105,7 +105,7 @@ describe('QualityGate schema', () => {
     ).toBe(false);
   });
 
-  it('keeps mutation_class target refs closed to ADR 0029 operation classes', () => {
+  it('mirrors operationShapeOperationClassSchema for mutation_class target refs (ADR 0029, ADR 0036, ADR 0047)', () => {
     expect(
       qualityGateSchema.safeParse({
         schema_version: '0.1.0',
@@ -122,6 +122,44 @@ describe('QualityGate schema', () => {
         expired_at: null,
         denied_at: null,
         execution_context_id: 'ctx:hcs:phase-2-1-4',
+      }).success,
+    ).toBe(true);
+
+    expect(
+      qualityGateSchema.safeParse({
+        schema_version: '0.1.0',
+        gate_id: 'quality-gate:hcs:cleanup-plan',
+        gate_kind: 'mutation_class',
+        target_subject_ref: {
+          operation_class: 'cleanup_plan',
+        },
+        gate_state: 'provisional',
+        evidence_refs: [evidenceRef],
+        valid_until: null,
+        provisional_at: '2026-05-09T00:00:00Z',
+        proven_at: null,
+        expired_at: null,
+        denied_at: null,
+        execution_context_id: 'ctx:hcs:adr-0047',
+      }).success,
+    ).toBe(true);
+
+    expect(
+      qualityGateSchema.safeParse({
+        schema_version: '0.1.0',
+        gate_id: 'quality-gate:hcs:invalid-class',
+        gate_kind: 'mutation_class',
+        target_subject_ref: {
+          operation_class: 'definitely_not_a_real_class',
+        },
+        gate_state: 'provisional',
+        evidence_refs: [evidenceRef],
+        valid_until: null,
+        provisional_at: '2026-05-09T00:00:00Z',
+        proven_at: null,
+        expired_at: null,
+        denied_at: null,
+        execution_context_id: 'ctx:hcs:adr-0047',
       }).success,
     ).toBe(false);
   });

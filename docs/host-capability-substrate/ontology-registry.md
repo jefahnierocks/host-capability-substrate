@@ -3,7 +3,7 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.4.7
+version: 0.4.8
 last_updated: 2026-05-09
 tags: [ontology, registry, registry-consolidation, phase-2-4, phase-2-7, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, remote-agent, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
 priority: high
@@ -835,7 +835,7 @@ Mirror notes:
 
 ### `OperationShape` enum mirrors
 
-Source: ADR 0029, ADR 0036, and ADR 0038 Phase 2.2.2.
+Source: ADR 0029, ADR 0036, ADR 0038 Phase 2.2.2, and ADR 0047.
 
 `OperationShape.operation_class`:
 
@@ -846,6 +846,7 @@ Source: ADR 0029, ADR 0036, and ADR 0038 Phase 2.2.2.
 - `worktree_mutation`
 - `merge_or_push`
 - `workspace_verify`
+- `cleanup_plan`
 
 `OperationShape.mutation_scope`:
 
@@ -887,8 +888,14 @@ Mirror notes:
   `agent_internal_state` → `execution_context`,
   `external_control_plane_mutation` → `provider_object |
   external_control_plane`, `destructive_git | merge_or_push` →
-  `repository`, `worktree_mutation` → `worktree`, and
-  `workspace_verify` → `workspace`.
+  `repository`, `worktree_mutation` → `worktree`,
+  `workspace_verify` → `workspace`, and ADR 0047 `cleanup_plan` → `workspace`.
+- `cleanup_plan` carries `mutation_scope: "none"` per ADR 0047 §Accepts and
+  charter v1.4.0 inv. 7 — the operation produces typed records but does not
+  execute deletions. `deletion_authority_kind` and `deletion_authority_source_ref`
+  are explicit `null` on `cleanup_plan` records (the deletion-authority fields
+  belong to the *output* OperationShape records, not the cleanup-plan
+  operation itself).
 - `deletion_authority_kind` and `deletion_authority_source_ref` are required
   nullable fields on serialized `OperationShape` records. Use explicit `null`
   for both when no deletion authority applies.
@@ -1110,6 +1117,22 @@ Source: ADR 0019, ADR 0031, ADR 0036, and ADR 0038 Phase 2.1.3.
 - `release_summary`
 - `audit_summary`
 - `operational_summary`
+- `cleanup_plan` (added by ADR 0047)
+
+`DerivedSummary.summary_text` (typed closed-enum vocabulary when
+`summary_kind: "cleanup_plan"`; free-form display prose otherwise):
+
+- `hint_resolved`
+- `hint_ignored_stale`
+- `hint_ignored_workspace_mismatch`
+- `hint_unresolvable`
+- `no_hint_provided`
+
+The closed-enum vocabulary captures hint-resolution status for the
+`system.cleanup.plan.v1` operation per ADR 0047. The schema layer enforces
+the membership via Zod refinement on `derivedSummarySchema` when
+`summary_kind === 'cleanup_plan'`. For all other `summary_kind` values
+`summary_text` remains free-form.
 
 `DerivedSummary.derived_from.source_record_kind`:
 
@@ -1175,7 +1198,8 @@ Source: ADR 0035 and ADR 0038 Phase 2.1.4.
 - `expired`
 - `denied`
 
-`QualityGate.target_subject_ref.operation_class`:
+`QualityGate.target_subject_ref.operation_class` (mirrors
+`operationShapeOperationClassSchema`; ADR 0029, ADR 0036, ADR 0047):
 
 - `read_only_diagnostic`
 - `agent_internal_state`
@@ -1183,6 +1207,9 @@ Source: ADR 0035 and ADR 0038 Phase 2.1.4.
 - `external_control_plane_mutation`
 - `worktree_mutation`
 - `merge_or_push`
+- `workspace_verify` (mirror reconciliation; closes the pre-existing
+  ADR 0036 enum-mirror gap surfaced during ADR 0047 review)
+- `cleanup_plan` (added by ADR 0047)
 
 `QualityGate.evidence_chain_refs.record_kind`:
 
@@ -1201,6 +1228,34 @@ Source: ADR 0035 and ADR 0038 Phase 2.1.4.
 - `gate_evidence_insufficient`
 - `gate_target_already_active`
 - `gate_evidence_stale_reuse`
+
+`Decision.reason_kind` reservations from ADR 0047 (registry-canonical
+pending Ring 1 mint API schema PR; not yet Zod-source-defined):
+
+- `cleanup_plan_authority_source_stale` — Layer 1 mint rejects an output
+  `OperationShape` whose `deletion_authority_source_ref` is stale or whose
+  underlying observation has been superseded; also surfaces at gateway
+  re-walk during class-I consumption per ADR 0047 §Accepts.
+- `cleanup_plan_target_under_active_lease` — Layer 1 mint refuses to
+  *propose* deletion of a candidate target under any active worktree
+  `Lease` regardless of session ownership. Distinct from ADR 0031's
+  `worktree_lease_held_by_other_session`, which names the worktree-mutation
+  surface where another session holds the lease.
+
+`cleanup_scope` enum reservation from ADR 0047 (registry-canonical
+pending Ring 1 mint API schema PR; not yet Zod-source-defined):
+
+- `audit_profile_claim_supersession` — cleanup driven by an audit-profile
+  snapshot supersession (`KnowledgeSource.content_hash` change with
+  `predicate_kind: "claim_superseded_by_snapshot"`).
+- `worktree_lease_completed` — cleanup driven by a worktree lease reaching
+  `lease_state: "released"`, `"force_broken"`, or `"expired"` per ADR 0031 v1
+  (the three terminal-non-active states).
+
+Per registry §Naming-discipline §Sub-rule 8 (bare-noun central-concept
+discriminator), `cleanup_scope` is the central-concept discriminator and
+does not take a `_kind` suffix. `explicit_target_set` is deferred behind
+redaction-posture work per ADR 0047 §Future amendments.
 
 `Decision.required_grant_kind` reservation from ADR 0035:
 
@@ -2800,6 +2855,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.4.8 | 2026-05-09 | Recorded ADR 0047 cleanup-plan composition first schema slice. §`OperationShape` enum mirrors adds `cleanup_plan` to operation_class with `mutation_scope: "none"` and `target_kind: "workspace"` narrowing notes; §DerivedSummary summary_kind enum mirrors adds `cleanup_plan` plus the new `summary_text` typed closed-enum vocabulary (`hint_resolved | hint_ignored_stale | hint_ignored_workspace_mismatch | hint_unresolvable | no_hint_provided`); §QualityGate operation_class enum mirror reconciled with `operationShapeOperationClassSchema` (adds both `workspace_verify` — closing the pre-existing ADR 0036 enum-mirror gap — and `cleanup_plan`). New `Decision.reason_kind` reservations and `cleanup_scope` enum recorded as registry-canonical pending Ring 1 mint API schema PR. |
 | 0.4.7 | 2026-05-09 | Recorded the `evidenceAuthoritySchema` `self-asserted` enum extension landing. Updated §Authority class ladder from ten to eleven values; reframed §`self-asserted` authority class from "(new; schema landing pending)" to landed, citing the schema-operational state and clarifying that charter v1.4.0 inv. 18 chain-walk rejection at the typed-grant minting layer remains a posture commitment until that layer lands. Bumped the `Evidence` schema-version-ledger row to `0.10.0`. Closes ADR 0039 §Forward-looking observations #5 (Arch-N12 / Pol-N2 / Sec-N-v2-2) per the 2026-05-07 absorption audit. |
 | 0.4.6 | 2026-05-07 | Extended §Producer-vs-kernel-set authority fields to enumerate the five charter v1.4.0 invariant 19 execution-context binding FKs (`execution_context_id`, `surface_id`, `workspace_id`, `credential_source_id`, `tool_or_provider_ref`) as kernel-set on `BoundaryObservation` envelopes and related Evidence subtype envelopes. Aligns the registry with inv. 19 charter authority and the Phase 2.2.3 `BoundaryObservation` payload bundle landing. Closes ADR 0039 §Forward-looking observations Ont-N9 per the 2026-05-07 absorption audit. |
 | 0.4.5 | 2026-05-07 | Added §Predicate-kind vocabulary section authoritative for `CoordinationFact.predicate_kind` values, paralleling §Boundary dimension registry per ADR 0019 reservation. Documents twelve currently-landed predicates (six ADR 0019 candidates accepted at enum level; `leased_to` accepted via ADR 0031; `attached_to`, `held_by`, `claimed_to_contain`, `confirmed_to_contain`, `claim_superseded_by_snapshot` reserved). Adds matching §Adding or removing a predicate_kind procedure note. ADR 0019 / ADR 0031 added to §References. Closes the Q-003 / ADR 0019 reservation that named this section as a schema-PR precondition. |

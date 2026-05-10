@@ -122,9 +122,10 @@
         "closeout_narrative",
         "release_summary",
         "audit_summary",
-        "operational_summary"
+        "operational_summary",
+        "cleanup_plan"
       ],
-      "description": "Summary kind for an ADR 0019 DerivedSummary."
+      "description": "Summary kind for an ADR 0019 DerivedSummary; cleanup_plan added by ADR 0047."
     },
     "summary_text": {
       "type": "string",
@@ -237,5 +238,5 @@
     "target_refs"
   ],
   "additionalProperties": false,
-  "description": "Ring 0 DerivedSummary entity from ADR 0019 and ADR 0038 Phase 2.1.3."
+  "description": "Ring 0 DerivedSummary entity from ADR 0019, ADR 0038 Phase 2.1.3, and ADR 0047 cleanup_plan summary_kind extension."
 }

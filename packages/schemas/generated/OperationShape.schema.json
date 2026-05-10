@@ -2392,7 +2392,156 @@
         "deletion_authority_source_ref"
       ],
       "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "0.1.0",
+          "description": "Entity schema version for a Ring 0 schema."
+        },
+        "operation_shape_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "execution_context_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        "evidence_refs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "evidence_id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                "description": "Reference to an Evidence record or fixture."
+              },
+              "source": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Human-readable source name or artifact path."
+              },
+              "observed_at": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "description": "RFC 3339 timestamp with an explicit UTC offset."
+              },
+              "valid_until": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                    "description": "RFC 3339 timestamp with an explicit UTC offset."
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "authority": {
+                "type": "string",
+                "enum": [
+                  "project-local",
+                  "workspace-local",
+                  "user-global",
+                  "system",
+                  "derived",
+                  "sandbox-observation",
+                  "host-observation",
+                  "vendor-doc",
+                  "installed-runtime",
+                  "human-observed",
+                  "self-asserted"
+                ],
+                "description": "Authority plane for a fact or observation. `self-asserted` is the lowest class — producer claims with no observation behind them — and cannot be promoted to any higher class per charter inv. 8 / inv. 18 chain-walk rejection."
+              },
+              "parser_version": {
+                "type": "string",
+                "minLength": 1
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "authoritative",
+                  "high",
+                  "best-effort",
+                  "stale",
+                  "unknown"
+                ],
+                "description": "Confidence assigned to an observation by the producer."
+              }
+            },
+            "required": [
+              "evidence_id",
+              "source",
+              "observed_at",
+              "authority",
+              "confidence"
+            ],
+            "additionalProperties": false,
+            "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+          }
+        },
+        "operation_class": {
+          "type": "string",
+          "const": "cleanup_plan"
+        },
+        "mutation_scope": {
+          "type": "string",
+          "const": "none"
+        },
+        "target_ref": {
+          "type": "object",
+          "properties": {
+            "target_kind": {
+              "type": "string",
+              "const": "workspace"
+            },
+            "target_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            }
+          },
+          "required": [
+            "target_kind",
+            "target_id"
+          ],
+          "additionalProperties": false,
+          "description": "Workspace target reference for workspace verification OperationShapes."
+        },
+        "deletion_authority_kind": {
+          "type": "null"
+        },
+        "deletion_authority_source_ref": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schema_version",
+        "operation_shape_id",
+        "execution_context_id",
+        "evidence_refs",
+        "operation_class",
+        "mutation_scope",
+        "target_ref",
+        "deletion_authority_kind",
+        "deletion_authority_source_ref"
+      ],
+      "additionalProperties": false
     }
   ],
-  "description": "Ring 0 OperationShape entity from ADR 0029, ADR 0036, and ADR 0038."
+  "description": "Ring 0 OperationShape entity from ADR 0029, ADR 0036, ADR 0038, and ADR 0047."
 }

@@ -21,8 +21,21 @@ export const derivedSummaryKindSchema = z
     'release_summary',
     'audit_summary',
     'operational_summary',
+    'cleanup_plan',
   ])
-  .describe('Summary kind for an ADR 0019 DerivedSummary.');
+  .describe('Summary kind for an ADR 0019 DerivedSummary; cleanup_plan added by ADR 0047.');
+
+export const cleanupPlanHintStatusSchema = z
+  .enum([
+    'hint_resolved',
+    'hint_ignored_stale',
+    'hint_ignored_workspace_mismatch',
+    'hint_unresolvable',
+    'no_hint_provided',
+  ])
+  .describe(
+    'ADR 0047 closed-enum hint-resolution status carried as DerivedSummary.summary_text on summary_kind: cleanup_plan records.',
+  );
 
 export const derivedSummarySourceRecordKindSchema = z
   .enum(['evidence', 'coordination_fact', 'derived_summary', 'knowledge_chunk'])
@@ -101,9 +114,26 @@ export const derivedSummarySchema = z
       });
     }
   })
-  .describe('Ring 0 DerivedSummary entity from ADR 0019 and ADR 0038 Phase 2.1.3.');
+  .superRefine((value, ctx) => {
+    if (value.summary_kind !== 'cleanup_plan') {
+      return;
+    }
+
+    if (!cleanupPlanHintStatusSchema.safeParse(value.summary_text).success) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          'DerivedSummary with summary_kind: cleanup_plan must carry summary_text from the cleanupPlanHintStatusSchema closed-enum vocabulary per ADR 0047.',
+        path: ['summary_text'],
+      });
+    }
+  })
+  .describe(
+    'Ring 0 DerivedSummary entity from ADR 0019, ADR 0038 Phase 2.1.3, and ADR 0047 cleanup_plan summary_kind extension.',
+  );
 
 export type DerivedSummaryKind = z.infer<typeof derivedSummaryKindSchema>;
 export type DerivedSummarySourceRecordKind = z.infer<typeof derivedSummarySourceRecordKindSchema>;
 export type DerivedSummarySourceRef = z.infer<typeof derivedSummarySourceRefSchema>;
 export type DerivedSummary = z.infer<typeof derivedSummarySchema>;
+export type CleanupPlanHintStatus = z.infer<typeof cleanupPlanHintStatusSchema>;

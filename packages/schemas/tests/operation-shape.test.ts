@@ -304,6 +304,85 @@ describe('OperationShape schema', () => {
     ).toBe(false);
   });
 
+  it('parses cleanup_plan OperationShape with workspace target and mutation_scope none (ADR 0047)', () => {
+    const operation = operationShapeSchema.parse({
+      schema_version: '0.1.0',
+      operation_shape_id: 'operation-shape:hcs:cleanup-plan',
+      operation_class: 'cleanup_plan',
+      mutation_scope: 'none',
+      execution_context_id: 'ctx:hcs:adr-0047',
+      target_ref: {
+        target_kind: 'workspace',
+        target_id: 'workspace:host-capability-substrate',
+      },
+      deletion_authority_kind: null,
+      deletion_authority_source_ref: null,
+      evidence_refs: [evidenceRef],
+    });
+
+    expect(operation.operation_class).toBe('cleanup_plan');
+    expect(operation.mutation_scope).toBe('none');
+  });
+
+  it('rejects cleanup_plan OperationShape with non-workspace target_kind (ADR 0047)', () => {
+    expect(
+      operationShapeSchema.safeParse({
+        schema_version: '0.1.0',
+        operation_shape_id: 'operation-shape:hcs:cleanup-plan-wrong-target',
+        operation_class: 'cleanup_plan',
+        mutation_scope: 'none',
+        execution_context_id: 'ctx:hcs:adr-0047',
+        target_ref: {
+          target_kind: 'repository',
+          target_id: 'repository:hcs',
+        },
+        deletion_authority_kind: null,
+        deletion_authority_source_ref: null,
+        evidence_refs: [evidenceRef],
+      }).success,
+    ).toBe(false);
+  });
+
+  it('rejects cleanup_plan OperationShape with non-none mutation_scope (ADR 0047 inv. 7)', () => {
+    expect(
+      operationShapeSchema.safeParse({
+        schema_version: '0.1.0',
+        operation_shape_id: 'operation-shape:hcs:cleanup-plan-wrong-scope',
+        operation_class: 'cleanup_plan',
+        mutation_scope: 'destructive_git',
+        execution_context_id: 'ctx:hcs:adr-0047',
+        target_ref: {
+          target_kind: 'workspace',
+          target_id: 'workspace:host-capability-substrate',
+        },
+        deletion_authority_kind: null,
+        deletion_authority_source_ref: null,
+        evidence_refs: [evidenceRef],
+      }).success,
+    ).toBe(false);
+  });
+
+  it('rejects cleanup_plan OperationShape with deletion-authority fields populated (ADR 0047)', () => {
+    expect(
+      operationShapeSchema.safeParse({
+        schema_version: '0.1.0',
+        operation_shape_id: 'operation-shape:hcs:cleanup-plan-bad-authority',
+        operation_class: 'cleanup_plan',
+        mutation_scope: 'none',
+        execution_context_id: 'ctx:hcs:adr-0047',
+        target_ref: {
+          target_kind: 'workspace',
+          target_id: 'workspace:host-capability-substrate',
+        },
+        deletion_authority_kind: 'coordination_fact',
+        deletion_authority_source_ref: {
+          coordination_fact_id: 'coordination-fact:hcs:placeholder',
+        },
+        evidence_refs: [evidenceRef],
+      }).success,
+    ).toBe(false);
+  });
+
   it('keeps operation_shape as an Evidence subject kind with current Evidence schema', () => {
     const evidence = evidenceSchema.parse({
       schema_version: '0.10.0',

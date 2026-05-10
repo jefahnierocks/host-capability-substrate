@@ -267,6 +267,106 @@ describe('Knowledge and coordination schemas', () => {
     ).toBe(false);
   });
 
+  it('parses cleanup_plan DerivedSummary with closed-enum hint-status summary_text (ADR 0047)', () => {
+    const baseSummary = {
+      schema_version: '0.1.0',
+      derived_summary_id: 'derived-summary:hcs:cleanup-plan:hint-resolved',
+      derived_from: [
+        {
+          source_record_kind: 'evidence' as const,
+          source_record_id: 'evidence:hcs:filesystem-protected-paths',
+          source: 'docs/host-capability-substrate/adr/0047-cleanup-plan-composition.md',
+          observed_at: '2026-05-09T00:00:00Z',
+          authority: 'host-observation' as const,
+          confidence: 'high' as const,
+        },
+      ],
+      generated_by: 'kernel_workspace_diagnose',
+      generated_at: '2026-05-09T00:30:00Z',
+      summary_kind: 'cleanup_plan' as const,
+      authority: 'derived' as const,
+      confidence: 'best-effort' as const,
+      allowed_for_gate: false as const,
+      promoted_at: null,
+      promotion_grant_id: null,
+      execution_context_id: 'ctx:hcs:adr-0047',
+    };
+
+    for (const status of [
+      'hint_resolved',
+      'hint_ignored_stale',
+      'hint_ignored_workspace_mismatch',
+      'hint_unresolvable',
+      'no_hint_provided',
+    ] as const) {
+      const summary = derivedSummarySchema.parse({
+        ...baseSummary,
+        summary_text: status,
+      });
+      expect(summary.summary_kind).toBe('cleanup_plan');
+      expect(summary.summary_text).toBe(status);
+    }
+  });
+
+  it('rejects cleanup_plan DerivedSummary with free-form summary_text outside the closed enum (ADR 0047)', () => {
+    expect(
+      derivedSummarySchema.safeParse({
+        schema_version: '0.1.0',
+        derived_summary_id: 'derived-summary:hcs:cleanup-plan:bad-text',
+        derived_from: [
+          {
+            source_record_kind: 'evidence',
+            source_record_id: 'evidence:hcs:filesystem-protected-paths',
+            source: 'docs/host-capability-substrate/adr/0047-cleanup-plan-composition.md',
+            observed_at: '2026-05-09T00:00:00Z',
+            authority: 'host-observation',
+            confidence: 'high',
+          },
+        ],
+        generated_by: 'kernel_workspace_diagnose',
+        generated_at: '2026-05-09T00:30:00Z',
+        summary_kind: 'cleanup_plan',
+        summary_text: 'Cleanup plan for the workspace. (display-only prose)',
+        authority: 'derived',
+        confidence: 'best-effort',
+        allowed_for_gate: false,
+        promoted_at: null,
+        promotion_grant_id: null,
+        execution_context_id: 'ctx:hcs:adr-0047',
+      }).success,
+    ).toBe(false);
+  });
+
+  it('keeps free-form summary_text on non-cleanup_plan summary_kind values (ADR 0047 refinement is scoped)', () => {
+    const summary = derivedSummarySchema.parse({
+      schema_version: '0.1.0',
+      derived_summary_id: 'derived-summary:hcs:operational-summary-free-form',
+      derived_from: [
+        {
+          source_record_kind: 'evidence',
+          source_record_id: 'evidence:hcs:host-observation',
+          source: 'docs/host-capability-substrate/adr/0019-knowledge-and-coordination-store.md',
+          observed_at: '2026-05-04T00:00:00Z',
+          authority: 'host-observation',
+          confidence: 'high',
+        },
+      ],
+      generated_by: 'kernel_workspace_diagnose',
+      generated_at: '2026-05-04T00:30:00Z',
+      summary_kind: 'operational_summary',
+      summary_text: 'Free-form prose for operational summary display.',
+      authority: 'derived',
+      confidence: 'best-effort',
+      allowed_for_gate: false,
+      promoted_at: null,
+      promotion_grant_id: null,
+      execution_context_id: 'ctx:hcs:phase-2-1-3',
+    });
+
+    expect(summary.summary_kind).toBe('operational_summary');
+    expect(summary.summary_text).toMatch(/Free-form prose/);
+  });
+
   it('keeps knowledge and coordination entities as Evidence subject kinds with current Evidence schema', () => {
     const evidence = evidenceSchema.parse({
       schema_version: '0.10.0',

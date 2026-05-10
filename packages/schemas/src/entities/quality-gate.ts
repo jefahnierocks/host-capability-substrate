@@ -30,8 +30,12 @@ export const qualityGateOperationClassSchema = z
     'external_control_plane_mutation',
     'worktree_mutation',
     'merge_or_push',
+    'workspace_verify',
+    'cleanup_plan',
   ])
-  .describe('ADR 0029 operation class values used by mutation_class QualityGates.');
+  .describe(
+    'Operation class values used by mutation_class QualityGates; mirrors operationShapeOperationClassSchema (ADR 0029, ADR 0036, ADR 0047).',
+  );
 
 export const identityBindingGateTargetRefSchema = z
   .object({

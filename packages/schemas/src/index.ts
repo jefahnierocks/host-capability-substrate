@@ -213,6 +213,8 @@ export {
   credentialStoragePlaneSchema,
 } from './entities/credential-source.ts';
 export {
+  type CleanupPlanHintStatus,
+  cleanupPlanHintStatusSchema,
   type DerivedSummary,
   type DerivedSummaryKind,
   type DerivedSummarySourceRecordKind,

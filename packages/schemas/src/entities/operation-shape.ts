@@ -10,8 +10,9 @@ export const operationShapeOperationClassSchema = z
     'worktree_mutation',
     'merge_or_push',
     'workspace_verify',
+    'cleanup_plan',
   ])
-  .describe('OperationShape operation_class values from ADR 0029 and ADR 0036.');
+  .describe('OperationShape operation_class values from ADR 0029, ADR 0036, and ADR 0047.');
 
 export const operationShapeMutationScopeSchema = z
   .enum([
@@ -357,6 +358,16 @@ const workspaceVerifyOperationShapeSchema = operationShapeBaseSchema
   })
   .strict();
 
+const cleanupPlanOperationShapeSchema = operationShapeBaseSchema
+  .extend({
+    operation_class: z.literal('cleanup_plan'),
+    mutation_scope: z.literal('none'),
+    target_ref: workspaceOperationTargetRefSchema,
+    deletion_authority_kind: z.null(),
+    deletion_authority_source_ref: z.null(),
+  })
+  .strict();
+
 export const operationShapeSchema = z
   .discriminatedUnion('operation_class', [
     readOnlyDiagnosticOperationShapeSchema,
@@ -366,8 +377,9 @@ export const operationShapeSchema = z
     worktreeMutationOperationShapeSchema,
     mergeOrPushOperationShapeSchema,
     workspaceVerifyOperationShapeSchema,
+    cleanupPlanOperationShapeSchema,
   ])
-  .describe('Ring 0 OperationShape entity from ADR 0029, ADR 0036, and ADR 0038.');
+  .describe('Ring 0 OperationShape entity from ADR 0029, ADR 0036, ADR 0038, and ADR 0047.');
 
 export type OperationShapeOperationClass = z.infer<typeof operationShapeOperationClassSchema>;
 export type OperationShapeMutationScope = z.infer<typeof operationShapeMutationScopeSchema>;

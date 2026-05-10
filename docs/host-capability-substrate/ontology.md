@@ -3,9 +3,9 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.12.0
+version: 1.13.0
 last_updated: 2026-05-09
-tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted]
+tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan]
 priority: high
 ---
 
@@ -298,7 +298,8 @@ Key fields:
   `source_record_kind` is closed to `evidence`, `coordination_fact`,
   `derived_summary`, or `knowledge_chunk`.
 - `generated_by`, `generated_at`, `summary_kind`, and `summary_text` describe
-  the projection.
+  the projection. `summary_kind` includes ADR 0019 values plus ADR 0047
+  `cleanup_plan` (the audit-chain entry produced by `system.cleanup.plan.v1`).
 - `allowed_for_gate`, `promoted_at`, and `promotion_grant_id` are kernel-set
   promotion fields.
 - `execution_context_id` and `target_refs` bind the summary to context.
@@ -306,6 +307,13 @@ Key fields:
 Promoted summaries cannot cite sandbox-observation authority or
 `KnowledgeChunk` records in `derived_from`; this encodes the ADR 0019
 promotion-laundering guard at the schema layer.
+
+When `summary_kind: cleanup_plan`, `summary_text` carries a typed
+hint-resolution status from the closed-enum vocabulary
+`hint_resolved | hint_ignored_stale | hint_ignored_workspace_mismatch | hint_unresolvable | no_hint_provided`
+per ADR 0047. The schema layer enforces the closed-enum membership via Zod
+refinement; for all other `summary_kind` values, `summary_text` remains
+free-form display prose.
 
 ### `QualityGate`
 
@@ -367,11 +375,13 @@ Key fields:
 - `operation_class` is one of the six ADR 0029 classes
   (`read_only_diagnostic`, `agent_internal_state`, `destructive_git`,
   `external_control_plane_mutation`, `worktree_mutation`, `merge_or_push`) plus
-  ADR 0036 `workspace_verify`.
+  ADR 0036 `workspace_verify` and ADR 0047 `cleanup_plan`.
 - `mutation_scope` is paired with `operation_class`; `read_only_diagnostic`
-  uses `none`, `workspace_verify` uses `verify_workspace`, and the mutation
-  classes use their class-level mutation scopes until future capability
-  schemas introduce narrower per-operation scopes.
+  and `cleanup_plan` use `none` (both are Ring 1 read-only operations producing
+  typed records without executing mutations), `workspace_verify` uses
+  `verify_workspace`, and the mutation classes use their class-level mutation
+  scopes until future capability schemas introduce narrower per-operation
+  scopes.
 - `execution_context_id` is required by charter invariant 17.
 - `target_ref` is a typed `{target_kind, target_id}` reference. It records the
   primary target without embedding shell arguments or resolved secret material.
@@ -581,6 +591,25 @@ references a schema-operational authority class; the chain-walk rejection
 itself remains a posture commitment until the typed-grant minting layer
 lands. See ontology-registry §`self-asserted` authority class for the trust
 ordering.
+
+ADR 0047 cleanup-plan composition lands its first schema slice as additive
+enum widenings (no entity schema-version bumps). `OperationShape` adds the
+`cleanup_plan` operation_class with a `mutation_scope: "none"` discriminated
+branch and `target_kind: "workspace"` narrowing, mirroring the
+`workspace_verify` precedent. `DerivedSummary` adds the `cleanup_plan`
+summary_kind with a Zod refinement constraining `summary_text` to the closed
+hint-status vocabulary
+(`hint_resolved | hint_ignored_stale | hint_ignored_workspace_mismatch | hint_unresolvable | no_hint_provided`).
+`QualityGate.target_subject_ref.operation_class` is reconciled with
+`operationShapeOperationClassSchema` (adds both `workspace_verify` — closing
+the pre-existing ADR 0036 reconciliation gap — and `cleanup_plan`). New
+`Decision.reason_kind` reservations (`cleanup_plan_authority_source_stale`,
+`cleanup_plan_target_under_active_lease`) and the `cleanup_scope` enum
+(`audit_profile_claim_supersession | worktree_lease_completed`) remain
+registry-canonical pending the Ring 1 mint API schema PR; they are not yet
+Zod-source-defined. Canonical policy YAML for `cleanup_plan` lives in
+`system-config/policies/host-capability-substrate/` at Milestone 2 per
+ADR 0036 reservation.
 
 The legacy `evidenceRefSchema` remains as a lightweight reference or embedded
 provenance preview for entities that have not yet been migrated to full
@@ -1373,6 +1402,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.13.0 | 2026-05-09 | Recorded ADR 0047 cleanup-plan composition first schema slice: `cleanup_plan` operation_class on `OperationShape` (with `mutation_scope: "none"` and `target_kind: "workspace"` narrowing), `cleanup_plan` summary_kind on `DerivedSummary` (with Zod refinement constraining `summary_text` to the closed hint-status enum), `qualityGateOperationClassSchema` reconciled with `operationShapeOperationClassSchema` (adds both `workspace_verify` and `cleanup_plan`). Additive enum widenings only; no entity schema-version bumps. Decision.reason_kind reservations and cleanup_scope enum remain registry-canonical pending Ring 1 mint API schema PR. |
 | 1.12.0 | 2026-05-09 | Recorded the `evidenceAuthoritySchema` `self-asserted` enum extension closing ADR 0039 §Forward-looking observations #5 (Arch-N12 / Pol-N2 / Sec-N-v2-2). Added the §Phase 2.7 narrative paragraph documenting the `Evidence.schema_version` bump to `0.10.0` and the inv. 18 chain-walk linkage; updated the §Provenance on every fact JSON example to use `0.10.0` and the eleven-value authority union. |
 | 1.11.1 | 2026-05-07 | Tightened Q-015 proof-bearing nested evidence ref docs and recorded `KnowledgeSource.schema_version` `0.2.0` for the ADR 0045 `threat_model` source-kind extension. |
 | 1.11.0 | 2026-05-07 | Added ADR 0045 Q-015 backup-readiness Evidence subtype docs, `threat_model` KnowledgeSource source kind docs, and noted that this slice reuses existing Evidence subject kinds without an Evidence schema-version bump. |

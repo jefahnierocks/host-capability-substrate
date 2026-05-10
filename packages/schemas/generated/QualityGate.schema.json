@@ -141,9 +141,11 @@
                 "destructive_git",
                 "external_control_plane_mutation",
                 "worktree_mutation",
-                "merge_or_push"
+                "merge_or_push",
+                "workspace_verify",
+                "cleanup_plan"
               ],
-              "description": "ADR 0029 operation class values used by mutation_class QualityGates."
+              "description": "Operation class values used by mutation_class QualityGates; mirrors operationShapeOperationClassSchema (ADR 0029, ADR 0036, ADR 0047)."
             }
           },
           "required": [

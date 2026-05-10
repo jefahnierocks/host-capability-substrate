@@ -3,7 +3,7 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.13.0
+version: 1.13.1
 last_updated: 2026-05-09
 tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan]
 priority: high
@@ -1402,6 +1402,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.13.1 | 2026-05-09 | Closed pre-existing source-vs-ledger drift on `OperationShape.schema_version`: source now exports `operationShapeSchemaVersionSchema = z.literal('0.2.0')` matching the registry ledger that has read `0.2.0` since Phase 2.2.2. ADR 0036 is the existing authority; no new ADR. |
 | 1.13.0 | 2026-05-09 | Recorded ADR 0047 cleanup-plan composition first schema slice: `cleanup_plan` operation_class on `OperationShape` (with `mutation_scope: "none"` and `target_kind: "workspace"` narrowing), `cleanup_plan` summary_kind on `DerivedSummary` (with Zod refinement constraining `summary_text` to the closed hint-status enum), `qualityGateOperationClassSchema` reconciled with `operationShapeOperationClassSchema` (adds both `workspace_verify` and `cleanup_plan`). Additive enum widenings only; no entity schema-version bumps. Decision.reason_kind reservations and cleanup_scope enum remain registry-canonical pending Ring 1 mint API schema PR. |
 | 1.12.0 | 2026-05-09 | Recorded the `evidenceAuthoritySchema` `self-asserted` enum extension closing ADR 0039 §Forward-looking observations #5 (Arch-N12 / Pol-N2 / Sec-N-v2-2). Added the §Phase 2.7 narrative paragraph documenting the `Evidence.schema_version` bump to `0.10.0` and the inv. 18 chain-walk linkage; updated the §Provenance on every fact JSON example to use `0.10.0` and the eleven-value authority union. |
 | 1.11.1 | 2026-05-07 | Tightened Q-015 proof-bearing nested evidence ref docs and recorded `KnowledgeSource.schema_version` `0.2.0` for the ADR 0045 `threat_model` source-kind extension. |

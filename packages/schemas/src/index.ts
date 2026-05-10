@@ -312,6 +312,7 @@ export {
   operationShapeResolvedTargetKindSchema,
   operationShapeResolvedTargetRefSchema,
   operationShapeSchema,
+  operationShapeSchemaVersionSchema,
   operationShapeTargetKindSchema,
   operationShapeTargetRefSchema,
   repositoryOperationTargetRefSchema,

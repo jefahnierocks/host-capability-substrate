@@ -13,7 +13,7 @@ const evidenceRef = {
 describe('OperationShape schema', () => {
   it('validates a destructive Git operation with typed deletion authority', () => {
     const operation = operationShapeSchema.parse({
-      schema_version: '0.1.0',
+      schema_version: '0.2.0',
       operation_shape_id: 'operation-shape:hcs:delete-branch',
       operation_class: 'destructive_git',
       mutation_scope: 'destructive_git',
@@ -37,7 +37,7 @@ describe('OperationShape schema', () => {
 
   it('uses explicit null deletion authority fields on read-only diagnostics', () => {
     const operation = operationShapeSchema.parse({
-      schema_version: '0.1.0',
+      schema_version: '0.2.0',
       operation_shape_id: 'operation-shape:hcs:diagnose',
       operation_class: 'read_only_diagnostic',
       mutation_scope: 'none',
@@ -58,7 +58,7 @@ describe('OperationShape schema', () => {
   it('rejects gitignore and other non-ADR 0036 deletion authority kinds', () => {
     expect(
       operationShapeSchema.safeParse({
-        schema_version: '0.1.0',
+        schema_version: '0.2.0',
         operation_shape_id: 'operation-shape:hcs:gitignore-cleanup',
         operation_class: 'destructive_git',
         mutation_scope: 'destructive_git',
@@ -79,7 +79,7 @@ describe('OperationShape schema', () => {
   it('requires deletion authority kind and source ref to appear together', () => {
     expect(
       operationShapeSchema.safeParse({
-        schema_version: '0.1.0',
+        schema_version: '0.2.0',
         operation_shape_id: 'operation-shape:hcs:missing-authority-ref',
         operation_class: 'worktree_mutation',
         mutation_scope: 'worktree_mutation',
@@ -95,7 +95,7 @@ describe('OperationShape schema', () => {
 
     expect(
       operationShapeSchema.safeParse({
-        schema_version: '0.1.0',
+        schema_version: '0.2.0',
         operation_shape_id: 'operation-shape:hcs:missing-authority-kind',
         operation_class: 'worktree_mutation',
         mutation_scope: 'worktree_mutation',
@@ -115,7 +115,7 @@ describe('OperationShape schema', () => {
   it('rejects deletion authority source refs that do not match the kind discriminator', () => {
     expect(
       operationShapeSchema.safeParse({
-        schema_version: '0.1.0',
+        schema_version: '0.2.0',
         operation_shape_id: 'operation-shape:hcs:mismatched-authority',
         operation_class: 'destructive_git',
         mutation_scope: 'destructive_git',
@@ -136,7 +136,7 @@ describe('OperationShape schema', () => {
   it('rejects unresolved targets for mutating operations and deletion authority', () => {
     expect(
       operationShapeSchema.safeParse({
-        schema_version: '0.1.0',
+        schema_version: '0.2.0',
         operation_shape_id: 'operation-shape:hcs:unknown-mutating-target',
         operation_class: 'worktree_mutation',
         mutation_scope: 'worktree_mutation',
@@ -153,7 +153,7 @@ describe('OperationShape schema', () => {
 
     expect(
       operationShapeSchema.safeParse({
-        schema_version: '0.1.0',
+        schema_version: '0.2.0',
         operation_shape_id: 'operation-shape:hcs:unknown-deletion-authority-target',
         operation_class: 'read_only_diagnostic',
         mutation_scope: 'none',
@@ -174,7 +174,7 @@ describe('OperationShape schema', () => {
   it('rejects generic filesystem cleanup represented as destructive_git', () => {
     expect(
       operationShapeSchema.safeParse({
-        schema_version: '0.1.0',
+        schema_version: '0.2.0',
         operation_shape_id: 'operation-shape:hcs:filesystem-cleanup-as-git',
         operation_class: 'destructive_git',
         mutation_scope: 'destructive_git',
@@ -195,7 +195,7 @@ describe('OperationShape schema', () => {
   it('keeps agent-internal state scoped to execution-context targets', () => {
     expect(
       operationShapeSchema.parse({
-        schema_version: '0.1.0',
+        schema_version: '0.2.0',
         operation_shape_id: 'operation-shape:hcs:agent-state',
         operation_class: 'agent_internal_state',
         mutation_scope: 'agent_internal_state',
@@ -212,7 +212,7 @@ describe('OperationShape schema', () => {
 
     expect(
       operationShapeSchema.safeParse({
-        schema_version: '0.1.0',
+        schema_version: '0.2.0',
         operation_shape_id: 'operation-shape:hcs:agent-state-filesystem',
         operation_class: 'agent_internal_state',
         mutation_scope: 'agent_internal_state',
@@ -231,7 +231,7 @@ describe('OperationShape schema', () => {
   it('keeps external control-plane mutations scoped to provider targets', () => {
     expect(
       operationShapeSchema.parse({
-        schema_version: '0.1.0',
+        schema_version: '0.2.0',
         operation_shape_id: 'operation-shape:hcs:provider-mutation',
         operation_class: 'external_control_plane_mutation',
         mutation_scope: 'external_control_plane_mutation',
@@ -248,7 +248,7 @@ describe('OperationShape schema', () => {
 
     expect(
       operationShapeSchema.safeParse({
-        schema_version: '0.1.0',
+        schema_version: '0.2.0',
         operation_shape_id: 'operation-shape:hcs:provider-mutation-filesystem',
         operation_class: 'external_control_plane_mutation',
         mutation_scope: 'external_control_plane_mutation',
@@ -267,7 +267,7 @@ describe('OperationShape schema', () => {
   it('rejects deletion authority on read-only and workspace verify operations', () => {
     expect(
       operationShapeSchema.safeParse({
-        schema_version: '0.1.0',
+        schema_version: '0.2.0',
         operation_shape_id: 'operation-shape:hcs:verify-with-delete-authority',
         operation_class: 'workspace_verify',
         mutation_scope: 'verify_workspace',
@@ -288,7 +288,7 @@ describe('OperationShape schema', () => {
   it('keeps operation_class and mutation_scope paired', () => {
     expect(
       operationShapeSchema.safeParse({
-        schema_version: '0.1.0',
+        schema_version: '0.2.0',
         operation_shape_id: 'operation-shape:hcs:bad-scope',
         operation_class: 'merge_or_push',
         mutation_scope: 'destructive_git',
@@ -306,7 +306,7 @@ describe('OperationShape schema', () => {
 
   it('parses cleanup_plan OperationShape with workspace target and mutation_scope none (ADR 0047)', () => {
     const operation = operationShapeSchema.parse({
-      schema_version: '0.1.0',
+      schema_version: '0.2.0',
       operation_shape_id: 'operation-shape:hcs:cleanup-plan',
       operation_class: 'cleanup_plan',
       mutation_scope: 'none',
@@ -327,7 +327,7 @@ describe('OperationShape schema', () => {
   it('rejects cleanup_plan OperationShape with non-workspace target_kind (ADR 0047)', () => {
     expect(
       operationShapeSchema.safeParse({
-        schema_version: '0.1.0',
+        schema_version: '0.2.0',
         operation_shape_id: 'operation-shape:hcs:cleanup-plan-wrong-target',
         operation_class: 'cleanup_plan',
         mutation_scope: 'none',
@@ -346,7 +346,7 @@ describe('OperationShape schema', () => {
   it('rejects cleanup_plan OperationShape with non-none mutation_scope (ADR 0047 inv. 7)', () => {
     expect(
       operationShapeSchema.safeParse({
-        schema_version: '0.1.0',
+        schema_version: '0.2.0',
         operation_shape_id: 'operation-shape:hcs:cleanup-plan-wrong-scope',
         operation_class: 'cleanup_plan',
         mutation_scope: 'destructive_git',
@@ -365,7 +365,7 @@ describe('OperationShape schema', () => {
   it('rejects cleanup_plan OperationShape with deletion-authority fields populated (ADR 0047)', () => {
     expect(
       operationShapeSchema.safeParse({
-        schema_version: '0.1.0',
+        schema_version: '0.2.0',
         operation_shape_id: 'operation-shape:hcs:cleanup-plan-bad-authority',
         operation_class: 'cleanup_plan',
         mutation_scope: 'none',

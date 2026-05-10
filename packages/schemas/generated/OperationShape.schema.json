@@ -8,8 +8,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.1.0",
-          "description": "Entity schema version for a Ring 0 schema."
+          "const": "0.2.0",
+          "description": "OperationShape schema version after ADR 0036 Phase 2.2.2 deletion-authority extension. The cleanup_plan operation_class addition (ADR 0047) is treated as additive enum widening per the schema-change skill and does not bump this version."
         },
         "operation_shape_id": {
           "type": "string",
@@ -168,8 +168,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.1.0",
-          "description": "Entity schema version for a Ring 0 schema."
+          "const": "0.2.0",
+          "description": "OperationShape schema version after ADR 0036 Phase 2.2.2 deletion-authority extension. The cleanup_plan operation_class addition (ADR 0047) is treated as additive enum widening per the schema-change skill and does not bump this version."
         },
         "operation_shape_id": {
           "type": "string",
@@ -319,8 +319,8 @@
           "properties": {
             "schema_version": {
               "type": "string",
-              "const": "0.1.0",
-              "description": "Entity schema version for a Ring 0 schema."
+              "const": "0.2.0",
+              "description": "OperationShape schema version after ADR 0036 Phase 2.2.2 deletion-authority extension. The cleanup_plan operation_class addition (ADR 0047) is treated as additive enum widening per the schema-change skill and does not bump this version."
             },
             "operation_shape_id": {
               "type": "string",
@@ -468,8 +468,8 @@
           "properties": {
             "schema_version": {
               "type": "string",
-              "const": "0.1.0",
-              "description": "Entity schema version for a Ring 0 schema."
+              "const": "0.2.0",
+              "description": "OperationShape schema version after ADR 0036 Phase 2.2.2 deletion-authority extension. The cleanup_plan operation_class addition (ADR 0047) is treated as additive enum widening per the schema-change skill and does not bump this version."
             },
             "operation_shape_id": {
               "type": "string",
@@ -631,8 +631,8 @@
           "properties": {
             "schema_version": {
               "type": "string",
-              "const": "0.1.0",
-              "description": "Entity schema version for a Ring 0 schema."
+              "const": "0.2.0",
+              "description": "OperationShape schema version after ADR 0036 Phase 2.2.2 deletion-authority extension. The cleanup_plan operation_class addition (ADR 0047) is treated as additive enum widening per the schema-change skill and does not bump this version."
             },
             "operation_shape_id": {
               "type": "string",
@@ -794,8 +794,8 @@
           "properties": {
             "schema_version": {
               "type": "string",
-              "const": "0.1.0",
-              "description": "Entity schema version for a Ring 0 schema."
+              "const": "0.2.0",
+              "description": "OperationShape schema version after ADR 0036 Phase 2.2.2 deletion-authority extension. The cleanup_plan operation_class addition (ADR 0047) is treated as additive enum widening per the schema-change skill and does not bump this version."
             },
             "operation_shape_id": {
               "type": "string",
@@ -957,8 +957,8 @@
           "properties": {
             "schema_version": {
               "type": "string",
-              "const": "0.1.0",
-              "description": "Entity schema version for a Ring 0 schema."
+              "const": "0.2.0",
+              "description": "OperationShape schema version after ADR 0036 Phase 2.2.2 deletion-authority extension. The cleanup_plan operation_class addition (ADR 0047) is treated as additive enum widening per the schema-change skill and does not bump this version."
             },
             "operation_shape_id": {
               "type": "string",
@@ -1122,8 +1122,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.1.0",
-          "description": "Entity schema version for a Ring 0 schema."
+          "const": "0.2.0",
+          "description": "OperationShape schema version after ADR 0036 Phase 2.2.2 deletion-authority extension. The cleanup_plan operation_class addition (ADR 0047) is treated as additive enum widening per the schema-change skill and does not bump this version."
         },
         "operation_shape_id": {
           "type": "string",
@@ -1297,8 +1297,8 @@
           "properties": {
             "schema_version": {
               "type": "string",
-              "const": "0.1.0",
-              "description": "Entity schema version for a Ring 0 schema."
+              "const": "0.2.0",
+              "description": "OperationShape schema version after ADR 0036 Phase 2.2.2 deletion-authority extension. The cleanup_plan operation_class addition (ADR 0047) is treated as additive enum widening per the schema-change skill and does not bump this version."
             },
             "operation_shape_id": {
               "type": "string",
@@ -1446,8 +1446,8 @@
           "properties": {
             "schema_version": {
               "type": "string",
-              "const": "0.1.0",
-              "description": "Entity schema version for a Ring 0 schema."
+              "const": "0.2.0",
+              "description": "OperationShape schema version after ADR 0036 Phase 2.2.2 deletion-authority extension. The cleanup_plan operation_class addition (ADR 0047) is treated as additive enum widening per the schema-change skill and does not bump this version."
             },
             "operation_shape_id": {
               "type": "string",
@@ -1609,8 +1609,8 @@
           "properties": {
             "schema_version": {
               "type": "string",
-              "const": "0.1.0",
-              "description": "Entity schema version for a Ring 0 schema."
+              "const": "0.2.0",
+              "description": "OperationShape schema version after ADR 0036 Phase 2.2.2 deletion-authority extension. The cleanup_plan operation_class addition (ADR 0047) is treated as additive enum widening per the schema-change skill and does not bump this version."
             },
             "operation_shape_id": {
               "type": "string",
@@ -1772,8 +1772,8 @@
           "properties": {
             "schema_version": {
               "type": "string",
-              "const": "0.1.0",
-              "description": "Entity schema version for a Ring 0 schema."
+              "const": "0.2.0",
+              "description": "OperationShape schema version after ADR 0036 Phase 2.2.2 deletion-authority extension. The cleanup_plan operation_class addition (ADR 0047) is treated as additive enum widening per the schema-change skill and does not bump this version."
             },
             "operation_shape_id": {
               "type": "string",
@@ -1935,8 +1935,8 @@
           "properties": {
             "schema_version": {
               "type": "string",
-              "const": "0.1.0",
-              "description": "Entity schema version for a Ring 0 schema."
+              "const": "0.2.0",
+              "description": "OperationShape schema version after ADR 0036 Phase 2.2.2 deletion-authority extension. The cleanup_plan operation_class addition (ADR 0047) is treated as additive enum widening per the schema-change skill and does not bump this version."
             },
             "operation_shape_id": {
               "type": "string",
@@ -2100,8 +2100,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.1.0",
-          "description": "Entity schema version for a Ring 0 schema."
+          "const": "0.2.0",
+          "description": "OperationShape schema version after ADR 0036 Phase 2.2.2 deletion-authority extension. The cleanup_plan operation_class addition (ADR 0047) is treated as additive enum widening per the schema-change skill and does not bump this version."
         },
         "operation_shape_id": {
           "type": "string",
@@ -2249,8 +2249,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.1.0",
-          "description": "Entity schema version for a Ring 0 schema."
+          "const": "0.2.0",
+          "description": "OperationShape schema version after ADR 0036 Phase 2.2.2 deletion-authority extension. The cleanup_plan operation_class addition (ADR 0047) is treated as additive enum widening per the schema-change skill and does not bump this version."
         },
         "operation_shape_id": {
           "type": "string",
@@ -2398,8 +2398,8 @@
       "properties": {
         "schema_version": {
           "type": "string",
-          "const": "0.1.0",
-          "description": "Entity schema version for a Ring 0 schema."
+          "const": "0.2.0",
+          "description": "OperationShape schema version after ADR 0036 Phase 2.2.2 deletion-authority extension. The cleanup_plan operation_class addition (ADR 0047) is treated as additive enum widening per the schema-change skill and does not bump this version."
         },
         "operation_shape_id": {
           "type": "string",

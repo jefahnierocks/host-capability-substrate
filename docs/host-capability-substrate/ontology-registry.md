@@ -3,7 +3,7 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.4.8
+version: 0.4.9
 last_updated: 2026-05-09
 tags: [ontology, registry, registry-consolidation, phase-2-4, phase-2-7, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, remote-agent, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
 priority: high
@@ -689,7 +689,7 @@ work can cite one stable registry index.
 | `BoundaryObservation` | `0.5.0` | Phase 2.7 Q-014 `project_admission_authority` branch | `evidence_schema_version` is an independent envelope field that cites the base `Evidence` contract; current fixtures use the base `Evidence` version without requiring future lockstep bumps. |
 | `KnowledgeSource` | `0.2.0` | Phase 2.7 Q-015 `threat_model` source-kind extension | The enum contract widened after the Phase 2.1.3 introduction; ADR 0045 owns this schema-version bump. |
 | `ExecutionContext` | `0.2.0` | Phase 2.2.1 containment-cache refactor | Cache is kernel-set and points to typed containment evidence. |
-| `OperationShape` | `0.2.0` | Phase 2.2.2 deletion-authority extension | No mutation/execute behavior is authorized by this registry record. |
+| `OperationShape` | `0.2.0` | Phase 2.2.2 deletion-authority extension | Source-vs-ledger version drift closed 2026-05-09 by introducing `operationShapeSchemaVersionSchema = z.literal('0.2.0')` in source (was previously sharing the generic `schemaVersionSchema = z.literal('0.1.0')` from `common.ts`); ADR 0036 is the existing authority. ADR 0047 cleanup_plan addition treated as additive enum widening per schema-change skill, no further bump. No mutation/execute behavior is authorized by this registry record. |
 | Other standalone Phase 2.1 entities | `0.1.0` | Phase 2.1 entity introductions | Uses common `schemaVersionSchema`; future breaking changes require their own ADR. |
 
 ### Kernel-trusted producer allowlist final state
@@ -2855,6 +2855,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.4.9 | 2026-05-09 | Closed pre-existing source-vs-ledger drift on `OperationShape.schema_version`: introduced entity-specific `operationShapeSchemaVersionSchema = z.literal('0.2.0')` in source to match the registry-ledger row that has read `0.2.0` since Phase 2.2.2. Authority is the existing ADR 0036 Phase 2.2.2 deletion-authority extension; no new ADR. Registry-ledger row Notes column tightened to record the closure and the no-bump treatment of the ADR 0047 cleanup_plan addition. |
 | 0.4.8 | 2026-05-09 | Recorded ADR 0047 cleanup-plan composition first schema slice. §`OperationShape` enum mirrors adds `cleanup_plan` to operation_class with `mutation_scope: "none"` and `target_kind: "workspace"` narrowing notes; §DerivedSummary summary_kind enum mirrors adds `cleanup_plan` plus the new `summary_text` typed closed-enum vocabulary (`hint_resolved | hint_ignored_stale | hint_ignored_workspace_mismatch | hint_unresolvable | no_hint_provided`); §QualityGate operation_class enum mirror reconciled with `operationShapeOperationClassSchema` (adds both `workspace_verify` — closing the pre-existing ADR 0036 enum-mirror gap — and `cleanup_plan`). New `Decision.reason_kind` reservations and `cleanup_scope` enum recorded as registry-canonical pending Ring 1 mint API schema PR. |
 | 0.4.7 | 2026-05-09 | Recorded the `evidenceAuthoritySchema` `self-asserted` enum extension landing. Updated §Authority class ladder from ten to eleven values; reframed §`self-asserted` authority class from "(new; schema landing pending)" to landed, citing the schema-operational state and clarifying that charter v1.4.0 inv. 18 chain-walk rejection at the typed-grant minting layer remains a posture commitment until that layer lands. Bumped the `Evidence` schema-version-ledger row to `0.10.0`. Closes ADR 0039 §Forward-looking observations #5 (Arch-N12 / Pol-N2 / Sec-N-v2-2) per the 2026-05-07 absorption audit. |
 | 0.4.6 | 2026-05-07 | Extended §Producer-vs-kernel-set authority fields to enumerate the five charter v1.4.0 invariant 19 execution-context binding FKs (`execution_context_id`, `surface_id`, `workspace_id`, `credential_source_id`, `tool_or_provider_ref`) as kernel-set on `BoundaryObservation` envelopes and related Evidence subtype envelopes. Aligns the registry with inv. 19 charter authority and the Phase 2.2.3 `BoundaryObservation` payload bundle landing. Closes ADR 0039 §Forward-looking observations Ont-N9 per the 2026-05-07 absorption audit. |

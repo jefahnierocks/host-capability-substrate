@@ -1,5 +1,11 @@
 import { z } from 'zod';
-import { entityIdSchema, evidenceRefSchema, schemaVersionSchema } from '../common.ts';
+import { entityIdSchema, evidenceRefSchema } from '../common.ts';
+
+export const operationShapeSchemaVersionSchema = z
+  .literal('0.2.0')
+  .describe(
+    'OperationShape schema version after ADR 0036 Phase 2.2.2 deletion-authority extension. The cleanup_plan operation_class addition (ADR 0047) is treated as additive enum widening per the schema-change skill and does not bump this version.',
+  );
 
 export const operationShapeOperationClassSchema = z
   .enum([
@@ -206,7 +212,7 @@ export const deletionAuthorityFieldsSchema = z
   .describe('Deletion authority field pair; discriminator and ref shape must match.');
 
 const operationShapeBaseSchema = z.object({
-  schema_version: schemaVersionSchema,
+  schema_version: operationShapeSchemaVersionSchema,
   operation_shape_id: entityIdSchema,
   execution_context_id: entityIdSchema,
   evidence_refs: z.array(evidenceRefSchema).min(1),

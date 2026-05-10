@@ -3,9 +3,9 @@ title: HCS local research artifacts
 category: research
 component: host_capability_substrate
 status: active
-version: 1.14.0
-last_updated: 2026-05-08
-tags: [research, local, host-evidence, github, version-control, quality-management, codex, worktree, branch-cleanup, diagnostics, workspace-context, isolation, ontology, process-inspection, project-substrate, runner-substrate, backup-readiness, runner-readiness, alert-delivery, regression-corpus, adr-0039, charter-v1-4-0, credential-plane, project-secrets]
+version: 1.15.0
+last_updated: 2026-05-09
+tags: [research, local, host-evidence, github, version-control, quality-management, codex, worktree, branch-cleanup, diagnostics, workspace-context, isolation, ontology, process-inspection, project-substrate, runner-substrate, backup-readiness, runner-readiness, alert-delivery, regression-corpus, adr-0039, charter-v1-4-0, credential-plane, project-secrets, sequencing, policy-yaml]
 priority: medium
 ---
 
@@ -50,11 +50,13 @@ summaries.
 | `2026-05-07-trap-scaffold-audit.md` | 2026-05-07 | Phase 2.6 audit classifying the 22 unscaffolded seeds in `packages/evals/regression/seed.md` against the no-synthetic-traps rule in `.agents/skills/hcs-regression-trap/SKILL.md`. Two seeds are Ready (#17, #44), five are Blocked on Codex/ScopeCam transcript prerequisites (#39–#43), fifteen are No-citation (#1–#15). Docs only; no scaffold authoring, no seed-md changes, no schema or policy effect. |
 | `2026-05-07-adr-0039-forward-looking-obs-audit.md` | 2026-05-07 | Audit walking the 13 forward-looking observations deferred by ADR 0039 (charter v1.4.0 amendment) against landed Phase 2.x work. Two Owed (#1 ADR 0019 v3 four-class alignment; #3 registry §Producer-vs-kernel-set five-FK extension), one Effectively handled (#2), one Active sequencing dependency (#5 evidenceAuthoritySchema enum extension), five Deferred (#4, #6, #7, #8, #9), two Closed at acceptance (#10, #11). Docs only; no schema, registry, charter, or policy effect. |
 | `2026-05-08-project-secrets-standards-directive.md` | 2026-05-08 | HCS/HCP-facing planning directive for upcoming Jefahnierocks and Happy Patterns project secrets standards. Maps logical paths, storage aliases, semantic owners, provider stewards, rotation cadence, stop rules, and argv-secret prohibitions into Q-013 credential-plane vocabulary while keeping schema, policy, broker/runtime, provider mutation, vault mutation, and operation registration blocked pending follow-on authority. |
+| `2026-05-09-outstanding-work-sequencing-workflow.md` | 2026-05-09 | Docs-only workflow decision for the outstanding user-direction and trigger-deferred work. Corrects stale cleanup-plan status, prioritizes ADR 0048 subject-kind grounding evaluation plus Phase 2.5 policy YAML before runtime/provider lanes, and keeps Q-013/Q-014/Q-015, cleanup-plan execution, and trigger-deferred items behind their accepted authorities. |
 
 ## Change Log
 
 | Version | Date | Change |
 |---|---:|---|
+| 1.15.0 | 2026-05-09 | Added the outstanding-work sequencing workflow and policy-first next-lane decision. |
 | 1.14.0 | 2026-05-08 | Added the project secrets standards directive as Q-013 compatibility input. |
 | 1.13.0 | 2026-05-07 | Added the ADR 0039 forward-looking observations absorption audit memo. |
 | 1.12.0 | 2026-05-07 | Added the Phase 2.6 trap scaffold completeness audit memo. |

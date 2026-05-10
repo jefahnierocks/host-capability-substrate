@@ -298,9 +298,11 @@ evidence dependencies and harness expectations are available.
 Q-007 carry-overs).
 
 **Future ADRs queued**: `RemoteAgentInvocationReceipt` aggregator
-(ADR 0037 follow-up); `AgentClient × WorkspaceContext` cardinality;
-cross-cutting derived-content subject_kind grounding rule extension
-(ADR 0036 extensibility principle); Q-013 credential-plane schema/evidence
+(ADR 0037 follow-up; trigger-deferred until non-PR binder fails);
+`AgentClient × WorkspaceContext` cardinality (architectural deferral
+per ADR 0037 §Out of scope; trigger condition: workspace operations
+spanning multiple AgentClients with conflicting capability-class
+evidence); Q-013 credential-plane schema/evidence
 implementation (first Phase 2.7 dependency; accepted ADR:
 `docs/host-capability-substrate/adr/0043-q-013-credential-plane-implementation.md`;
 lane plan:

@@ -3,7 +3,7 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.4.9
+version: 0.4.10
 last_updated: 2026-05-09
 tags: [ontology, registry, registry-consolidation, phase-2-4, phase-2-7, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, remote-agent, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
 priority: high
@@ -439,6 +439,104 @@ Adding a new authority-class field to a payload requires:
    producer-claim + kernel-verification split with clear rationale.
 2. An `hcs-ontology-reviewer` pass before the schema PR using the new
    field lands.
+
+## Subject-kind grounding requirement
+
+Authority for this rule: ADR 0036 §Future amendments §Layer 1 grounding
+rule extensibility principle (registered here 2026-05-09). The rule is
+charter-binding via ADR 0036's acceptance + ADR 0019 v3 §Chain promotion
+rule + charter v1.4.0 inv. 18 chain-walk rejection.
+
+### Rule
+
+A `CoordinationFact.subject_kind` value whose typical `evidence_refs`
+array is **primarily backed by derived-content or Layer-2 evidence**
+(audit-framework outputs, retrieval-projection outputs, summarization
+outputs, contract-validation outputs) cannot be promoted to
+`allowed_for_gate: true` unless the `evidence_refs` array contains at
+least one `Evidence` record with `authority: "host-observation"` (or
+`"provider-asserted-kernel-verifiable"` per charter inv. 16). Layer 1
+mint API enforces the rule at promotion-grant minting; on missing
+host-observation grounding, mint rejects with
+`Decision.reason_kind: coordination_promotion_no_layer1_grounding`
+(per ADR 0036 §Sub-decision (b) §Layer 1 grounding requirement, line
+738-739).
+
+This is distinct from — and composes with — ADR 0019 v3's chain-promotion
+rule, which structurally rejects promotion when `derived_from` cites
+`KnowledgeChunk` records or `sandbox-observation` authority. The
+chain-promotion rule guards **how** evidence composes; the grounding
+requirement guards **whether** the subject_kind is promotion-eligible
+at all on derived-only chains.
+
+### Subject-kinds subject to the grounding requirement
+
+Subject-kinds primarily backed by derived-content or Layer-2 content
+(MUST cite at least one host-observation `Evidence` record before
+promotion):
+
+- `workspace_context` (committed by ADR 0036)
+- `audit_profile_snapshot` (committed by ADR 0036)
+
+### Subject-kinds inheriting ADR 0019 v3's chain-promotion rule only
+
+Subject-kinds primarily backed by direct host-observation `Evidence`
+(promotion-eligible on the chain-promotion rule alone, no additional
+grounding requirement):
+
+- `release` (ADR 0019 v3)
+- `branch` (ADR 0019 v3)
+- `worktree` (ADR 0019 v3 + ADR 0031 v1)
+- `ruleset` (ADR 0019 v3 + ADR 0033 v2)
+- `credential_audience` (ADR 0019 v3)
+- `deployment` (ADR 0019 v3)
+- `external_target` (ADR 0019 v3)
+
+### Procedure for adding a new subject_kind value
+
+A schema PR introducing a new `CoordinationFact.subject_kind` value
+MUST include in its commit / PR description:
+
+1. A classification statement: is the subject_kind primarily backed by
+   host-observation Evidence (inherits ADR 0019 v3 only), or primarily
+   backed by derived-content / Layer-2 Evidence (requires the additional
+   grounding rule)?
+2. If the classification is "primarily derived/Layer-2," the schema PR
+   updates this registry section to add the new value to the
+   §Subject-kinds subject to the grounding requirement list, AND the
+   Ring 1 mint API enforcement is updated in the same change-set or in
+   a follow-on PR explicitly cited.
+3. If the classification is "primarily host-observation," no registry
+   update is required; this section's §inheriting list documents the
+   classification at acceptance.
+4. An `hcs-ontology-reviewer` pass before the schema PR lands; reviewer
+   confirms the classification and the matching enforcement disposition.
+
+### Open follow-up evaluations
+
+Phase 2.7 introduced new `CoordinationFact.subject_kind` candidates that
+were not classified against this rule at acceptance time (the rule was
+ADR-future-amendment-only at the time of those acceptances). A separate
+follow-on evaluation may reclassify any of the following if usage shows
+they are primarily derived/Layer-2 backed:
+
+- `machine_identity` (ADR 0043 Q-013) — current usage cites typed
+  `CredentialAuthorityObservation` / `MachineIdentityBindingObservation`
+  records that are Evidence subtype envelopes; classification leans
+  host-observation but credential-plane provenance is mixed.
+- `project_substrate_contract` (ADR 0044 Q-014) — current usage cites
+  typed `ProjectSubstrateContractValidationReceipt` records; receipt
+  authority class governs eligibility.
+- backup-readiness subject_kinds (ADR 0045 Q-015) — current usage cites
+  typed `BackupReadinessObservation` records; readiness posture is
+  declarative-derived but composes with host-observation grounding via
+  restore-drill receipts.
+
+These subject-kinds remain promotion-eligible under ADR 0019 v3's
+chain-promotion rule today; the §inheriting list above includes them
+implicitly until a follow-on evaluation explicitly classifies them.
+The follow-on evaluation is **not** authorized by this registration —
+it is queued as a separate evaluation ADR.
 
 ## Cross-context enforcement layer
 
@@ -2855,6 +2953,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.4.10 | 2026-05-09 | Added §Subject-kind grounding requirement section registering the ADR 0036 §Future amendments §Layer 1 grounding rule extensibility principle as a discoverable registry rule. Catalogues current `CoordinationFact.subject_kind` values per the rule (two derived/Layer-2-backed values committed by ADR 0036; seven host-observation-backed values inheriting ADR 0019 v3's chain-promotion rule), commits the procedure for future schema PRs introducing new subject_kind values, and notes open follow-up evaluations for Phase 2.7 subject_kinds (`machine_identity`, `project_substrate_contract`, backup-readiness). Authority is the existing ADR 0036; no new ADR. Matches the recent §Predicate-kind vocabulary registry-promotion pattern. |
 | 0.4.9 | 2026-05-09 | Closed pre-existing source-vs-ledger drift on `OperationShape.schema_version`: introduced entity-specific `operationShapeSchemaVersionSchema = z.literal('0.2.0')` in source to match the registry-ledger row that has read `0.2.0` since Phase 2.2.2. Authority is the existing ADR 0036 Phase 2.2.2 deletion-authority extension; no new ADR. Registry-ledger row Notes column tightened to record the closure and the no-bump treatment of the ADR 0047 cleanup_plan addition. |
 | 0.4.8 | 2026-05-09 | Recorded ADR 0047 cleanup-plan composition first schema slice. §`OperationShape` enum mirrors adds `cleanup_plan` to operation_class with `mutation_scope: "none"` and `target_kind: "workspace"` narrowing notes; §DerivedSummary summary_kind enum mirrors adds `cleanup_plan` plus the new `summary_text` typed closed-enum vocabulary (`hint_resolved | hint_ignored_stale | hint_ignored_workspace_mismatch | hint_unresolvable | no_hint_provided`); §QualityGate operation_class enum mirror reconciled with `operationShapeOperationClassSchema` (adds both `workspace_verify` — closing the pre-existing ADR 0036 enum-mirror gap — and `cleanup_plan`). New `Decision.reason_kind` reservations and `cleanup_scope` enum recorded as registry-canonical pending Ring 1 mint API schema PR. |
 | 0.4.7 | 2026-05-09 | Recorded the `evidenceAuthoritySchema` `self-asserted` enum extension landing. Updated §Authority class ladder from ten to eleven values; reframed §`self-asserted` authority class from "(new; schema landing pending)" to landed, citing the schema-operational state and clarifying that charter v1.4.0 inv. 18 chain-walk rejection at the typed-grant minting layer remains a posture commitment until that layer lands. Bumped the `Evidence` schema-version-ledger row to `0.10.0`. Closes ADR 0039 §Forward-looking observations #5 (Arch-N12 / Pol-N2 / Sec-N-v2-2) per the 2026-05-07 absorption audit. |

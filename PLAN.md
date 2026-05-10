@@ -5,7 +5,26 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Upstream research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — Phase 2.5 policy-first workflow; runtime/provider lanes blocked
+## Current Focus — ADR 0048 accepted; Phase 2.5 canonical policy YAML in system-config is the next substantive lane
+
+**2026-05-09 ADR 0048 accepted:** ADR 0048 (`docs/host-capability-substrate/adr/0048-phase-2-7-subject-kind-grounding-evaluation.md`)
+classifies the three Phase 2.7 candidates against the
+§Subject-kind grounding requirement: no `CoordinationFact.subject_kind`
+enum addition; per-candidate dispositions recorded for any future
+schema PR. `machine_identity` is host-observation-backed (joins the
+inheriting list when promoted); `project_substrate_contract` is
+derived/Layer-2-backed (joins the grounding-requirement list when
+promoted); backup-readiness subject_kinds are mixed/declarative with
+an additional `ready`-state lifecycle rule requiring freshness-valid
+`RestoreDrillReceipt` evidence. Cross-context binding (inv. 19 +
+registry §Cross-context enforcement layer) inherited by all three.
+D-036 records the dispositions. ADR 0036 §Future amendments §Layer 1
+grounding rule extensibility principle is now fully discharged
+(registered in registry v0.4.10 + evaluated in ADR 0048 + registry
+v0.4.11). All four required reviewers (`hcs-architect`,
+`hcs-ontology-reviewer`, `hcs-policy-reviewer`,
+`hcs-security-reviewer`) returned no blocking objections; four
+mechanical tweaks at acceptance.
 
 **2026-05-09 outstanding-work sequencing workflow:** A docs-only
 workflow decision is recorded at
@@ -17,13 +36,14 @@ still future: ADR 0047's first Ring 0 schema slice has landed
 cleanup_plan`, and `QualityGate` operation-class mirror reconciliation).
 The remaining cleanup-plan `Decision.reason_kind` reservations and
 `cleanup_scope` enum remain registry-canonical only, pending a future
-Ring 1 mint API schema PR. The next safe order is policy-first:
-reserve ADR 0048 for the Phase 2.7 subject-kind grounding evaluation,
-then prepare Phase 2.5 canonical policy YAML in system-config before
-opening Q-013/Q-014/Q-015 runtime, provider, broker, validator, adapter,
-dashboard, hook, or execution lanes. AgentClient x WorkspaceContext and
-RemoteAgentInvocationReceipt remain trigger-deferred; their triggers
-have not fired.
+Ring 1 mint API schema PR. With ADR 0048 accepted, the next
+substantive lane is **Phase 2.5 canonical policy YAML** in
+`system-config/policies/host-capability-substrate/` (cross-repo per
+workflow §Step 2). Q-013/Q-014/Q-015 runtime/provider/broker/
+validator/adapter/dashboard/hook/execution lanes remain blocked
+behind separate accepted authority or the Phase 2.5 policy lane.
+AgentClient x WorkspaceContext and RemoteAgentInvocationReceipt
+remain trigger-deferred; their triggers have not fired.
 
 **2026-05-08 audit closures (eight commits 2026-05-07 → 2026-05-08):**
 D-033 shared-state naming discipline landed in `DECISIONS.md` §Accepted
@@ -325,19 +345,20 @@ ADR 0039. Remaining ADR 0039 items are trigger-deferred: Phase 2.5
 policy absorption (#4), wave-2 reactive amendment candidates (#6/#7/#8),
 and low-priority glossary cleanup (#9).
 
-**Future ADRs queued**: ADR 0048 should be reserved for the Phase 2.7
-subject-kind grounding evaluation unless a stronger trigger fires first
-(`docs/host-capability-substrate/research/local/2026-05-09-outstanding-work-sequencing-workflow.md`).
-`RemoteAgentInvocationReceipt` aggregator remains trigger-deferred until
-non-PR binder failure evidence exists. `AgentClient × WorkspaceContext`
-cardinality remains trigger-deferred until a single workspace's operations
-span multiple AgentClients with conflicting capability-class evidence.
+**Future ADRs queued**: ADR 0048 accepted 2026-05-09 (Phase 2.7
+subject-kind grounding evaluation; D-036). `RemoteAgentInvocationReceipt`
+aggregator remains trigger-deferred until non-PR binder failure
+evidence exists. `AgentClient × WorkspaceContext` cardinality remains
+trigger-deferred until a single workspace's operations span multiple
+AgentClients with conflicting capability-class evidence.
 Q-013/Q-014/Q-015 first schema/evidence slices landed via ADRs 0043,
 0044, and 0045; their runtime, policy, gate-kind, provider, dashboard,
-adapter, hook, broker, validator, backup/restore execution, and operation
-registration follow-ons remain blocked pending separate accepted authority
-or the Phase 2.5 policy lane. Joint sequencing:
+adapter, hook, broker, validator, backup/restore execution, and
+operation registration follow-ons remain blocked pending separate
+accepted authority or the Phase 2.5 policy lane. Joint sequencing:
 `docs/host-capability-substrate/research/local/2026-05-06-phase-2-7-deferred-lane-sequencing-plan.md`.
+Outstanding-work sequencing:
+`docs/host-capability-substrate/research/local/2026-05-09-outstanding-work-sequencing-workflow.md`.
 
 ### Historical record — Phase 0b closeout / Phase 1 prep / synthesis-window
 

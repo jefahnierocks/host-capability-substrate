@@ -3,7 +3,7 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.4.10
+version: 0.4.11
 last_updated: 2026-05-09
 tags: [ontology, registry, registry-consolidation, phase-2-4, phase-2-7, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, remote-agent, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
 priority: high
@@ -512,31 +512,36 @@ MUST include in its commit / PR description:
 4. An `hcs-ontology-reviewer` pass before the schema PR lands; reviewer
    confirms the classification and the matching enforcement disposition.
 
-### Open follow-up evaluations
+### Phase 2.7 candidate dispositions (ADR 0048)
 
-Phase 2.7 introduced new `CoordinationFact.subject_kind` candidates that
-were not classified against this rule at acceptance time (the rule was
-ADR-future-amendment-only at the time of those acceptances). A separate
-follow-on evaluation may reclassify any of the following if usage shows
-they are primarily derived/Layer-2 backed:
+Phase 2.7 introduced typed `Evidence.subject_kind` values for credential
+plane (`machine_identity` per ADR 0043 Q-013), project-substrate
+(`project_substrate_contract` as `KnowledgeSource.source_kind` plus
+typed receipt subject kinds per ADR 0044 Q-014), and backup readiness
+(`BackupReadinessObservation` family per ADR 0045 Q-015). None of those
+values are present in `coordinationSubjectKindSchema` today; the
+§Subject-kind grounding requirement governs `CoordinationFact.subject_kind`,
+not `Evidence.subject_kind`.
 
-- `machine_identity` (ADR 0043 Q-013) — current usage cites typed
-  `CredentialAuthorityObservation` / `MachineIdentityBindingObservation`
-  records that are Evidence subtype envelopes; classification leans
-  host-observation but credential-plane provenance is mixed.
-- `project_substrate_contract` (ADR 0044 Q-014) — current usage cites
-  typed `ProjectSubstrateContractValidationReceipt` records; receipt
-  authority class governs eligibility.
-- backup-readiness subject_kinds (ADR 0045 Q-015) — current usage cites
-  typed `BackupReadinessObservation` records; readiness posture is
-  declarative-derived but composes with host-observation grounding via
-  restore-drill receipts.
+ADR 0048 records the dispositions for each candidate IF a future schema
+PR promotes it into `CoordinationFact.subject_kind`; this ADR does not
+itself widen the enum. Default for all three: no enum addition unless
+a concrete coordination need surfaces.
 
-These subject-kinds remain promotion-eligible under ADR 0019 v3's
-chain-promotion rule today; the §inheriting list above includes them
-implicitly until a follow-on evaluation explicitly classifies them.
-The follow-on evaluation is **not** authorized by this registration —
-it is queued as a separate evaluation ADR.
+| Candidate | Disposition | Promotion rule when added |
+|---|---|---|
+| `machine_identity` (ADR 0043 Q-013) | Host-observation-backed | Joins §Subject-kinds inheriting ADR 0019 v3's chain-promotion rule only. Promotion to `allowed_for_gate: true` requires `evidence_refs` to include at least one `CredentialAuthorityObservation` or `MachineIdentityBindingObservation` with `authority: "host-observation"` (or `"provider-asserted-kernel-verifiable"` per inv. 16); ADR 0019 v3 chain-promotion + charter inv. 18 chain-walk jointly enforce per-record rejection of `sandbox-observation` / `self-asserted` authority. Cross-context binding (inv. 19 + §Cross-context enforcement layer) inherited. |
+| `project_substrate_contract` (ADR 0044 Q-014) | Derived/Layer-2-backed | Joins the §Subject-kinds subject to the grounding requirement list; promotion to `allowed_for_gate: true` requires at least one host-observation (or `provider-asserted-kernel-verifiable` per inv. 16) `Evidence` record beyond the source contract YAML and structural validation — typed `ProjectSubstrateContractValidationReceipt` with kernel-set producer + host-observation authority, or a `BoundaryObservation` of `boundary_dimension: project_admission_authority`. Cross-context binding (inv. 19 + §Cross-context enforcement layer) inherited. |
+| backup-readiness subject_kinds (ADR 0045 Q-015) | Mixed/declarative | Joins the §Subject-kinds subject to the grounding requirement list; standard host-observation-grounding rule applies to all promotions. Additional lifecycle-state rule: when the CoordinationFact's *object payload* asserts the workspace's backup-readiness lifecycle is in the `ready` state, promotion additionally requires a freshness-valid `RestoreDrillReceipt` with boot/service verification per ADR 0042/0045. Other lifecycle states (`pending` / `configured` / `usable` / `expired`) need only the standard rule. Cross-context binding (inv. 19 + §Cross-context enforcement layer) inherited. |
+
+These dispositions are preconditions for any future schema PR that brings
+a candidate into `coordinationSubjectKindSchema`; the schema PR
+re-validates the disposition against current evidence usage at acceptance
+time per the §Procedure for adding a new subject_kind value rule above
+(`hcs-ontology-reviewer` confirms the classification).
+
+Currently no Phase 2.7 candidate is in `coordinationSubjectKindSchema`;
+they remain represented as `Evidence.subject_kind` values only.
 
 ## Cross-context enforcement layer
 
@@ -2953,6 +2958,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.4.11 | 2026-05-09 | Replaced §Open follow-up evaluations with §Phase 2.7 candidate dispositions per ADR 0048 (proposed). Records the per-candidate classification for `machine_identity`, `project_substrate_contract`, and backup-readiness subject_kinds IF a future schema PR promotes them into `coordinationSubjectKindSchema`; default for all three is no enum addition unless a concrete coordination need surfaces. Currently none of the three are in `coordinationSubjectKindSchema`. |
 | 0.4.10 | 2026-05-09 | Added §Subject-kind grounding requirement section registering the ADR 0036 §Future amendments §Layer 1 grounding rule extensibility principle as a discoverable registry rule. Catalogues current `CoordinationFact.subject_kind` values per the rule (two derived/Layer-2-backed values committed by ADR 0036; seven host-observation-backed values inheriting ADR 0019 v3's chain-promotion rule), commits the procedure for future schema PRs introducing new subject_kind values, and notes open follow-up evaluations for Phase 2.7 subject_kinds (`machine_identity`, `project_substrate_contract`, backup-readiness). Authority is the existing ADR 0036; no new ADR. Matches the recent §Predicate-kind vocabulary registry-promotion pattern. |
 | 0.4.9 | 2026-05-09 | Closed pre-existing source-vs-ledger drift on `OperationShape.schema_version`: introduced entity-specific `operationShapeSchemaVersionSchema = z.literal('0.2.0')` in source to match the registry-ledger row that has read `0.2.0` since Phase 2.2.2. Authority is the existing ADR 0036 Phase 2.2.2 deletion-authority extension; no new ADR. Registry-ledger row Notes column tightened to record the closure and the no-bump treatment of the ADR 0047 cleanup_plan addition. |
 | 0.4.8 | 2026-05-09 | Recorded ADR 0047 cleanup-plan composition first schema slice. §`OperationShape` enum mirrors adds `cleanup_plan` to operation_class with `mutation_scope: "none"` and `target_kind: "workspace"` narrowing notes; §DerivedSummary summary_kind enum mirrors adds `cleanup_plan` plus the new `summary_text` typed closed-enum vocabulary (`hint_resolved | hint_ignored_stale | hint_ignored_workspace_mismatch | hint_unresolvable | no_hint_provided`); §QualityGate operation_class enum mirror reconciled with `operationShapeOperationClassSchema` (adds both `workspace_verify` — closing the pre-existing ADR 0036 enum-mirror gap — and `cleanup_plan`). New `Decision.reason_kind` reservations and `cleanup_scope` enum recorded as registry-canonical pending Ring 1 mint API schema PR. |

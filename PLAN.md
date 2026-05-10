@@ -5,7 +5,72 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Upstream research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — ADR 0050 (WorkspaceContext) accepted; Step 1 entity #2 of 5 done; Phase 2.5 policy YAML in system-config parallel-OK
+## Current Focus — ADR 0051 (ApprovalGrant) accepted; Step 1 entity #3 of 5 done; Phase 2.5 policy YAML in system-config parallel-OK
+
+**2026-05-10 ADR 0051 (ApprovalGrant) accepted:** Third foundational-entity
+ADR per the workflow-sequencing investigation §Step 1 complete (entity
+#3 of 5). The `ApprovalGrant` Ring 0 entity is committed with 13 schema
+fields: typed `grant_kind` enum (3 v1 values closing all three registry
+§Decision.required_grant_kind reservations from ADR 0030 + ADR 0035),
+discriminated `scope` union with chain-walk-refined evidence refs via
+**`approvalGrantSchema` envelope-level superRefine** (mirrors
+`decisionSchema` + `qualityGateSchema` precedents; walks unconditionally
+across envelope AND scope-payload acknowledged_* refs), kernel-set
+`granted_by` allowlist `[mint_api, kernel_broker]` (`kernel_gateway`
+excluded by design — gateway re-derive does not mint grants; `kernel_dashboard`
+deferred to its own producer ADR), kernel-set `minted_for_decision_id`
+**non-null at v1** (pre-emptive grants deferred to future `kernel_dashboard`
+producer ADR as coordinated change-set), audit-chain integration with
+**canonical-concatenation length-prefix discipline** retroactively
+applied to ADR 0049/0050/0051 (defends against hash-input concatenation
+collision attack class), and **D-037 producer-disjointness additive
+cross-step extension** (Layer 1 mint API walks `derived_from` closure
+bounded by walk-depth budget ≤ 64 records + cycle-rejection via
+`audit_chain_corruption_detected`; producer equality by class identity,
+not by delegation chain). **Charter inv. 6 forbidden-tier
+non-escalability** preserved structurally **upstream of ApprovalGrant**
+at `OperationShape.operation_class` source-enum closure (8-value closed
+enum admits no `'forbidden'`) + canonical policy YAML (system-config
+Phase 2.5 lane). **Self-approval rejection rule**: rejects
+`grantor_principal_ref == consuming_session.principal_id` for grants
+whose underlying operation_class is in non-readonly set; Ring 1 mint
+API enforces via canonicalization-aware comparison (Unicode NFC +
+lowercase fold + whitespace trim). **Revocation race tiebreaker**:
+revoke-wins; race-loser produces TWO typed Decision records
+(informational `consume_after_revoke_attempt` + paired deny
+`required_grant_kind_unmet`). **6 NEW Decision.reason_kind reservations**
+(deny: `grant_expired_at_consumption`, `producer_disjointness_violation`,
+`required_grant_kind_unmet`, `self_approval_rejected`,
+`audit_chain_corruption_detected`; informational: `consume_after_revoke_attempt`).
+Four-revision cycle v1→v4: v1 15+ blockers (producer name drift,
+same-step D-037, missing pre-emptive guardrails, undefined revocation
+race, etc.); v2 absorbed v1 but surfaced new convergent issues
+(typed-Decision audit gap, schrödinger nullable, supersession framing,
+tier_scope kebab-case, scope-payload chain-walk leak); v3 removed
+pre-emptive infrastructure (collapsed ~6 v2 blockers) + reframed D-037
+additive, but surfaced 8 new blockers (tier_scope vocabulary collision
+with non-existent `OperationShape.tier`, `inherited_from_gate`
+dynamic-dispatch escalation, chain-walk attribution misattribution to
+`qualityGateEvidenceRefSchema` instead of envelope, valid_until
+cross-record boundary missing §Rejects, hash collision via variable-length
+branch_ref, self-approval normalization evasion); **v4 scope-back**:
+removed `tier_scope` column entirely + grounded forbidden-tier defense
+on existing source-enum closure + policy YAML, committed envelope-level
+superRefine, added length-prefix retroactive discipline, bounded
+`branch_ref` via `gitBranchRefSchema`, tightened self-approval framing,
+added `valid_until` cross-record §Rejects entry, registered walk-depth
+ceiling. All four required reviewers ready-for-acceptance on v4 with
+5 mechanical tweaks at acceptance. D-039 records the decision. Registry
+v0.4.13 → v0.4.14 with 11 specific section additions/updates.
+
+**Step 1 progress** (per workflow-sequencing investigation): entity
+#1 `Decision` ✓ (ADR 0049 / D-037); entity #2 `WorkspaceContext` ✓
+(ADR 0050 / D-038); entity #3 `ApprovalGrant` ✓ (ADR 0051 / D-039).
+Next: entity #4 `Lease` (ADR 0052; ADR 0031 v1 worktree-lease taxonomy
+schema landing); then entity #5 `Run` (ADR 0053; `Evidence.run_id`
+field semantics).
+
+## Prior Focus — ADR 0050 (WorkspaceContext) accepted; Step 1 entity #2 of 5 done
 
 **2026-05-10 ADR 0050 (WorkspaceContext) accepted:** Second foundational-entity
 ADR per the workflow-sequencing investigation §Step 1 complete (entity
@@ -29,12 +94,6 @@ clarification + 3 implementation-detail acknowledgments; v3 returned
 ready-for-acceptance from architect + ontology. D-038 records the
 decision. Registry v0.4.12 → v0.4.13 with 5 specific section
 additions/updates.
-
-**Step 1 progress** (per workflow-sequencing investigation): entity
-#1 `Decision` ✓ (ADR 0049 / D-037); entity #2 `WorkspaceContext` ✓
-(ADR 0050 / D-038). Next: entity #3 `ApprovalGrant` (ADR 0051;
-ApprovalGrant-side mirror of D-037 producer-disjointness rule).
-Then ADR 0052 `Lease`, ADR 0053 `Run`.
 
 ## Prior Focus — ADR 0049 (Decision) accepted; Step 1 entity #1 of 5 done
 

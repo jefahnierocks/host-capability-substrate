@@ -3,9 +3,9 @@ title: HCS local research artifacts
 category: research
 component: host_capability_substrate
 status: active
-version: 1.15.0
-last_updated: 2026-05-09
-tags: [research, local, host-evidence, github, version-control, quality-management, codex, worktree, branch-cleanup, diagnostics, workspace-context, isolation, ontology, process-inspection, project-substrate, runner-substrate, backup-readiness, runner-readiness, alert-delivery, regression-corpus, adr-0039, charter-v1-4-0, credential-plane, project-secrets, sequencing, policy-yaml]
+version: 1.16.0
+last_updated: 2026-05-10
+tags: [research, local, host-evidence, github, version-control, quality-management, codex, worktree, branch-cleanup, diagnostics, workspace-context, isolation, ontology, process-inspection, project-substrate, runner-substrate, backup-readiness, runner-readiness, alert-delivery, regression-corpus, adr-0039, charter-v1-4-0, credential-plane, project-secrets, sequencing, policy-yaml, foundational-entities, milestone-1, ring-1, enforcement-gap]
 priority: medium
 ---
 
@@ -51,11 +51,13 @@ summaries.
 | `2026-05-07-adr-0039-forward-looking-obs-audit.md` | 2026-05-07 | Audit walking the 13 forward-looking observations deferred by ADR 0039 (charter v1.4.0 amendment) against landed Phase 2.x work. Two Owed (#1 ADR 0019 v3 four-class alignment; #3 registry §Producer-vs-kernel-set five-FK extension), one Effectively handled (#2), one Active sequencing dependency (#5 evidenceAuthoritySchema enum extension), five Deferred (#4, #6, #7, #8, #9), two Closed at acceptance (#10, #11). Docs only; no schema, registry, charter, or policy effect. |
 | `2026-05-08-project-secrets-standards-directive.md` | 2026-05-08 | HCS/HCP-facing planning directive for upcoming Jefahnierocks and Happy Patterns project secrets standards. Maps logical paths, storage aliases, semantic owners, provider stewards, rotation cadence, stop rules, and argv-secret prohibitions into Q-013 credential-plane vocabulary while keeping schema, policy, broker/runtime, provider mutation, vault mutation, and operation registration blocked pending follow-on authority. |
 | `2026-05-09-outstanding-work-sequencing-workflow.md` | 2026-05-09 | Docs-only workflow decision for the outstanding user-direction and trigger-deferred work. Corrects stale cleanup-plan status, prioritizes ADR 0048 subject-kind grounding evaluation plus Phase 2.5 policy YAML before runtime/provider lanes, and keeps Q-013/Q-014/Q-015, cleanup-plan execution, and trigger-deferred items behind their accepted authorities. |
+| `2026-05-10-workflow-sequencing-investigation.md` | 2026-05-10 | Docs-only investigation of the foundational-layer state and proper sequencing. Records empirical Ring 0/1/2/3 inventory: 8 of 22 Milestone 1 canonical Ring 0 entities built; Phase 2 schema train has been Evidence-subtype expansion not M1 completion; Ring 1 (`packages/kernel/`) empty; Ring 2 adapter packages empty; Ring 3 dashboard empty. Traces 7 of 9 trigger-detection failures to the missing `Decision` Ring 0 entity + missing Ring 1 mint API. Recommends completing M1 foundational entities (`Decision`, `WorkspaceContext`, `ApprovalGrant`, `Lease`, `Run` priority-ordered) before Ring 1 service work. Phase 2.5 canonical policy YAML in system-config remains authorizable in parallel. |
 
 ## Change Log
 
 | Version | Date | Change |
 |---|---:|---|
+| 1.16.0 | 2026-05-10 | Added the workflow-sequencing investigation. Records foundational-layer empirical state (8/22 M1 Ring 0 entities built; Ring 1/2/3 empty; trigger-detection apparatus missing) and recommends sequencing: complete M1 foundational entities, author Phase 2.5 policy YAML in parallel, then begin Phase 3 Ring 1 services. |
 | 1.15.0 | 2026-05-09 | Added the outstanding-work sequencing workflow and policy-first next-lane decision. |
 | 1.14.0 | 2026-05-08 | Added the project secrets standards directive as Q-013 compatibility input. |
 | 1.13.0 | 2026-05-07 | Added the ADR 0039 forward-looking observations absorption audit memo. |

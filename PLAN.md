@@ -5,7 +5,35 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Upstream research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — ADR 0048 accepted; Phase 2.5 canonical policy YAML in system-config is the next substantive lane
+## Current Focus — Foundational Ring 0 entities incomplete; Phase 2.5 policy YAML in system-config can proceed in parallel; Ring 1 services blocked
+
+**2026-05-10 workflow-sequencing investigation:** A docs-only Ring 3
+investigation is recorded at
+`docs/host-capability-substrate/research/local/2026-05-10-workflow-sequencing-investigation.md`.
+It surfaces a foundational-layer gap: of Milestone 1's 22 canonical
+Ring 0 entities, **only 8 are built** (`AgentClient`, `OperationShape`,
+`Evidence`, `ExecutionContext` plus Phase 1 supplemental
+`EnvProvenance`, `CredentialSource`, `StartupPhase`). 14 are missing,
+including the most-referenced foundational entities `Decision`,
+`WorkspaceContext`, `ApprovalGrant`, `Lease`, and `Run`. The Phase 2
+schema train added many Evidence subtypes + the coordination layer +
+boundary-observation envelope but did not complete M1's operational
+vocabulary. Ring 1 (`packages/kernel/`) is empty; Ring 2 adapter
+packages are scaffolds only; Ring 3 dashboard is empty. Seven of nine
+trigger-detection failures trace to the missing `Decision` entity +
+missing Ring 1 mint API. The investigation recommends sequencing:
+**Step 1** complete M1 foundational entities (`Decision`,
+`WorkspaceContext`, `ApprovalGrant`, `Lease`, `Run` priority-ordered);
+**Step 2** parallel-OK Phase 2.5 canonical policy YAML in
+`system-config`; **Step 3** less-critical M1 entities (tool-resolution
+chain, Capability, CommandShape, PolicyRule, etc.); **Step 4** begin
+Phase 3 Ring 1 services per existing PLAN.md M3-M5 milestone
+definitions; **Step 5** Ring 2 adapters (M4-M6); **Step 6** Ring 3
+regression runner. The "trigger-deferred" lanes are reframed as
+**foundation-prerequisite lanes** — the blockers are not external
+events but unbuilt Ring 0 entities and unbuilt Ring 1 services.
+
+## Prior Focus — ADR 0048 accepted; Phase 2.5 canonical policy YAML in system-config was the next substantive lane
 
 **2026-05-09 ADR 0048 accepted:** ADR 0048 (`docs/host-capability-substrate/adr/0048-phase-2-7-subject-kind-grounding-evaluation.md`)
 classifies the three Phase 2.7 candidates against the

@@ -21,6 +21,111 @@ remaining-M1 entities that the just-landed five forward-reference
 (`Principal` + `Session`); `Session` forward-references `Principal` via
 `session.principal_id`, so Principal lands first.
 
+**Revision history**:
+
+- **v1** (commit `85ff783`) dispatched the four required reviewers in
+  parallel. All four returned blockers:
+  - **Architect B1 + Policy B1 (convergent)**: §Self-approval rejection
+    rule registry section is referenced as existing but does NOT exist
+    as a discrete heading; only narrative mentions inside the §ADR
+    0049–0053 foundational Ring 0 entity field authority subsection
+    (line ~449) and §ADR 0049–0053 foundational Ring 0 entity enum
+    mirrors section (line ~2394). The ADR 0051 v4 change-set #7
+    originally intended a discrete section but appears not to have
+    landed as one.
+  - **Architect B2**: registry §ADR 0049–0053 foundational Ring 0
+    entity enum mirrors actual line 2386 (not 2317); other section
+    citations off by smaller margins.
+  - **Ontology B-1**: schema-version-literal count is 11 currently
+    landed (`evidenceSchemaVersionSchema`, `knowledgeSourceSchema
+    VersionSchema`, `operationShapeSchemaVersionSchema`,
+    `executionContextSchemaVersionSchema` (private),
+    `boundaryObservationSchemaVersionSchema` + sibling
+    `boundaryObservationEvidenceSchemaVersionSchema`,
+    `credentialSourceSchemaVersionSchema` (private),
+    `decisionSchemaVersionSchema`, `workspaceContextSchemaVersion
+    Schema`, `approvalGrantSchemaVersionSchema`, `leaseSchema
+    VersionSchema`, `runSchemaVersionSchema`); v1 ADR claimed 8
+    landed and Principal as ninth co-commitment. Corrected: 11
+    landed + Principal joins as twelfth (counting the
+    boundary-observation sibling) or eleventh-by-entity.
+  - **Ontology B-2**: "untyped-semantic `entityIdSchema` forward-reference" framing for
+    `ApprovalGrant.grantor_principal_ref` is misleading; the schema
+    shape is `entityIdSchema` both before AND after typed-FK closure
+    (only the semantic referent changes). Reframed as "untyped-
+    semantic `entityIdSchema` forward-reference" throughout.
+  - **Ontology B-3**: schema-version ledger update missing from
+    registry change-set.
+  - **Policy B2**: §Audit-chain coverage of rejections actual line
+    671 (close to v1's claim of 670+; updated).
+  - **Security B1 (most serious)**: the §Compliance §Principal-id
+    canonicalization rule did NOT structurally close the ADR 0051 v4
+    MT-Sec-2 zero-width-character evasion. The v1 recipe specified
+    "Unicode NFC + lowercase fold + leading/trailing-whitespace trim"
+    — IDENTICAL to ADR 0051 v4 MT-Sec-2's acknowledged-inadequate
+    recipe. NFC does not strip ZWSP (U+200B), ZWNJ (U+200C), ZWJ
+    (U+200D), BOM (U+FEFF), soft-hyphen (U+00AD), or other Unicode
+    general-category `Cf` (Format) characters. Moving the same
+    recipe from compare-time to mint-time changes the location of
+    the residual surface but does not close it. The v1 framing
+    introduced "v2-of-the-same-attack under a 'closed' registry
+    classification," materially worse than the v1 string-comparison
+    posture's honest "limitation acknowledged" framing.
+
+- **v2 (this revision)** absorbs all blocking findings:
+  - **Recipe strengthened (Security B1)**: canonicalization recipe
+    extended to include **Unicode `Cf` general-category strip** AFTER
+    NFC normalization, BEFORE lowercase fold + whitespace trim. The
+    `Cf` category includes ZWSP / ZWNJ / ZWJ / BOM / soft-hyphen and
+    the broader set of invisible format controls; stripping the entire
+    category structurally closes the MT-Sec-2 zero-width-character
+    evasion surface. Closure claim now honest. Unicode version pinning
+    (security N1 non-blocking) committed as a future amendment.
+  - **TR39 confusable-defense reservation (Security N2)** registered
+    as future amendment for principal-id homoglyph defense (e.g.,
+    ASCII `a` vs Cyrillic `а` U+0430); v2 commits the closure for
+    `Cf`-class invisibles and defers the broader confusable-defense
+    posture.
+  - **§Self-approval rejection rule registry section ADD (Architect B1
+    + Policy B1)**: registry change-set item 7 reframed from UPDATE
+    to ADD. v2 commits the creation of a discrete §Self-approval
+    rejection rule registry section (top-level under §Cross-context
+    enforcement layer or as a sibling subsection) that carries the
+    typed-FK comparison form, the canonicalization-at-mint recipe
+    (including the `Cf` strip), the non-readonly OperationShape.
+    operation_class trigger set, the Ring 1 mint API enforcement
+    commitment, and the cross-reference to ADR 0051 v4 §Rejects
+    §Self-approval rejection.
+  - **Schema-version literal count corrected (Ontology B-1)**:
+    references-list enumeration updated to list 11 currently-landed
+    literals + Principal as twelfth; "joins as the ninth co-commitment"
+    framing replaced with "joins as the twelfth co-commitment
+    (counting boundary-observation's two sibling literals)."
+  - **"untyped-semantic `entityIdSchema` forward-reference" reframed (Ontology B-2)**:
+    all instances rewritten as "untyped-semantic `entityIdSchema`
+    forward-reference" or equivalent to emphasize the FK target
+    *shape* doesn't change (both v1 and post-typed-FK are
+    `entityIdSchema`), only the *semantic referent* gains a typed
+    Ring 0 target.
+  - **Schema-version ledger update added (Ontology B-3)**: registry
+    change-set extended to 12 items, with the new item committing
+    a row in the §Current schema-version ledger table for
+    `principalSchemaVersionSchema = z.literal('0.1.0')`.
+  - **Registry line citations corrected (Architect B2 + Policy B2)**:
+    §ADR 0049–0053 foundational Ring 0 entity enum mirrors line 2386
+    (was 2317); §Audit-chain coverage of rejections line 671 (was 670);
+    §Cross-context enforcement layer line 615 (was 610); §Subject-kind
+    grounding requirement line 512 (was 507); §Kernel-trusted producer
+    allowlist final state line 867 (was 866).
+  - **Confusable-set future amendment (Security N2)** added.
+  - **Unicode version pinning future amendment (Security N1)** added.
+  - **`principal_attribution_unresolvable` reason_kind reservation
+    pre-commitment (Architect S3)** noted as a §Procedure rule
+    consideration for the future `system_principal` Zod-defined
+    extension; not committed at v2.
+  - **Architect N10**: D-row commitment updated to anticipate D-042
+    at acceptance.
+
 ## Date
 
 2026-05-11
@@ -37,7 +142,7 @@ commit.
 This ADR introduces the sixth foundational Ring 0 entity (counting the
 just-landed five from ADRs 0049-0053). `Principal` is M1 acceptance
 criterion #3 and the typed FK target for `ApprovalGrant.grantor_principal_ref`
-(currently a string-shape forward-reference per ADR 0051 v4 §Decision) and
+(currently a untyped-semantic `entityIdSchema` forward-reference per ADR 0051 v4 §Decision) and
 the future `Session.principal_id` (when `Session` lands). Required reviewer
 dispatch per `IMPLEMENT.md` §Required subagent reviews:
 
@@ -268,7 +373,7 @@ v1 Principal entity carries:
   `runSchemaVersionSchema` (all landed at commit `7fb7e05`).
 - `principal_id` — `entityIdSchema` (kernel-set). Closes the typed FK
   target for `ApprovalGrant.grantor_principal_ref` (currently a
-  string-shape forward-reference per ADR 0051 v4) and the future
+  untyped-semantic `entityIdSchema` forward-reference per ADR 0051 v4) and the future
   `Session.principal_id`.
 - `principal_kind` — `principalKindSchema = z.enum(['human',
   'service_principal'])` (kernel-set; v1 closed enum, 2 values;
@@ -383,23 +488,31 @@ validation alone is not an enforcement layer:
    §Chain-promotion rule + ADR 0036 §Layer 1 grounding requirement.
 3. **Self-approval rejection (closes ADR 0051 v4 typed-FK posture
    commitment)** — when this ADR lands as Ring 0 schema source,
-   `ApprovalGrant.grantor_principal_ref` schema PR updates from
-   string-shape to typed FK (`grantor_principal_ref: entityIdSchema`
-   resolving to Principal). The comparison rule per ADR 0051 v4 §Rejects
+   `ApprovalGrant.grantor_principal_ref` retains the
+   `entityIdSchema` field shape (NO schema shape change; both pre-
+   and post-typed-FK are `entityIdSchema`) but gains a typed-Ring-0
+   FK target (Principal). The comparison rule per ADR 0051 v4 §Rejects
    §Self-approval rejection becomes:
    - **UUID-byte-equality** comparison (mirrors ADR 0052 §Identity
-     comparison form for session_id), eliminating the Unicode NFC +
-     lowercase + whitespace canonicalization-aware string-comparison
-     surface
+     comparison form for session_id), eliminating the runtime
+     Unicode-canonicalization-aware string-comparison surface
    - **Zero-width-character evasion structurally closed** (per ADR
      0051 v4 MT-Sec-2): FK-equality on principal_id surface IDs cannot
-     be evaded by U+200B / U+200C / U+200D / U+FEFF / U+00AD injection;
+     be evaded by U+200B / U+200C / U+200D / U+FEFF / U+00AD or any
+     other Unicode general-category `Cf` (Format) character injection;
      the surface IDs are themselves canonicalized at Principal mint by
-     `kernel_principal_resolver`
-   - The canonicalization rule (Unicode NFC + lowercase + whitespace
-     trim) **survives as a normalization step on the principal_id
-     surface IDs** at Principal mint time; the comparison itself is
-     byte-equality on already-canonicalized IDs
+     `kernel_principal_resolver` via the 4-step recipe specified in
+     §Compliance §Principal-id canonicalization rule (NFC + `Cf`-strip
+     + lowercase fold + whitespace trim). The `Cf`-strip step closes
+     the invisibles surface that ADR 0051 v4 MT-Sec-2 acknowledged as
+     a v1 posture limitation.
+   - The canonicalization rule **survives as a normalization step on
+     the principal_id surface IDs** at Principal mint time; the
+     comparison itself is byte-equality on already-canonicalized IDs.
+   - **Confusable-substitution defense (Unicode TR39 skeleton
+     normalization or ASCII-only restriction)** is NOT included at v2;
+     reserved as future amendment. ASCII-vs-Cyrillic homoglyph attacks
+     remain a posture limitation until that future ADR lands.
 4. **`requesting_principal_id` typed-FK closure (ADR 0025 / ADR 0036)**
    — gateway-set `requesting_principal_id` fields gain a typed Ring 0
    target. ADR 0025 §Branch deletion proof line 149 and ADR 0036 §Sub-
@@ -414,7 +527,7 @@ validation alone is not an enforcement layer:
   entities/principal.ts` with `schema_version: '0.1.0'`. Closes M1
   acceptance criterion #3 (`Principal` in the canonical 22-entity list).
   Closes the typed FK target for `ApprovalGrant.grantor_principal_ref`
-  (currently a string-shape forward-reference) and the future
+  (currently a untyped-semantic `entityIdSchema` forward-reference) and the future
   `Session.principal_id`.
 
 - **Initial `principalKindSchema` Zod-defined enum** with two values
@@ -479,15 +592,27 @@ validation alone is not an enforcement layer:
 - **Self-approval rejection typed-FK closure**: per ADR 0051 v4 §Rejects
   §Self-approval rejection, the v1 canonicalization-aware string-
   comparison surface (with the MT-Sec-2 zero-width-character evasion
-  posture limitation) closes structurally when this ADR lands. A follow-
-  up schema PR on `approval-grant.ts` updates `grantor_principal_ref`
-  from string-shape forward-reference to typed FK; the comparison
-  becomes UUID-byte-equality with Unicode NFC normalization moved to
-  the principal_id surface-ID mint stage. **Schema PR for this
-  follow-up commitment lands together with this ADR's schema PR per
-  `.agents/skills/hcs-schema-change`** (single coordinated slice;
-  ApprovalGrant schema_version remains `'0.1.0'` because the FK target
-  shape doesn't change — both before and after are `entityIdSchema`).
+  posture limitation) **closes structurally** when this ADR lands. The
+  follow-up schema PR on `approval-grant.ts` gives `grantor_principal_
+  ref` its typed-Ring-0 FK target (Principal); the field shape remains
+  `entityIdSchema` (no shape change), and `approvalGrantSchema.schema_
+  version` remains `'0.1.0'`. The comparison becomes UUID-byte-equality
+  on principal_id surface IDs canonicalized at Principal mint time per
+  the §Compliance §Principal-id canonicalization rule 4-step recipe
+  (NFC + Cf-category strip + Unicode-aware lowercase fold + leading/
+  trailing-whitespace trim). The `Cf`-strip step (step 2) structurally
+  closes the ADR 0051 v4 MT-Sec-2 zero-width-character evasion surface
+  (v1 recipe was NFC + lowercase + whitespace trim, which carried the
+  invisibles surface forward; v2 recipe strips the entire Unicode
+  general-category `Cf` after NFC, eliminating the evasion class).
+  **Schema PR for this follow-up commitment lands together with this
+  ADR's schema PR per `.agents/skills/hcs-schema-change`** (single
+  coordinated slice; ApprovalGrant schema_version remains `'0.1.0'`
+  because the FK target shape doesn't change — both before and after
+  are `entityIdSchema`; only the typed semantic referent changes).
+  Confusable-substitution defense (Unicode TR39 skeleton normalization
+  or ASCII-only restriction) reserved as future amendment per security
+  N2 v2 deferral.
 
 - **`requesting_principal_id` typed-FK closure (ADR 0025 / ADR 0036)**:
   gateway-set `requesting_principal_id` fields in ADR 0025 §Branch
@@ -538,11 +663,28 @@ validation alone is not an enforcement layer:
      subsection (added by ADR 0054's predecessor work at commit
      `7fb7e05`) — rename to §ADR 0049–0054 foundational Ring 0 entity
      field authority; add Principal envelope-only-kernel-set sub-entry
-  7. UPDATE §Self-approval rejection rule registry section (added by
-     ADR 0051 v4) — replace v1 string-comparison posture with typed-FK
-     posture; canonicalization rule survives as a normalization step on
-     principal_id surface IDs; zero-width-character evasion structurally
-     closed
+  7. **ADD §Self-approval rejection rule registry section** (v2 reframed
+     from UPDATE to ADD per Architect B1 + Policy B1: ADR 0051 v4
+     change-set #7 intended a discrete §Self-approval rejection rule
+     section but appears not to have landed as one; the only registry
+     presences are narrative mentions inside §ADR 0049–0053 foundational
+     Ring 0 entity field authority subsection at line ~449 and §ADR
+     0049–0053 foundational Ring 0 entity enum mirrors section at line
+     ~2394). ADR 0054's change-set creates the discrete §Self-approval
+     rejection rule section (sibling to §Cross-context enforcement
+     layer or under §ADR 0049–0054 foundational Ring 0 entity enum
+     mirrors per reviewer preference), carrying: (a) the typed-FK
+     comparison form (UUID-byte-equality post-Principal landing); (b)
+     the 4-step canonicalization-at-mint recipe (NFC + `Cf`-category
+     strip + Unicode-aware lowercase fold + leading/trailing whitespace
+     trim) — see §Compliance §Principal-id canonicalization rule for
+     the full recipe; (c) the non-readonly OperationShape.operation_
+     class trigger set per ADR 0051 v4 §Rejects §Self-approval
+     rejection; (d) the Ring 1 mint API enforcement commitment; (e)
+     cross-references to ADR 0051 v4 §Rejects §Self-approval rejection
+     + ADR 0054 §Decision §Cross-record commitments deferred to Ring 1
+     mint API; (f) the future-amendment commitments for Unicode version
+     pinning and TR39 confusable defense.
   8. UPDATE §Audit-chain coverage of rejections — add cross-reference
      to Principal.audit_chain_link_hash semantic
   9. UPDATE §ADR 0049–0053 foundational Ring 0 entity enum mirrors
@@ -554,6 +696,13 @@ validation alone is not an enforcement layer:
       to ADRs 0049-0054 (Principal inherits the same hash-collision
       defense)
   11. UPDATE registry change log
+  12. **UPDATE §Current schema-version ledger (Ontology B-3 absorption)**
+      — add row for `Principal` entity at `schema_version: '0.1.0'`,
+      citing this ADR as authority. Joins the per-entity ledger rows
+      established by ADRs 0036 (`OperationShape`), 0037 + 0038
+      (`AgentClient` and Phase 2.1 entities), 0043/0044/0045
+      (Phase 2.7 entities), and the commit-`7fb7e05` foundational
+      entity train (Decision/WorkspaceContext/ApprovalGrant/Lease/Run).
 
 - **D-row in `DECISIONS.md`** recording the entity introduction.
 
@@ -700,16 +849,19 @@ validation alone is not an enforcement layer:
   per workflow-sequencing investigation §Step 4. Lives at
   `packages/kernel/src/principal/`. Enforces binding-evidence
   verification, synthetic-identity rejection, principal_id
-  canonicalization (Unicode NFC + lowercase + whitespace trim at mint
-  stage), lifecycle transitions, audit-chain integrity.
+  canonicalization per the 4-step v2 recipe (Unicode NFC + Cf-category
+  strip + Unicode-aware lowercase fold + leading/trailing-whitespace
+  trim per §Compliance §Principal-id canonicalization rule), lifecycle
+  transitions, audit-chain integrity.
 
 - **Self-approval rejection typed-FK closure follow-up schema PR on
-  `approval-grant.ts`** — coordinated with this ADR's schema PR: updates
-  `ApprovalGrant.grantor_principal_ref` from string-shape forward-
-  reference to typed FK; preserves `approvalGrantSchema.schema_version`
-  at `'0.1.0'` (FK shape unchanged at `entityIdSchema`). Updates the
-  ADR 0051 v4 §Self-approval rejection registry section to record the
-  typed-FK closure.
+  `approval-grant.ts`** — coordinated with this ADR's schema PR: the
+  typed-FK target for `ApprovalGrant.grantor_principal_ref` resolves
+  to Principal; the field shape remains `entityIdSchema` (no schema
+  shape change) and `approvalGrantSchema.schema_version` remains
+  `'0.1.0'`. The §Self-approval rejection rule registry section
+  (created by ADR 0054 change-set item 7 ADD) records the typed-FK
+  closure.
 
 - **Dashboard-surfacing of Principal records** (Milestone 5) per
   `PLAN.md` Milestone 5 §View-model contracts. May surface principal
@@ -724,8 +876,46 @@ validation alone is not an enforcement layer:
   workflow-sequencing investigation Step 3 priority order) — Session
   forward-references Principal via `session.principal_id`. When Session
   lands, the typed FK target becomes operationally reachable in the
-  self-approval rejection rule (currently a v1 string-shape comparison
-  at Ring 1 mint API).
+  self-approval rejection rule (currently a v1 string-comparison at
+  Ring 1 mint API).
+
+- **Unicode TR39 confusable defense future amendment (Security N2 v2
+  reservation)** — the v2 canonicalization recipe closes the invisibles
+  surface (Cf-category strip) but does NOT close the homoglyph surface
+  (e.g., ASCII `'alice'` vs Cyrillic-а `'аlice'` U+0430). A future
+  amendment commits one of:
+  - **Unicode TR39 skeleton normalization** as a step 2.5 in the
+    canonicalization recipe (between Cf-strip and lowercase fold); or
+  - **ASCII-only restriction** on principal_id surface IDs (forces
+    binding evidence sources to ASCII-canonicalize before submitting
+    the principal_id assertion); or
+  - **Hybrid posture**: TR39 skeleton normalization with explicit
+    bilingual identity binding allowing user-controlled non-ASCII
+    where TR39 skeleton-equality holds.
+  Operational evidence from `kernel_principal_resolver` implementation
+  + dashboard surfacing of Principal records informs which posture
+  matches the producer-side identity-binding sources.
+
+- **Unicode version pinning future amendment (Security N1 v2
+  reservation)** — the Cf-category and case-folding tables vary across
+  Unicode major versions (Unicode 14.0, 15.0, 15.1, 16.0+). v2 commits
+  to using the platform's built-in `String.prototype.normalize('NFC')`
+  + Unicode-aware `String.prototype.toLowerCase()` at the project-
+  pinned Node.js LTS version; a future amendment commits an explicit
+  Unicode version pinning rule (e.g., "Unicode 15.x required;
+  cross-deployment Unicode version drift produces a Ring 1 mint API
+  Decision rejection") if operational evidence shows the platform-
+  inherited version is insufficient for cross-deployment determinism.
+
+- **`principal_attribution_unresolvable` reason_kind reservation
+  (Architect S3 v2 pre-commitment)** — when the `system_principal`
+  Zod-defined extension lands per the §Procedure rule, a typed deny
+  path is needed for the case where a kernel-emitted record's
+  attribution cannot be resolved to a Principal (e.g., automated
+  retention/cleanup event whose `system_principal` record is stale or
+  missing). Reserve the reason_kind in the §Procedure rule procedure
+  for `system_principal` rather than committing the Zod-defined value
+  at this ADR.
 
 - **Reopen** if a future incident shows: v1 2-value `principal_kind`
   enum inadequate for distinct identity classes that need different
@@ -777,27 +967,78 @@ precedents):
   the schema commits the typed structure (array of `evidenceRefSchema`),
   and Ring 1 commits a deterministic serialization for hash-determinism
   that applies the length-prefix rule per element.
-- **Principal-id canonicalization rule (NEW Ring 1 commitment)**: when
+- **Principal-id canonicalization rule (NEW Ring 1 commitment; v2
+  recipe strengthened per security B1)**: when
   `kernel_principal_resolver` mints a Principal record, the
-  `principal_id` surface ID is canonicalized via Unicode NFC + lowercase
-  fold + leading/trailing-whitespace trim before insertion. This
-  canonicalization is at MINT, not at COMPARE: the FK-equality
+  `principal_id` surface ID is canonicalized via the following
+  ordered recipe before insertion:
+  1. **Unicode NFC normalization** — combine canonical-equivalent
+     code points (e.g., `'café'` U+00E9 vs `'café'` U+0065
+     U+0301 collapse to identical bytes)
+  2. **Unicode general-category `Cf` strip** — remove ALL characters
+     in the Unicode `Cf` (Format Control) general category, including
+     but not limited to: ZWSP (U+200B), ZWNJ (U+200C), ZWJ (U+200D),
+     LRM (U+200E), RLM (U+200F), word joiner (U+2060), invisible
+     times/separator/plus (U+2062-U+2064), LRI/RLI/FSI/PDI (U+2066-
+     U+2069), BOM/ZWNBSP (U+FEFF), interlinear annotation anchors
+     (U+FFF9-U+FFFB), soft-hyphen (U+00AD), Arabic format controls
+     (U+0600-U+0605, U+061C, U+06DD, U+070F, U+0890-U+0891, U+08E2),
+     Mongolian vowel separator (U+180E), bidirectional controls
+     (U+202A-U+202E), and supplementary-plane Cf characters
+  3. **Lowercase fold** — Unicode-aware lowercase folding (per
+     Unicode case-folding tables; not ASCII tolower)
+  4. **Leading/trailing-whitespace trim** — strip leading and
+     trailing whitespace (Unicode `\p{White_Space}` category)
+  5. The output is the canonicalized surface ID inserted into the
+     Principal record's `principal_id` field
+
+  This canonicalization is at MINT, not at COMPARE: the FK-equality
   comparison in self-approval rejection (per ADR 0051 v4) is then
-  byte-equality on already-canonicalized IDs. Zero-width-character
-  evasion (per ADR 0051 v4 MT-Sec-2: U+200B / U+200C / U+200D / U+FEFF
-  / U+00AD) is structurally closed because the surface IDs are
-  canonicalized before any consumer compares them. The canonicalization
-  rule is registered in the §Self-approval rejection rule registry
-  section update.
+  byte-equality on already-canonicalized IDs. The Cf-strip step (step
+  2) **structurally closes** the ADR 0051 v4 MT-Sec-2 zero-width-
+  character evasion surface because invisible format controls cannot
+  survive into the surface ID — a producer that submits `'alice'` and
+  `'al​ice'` both canonicalize to byte-identical `'alice'` after
+  step 2. The canonicalization rule is registered in the ADD §Self-
+  approval rejection rule registry section (change-set item 7 v2-
+  reframed as ADD, not UPDATE — see ADR 0051 v4 cross-reference note
+  in registry change-set).
+
+  **Unicode version pinning (future amendment commitment)**: the Cf-
+  category and case-folding tables vary across Unicode major versions.
+  v2 commits to using the platform's built-in `String.prototype.
+  normalize('NFC')` and Unicode-aware `String.prototype.toLowerCase()`
+  at the Node.js LTS version pinned by the project's mise/Node config;
+  Unicode version drift is a future-amendment concern recorded in
+  §Future amendments §Unicode version pinning. Cross-deployment
+  determinism is guaranteed when all kernel processes run the same
+  pinned Node.js version.
+
+  **TR39 confusable defense out of scope at v2 (security N2 deferral)**:
+  the Cf-strip closes the invisibles surface. ASCII-vs-Cyrillic-
+  homoglyph and broader Unicode confusable surfaces (e.g., `'alice'`
+  ASCII vs `'аlice'` with Cyrillic-а U+0430) are NOT closed by the v2
+  recipe. v2 reserves a future amendment to commit Unicode TR39
+  skeleton normalization OR a stronger ASCII-only restriction on
+  principal_id surface IDs, after operational evidence shows which
+  posture matches the producer-side identity-binding sources. The v2
+  defense is "no invisible-character evasion"; the future defense is
+  "no homoglyph-substitution evasion."
 - **Identity comparison form**: the typed-FK self-approval comparison
   (`ApprovalGrant.grantor_principal_ref == consuming_session.
   principal_id`) is **UUID-byte-equality** comparison (mirrors ADR 0052
   §Identity comparison form for session_id). Both fields are
-  `entityIdSchema`-typed; the comparison is structural identity, not
-  the Unicode/case/whitespace canonicalization-aware string-comparison
-  form that ADR 0051 v4 originally specified for the v1 pre-Principal
-  posture. The canonicalization rule survives upstream at Principal
-  mint, not at comparison.
+  `entityIdSchema`-typed; the comparison is structural byte-identity,
+  not the runtime Unicode/case/whitespace canonicalization-aware
+  string-comparison form that ADR 0051 v4 originally specified for the
+  v1 pre-Principal posture. The 4-step canonicalization recipe (NFC +
+  `Cf`-category strip + Unicode-aware lowercase fold + leading/trailing
+  whitespace trim per §Compliance §Principal-id canonicalization rule)
+  survives upstream at Principal mint, not at comparison. The
+  `Cf`-strip step (step 2 of the v2 recipe) structurally closes the
+  ADR 0051 v4 MT-Sec-2 zero-width-character evasion that the v1 ADR
+  0054 recipe (NFC + lowercase + whitespace trim only) inadvertently
+  carried forward.
 - **No execution-context binding rationale**: Principal identity is
   execution-context-independent at the entity layer (mirrors
   AgentClient). A human signing a git commit is the same human whether
@@ -858,16 +1099,22 @@ precedents):
     refinement precedent; envelope-only-kernel-set posture)
 - Registry: `docs/host-capability-substrate/ontology-registry.md`
   v0.4.16 (current frontmatter; ADR 0054 reserves v0.4.17 pending docs
-  commit) — §Authority discipline (line 279+), §ADR 0049–0053
-  foundational Ring 0 entity field authority subsection (lines 443+),
-  §Cross-context enforcement layer (line 610+), §Audit-chain coverage
-  of rejections (line 670+), §Subject-kind grounding requirement (line
-  507+), §Kernel-trusted producer allowlist final state (line 866+),
-  §Self-approval rejection rule registry section (added by ADR 0051
-  v4), §ADR 0049–0053 foundational Ring 0 entity enum mirrors (line
-  2317+; rename to ADR 0049–0054), §Naming-discipline §Sub-rule 9
-  enum-value casing (line 203 — `lower_snake_case` mandate for new
-  enum values; `principalKindSchema` values comply)
+  commit). v2-verified line citations (Architect B2 + Policy B2
+  absorption): §Authority discipline (line 279+), §ADR 0049–0053
+  foundational Ring 0 entity field authority subsection (line 443),
+  §Subject-kind grounding requirement (line 512), §Cross-context
+  enforcement layer (line 615), §Audit-chain coverage of rejections
+  (line 671), §Kernel-trusted producer allowlist final state (line
+  867), §ADR 0049–0053 foundational Ring 0 entity enum mirrors
+  section (line 2386; rename to ADR 0049–0054 per registry change-set
+  item 9), §Naming-discipline §Sub-rule 9 enum-value casing (line 203 —
+  `lower_snake_case` mandate for new enum values; `principalKindSchema`
+  values comply). **§Self-approval rejection rule** does NOT exist as a
+  discrete heading in v0.4.16; only narrative mentions at lines ~449
+  (inside §ADR 0049–0053 foundational Ring 0 entity field authority)
+  and ~2394 (inside §ADR 0049–0053 foundational Ring 0 entity enum
+  mirrors); ADR 0054 change-set item 7 (v2-reframed as ADD) creates
+  the discrete section.
 - Workflow-sequencing investigation: `docs/host-capability-substrate/
   research/local/2026-05-10-workflow-sequencing-investigation.md`
   v0.1.2 (§Step 3 less-critical Ring 0 foundational entities entry
@@ -908,13 +1155,27 @@ precedents):
     evidence source)
   - `packages/schemas/src/entities/git-identity-binding.ts`
     (`GitIdentityBinding`; human-principal binding-evidence source)
-- Currently-landed schemaVersion literals: `evidenceSchemaVersionSchema`,
-  `knowledgeSourceSchemaVersionSchema`,
-  `operationShapeSchemaVersionSchema`, `decisionSchemaVersionSchema`,
-  `workspaceContextSchemaVersionSchema`,
-  `approvalGrantSchemaVersionSchema`, `leaseSchemaVersionSchema`,
-  `runSchemaVersionSchema` (8 entity-specific-literal precedents);
-  `principalSchemaVersionSchema` joins as the ninth co-commitment
+- Currently-landed schemaVersion literals (11 distinct entity-specific
+  literals + 1 sibling literal = 12 total per `grep -rn
+  "SchemaVersionSchema = z" packages/schemas/src/entities/`): `evidence
+  SchemaVersionSchema` (evidence.ts:9), `knowledgeSourceSchemaVersion
+  Schema` (knowledge-source.ts:10), `operationShapeSchemaVersionSchema`
+  (operation-shape.ts:4), `executionContextSchemaVersionSchema` (private
+  const, execution-context.ts:5), `boundaryObservationSchemaVersion
+  Schema` (boundary-observation.ts:13) + sibling
+  `boundaryObservationEvidenceSchemaVersionSchema` (boundary-
+  observation.ts:19), `credentialSourceSchemaVersionSchema` (private
+  const, credential-source.ts:10), and the workflow-sequencing-
+  investigation §Step 1 cohort landed at commit `7fb7e05`:
+  `decisionSchemaVersionSchema` (decision.ts:7),
+  `workspaceContextSchemaVersionSchema` (workspace-context.ts:9),
+  `approvalGrantSchemaVersionSchema` (approval-grant.ts:6),
+  `leaseSchemaVersionSchema` (lease.ts:5),
+  `runSchemaVersionSchema` (run.ts:5). v1 ADR incorrectly counted 8;
+  ontology B-1 at v1 review corrected to 11 + sibling.
+  `principalSchemaVersionSchema` joins as the **twelfth** literal
+  (counting the boundary-observation sibling) or eleventh-by-entity
+  co-commitment.
 
 ### External
 

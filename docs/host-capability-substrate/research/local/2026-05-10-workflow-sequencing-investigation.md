@@ -3,8 +3,8 @@ title: Workflow Sequencing Investigation
 category: research
 component: host_capability_substrate
 status: planning-input
-version: 0.1.1
-last_updated: 2026-05-10
+version: 0.1.2
+last_updated: 2026-05-11
 tags: [sequencing, ring-0, ring-1, ring-2, ring-3, milestone-1, phase-3, foundational-entities, decision, approval-grant, lease, workspace-context, run, trigger-detection, enforcement-gap]
 priority: high
 ---
@@ -19,9 +19,25 @@ This investigation does NOT authorize schema, canonical policy YAML, Ring 1 serv
 
 Truth-alignment update (2026-05-10): later on 2026-05-10, ADRs 0049-0053
 were accepted for `Decision`, `WorkspaceContext`, `ApprovalGrant`, `Lease`,
-and `Run`. Those acceptances complete the Step 1 **design/ADR train** only.
-They do not change the source-schema baseline below: the five entities are
-still not present as Zod source, generated JSON Schema, or tests.
+and `Run`. Those acceptances complete the Step 1 **design/ADR train**.
+
+Truth-alignment update (2026-05-11): the five Ring 0 schemas have now landed
+as source (`packages/schemas/src/entities/{decision,workspace-context,
+approval-grant,lease,run}.ts`), generated JSON Schema artifacts
+(`packages/schemas/generated/{Decision,WorkspaceContext,ApprovalGrant,Lease,
+Run}.schema.json`), focused schema tests, and consolidated docs updates
+(`docs/host-capability-substrate/ontology.md` v1.14.0;
+`docs/host-capability-substrate/ontology-registry.md` v0.4.16). The
+source-schema baseline below has therefore shifted from 4 of 22 built →
+**9 of 22 built**. Remaining gap: 13 canonical M1 entities (`HostProfile`,
+`Principal`, `Session`, `ToolProvider`, `ToolInstallation`, `ResolvedTool`,
+`Capability`, `CommandShape`, `PolicyRule`, `Artifact`, `Lock`,
+`SecretReference`, `ResourceBudget`). Step 1 is structurally complete at
+both the ADR-design layer AND the Ring 0 schema-source layer; Ring 1
+implementation at `packages/kernel/` is now contractually unblocked at the
+Ring 0 contract layer but still gated by Phase 2.5 canonical policy YAML +
+the highest-coupling remaining M1 entities (`Session` and `Principal`,
+forward-referenced by Lease/Run/ApprovalGrant).
 
 ## Empirical Baseline (2026-05-10 sweep)
 
@@ -332,6 +348,7 @@ The substrate's well-typed observation ontology + registered rules will then hav
 ## Change Log
 
 | Version | Date | Change |
-|---|---:|---|
+|---------|------|--------|
+| 0.1.2 | 2026-05-11 | Source-schema-landing update after the 5 ADRs landed as Ring 0 source. The five foundational entities (`Decision`, `WorkspaceContext`, `ApprovalGrant`, `Lease`, `Run`) are now present as Zod source, generated JSON Schema artifacts, focused schema tests, ontology.md v1.14.0 entries, and ontology-registry.md v0.4.16 entries. Source-schema baseline shifts from 4 of 22 → 9 of 22 built; remaining gap is 13 canonical M1 entities. Step 1 is structurally complete at both the ADR-design and Ring 0 source layers; Ring 1 is contractually unblocked at the Ring 0 contract layer but still gated by Phase 2.5 policy YAML + the highest-coupling remaining M1 entities (Session, Principal). |
 | 0.1.1 | 2026-05-10 | Truth-alignment update after ADRs 0049-0053 were accepted: clarifies that Step 1 is complete at the ADR/design layer only, and corrects the source-schema baseline to 4 of 22 canonical M1 entities built / 18 of 22 not built. |
 | 0.1.0 | 2026-05-10 | Initial workflow sequencing investigation. Records empirical state of Ring 0/1/2/3 layers (4 of 22 M1 canonical entities built; Ring 1/2/3 packages empty), traces 7 of 9 trigger-detection failures to the missing `Decision` entity + missing Ring 1 mint API, and recommends sequencing: complete Milestone 1 foundational entities first (`Decision`, `WorkspaceContext`, `ApprovalGrant`, `Lease`, `Run` priority-ordered), author Phase 2.5 canonical policy YAML in system-config in parallel, then begin Phase 3 Ring 1 services per existing PLAN.md milestone definitions. |

@@ -1,0 +1,169 @@
+{
+  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/WorkspaceContext.schema.json",
+  "title": "WorkspaceContext",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0",
+      "description": "WorkspaceContext schema version (ADR 0050; M1 foundational entity #2; D-038)."
+    },
+    "workspace_context_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "execution_context_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "repository_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "worktree_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "workspace_context_state": {
+      "type": "string",
+      "enum": [
+        "active",
+        "retired"
+      ],
+      "description": "Lifecycle state for a WorkspaceContext record (ADR 0050; mirrors agentClientStateSchema)."
+    },
+    "kernel_observed_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+      "description": "RFC 3339 timestamp with an explicit UTC offset."
+    },
+    "valid_until": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "producer": {
+      "type": "string",
+      "enum": [
+        "kernel_workspace_diagnose"
+      ],
+      "description": "Kernel-trusted producer allowlist for WorkspaceContext records. Named enum schema chosen over z.literal per ADR 0050 v3 to anticipate forward-compatible allowlist widening without a schema_version bump."
+    },
+    "audit_chain_link_hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "SHA-256 digest with algorithm prefix. It is not reversible secret material."
+    },
+    "evidence_refs": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "evidence_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+            "description": "Reference to an Evidence record or fixture."
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Human-readable source name or artifact path."
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+            "description": "RFC 3339 timestamp with an explicit UTC offset."
+          },
+          "valid_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "description": "RFC 3339 timestamp with an explicit UTC offset."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "authority": {
+            "type": "string",
+            "enum": [
+              "project-local",
+              "workspace-local",
+              "user-global",
+              "system",
+              "derived",
+              "sandbox-observation",
+              "host-observation",
+              "vendor-doc",
+              "installed-runtime",
+              "human-observed",
+              "self-asserted"
+            ],
+            "description": "Authority plane for a fact or observation. `self-asserted` is the lowest class — producer claims with no observation behind them — and cannot be promoted to any higher class per charter inv. 8 / inv. 18 chain-walk rejection."
+          },
+          "parser_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "authoritative",
+              "high",
+              "best-effort",
+              "stale",
+              "unknown"
+            ],
+            "description": "Confidence assigned to an observation by the producer."
+          }
+        },
+        "required": [
+          "evidence_id",
+          "source",
+          "observed_at",
+          "authority",
+          "confidence"
+        ],
+        "additionalProperties": false,
+        "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "workspace_context_id",
+    "execution_context_id",
+    "repository_id",
+    "worktree_path",
+    "workspace_context_state",
+    "kernel_observed_at",
+    "valid_until",
+    "producer",
+    "audit_chain_link_hash",
+    "evidence_refs"
+  ],
+  "additionalProperties": false,
+  "description": "Ring 0 WorkspaceContext entity from ADR 0050. Typed identity for a 1:1 worktree binding per ADR 0031 v1 §Sub-decision (a). Cross-context binding lives at Ring 1 mint API per registry §Cross-context enforcement layer."
+}

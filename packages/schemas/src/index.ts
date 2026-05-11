@@ -22,6 +22,22 @@ export {
   agentClientStateSchema,
 } from './entities/agent-client.ts';
 export {
+  type ApprovalGrant,
+  type ApprovalGrantKind,
+  type ApprovalGrantProducer,
+  type ApprovalGrantScope,
+  type ApprovalGrantState,
+  approvalGrantGateEvidenceAcknowledgmentScopeSchema,
+  approvalGrantKindSchema,
+  approvalGrantPrAbsenceAcknowledgmentScopeSchema,
+  approvalGrantProducerSchema,
+  approvalGrantSchema,
+  approvalGrantSchemaVersionSchema,
+  approvalGrantScopeSchema,
+  approvalGrantStateSchema,
+  approvalGrantWorktreeCleanAcknowledgmentScopeSchema,
+} from './entities/approval-grant.ts';
+export {
   type BackupCleanupDispositionKind,
   type BackupCredentialAuditabilityKind,
   type BackupCredentialCustodyObservation,
@@ -213,6 +229,21 @@ export {
   credentialStoragePlaneSchema,
 } from './entities/credential-source.ts';
 export {
+  type Decision,
+  type DecisionOutcome,
+  type DecisionProducer,
+  type DecisionReasonKind,
+  type DecisionRedactionMode,
+  type DecisionRequiredGrantKind,
+  decisionOutcomeSchema,
+  decisionProducerSchema,
+  decisionReasonKindSchema,
+  decisionRedactionModeSchema,
+  decisionRequiredGrantKindSchema,
+  decisionSchema,
+  decisionSchemaVersionSchema,
+} from './entities/decision.ts';
+export {
   type CleanupPlanHintStatus,
   cleanupPlanHintStatusSchema,
   type DerivedSummary,
@@ -286,6 +317,20 @@ export {
   knowledgeSourceSchema,
   knowledgeSourceSchemaVersionSchema,
 } from './entities/knowledge-source.ts';
+export {
+  type Lease,
+  type LeaseKind,
+  type LeaseProducer,
+  type LeaseScope,
+  type LeaseState,
+  leaseKindSchema,
+  leaseProducerSchema,
+  leaseSchema,
+  leaseSchemaVersionSchema,
+  leaseScopeSchema,
+  leaseStateSchema,
+  leaseWorktreeScopeSchema,
+} from './entities/lease.ts';
 export {
   coordinationFactDeletionAuthorityRefSchema,
   type DeletionAuthorityFields,
@@ -425,6 +470,20 @@ export {
   resourceBudgetObservationWindowSchema,
   resourceBudgetPayloadSchema,
 } from './entities/resource-budget-observation.ts';
+export {
+  type Run,
+  type RunKind,
+  type RunProducer,
+  type RunScope,
+  type RunState,
+  runKindSchema,
+  runOperationExecutionScopeSchema,
+  runProducerSchema,
+  runSchema,
+  runSchemaVersionSchema,
+  runScopeSchema,
+  runStateSchema,
+} from './entities/run.ts';
 export {
   type RunnerHostObservation,
   type RunnerHostPayload,
@@ -589,3 +648,12 @@ export {
   workflowRunPayloadSchema,
   workflowRunReceiptSchema,
 } from './entities/workflow-run-receipt.ts';
+export {
+  type WorkspaceContext,
+  type WorkspaceContextProducer,
+  type WorkspaceContextState,
+  workspaceContextProducerSchema,
+  workspaceContextSchema,
+  workspaceContextSchemaVersionSchema,
+  workspaceContextStateSchema,
+} from './entities/workspace-context.ts';

@@ -3,9 +3,9 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.4.11
-last_updated: 2026-05-09
-tags: [ontology, registry, registry-consolidation, phase-2-4, phase-2-7, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, remote-agent, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011]
+version: 0.4.16
+last_updated: 2026-05-11
+tags: [ontology, registry, registry-consolidation, phase-2-4, phase-2-7, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, remote-agent, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011, decision, workspace-context, approval-grant, lease, run, foundational-ring-0, workflow-sequencing-step-1]
 priority: high
 ---
 
@@ -440,6 +440,75 @@ Adding a new authority-class field to a payload requires:
 2. An `hcs-ontology-reviewer` pass before the schema PR using the new
    field lands.
 
+### ADR 0049–0053 foundational Ring 0 entity field authority
+
+The five workflow-sequencing investigation §Step 1 foundational Ring 0
+entities each commit an envelope-level authority-discipline posture per their
+respective ADRs. Cross-record enforcement (Session/Decision/ExecutionContext
+equality, lease uniqueness, producer-disjointness, gateway re-derive,
+self-approval rejection, valid_until inheritance, revoke-wins race
+tiebreaker, sandbox-acquire rejection, authorizing-Decision outcome
+verification) lives at Ring 1 mint API per §Cross-context enforcement layer
+§Schema validation alone is not an enforcement layer.
+
+**`Decision` (ADR 0049):** envelope-level kernel-set with NO field-level
+exceptions. All 14 fields are kernel-set; producer-supplied Decision records
+are rejected at the future Ring 1 mint API:
+`schema_version`, `decision_id`, `operation_shape_ref`, `outcome`,
+`reason_kind`, `reason_text`, `reason_text_redaction_mode`, `evidence_refs`,
+`decided_by`, `decided_at`, `valid_until`, `execution_context_id`,
+`audit_chain_link_hash`, `required_grant_kind`.
+
+**`WorkspaceContext` (ADR 0050):** envelope-level kernel-set with **two
+field-level exceptions** per ADR 0031 v1 §Authority discipline:
+
+- Kernel-set (9 fields): `schema_version`, `workspace_context_id`,
+  `execution_context_id`, `workspace_context_state`, `kernel_observed_at`,
+  `valid_until`, `producer`, `audit_chain_link_hash`, `evidence_refs`.
+- Producer-asserted, kernel-verifiable (2 fields): `repository_id`,
+  `worktree_path`. Layer 1 mint API verifies via filesystem stat +
+  `worktree_path` canonicalization per ADR 0031 v1 Mechanical Tweak #2 /
+  Security-D before cardinality checks. Rejection emits `Decision.reason_kind:
+  'lease_producer_assertion_unverifiable'` (per ADR 0052 reservation).
+
+**`ApprovalGrant` (ADR 0051 v4):** envelope-level kernel-set with NO
+field-level exceptions. All 13 fields are kernel-set; producer-supplied
+ApprovalGrant records are rejected at the future Ring 1 mint API:
+`schema_version`, `approval_grant_id`, `grant_kind`, `scope`,
+`minted_for_decision_id`, `grantor_principal_ref`, `granted_by`,
+`granted_at`, `valid_until`, `execution_context_id`, `grant_state`,
+`audit_chain_link_hash`, `evidence_refs`.
+
+**`Lease` (ADR 0052):** envelope-level kernel-set with **three field-level
+exceptions** per ADR 0031 v1 §Authority discipline:
+
+- Kernel-set (12 envelope-level fields): `schema_version`, `lease_id`,
+  `held_by_session_id`, `held_by_agent_client_id`, `acquired_by`,
+  `acquired_at`, `released_at`, `execution_context_id`, `lease_state`,
+  `force_break_grant_id`, `audit_chain_link_hash`, `evidence_refs`.
+- Producer-asserted, kernel-verifiable (3 envelope-level fields):
+  `lease_kind`, `scope` (the discriminated-union envelope field; for the
+  worktree branch internally carries `repository_id` + `workspace_context_id`
+  + `worktree_path` as sub-field producer-asserted-kernel-verifiable per the
+  granular-authority-declaration convention), `valid_until`. Layer 1 mint
+  API verifies per ADR 0031 v1 §Authority discipline; rejection emits
+  `Decision.reason_kind: 'lease_producer_assertion_unverifiable'`.
+
+**`Run` (ADR 0053):** envelope-level kernel-set with NO field-level
+exceptions (cleaner than Lease per ADR 0031 v1 mixed split because Run is
+purely kernel-observed). All 13 envelope-level fields are kernel-set:
+`schema_version`, `run_id`, `run_kind`, `scope`, `invoker_session_id`,
+`invoker_agent_client_id`, `recorded_by`, `started_at`, `ended_at`,
+`execution_context_id`, `run_state`, `audit_chain_link_hash`,
+`evidence_refs`.
+
+Schema-side enforcement: Zod cannot reach kernel state, so the producer-
+allowlist registration above + the per-entity `*ProducerSchema` enums (each
+of which excludes producers not authorized for that envelope) form the
+schema-checkable posture. Layer 1 mint API enforces the kernel-set
+allowlist + the producer-asserted-kernel-verifiable verification per the
+registered rules.
+
 ## Subject-kind grounding requirement
 
 Authority for this rule: ADR 0036 §Future amendments §Layer 1 grounding
@@ -802,11 +871,12 @@ values that are kernel-set when present in `Evidence.producer`:
 
 | Producer value | Source ADR | Kernel owner | Notes |
 |---|---|---|---|
-| `kernel_broker` | ADR 0028 | Ring 1 broker FSM | Broker-mediated invocation / watchdog producer class. |
+| `kernel_broker` | ADR 0028 | Ring 1 broker FSM | Broker-mediated invocation / watchdog producer class. Authorized on `ApprovalGrant.granted_by`, `Lease.acquired_by`, `Run.recorded_by`, `Decision.decided_by`. |
+| `kernel_gateway` | ADR 0049 | Ring 1 gateway re-derive | Gateway re-derive emits `Decision` records (`Decision.decided_by` allowlist). Intentionally EXCLUDED from `ApprovalGrant.granted_by`, `Lease.acquired_by`, and `Run.recorded_by` — the gateway is the non-escalable layer per §Layer-disagreement tiebreaker. |
 | `kernel_telemetry` | ADR 0028 | Ring 1 telemetry readers | Host process, kqueue, ptrace, and equivalent host telemetry. |
 | `kernel_agent_client_resolver` | ADR 0037 | Ring 1 agent-client resolver | Resolves AgentClient axes and remote-cloud execution-context surfaces. |
-| `kernel_workspace_diagnose` | ADR 0036 | Ring 1 workspace diagnose service | Mints workspace diagnostic outputs and manifest projections. |
-| `mint_api` | ADR 0028 | Ring 1 mint API | Kernel-set producer for synthetic or derived records. |
+| `kernel_workspace_diagnose` | ADR 0036, ADR 0050 | Ring 1 workspace diagnose service | Mints workspace diagnostic outputs, manifest projections, and `WorkspaceContext` identity records. |
+| `mint_api` | ADR 0028 | Ring 1 mint API | Kernel-set producer for synthetic or derived records. Authorized on `ApprovalGrant.granted_by`, `Lease.acquired_by`, `Run.recorded_by`, `Decision.decided_by`. |
 
 Producer-supplied values matching any row above remain rejected at the mint API
 until the future `Evidence.producer` kind-tagged schema lands. This table does
@@ -2313,6 +2383,331 @@ Mirror notes:
   evidence only. It is not project admission, `QualityGate.gate_kind`,
   `ApprovalGrant.scope`, `allowed_for_gate`, or policy behavior.
 
+### ADR 0049–0053 foundational Ring 0 entity enum mirrors
+
+The 2026-05-10 workflow-sequencing investigation §Step 1 landed five
+foundational Ring 0 entities (`Decision`, `WorkspaceContext`, `ApprovalGrant`,
+`Lease`, `Run`) via ADRs 0049 through 0053 (D-037 through D-041). Each entity
+ships its own `*SchemaVersionSchema = z.literal('0.1.0')` literal so version
+bumps stay per-entity. Cross-record refinements (Session/Decision/Execution
+Context equality, lease uniqueness, producer-disjointness, gateway re-derive,
+self-approval rejection, valid_until inheritance, revoke-wins race tiebreaker,
+sandbox-acquire rejection, authorizing-Decision outcome verification) live at
+Ring 1 mint API per §Cross-context enforcement layer §Schema validation alone
+is not an enforcement layer.
+
+The four authorization envelopes (Decision, ApprovalGrant, Lease, Run) commit
+an envelope-level Zod `superRefine` that mirrors `qualityGateSchema`'s
+chain-walk rejection on `evidence_refs` (and, for ApprovalGrant, scope-payload
+acknowledged_* refs). WorkspaceContext does not carry the chain-walk
+superRefine; it is a typed-identity envelope mirroring AgentClient.
+
+**Canonical-concatenation length-prefix discipline** (ADR 0051 v4 retroactive
+posture rule covering ADRs 0049/0050/0051/0052/0053): the `||` operator in any
+`audit_chain_link_hash` canonical-concatenation expression denotes
+length-prefix-encoded concatenation (each variable-length field encoded as
+`varint(byte_length) || field_bytes`). Defends against the
+concatenation-collision attack class. `'' for null` substitution applies to
+nullable hash-input fields. `schema_version` is excluded from the canonical
+concatenation per the jointly-committed posture.
+
+#### `Decision.outcome` enum mirror (ADR 0049)
+
+```
+allow | deny | informational
+```
+
+`informational` supports non-blocking flag events. `deny`-only `reason_kind`
+values reject when paired with `informational` per the outcome-compatibility
+refinement (closes audit-chain-launder surface).
+
+#### `Decision.decided_by` allowlist (ADR 0049)
+
+```
+mint_api | kernel_broker | kernel_gateway
+```
+
+`kernel_gateway` is NEW from ADR 0049 (gateway re-derive emits Decisions
+without minting Grants/Leases/Runs).
+
+#### `Decision.reason_kind` status table (after ADRs 0049–0053)
+
+15 Zod-defined values from ADR 0049 + 17 registry-canonical reservations from
+ADRs 0051 v4 (6), 0052 (6), and 0053 (5); 32 total. Future schema PRs Zod-lift
+the remaining reservations alongside the Ring 1 service or schema that
+consumes each.
+
+| Value | Source ADR | State | Outcome compatibility |
+|---|---|---|---|
+| `coordination_promotion_no_layer1_grounding` | 0036 / 0049 | Zod-defined | deny-only |
+| `deletion_authority_kind_ref_mismatch` | 0036 / 0049 | Zod-defined | deny-only |
+| `cleanup_plan_authority_source_stale` | 0047 / 0049 | Zod-defined | deny-only |
+| `cleanup_plan_target_under_active_lease` | 0047 / 0049 | Zod-defined | deny-only |
+| `worktree_lease_held_by_other_session` | 0031 / 0049 + 0052 | Zod-defined | deny-only |
+| `gate_provisional` | 0035 / 0049 | Zod-defined | informational-only |
+| `gate_denied` | 0035 / 0049 | Zod-defined | deny-only |
+| `gate_expired` | 0035 / 0049 | Zod-defined | deny-only |
+| `gate_evidence_insufficient` | 0035 / 0049 | Zod-defined | deny-only |
+| `gate_target_already_active` | 0035 / 0049 | Zod-defined | deny-only |
+| `gate_evidence_stale_reuse` | 0035 / 0049 | Zod-defined | deny-only |
+| `agent_client_axis_self_asserted` | 0037 / 0049 | Zod-defined | deny-only |
+| `containment_evidence_absent` | 0037 / 0049 | Zod-defined | deny-only |
+| `containment_evidence_producer_supplied` | 0037 / 0049 | Zod-defined | deny-only |
+| `containment_runtime_capability_exceeded` | 0037 / 0049 | Zod-defined | deny-only |
+| `grant_expired_at_consumption` | 0051 v4 | registry-canonical | deny-only |
+| `producer_disjointness_violation` | 0051 v4 (+ 0052, 0053 extensions) | registry-canonical | deny-only |
+| `consume_after_revoke_attempt` | 0051 v4 | registry-canonical | informational-only |
+| `required_grant_kind_unmet` | 0051 v4 | registry-canonical | deny-only |
+| `self_approval_rejected` | 0051 v4 | registry-canonical | deny-only |
+| `audit_chain_corruption_detected` | 0051 v4 | registry-canonical | deny-only |
+| `worktree_lease_expired_during_mutation` | 0031 / 0052 | registry-canonical | deny-only |
+| `worktree_not_in_workspace_context` | 0031 / 0052 | registry-canonical | deny-only |
+| `lease_acquire_sandbox_rejected` | 0031 / 0052 (Sec-F) | registry-canonical | deny-only |
+| `lease_release_unauthorized` | 0031 / 0052 (Sec-H) | registry-canonical | deny-only |
+| `lease_producer_assertion_unverifiable` | 0052 | registry-canonical | deny-only |
+| `coordination_fact_worktree_drift` | 0031 (pre-0052) | registry-canonical | deny-only |
+| `run_execution_context_unresolvable` | 0053 | registry-canonical | deny-only |
+| `run_authorizing_decision_unresolvable` | 0053 | registry-canonical | deny-only |
+| `run_invoker_session_mismatch` | 0053 | registry-canonical | deny-only |
+| `run_terminal_state_mutation_attempt` | 0053 | registry-canonical | deny-only |
+| `run_started_at_after_ended_at` | 0053 | registry-canonical | deny-only |
+
+#### Procedure for adding a new `Decision.reason_kind` value (ADR 0049)
+
+1. Cite the source ADR / charter rule that the reason_kind enforces.
+2. Classify outcome compatibility: deny-only, informational-only, or
+   `'either'` with a documented consumer for each variant.
+3. Update §Decision.reason_kind status table (Zod-defined vs
+   registry-canonical) at the same change-set.
+4. Pass `hcs-ontology-reviewer` (always); `hcs-policy-reviewer` if the
+   reason_kind classifies operations or gates; `hcs-security-reviewer` if the
+   reason_kind touches authority-discipline boundaries; `hcs-architect`
+   always.
+
+#### `WorkspaceContext` envelope (ADR 0050)
+
+- **Authority posture**: envelope-level kernel-set with two field-level
+  exceptions per ADR 0031 v1 §Authority discipline — `repository_id` and
+  `worktree_path` are producer-asserted, kernel-verifiable. All other fields
+  are kernel-set.
+- **Producer**: `workspaceContextProducerSchema = z.enum(['kernel_workspace_diagnose'])`
+  (named enum schema chosen over `z.literal` per ADR 0050 v3 to anticipate
+  forward-compatible allowlist widening).
+- **Lifecycle**: `workspace_context_state` is `active | retired`;
+  supersession-via-evidence_refs. Same-record refinement enforces
+  `valid_until == null` ↔ `state == 'active'`.
+- **Cross-context binding**: `execution_context_id` is the kernel-set FK
+  the Layer 1 mint API checks for `Lease` acquire equality per ADR 0031 v1
+  Mechanical Tweak #8 / Security-C.
+
+#### `ApprovalGrant.grant_kind` enum mirror (ADR 0051 v4)
+
+```
+gate_evidence_acknowledgment | worktree_clean_acknowledgment | pr_absence_acknowledgment
+```
+
+Closes all three registry §Decision.required_grant_kind reservations from
+ADRs 0030 + 0035. The `approvalGrantKindSchema` Zod source is re-used by
+`Decision.required_grant_kind` (single source of truth; no enum drift).
+
+| grant_kind | operation_class_scope (documentation) | Source ADR |
+|---|---|---|
+| `gate_evidence_acknowledgment` | union of `qualityGateOperationClassSchema` values | 0035 |
+| `worktree_clean_acknowledgment` | `destructive_git` | 0030 |
+| `pr_absence_acknowledgment` | `destructive_git` | 0030 |
+
+`operation_class_scope` is reviewer-discretion documentation; the structural
+defense for forbidden-tier non-escalability (charter inv. 6) lives upstream at
+`OperationShape.operation_class` enum closure (8-value closed enum, no
+`'forbidden'` value) + canonical policy YAML (Phase 2.5 / system-config).
+
+#### `ApprovalGrant.grant_state` enum mirror (ADR 0051 v4)
+
+```
+active | consumed | expired | revoked
+```
+
+#### `ApprovalGrant.granted_by` allowlist (ADR 0051 v4)
+
+```
+mint_api | kernel_broker
+```
+
+`kernel_gateway` intentionally excluded (gateway re-derive does not mint
+grants; gateway-decided Decisions inherit the gateway non-escalability
+layer). `kernel_dashboard` deferred to its own producer ADR coordinated
+change-set (which also re-introduces pre-emptive grants via nullable
+`minted_for_decision_id`).
+
+#### Procedure for adding a new `ApprovalGrant.grant_kind` value (ADR 0051 v4)
+
+1. Cite the source ADR / charter rule the grant_kind enforces.
+2. Identify `operation_class_scope` (which `OperationShape.operation_class`
+   values the grant can clear); confirm no `forbidden`-tier clearing path
+   opens (anchored to the enum closure).
+3. Classify outcome compatibility for any paired Decision.reason_kind
+   reservations (deny-only / informational-only / either).
+4. Declare single-use semantics + lifecycle transitions.
+5. Commit the typed scope shape (discriminated union branch); use
+   `qualityGateEvidenceRefSchema` for chain-aware preview; extend the
+   `approvalGrantSchema` envelope-level superRefine to walk the new
+   branch's evidence refs.
+6. Update §ApprovalGrant.grant_kind status table + paired
+   reason_kind reservations at the same change-set.
+7. Pass `hcs-ontology-reviewer`, `hcs-policy-reviewer`,
+   `hcs-security-reviewer`, `hcs-architect` (all four required).
+
+#### `Lease.lease_kind` status table (ADR 0052)
+
+| lease_kind | State | operation_class_scope (documentation) | Sandbox-acquire posture | Phase 1 valid_until ceiling |
+|---|---|---|---|---|
+| `worktree` | Zod-defined v1 | `{worktree_mutation, destructive_git, merge_or_push}` | blocked (charter inv. 8 / ADR 0031 v1 Security-F; rejection emits `lease_acquire_sandbox_rejected`) | 24h past `acquired_at` |
+| `credential_audience` | registry-canonical (ADR 0031 v1 §Out of scope) | TBD | TBD (future schema PR MUST commit "blocked" or "permitted with rationale" per §Procedure step 5) | TBD |
+| `external_target` | registry-canonical (ADR 0031 v1 §Out of scope) | TBD | TBD (future schema PR MUST commit "blocked" or "permitted with rationale" per §Procedure step 5) | TBD |
+
+#### `Lease.lease_state` enum mirror (ADR 0052)
+
+```
+active | expired | released | force_broken
+```
+
+#### `Lease.acquired_by` allowlist (ADR 0052)
+
+```
+mint_api | kernel_broker
+```
+
+`kernel_gateway` excluded by design (gateway re-derive does not mint leases).
+
+#### Worktree-lease cardinality discipline (ADR 0052 / ADR 0031 v1 Mechanical Tweak #6 / Security-G)
+
+For `lease_kind: 'worktree'`, at most one `active` Lease per
+`(repository_id, canonical(worktree_path))`. Layer 1 mint API enforces via
+atomic insert with unique constraint on `(repository_id,
+canonical(worktree_path), lease_state == 'active')`. TOCTOU defense:
+check-then-insert is non-conformant; atomic-insert-then-on-conflict is
+required.
+
+#### Force-break separation of duties (ADR 0052 / ADR 0031 v1 Security-H)
+
+Layer 1 mint API rejects force-break grants whose minter equals the target
+lease's `held_by_session_id`. Phase 1 interim posture: force-break grants are
+human-dashboard-minted only (not agent-mintable). The
+`worktree_lease_force_break_acknowledgment` grant_kind extension is deferred
+to the future `kernel_dashboard` producer ADR coordinated change-set (which
+also re-introduces pre-emptive grants).
+
+#### Procedure for adding a new `Lease.lease_kind` value (ADR 0052)
+
+1. Cite the source ADR / charter rule the lease_kind enforces.
+2. Identify `operation_class_scope` (anchored to the OperationShape enum
+   closure for forbidden-tier defense).
+3. Commit the typed scope shape; extend the `leaseSchema` envelope-level
+   superRefine to walk any scope-payload evidence refs (mirror of ADR 0051
+   v4 ApprovalGrant precedent — ADR 0052 MT-4 forward-look).
+4. Commit per-`lease_kind` cardinality discipline (1:1 with target resource,
+   or other shape).
+5. Commit per-`lease_kind` sandbox-acquire rule explicitly: "blocked" OR
+   "permitted with rationale". "No sandbox-acquire rule" is NOT a valid
+   §Procedure outcome (ADR 0052 MT-5).
+6. Commit per-`lease_kind` `valid_until` ceiling (Phase 1 default for
+   worktree is 24h).
+7. Update §Lease.lease_kind status table at the same change-set.
+8. Pass `hcs-ontology-reviewer`, `hcs-policy-reviewer`,
+   `hcs-security-reviewer`, `hcs-architect` (all four required).
+
+#### `Run.run_kind` status table (ADR 0053)
+
+| run_kind | State | Authorizing Decision | Invoker | operation_class_scope (documentation) |
+|---|---|---|---|---|
+| `operation_execution` | Zod-defined v1 | required (`outcome: 'allow'`) | session-invoker required | any of 8 `OperationShape.operation_class` values |
+| `system_task` | registry-canonical | TBD per future ADR | TBD per future ADR | TBD |
+| `diagnostic` | registry-canonical | TBD per future ADR | TBD per future ADR | TBD |
+
+#### `Run.run_state` enum mirror (ADR 0053)
+
+```
+active | succeeded | failed | aborted | timeout
+```
+
+5 values total: 1 active + 4 terminal. Same-record refinement enforces
+`ended_at == null` ↔ `run_state == 'active'` and `ended_at != null` ↔
+terminal state.
+
+#### `Run.recorded_by` allowlist (ADR 0053)
+
+```
+mint_api | kernel_broker
+```
+
+`kernel_gateway` excluded by design (gateway re-derive does not record Runs).
+
+#### `Evidence.run_id` typed FK target (ADR 0053)
+
+Closes the long-pending typed FK target referenced by 12 Phase 2 evidence
+subtypes (`credential-plane-evidence`, `backup-readiness-evidence`,
+`clean-room-smoke-receipt`, `project-substrate-evidence`,
+`runner-host-observation`, `resource-budget-observation`,
+`remote-agent-evidence`, `tool-provenance`, `source-control-evidence`,
+`git-identity-binding`, `policy-plan-receipt`, `workflow-run-receipt`) plus
+the `Evidence` base envelope's `run_id` field at `evidence.ts:114` and `:138`.
+ADR 0053 does NOT modify `evidenceSubjectKindSchema` (`'run'` was already
+Zod-defined at `evidence.ts:39`) and does NOT bump `Evidence.schema_version`;
+the FK shape was already producer-asserted `entityIdSchema`.
+
+Charter inv. 18 §Run-forbidden-in-derived_from rule remains unchanged: Run
+records cannot be cited as authority for DerivedSummary promotion. The
+`runSchema` envelope-level superRefine applies inv. 18 chain-walk rejection
+to Run's own `evidence_refs`.
+
+Charter inv. 17 §Forbidden patterns clause (charter v1.3.1 line 138)
+operationalizes Run execution-context traceability: emitting a Run whose
+execution context cannot be traced to a Ring 0 `ExecutionContext` is
+forbidden. Closed structurally via kernel-set `Run.execution_context_id` +
+Ring 1 mint API verification of ExecutionContext resolution +
+`run_execution_context_unresolvable` reason_kind.
+
+#### Procedure for adding a new `Run.run_kind` value (ADR 0053)
+
+1. Cite the source ADR / charter rule the run_kind enforces.
+2. Identify `operation_class_scope` (or commit "no operation_class binding"
+   for kernel-initiated run_kinds).
+3a. Commit the typed scope shape.
+3b. Commit envelope-level superRefine chain-walk extension for any scope
+   branch's evidence refs (per ADR 0052 MT-4 forward-look; committing only
+   the shape without the walk extension would silently lose inv. 18
+   enforcement).
+4. Commit authorizing-Decision requirement (required vs not; valid outcomes).
+5. Commit invoker requirement (session-invoker vs kernel-as-invoker).
+6. Commit sandbox-execution rule explicitly: "blocked" OR "permitted with
+   rationale". "No sandbox-execution rule" is NOT a valid §Procedure outcome
+   (ADR 0052 MT-5 / ADR 0053 forward-look).
+7. Commit terminal-state set (v1 `operation_execution`: `{succeeded, failed,
+   aborted, timeout}`; future run_kinds may narrow or extend).
+8. Update §Run.run_kind status table at the same change-set.
+9. Pass `hcs-ontology-reviewer`, `hcs-policy-reviewer`,
+   `hcs-security-reviewer`, `hcs-architect` (all four required).
+
+#### D-037 producer-disjointness rule (ADRs 0049 + 0051 v4 + 0052 + 0053)
+
+A `Decision` with non-null `required_grant_kind` MUST NOT be satisfied by an
+`ApprovalGrant` whose `granted_by` producer class equals the `Decision.decided_by`
+producer class. Extended to:
+
+- **Lease-acquire** (ADR 0052): a Lease MUST NOT be acquired by a producer
+  class equal to the `Decision.decided_by` of the Decision authorizing the
+  underlying operation when both records share a chain-relation.
+- **Run-record** (ADR 0053): a Run MUST NOT be recorded by a producer class
+  equal to the `Decision.decided_by` of the `authorizing_decision_id`-
+  referenced Decision when both records share a chain-relation.
+
+Producer equality is checked by class identity, not by delegation chain.
+Ring 1 mint API enforces by walking the `derived_from` closure (walk-depth
+budget ≤ 64 records; cycle-rejection via
+`audit_chain_corruption_detected`). Both the same-step rule (ADR 0049) and
+the cross-step extension (ADR 0051 v4) survive as facets of the same
+disjointness invariant.
+
 ## Boundary dimension registry
 
 Entries are alphabetised by name. Status reflects ontology review on this
@@ -2958,6 +3353,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.4.16 | 2026-05-11 | Recorded the workflow-sequencing investigation §Step 1 foundational Ring 0 entities (`Decision`, `WorkspaceContext`, `ApprovalGrant`, `Lease`, `Run`) per ADRs 0049–0053 / D-037–D-041. New §ADR 0049–0053 foundational Ring 0 entity enum mirrors section consolidates: §Decision.outcome enum mirror, §Decision.decided_by allowlist (adds `kernel_gateway`), §Decision.reason_kind status table (15 Zod-defined + 17 registry-canonical = 32 total reservations), §Decision §Procedure rule for new reason_kind values, §WorkspaceContext envelope (envelope-level kernel-set with 2 producer-asserted-kernel-verifiable exceptions per ADR 0031 v1), §ApprovalGrant.grant_kind enum mirror (3 Zod-defined), §ApprovalGrant.grant_state enum mirror, §ApprovalGrant.granted_by allowlist (excludes `kernel_gateway`), §ApprovalGrant §Procedure rule, §Lease.lease_kind status table (1 Zod-defined `worktree` + 2 registry-canonical reservations from ADR 0031 v1), §Lease.lease_state enum mirror, §Lease.acquired_by allowlist (excludes `kernel_gateway`), §Worktree-lease cardinality discipline (atomic-insert uniqueness per ADR 0031 v1 Mechanical Tweak #6 / Security-G), §Force-break separation of duties (ADR 0031 v1 Security-H; Phase 1 human-dashboard-only posture), §Lease §Procedure rule, §Run.run_kind status table (1 Zod-defined `operation_execution` + 2 registry-canonical reservations), §Run.run_state enum mirror, §Run.recorded_by allowlist (excludes `kernel_gateway`), §Evidence.run_id typed FK target closure (12 Phase 2 evidence subtypes per ADR 0053 MT-3), §Run §Procedure rule, §D-037 producer-disjointness rule (extended to Lease-acquire and Run-record cases). Updated §Kernel-trusted producer allowlist final state: added `kernel_gateway` row; extended `kernel_workspace_diagnose` scope to include `WorkspaceContext` identity records; clarified per-producer entity-field authorization scope across the new envelopes. Length-prefix canonical-concatenation discipline registered as a posture rule covering all foundational entity `audit_chain_link_hash` computations (ADR 0051 v4 retroactive). All cross-record refinements (Session/Decision/ExecutionContext equality, lease uniqueness, producer-disjointness, gateway re-derive, self-approval rejection, valid_until inheritance, revoke-wins race tiebreaker, sandbox-acquire rejection, authorizing-Decision outcome verification) remain Ring 1 mint API responsibility per §Cross-context enforcement layer §Schema validation alone is not an enforcement layer. |
 | 0.4.11 | 2026-05-09 | Replaced §Open follow-up evaluations with §Phase 2.7 candidate dispositions per ADR 0048 (proposed). Records the per-candidate classification for `machine_identity`, `project_substrate_contract`, and backup-readiness subject_kinds IF a future schema PR promotes them into `coordinationSubjectKindSchema`; default for all three is no enum addition unless a concrete coordination need surfaces. Currently none of the three are in `coordinationSubjectKindSchema`. |
 | 0.4.10 | 2026-05-09 | Added §Subject-kind grounding requirement section registering the ADR 0036 §Future amendments §Layer 1 grounding rule extensibility principle as a discoverable registry rule. Catalogues current `CoordinationFact.subject_kind` values per the rule (two derived/Layer-2-backed values committed by ADR 0036; seven host-observation-backed values inheriting ADR 0019 v3's chain-promotion rule), commits the procedure for future schema PRs introducing new subject_kind values, and notes open follow-up evaluations for Phase 2.7 subject_kinds (`machine_identity`, `project_substrate_contract`, backup-readiness). Authority is the existing ADR 0036; no new ADR. Matches the recent §Predicate-kind vocabulary registry-promotion pattern. |
 | 0.4.9 | 2026-05-09 | Closed pre-existing source-vs-ledger drift on `OperationShape.schema_version`: introduced entity-specific `operationShapeSchemaVersionSchema = z.literal('0.2.0')` in source to match the registry-ledger row that has read `0.2.0` since Phase 2.2.2. Authority is the existing ADR 0036 Phase 2.2.2 deletion-authority extension; no new ADR. Registry-ledger row Notes column tightened to record the closure and the no-bump treatment of the ADR 0047 cleanup_plan addition. |

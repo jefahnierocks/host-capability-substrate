@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 import {
   agentClientSchema,
+  approvalGrantSchema,
   backupCredentialCustodyObservationSchema,
   backupReadinessObservationSchema,
   boundaryObservationSchema,
@@ -11,6 +12,7 @@ import {
   coordinationFactSchema,
   credentialAuthorityObservationSchema,
   credentialSourceSchema,
+  decisionSchema,
   derivedSummarySchema,
   envProvenanceSchema,
   evidenceSchema,
@@ -25,6 +27,7 @@ import {
   gitWorktreeObservationSchema,
   knowledgeChunkSchema,
   knowledgeSourceSchema,
+  leaseSchema,
   machineIdentityBindingObservationSchema,
   mcpCredentialAudienceObservationSchema,
   operationShapeSchema,
@@ -46,11 +49,13 @@ import {
   rulesetObservationSchema,
   runnerHostObservationSchema,
   runnerIsolationObservationSchema,
+  runSchema,
   startupPhaseSchema,
   statusCheckSourceObservationSchema,
   toolProvenanceSchema,
   verificationCommandSpecSchema,
   workflowRunReceiptSchema,
+  workspaceContextSchema,
 } from '../src/index.ts';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -164,6 +169,11 @@ const schemaEntries: SchemaEntry[] = [
     schema: agentClientSchema,
   },
   {
+    file: 'ApprovalGrant.schema.json',
+    title: 'ApprovalGrant',
+    schema: approvalGrantSchema,
+  },
+  {
     file: 'BoundaryObservation.schema.json',
     title: 'BoundaryObservation',
     schema: boundaryObservationSchema,
@@ -198,6 +208,11 @@ const schemaEntries: SchemaEntry[] = [
     file: 'CoordinationFact.schema.json',
     title: 'CoordinationFact',
     schema: coordinationFactSchema,
+  },
+  {
+    file: 'Decision.schema.json',
+    title: 'Decision',
+    schema: decisionSchema,
   },
   {
     file: 'DerivedSummary.schema.json',
@@ -305,6 +320,11 @@ const schemaEntries: SchemaEntry[] = [
     schema: knowledgeSourceSchema,
   },
   {
+    file: 'Lease.schema.json',
+    title: 'Lease',
+    schema: leaseSchema,
+  },
+  {
     file: 'OperationShape.schema.json',
     title: 'OperationShape',
     schema: operationShapeSchema,
@@ -366,6 +386,11 @@ const schemaEntries: SchemaEntry[] = [
     schema: resourceBudgetObservationSchema,
   },
   {
+    file: 'Run.schema.json',
+    title: 'Run',
+    schema: runSchema,
+  },
+  {
     file: 'RunnerHostObservation.schema.json',
     title: 'RunnerHostObservation',
     schema: runnerHostObservationSchema,
@@ -400,6 +425,11 @@ const schemaEntries: SchemaEntry[] = [
     file: 'WorkflowRunReceipt.schema.json',
     title: 'WorkflowRunReceipt',
     schema: workflowRunReceiptSchema,
+  },
+  {
+    file: 'WorkspaceContext.schema.json',
+    title: 'WorkspaceContext',
+    schema: workspaceContextSchema,
   },
 ];
 

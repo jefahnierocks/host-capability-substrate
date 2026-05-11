@@ -1,0 +1,282 @@
+{
+  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/Decision.schema.json",
+  "title": "Decision",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0",
+      "description": "Decision schema version (ADR 0049; M1 foundational entity #1; D-037)."
+    },
+    "decision_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "operation_shape_ref": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "outcome": {
+      "type": "string",
+      "enum": [
+        "allow",
+        "deny",
+        "informational"
+      ],
+      "description": "Decision outcome discriminator (ADR 0049). `informational` supports non-blocking flag events; `allow` and `deny` carry standard gate-decision semantics."
+    },
+    "reason_kind": {
+      "type": "string",
+      "enum": [
+        "coordination_promotion_no_layer1_grounding",
+        "deletion_authority_kind_ref_mismatch",
+        "cleanup_plan_authority_source_stale",
+        "cleanup_plan_target_under_active_lease",
+        "worktree_lease_held_by_other_session",
+        "gate_provisional",
+        "gate_denied",
+        "gate_expired",
+        "gate_evidence_insufficient",
+        "gate_target_already_active",
+        "gate_evidence_stale_reuse",
+        "agent_client_axis_self_asserted",
+        "containment_evidence_absent",
+        "containment_evidence_producer_supplied",
+        "containment_runtime_capability_exceeded"
+      ],
+      "description": "Initial Zod-defined Decision.reason_kind union (ADR 0049 v1; 15 values chosen by enforcement-readiness criterion). 21+ additional reservations remain registry-canonical-pending per the registered §Procedure rule."
+    },
+    "reason_text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "reason_text_redaction_mode": {
+      "type": "string",
+      "enum": [
+        "redacted",
+        "classified",
+        "hash_only",
+        "reference_only",
+        "mixed"
+      ],
+      "description": "Decision.reason_text_redaction_mode (ADR 0049). Excludes `none` per the §Decision §Redaction-mode floor rule; bounded length 256 chars enforced separately."
+    },
+    "evidence_refs": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "evidence_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+            "description": "Reference to an Evidence record or fixture."
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Human-readable source name or artifact path."
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+            "description": "RFC 3339 timestamp with an explicit UTC offset."
+          },
+          "valid_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "description": "RFC 3339 timestamp with an explicit UTC offset."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "authority": {
+            "type": "string",
+            "enum": [
+              "project-local",
+              "workspace-local",
+              "user-global",
+              "system",
+              "derived",
+              "sandbox-observation",
+              "host-observation",
+              "vendor-doc",
+              "installed-runtime",
+              "human-observed",
+              "self-asserted"
+            ],
+            "description": "Authority plane for a fact or observation. `self-asserted` is the lowest class — producer claims with no observation behind them — and cannot be promoted to any higher class per charter inv. 8 / inv. 18 chain-walk rejection."
+          },
+          "parser_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "authoritative",
+              "high",
+              "best-effort",
+              "stale",
+              "unknown"
+            ],
+            "description": "Confidence assigned to an observation by the producer."
+          },
+          "evidence_chain_refs": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "record_kind": {
+                  "type": "string",
+                  "enum": [
+                    "evidence",
+                    "boundary_observation",
+                    "coordination_fact",
+                    "derived_summary",
+                    "knowledge_chunk",
+                    "quality_gate"
+                  ],
+                  "description": "Record kind in a QualityGate evidence-chain preview."
+                },
+                "record_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                  "description": "Stable local entity identifier. It is not a secret value."
+                },
+                "authority": {
+                  "type": "string",
+                  "enum": [
+                    "project-local",
+                    "workspace-local",
+                    "user-global",
+                    "system",
+                    "derived",
+                    "sandbox-observation",
+                    "host-observation",
+                    "vendor-doc",
+                    "installed-runtime",
+                    "human-observed",
+                    "self-asserted"
+                  ],
+                  "description": "Authority plane for a fact or observation. `self-asserted` is the lowest class — producer claims with no observation behind them — and cannot be promoted to any higher class per charter inv. 8 / inv. 18 chain-walk rejection."
+                },
+                "allowed_for_gate": {
+                  "type": "boolean"
+                },
+                "gate_state": {
+                  "type": "string",
+                  "enum": [
+                    "provisional",
+                    "proven",
+                    "expired",
+                    "denied"
+                  ],
+                  "description": "QualityGate lifecycle state from ADR 0035."
+                }
+              },
+              "required": [
+                "record_kind",
+                "record_id",
+                "authority"
+              ],
+              "additionalProperties": false,
+              "description": "Typed evidence-chain preview used for QualityGate invariant checks."
+            }
+          }
+        },
+        "required": [
+          "evidence_id",
+          "source",
+          "observed_at",
+          "authority",
+          "confidence",
+          "evidence_chain_refs"
+        ],
+        "additionalProperties": false,
+        "description": "QualityGate evidence reference with typed transitive-chain preview."
+      }
+    },
+    "decided_by": {
+      "type": "string",
+      "enum": [
+        "mint_api",
+        "kernel_broker",
+        "kernel_gateway"
+      ],
+      "description": "Kernel-trusted producer allowlist for Decision.decided_by (ADR 0049). `kernel_gateway` is NEW for Decision (gateway re-derive emits Decisions); `mint_api` + `kernel_broker` from ADR 0028."
+    },
+    "decided_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+      "description": "RFC 3339 timestamp with an explicit UTC offset."
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+      "description": "RFC 3339 timestamp with an explicit UTC offset."
+    },
+    "execution_context_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "audit_chain_link_hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "SHA-256 digest with algorithm prefix. It is not reversible secret material."
+    },
+    "required_grant_kind": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "gate_evidence_acknowledgment",
+            "worktree_clean_acknowledgment",
+            "pr_absence_acknowledgment"
+          ],
+          "description": "Decision.required_grant_kind alias for the canonical approvalGrantKindSchema. Shared source prevents enum drift between Decision and ApprovalGrant (ADR 0049 + ADR 0051 v4 cross-reference commitment)."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "decision_id",
+    "operation_shape_ref",
+    "outcome",
+    "reason_kind",
+    "reason_text",
+    "reason_text_redaction_mode",
+    "evidence_refs",
+    "decided_by",
+    "decided_at",
+    "valid_until",
+    "execution_context_id",
+    "audit_chain_link_hash",
+    "required_grant_kind"
+  ],
+  "additionalProperties": false,
+  "description": "Ring 0 Decision entity from ADR 0049. Typed envelope for gate-decision records. Envelope-level kernel-set; chain-walk rejection at envelope superRefine mirrors qualityGateSchema (charter inv. 8 + inv. 18). Outcome-compatibility refinement closes audit-chain-launder surface. Cross-record refinements (D-037 producer-disjointness, audit-chain link continuity, cross-context substitution defense) live at Ring 1 mint API per registry §Cross-context enforcement layer."
+}

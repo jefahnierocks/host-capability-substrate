@@ -3,9 +3,9 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.13.1
-last_updated: 2026-05-09
-tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan]
+version: 1.14.0
+last_updated: 2026-05-11
+tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan, decision, workspace-context, approval-grant, lease, run, foundational-ring-0]
 priority: high
 ---
 
@@ -1131,6 +1131,227 @@ teardown evidence refs. Future policy decides whether that satisfies any
 waiver or admission condition; this observation is not project admission or
 gate authority by itself.
 
+## Workflow-Sequencing Step 1 Foundational Ring 0 Entities
+
+ADRs 0049–0053 introduce the five foundational Ring 0 entities the 2026-05-10
+workflow-sequencing investigation §Step 1 names. Each entity ships its own
+`schema_version` literal (`decisionSchemaVersionSchema`,
+`workspaceContextSchemaVersionSchema`, `approvalGrantSchemaVersionSchema`,
+`leaseSchemaVersionSchema`, `runSchemaVersionSchema`) so version bumps stay
+per-entity. All five entities are envelope-level kernel-set; cross-record
+refinements (Session/Decision/ExecutionContext equality, lease uniqueness,
+producer-disjointness, gateway re-derive, valid_until inheritance,
+self-approval rejection) live at Ring 1 mint API per registry §Cross-context
+enforcement layer §Schema validation alone is not an enforcement layer.
+
+The four Ring 0 entities that authorize or attribute operation execution
+(`Decision`, `ApprovalGrant`, `Lease`, `Run`) commit an envelope-level
+superRefine on `evidence_refs` that mirrors `qualityGateSchema`: it rejects
+direct `KnowledgeChunk` / `DerivedSummary` references, `sandbox-observation`
+and `self-asserted` authorities, and unpromoted `coordination_fact` /
+`derived_summary` chain refs. The walk fires unconditionally (no state-gating)
+because these envelopes authorize host-mutation surfaces at every lifecycle
+state. `WorkspaceContext` does not carry the chain-walk refinement; it mirrors
+`AgentClient` as a typed-identity envelope.
+
+### `Decision`
+
+Source: `packages/schemas/src/entities/decision.ts`
+
+Typed envelope for gate-decision records (ADR 0049 / D-037). Every kernel
+rejection emits a `Decision` per registry §Audit-chain coverage of rejections.
+
+Key fields:
+
+- `outcome` is `allow | deny | informational`. Outcome-compatibility is
+  refined at the schema layer: `deny`-only `reason_kind` values reject when
+  paired with `informational`, and the v1 enum has no `allow`-compatible value
+  (future ADRs may add allow-compatible reason_kinds via the §Procedure rule).
+- `reason_kind` is a closed Zod enum of 15 v1 values from ADR 0049 (12
+  deny-only + `gate_provisional` informational-only + 2 worktree/cleanup
+  deny-only). 21+ additional reservations remain registry-canonical pending
+  Ring 1 mint API schema PRs per the registered §Procedure for adding a new
+  reason_kind value rule.
+- `reason_text` is bounded to 1–256 characters; `reason_text_redaction_mode`
+  uses `decisionRedactionModeSchema` (which excludes `'none'`). Resolved-
+  secret substring scrubbing runs at Ring 1 mint per registry §Redaction
+  posture.
+- `required_grant_kind` reuses `approvalGrantKindSchema` directly (no
+  duplicate enum) to prevent drift with ApprovalGrant.
+- `decided_by` is one of `mint_api`, `kernel_broker`, `kernel_gateway`. The
+  gateway re-derive emits Decisions but does not mint Grants/Leases/Runs.
+- `audit_chain_link_hash` carries the per-record chain link; the canonical
+  concatenation uses length-prefix-encoded `||` per ADR 0051 v4 retroactive
+  posture rule. The prior-link hash is a Ring 1 mint input, not a schema
+  field.
+- `valid_until` is non-null per charter inv. 19; freshness binding for
+  gateway re-derive consumption.
+
+`Decision` is envelope-level kernel-set with no field-level exceptions.
+Producer-supplied `Decision` records are rejected at the future Ring 1 mint
+API per registry §Producer-vs-kernel-set authority fields. Decisions are
+immutable once minted; supersession is via a NEW Decision record citing the
+prior in `evidence_refs`.
+
+### `WorkspaceContext`
+
+Source: `packages/schemas/src/entities/workspace-context.ts`
+
+Typed identity for a 1:1 worktree binding (ADR 0050 / D-038). Closes the FK
+target previously satisfied only by string identifiers in
+`CoordinationFact.subjectRefSchemas.workspace_context`,
+`VerificationCommandSpec.workspace_context_id`, and the ADR 0036
+`audit_profile_snapshot.workspace_context_id` reference.
+
+Key fields:
+
+- `workspace_context_state` is `active | retired`; lifecycle transitions
+  produce NEW WorkspaceContext records citing the prior in `evidence_refs`.
+  Same-record refinement enforces `valid_until == null` for active records
+  and `valid_until != null` for retired records.
+- `execution_context_id` is kernel-set per ADR 0031 v1 Mechanical Tweak #8 /
+  Security-C. Layer 1 mint API enforces `WorkspaceContext.execution_context_id
+  == Session.execution_context_id` when leases are acquired.
+- `repository_id` and `worktree_path` are producer-asserted,
+  kernel-verifiable per ADR 0031 v1 §Authority discipline; Layer 1 verifies
+  via filesystem stat + `worktree_path` canonicalization per Mechanical
+  Tweak #2 / Security-D before cardinality checks.
+- `producer` is a named enum (`workspaceContextProducerSchema`) limited to
+  `kernel_workspace_diagnose` at v1; chosen over `z.literal` per ontology
+  reviewer Option 2 for forward-compatible allowlist widening.
+- `audit_chain_link_hash` and `evidence_refs` mirror the `AgentClient`
+  pattern.
+
+WorkspaceContext does not carry the chain-walk envelope superRefine; it is a
+typed-identity envelope rather than an authorization envelope. The
+`workspace_context` Evidence subject_kind is unchanged by this addition.
+
+### `ApprovalGrant`
+
+Source: `packages/schemas/src/entities/approval-grant.ts`
+
+Typed envelope for gate-decision-override grants (ADR 0051 v4 / D-039).
+Closes the three registry §Decision.required_grant_kind reservations from
+ADR 0030 + ADR 0035; `approvalGrantKindSchema` is the canonical source the
+Decision entity re-imports for `required_grant_kind`.
+
+Key fields:
+
+- `grant_kind` is a closed Zod enum: `gate_evidence_acknowledgment`,
+  `worktree_clean_acknowledgment`, `pr_absence_acknowledgment`. Future
+  grant_kinds (e.g., a class-I cleanup acknowledgment) follow the registered
+  §Procedure rule.
+- `scope` is a discriminated union on `grant_kind` carrying the typed
+  acknowledged-evidence refs each branch requires:
+  `acknowledged_evidence_refs[]` (gate), `acknowledged_dirty_state_evidence_ref`
+  (worktree clean), or `acknowledged_pr_absence_evidence_ref` (pr absence).
+  `pr_absence_acknowledgment.branch_ref` is constrained to git-ref grammar
+  via `gitBranchRefSchema`.
+- `minted_for_decision_id` is non-null at v1; pre-emptive grants are deferred
+  to the future `kernel_dashboard` producer ADR as a coordinated change-set.
+- `granted_by` is one of `mint_api`, `kernel_broker`. `kernel_gateway` is
+  intentionally excluded by design (gateway re-derive is the non-escalable
+  layer).
+- `grant_state` is `active | consumed | expired | revoked`; lifecycle
+  transitions produce NEW ApprovalGrant records via supersession.
+- The envelope-level superRefine walks `evidence_refs` AND every
+  scope-payload acknowledged_* ref unconditionally per charter inv. 18.
+- Same-record refinement enforces `valid_until > granted_at` and
+  envelope `grant_kind == scope.grant_kind`.
+
+Cross-record rules (D-037 cross-step producer-disjointness; cardinality of
+one `active` grant per `minted_for_decision_id`; self-approval rejection with
+Unicode NFC + lowercase + whitespace canonicalization against consuming
+session principal; `valid_until <= Decision.valid_until` inheritance;
+consumption-time freshness re-check; revoke-wins tiebreaker producing
+paired typed Decisions) live at Ring 1 mint API per registry §Cross-context
+enforcement layer.
+
+### `Lease`
+
+Source: `packages/schemas/src/entities/lease.ts`
+
+Typed envelope for session-scoped resource holds (ADR 0052 / D-040). v1
+implements the worktree lease per ADR 0031 v1 §Lease entity field-shape
+posture commitment.
+
+Key fields:
+
+- `lease_kind` is `worktree` at v1 (single-value closed enum).
+  `credential_audience` and `external_target` are registry-canonical
+  reservations from ADR 0031 v1 §Out of scope; future schema PRs land them
+  per the registered §Procedure rule.
+- `scope.worktree` carries `repository_id`, `workspace_context_id`, and
+  `worktree_path` (producer-asserted, kernel-verifiable; Layer 1
+  canonicalizes path per ADR 0031 v1 Mechanical Tweak #2 / Security-D before
+  the cardinality check on `(repository_id, canonical(worktree_path),
+  lease_state == 'active')`).
+- `held_by_session_id` + `held_by_agent_client_id` attribute the holder.
+- `lease_state` is `active | expired | released | force_broken`. Same-record
+  refinement enforces lease_state ↔ released_at correlation and
+  force_break_grant_id ↔ lease_state == 'force_broken' correlation.
+- `acquired_by` is one of `mint_api`, `kernel_broker`; `kernel_gateway`
+  excluded by design.
+- `force_break_grant_id` is nullable at v1. The
+  `worktree_lease_force_break_acknowledgment` grant_kind is deferred to the
+  future `kernel_dashboard` producer ADR coordinated change-set; Ring 1
+  rejects any non-null value at v1.
+- The envelope-level superRefine walks `evidence_refs` unconditionally per
+  charter inv. 18. v1 worktree scope has no scope-payload acknowledged_*
+  refs; future lease_kinds whose scope branches add them must extend the
+  envelope walk per the §Procedure rule.
+
+Cross-record rules (atomic worktree-uniqueness insert, sandbox-acquire
+rejection per charter inv. 8, holder-only release, force-break
+separation-of-duties, D-037 producer-disjointness cross-step extension,
+`valid_until <= 24h past acquired_at` Phase 1 ceiling, producer-assertion
+verification) live at Ring 1 mint API.
+
+### `Run`
+
+Source: `packages/schemas/src/entities/run.ts`
+
+Typed envelope for the execution receipt of every authorized operation
+(ADR 0053 / D-041). Closes the long-pending typed FK target for
+`Evidence.run_id` referenced by 12 Phase 2 evidence subtypes without
+modifying `Evidence.subject_kind` or bumping `Evidence.schema_version`.
+
+Key fields:
+
+- `run_kind` is `operation_execution` at v1 (single-value closed enum).
+  `system_task` and `diagnostic` remain registry-canonical reservations
+  pending future schema PRs per the §Procedure rule.
+- `scope.operation_execution` carries `operation_shape_ref` and
+  `authorizing_decision_id` (a typed FK to the Decision with `outcome:
+  'allow'` that authorized this Run; Layer 1 verifies outcome at Run creation
+  time).
+- `invoker_session_id` + `invoker_agent_client_id` attribute the invoker per
+  registry attribution discipline.
+- `recorded_by` is one of `mint_api`, `kernel_broker`; `kernel_gateway`
+  excluded by design (gateway re-derive does not record Runs).
+- `run_state` is `active | succeeded | failed | aborted | timeout` (1 active
+  + 4 terminal). Same-record refinement enforces `ended_at == null` ↔
+  `run_state == 'active'` and `ended_at != null` ↔ terminal state.
+- Same-record refinement enforces `ended_at == null || ended_at >=
+  started_at`; this is the ONE NEW schema-level refinement accepted in
+  ADR 0053 (the scope/envelope `run_kind` agreement check and the
+  `run_state` ↔ `ended_at` correlation are inherited patterns from
+  Lease/ApprovalGrant precedent, not NEW commitments).
+- The envelope-level superRefine walks `evidence_refs` unconditionally per
+  charter inv. 18. v1 operation_execution scope has no scope-payload
+  acknowledged_* refs; future run_kinds whose scope branches add them must
+  extend the envelope walk per the §Procedure rule.
+- All 13 envelope-level fields are kernel-set (no producer-asserted
+  exceptions — cleaner than Lease per ADR 0031 v1 mixed split because Run is
+  purely kernel-observed).
+
+Cross-record rules (`Run.execution_context_id == invoker_session.execution_
+context_id`, `Run.execution_context_id == authorizing_decision.execution_
+context_id`, authorizing-Decision outcome verification, mid-run
+terminal-state mutation rejection, D-037 producer-disjointness extension to
+Run-vs-authorizing-Decision) live at Ring 1 mint API per registry
+§Cross-context enforcement layer.
+
 ## Phase 1 Boundary Observation Envelope
 
 ### `BoundaryObservation`
@@ -1402,6 +1623,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.14.0 | 2026-05-11 | Added the workflow-sequencing investigation §Step 1 foundational Ring 0 entities (`Decision`, `WorkspaceContext`, `ApprovalGrant`, `Lease`, `Run`) per ADRs 0049–0053 / D-037–D-041. Each entity has its own `*SchemaVersionSchema` literal at `'0.1.0'`. The four authorization envelopes (Decision, ApprovalGrant, Lease, Run) commit envelope-level superRefines for charter inv. 18 chain-walk rejection; WorkspaceContext mirrors AgentClient as a typed-identity envelope. Cross-record refinements (Session/Decision/ExecutionContext equality, lease uniqueness, producer-disjointness, gateway re-derive, self-approval rejection, valid_until inheritance, revoke-wins race tiebreaker, sandbox-acquire rejection) remain Ring 1 mint API responsibility per registry §Cross-context enforcement layer §Schema validation alone is not an enforcement layer. |
 | 1.13.1 | 2026-05-09 | Closed pre-existing source-vs-ledger drift on `OperationShape.schema_version`: source now exports `operationShapeSchemaVersionSchema = z.literal('0.2.0')` matching the registry ledger that has read `0.2.0` since Phase 2.2.2. ADR 0036 is the existing authority; no new ADR. |
 | 1.13.0 | 2026-05-09 | Recorded ADR 0047 cleanup-plan composition first schema slice: `cleanup_plan` operation_class on `OperationShape` (with `mutation_scope: "none"` and `target_kind: "workspace"` narrowing), `cleanup_plan` summary_kind on `DerivedSummary` (with Zod refinement constraining `summary_text` to the closed hint-status enum), `qualityGateOperationClassSchema` reconciled with `operationShapeOperationClassSchema` (adds both `workspace_verify` and `cleanup_plan`). Additive enum widenings only; no entity schema-version bumps. Decision.reason_kind reservations and cleanup_scope enum remain registry-canonical pending Ring 1 mint API schema PR. |
 | 1.12.0 | 2026-05-09 | Recorded the `evidenceAuthoritySchema` `self-asserted` enum extension closing ADR 0039 §Forward-looking observations #5 (Arch-N12 / Pol-N2 / Sec-N-v2-2). Added the §Phase 2.7 narrative paragraph documenting the `Evidence.schema_version` bump to `0.10.0` and the inv. 18 chain-walk linkage; updated the §Provenance on every fact JSON example to use `0.10.0` and the eleven-value authority union. |

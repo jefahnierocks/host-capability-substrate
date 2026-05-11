@@ -5,54 +5,73 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Upstream research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — Foundational ADR train accepted; source-schema truth still pending
+## Current Focus — Foundational Ring 0 schemas landed; Ring 1 implementation gated by policy + remaining M1 entities
 
-**2026-05-10 truth alignment:** ADR 0053 (`Run`) is accepted as D-041,
-completing the workflow-sequencing investigation Step 1 **at the ADR/design
-layer**. The accepted Step 1 ADR train is:
+**2026-05-11 truth alignment:** The five foundational Ring 0 ADRs are now
+landed as Ring 0 schema source per `.agents/skills/hcs-schema-change`:
 
-- `Decision` — ADR 0049 / D-037
-- `WorkspaceContext` — ADR 0050 / D-038
-- `ApprovalGrant` — ADR 0051 / D-039
-- `Lease` — ADR 0052 / D-040
-- `Run` — ADR 0053 / D-041
+- `Decision` — ADR 0049 / D-037 / `packages/schemas/src/entities/decision.ts`
+- `WorkspaceContext` — ADR 0050 / D-038 / `packages/schemas/src/entities/workspace-context.ts`
+- `ApprovalGrant` — ADR 0051 v4 / D-039 / `packages/schemas/src/entities/approval-grant.ts`
+- `Lease` — ADR 0052 / D-040 / `packages/schemas/src/entities/lease.ts`
+- `Run` — ADR 0053 / D-041 / `packages/schemas/src/entities/run.ts`
 
-Source truth remains stricter than the acceptance prose: the corresponding
-Zod source files, generated JSON Schemas, tests, and registry sections for
-`Decision`, `WorkspaceContext`, `ApprovalGrant`, `Lease`, and `Run` are not
-yet present in `packages/schemas/`. The ADRs are accepted; the schemas are
-not implemented. `docs/host-capability-substrate/ontology-registry.md` also
-remains at v0.4.11; the v0.4.12 → v0.4.16 registry updates are reserved by
-the ADRs but still pending follow-on docs/schema work.
+All five sibling `*SchemaVersionSchema = z.literal('0.1.0')` literals are
+exported from `packages/schemas/src/common.ts`-adjacent entity files. The five
+new generated JSON Schemas land under `packages/schemas/generated/`. Focused
+schema tests at `packages/schemas/tests/{decision,workspace-context,approval-grant,lease,run}.test.ts`
+exercise enum values, schema-version literals, envelope evidence-ref chain
+walks, same-record refinements (Decision outcome compatibility, Run
+`ended_at >= started_at` + state ↔ time correlation, Lease state ↔
+`released_at` / `force_break_grant_id` correlation, WorkspaceContext state ↔
+`valid_until` correlation, ApprovalGrant scope.grant_kind = envelope), and
+authority/required/nullability expectations. Cross-record enforcement
+(Session/Decision/ExecutionContext equality, lease uniqueness,
+producer-disjointness, gateway re-derive, self-approval rejection,
+`valid_until` inheritance, revoke-wins race tiebreaker, sandbox-acquire
+rejection, authorizing-Decision outcome verification) is intentionally
+deferred to Ring 1 mint API per registry §Cross-context enforcement layer
+§Schema validation alone is not an enforcement layer. `docs/host-capability-substrate/ontology.md`
+v1.14.0 documents the five entities; `docs/host-capability-substrate/ontology-registry.md`
+v0.4.16 records the consolidated change-set across all 11 items per ADR
+(producer allowlist with `kernel_gateway`; producer-vs-kernel-set field
+enumeration; enum mirrors; status tables for reason_kind / grant_kind /
+lease_kind / run_kind; procedure rules; force-break separation of duties;
+worktree-lease cardinality discipline; length-prefix canonical-concatenation
+discipline; D-037 producer-disjointness extensions to Lease-acquire and
+Run-record).
 
-Therefore Ring 1 implementation is **not** honestly unblocked yet. Ring 1
-services at `packages/kernel/` remain blocked until the accepted foundational
-ADR designs are landed as Ring 0 schema source, generated JSON Schema, tests,
-ontology docs, and registry updates, and until the policy inputs needed by
-the target service are present.
+Ring 1 implementation at `packages/kernel/` is **partially unblocked at the
+Ring 0 contract layer** but still gated by:
+
+1. **Phase 2.5 canonical policy YAML** in `system-config/policies/host-capability-substrate/`
+   for `OperationShape.operation_class → tier` mapping, force-break grant
+   posture, sandbox-acquire rules, and producer-disjointness enforcement
+   posture.
+2. **Remaining M1 foundational entities** with highest coupling: `Session`
+   (forward-referenced by `ApprovalGrant.grantor_principal_ref` via
+   consuming-session principal_id comparison; by `Lease.held_by_session_id`;
+   by `Run.invoker_session_id`) and `Principal` (forward-referenced by
+   `ApprovalGrant.grantor_principal_ref` typed-FK semantics; v1 lives as
+   `entityIdSchema` string until typed). The 14 remaining canonical entities
+   from M1 (line 672+) carry less coupling and can batch after Session +
+   Principal.
 
 **Next truthful lanes:**
 
-- **HCS-local Ring 0 schema landing:** coordinated implementation of the
-  five accepted foundational ADRs (`Decision`, `WorkspaceContext`,
-  `ApprovalGrant`, `Lease`, `Run`) per `.agents/skills/hcs-schema-change`.
-  This includes the five sibling schema-version literals
-  (`decisionSchemaVersionSchema`, `workspaceContextSchemaVersionSchema`,
-  `approvalGrantSchemaVersionSchema`, `leaseSchemaVersionSchema`,
-  `runSchemaVersionSchema`), entity schemas, generated JSON Schema,
-  focused tests, ontology docs, and registry updates.
-- **Parallel cross-repo policy lane:** Phase 2.5 canonical policy YAML in
-  `system-config/policies/host-capability-substrate/`. This lane is
-  authorizable in parallel because it drafts policy shape, not live Ring 1
-  enforcement.
-- **HCS-local remaining M1 entities:** after or alongside the schema landing,
-  batch the still-missing canonical entities by dependency. `Session` and
-  `Principal` are the highest-coupling identity/session candidates because
-  `Lease`, `Run`, and `ApprovalGrant` already forward-reference them.
+- **Cross-repo policy:** Phase 2.5 canonical policy YAML in
+  `system-config/policies/host-capability-substrate/`. Authorizable in
+  parallel; it drafts policy shape, not live Ring 1 enforcement.
+- **HCS-local Session + Principal Ring 0 entities:** highest-priority
+  remaining M1 entities given the forward-references in the just-landed
+  foundational five. Each requires its own ADR + schema PR per the
+  established foundational-entity pattern.
+- **HCS-local remaining M1 entities:** batched per dependency after Session
+  + Principal.
 - **Ring 1 services:** begin only after the schema/policy prerequisites for
-  the selected service are actually present. Initial candidates remain mint
-  API, storage/audit hash chain, lease manager, gateway re-derive, and the
-  broker FSM, but these are implementation work, not current truth.
+  the selected service are present. Initial candidates remain mint API,
+  storage/audit hash chain, lease manager, gateway re-derive, broker FSM,
+  and execution broker; each still requires its own Ring 1 ADR scoping.
 
 ## Prior Focus — ADR 0052 (Lease) accepted; Step 1 entity #4 of 5 done
 

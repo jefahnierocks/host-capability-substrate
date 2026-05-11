@@ -3,9 +3,9 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.14.0
+version: 1.15.0
 last_updated: 2026-05-11
-tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan, decision, workspace-context, approval-grant, lease, run, foundational-ring-0]
+tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan, decision, workspace-context, approval-grant, lease, run, principal, foundational-ring-0]
 priority: high
 ---
 
@@ -1352,6 +1352,74 @@ terminal-state mutation rejection, D-037 producer-disjointness extension to
 Run-vs-authorizing-Decision) live at Ring 1 mint API per registry
 §Cross-context enforcement layer.
 
+### `Principal`
+
+Source: `packages/schemas/src/entities/principal.ts`
+
+Typed identity for human or service-principal actors (ADR 0054 / D-043;
+sixth foundational Ring 0 entity, first one drafted post-Step-1-source-
+landing). Closes the typed FK target for `ApprovalGrant.grantor_principal_
+ref` (no shape change — `entityIdSchema` both before and after the typed
+FK closure; only the semantic referent gains a typed Ring 0 target) and
+the future `Session.principal_id`. Also closes ADR 0025 §Branch deletion
+proof `requesting_principal_id` and ADR 0036 §Sub-decision (d) cycle-
+history.md ratification verifier-identity binding.
+
+Key fields:
+
+- `principal_kind` is a closed Zod enum at v1: `human`,
+  `service_principal`. `pseudo_principal` (cycle-history.md ratification
+  per ADR 0036 future Q-row) and `system_principal` (kernel-emitted-
+  record attribution) remain registry-canonical reservations pending
+  future schema PRs via the registered §Procedure rule.
+- `principal_state` is `active | retired`; supersession-via-evidence_refs.
+  Same-record refinement enforces `state == 'active' iff valid_until ==
+  null` (mirrors WorkspaceContext).
+- `producer` is `principalProducerSchema = z.enum(['kernel_principal_
+  resolver'])`. NEW kernel-trusted producer mirroring ADR 0037
+  `kernel_agent_client_resolver` precedent; resolves Principal records
+  from binding evidence (`GitIdentityBinding` for `human`,
+  `MachineIdentityBindingObservation` for `service_principal`, future
+  Q-row commit-signature-to-principal mappings per ADR 0036 §Future
+  amendments). `kernel_dashboard` deferred to coordinated future ADR.
+- **NO `execution_context_id` field on the envelope** — Principal
+  identity is execution-context-independent at the entity layer
+  (mirrors AgentClient framing; a human signing a git commit is the
+  same human across terminal/IDE/dashboard surfaces). Binding evidence
+  cited via `evidence_refs` carries its own `execution_context_id`
+  per inv. 19 where applicable.
+- **NO chain-walk envelope superRefine** — Principal is a typed-
+  identity envelope (mirrors AgentClient + WorkspaceContext); inv. 8 +
+  inv. 18 deferred to Ring 1 mint API via producer-allowlist closure
+  on `kernel_principal_resolver`.
+- `audit_chain_link_hash` carries the per-record chain link with
+  length-prefix discipline (retroactive posture rule per ADR 0051 v4
+  now extended to ADRs 0049-0054).
+
+**Self-approval rejection typed-FK closure (ADR 0051 v4 MT-Sec-2
+absorbed)**: when Principal records exist, the self-approval rejection
+comparison (per ADR 0051 v4 §Rejects §Self-approval rejection) becomes
+**UUID-byte-equality** on `principal_id` surface IDs (mirrors ADR 0052
+§Identity comparison form for session_id). `kernel_principal_resolver`
+canonicalizes `principal_id` at MINT via a 4-step recipe: Unicode NFC
+normalization → **Unicode general-category `Cf` (Format Control) strip**
+(closes the invisibles surface — ZWSP / ZWNJ / ZWJ / BOM / soft-hyphen
+/ LRM / RLM / word joiner / Arabic format controls / bidirectional
+controls / Mongolian vowel separator / interlinear annotation anchors
+/ supplementary-plane Cf) → Unicode-aware lowercase fold → leading/
+trailing-whitespace trim (embedded whitespace preserved as distinct
+identity by design). The Cf-strip step is the load-bearing v2 change
+that structurally closes the MT-Sec-2 zero-width-character evasion
+class. TR39 confusable defense + Unicode version pinning reserved as
+future amendments.
+
+Cross-record rules (binding-evidence verification per `principal_kind`,
+synthetic-identity rejection per ADR 0019 v3 + ADR 0036, self-approval
+rejection FK comparison, `requesting_principal_id` FK liveness, FK-
+target activeness at time of citing record) live at Ring 1 mint API
+per registry §Cross-context enforcement layer §Schema validation alone
+is not an enforcement layer.
+
 ## Phase 1 Boundary Observation Envelope
 
 ### `BoundaryObservation`
@@ -1623,6 +1691,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.15.0 | 2026-05-11 | Added `Principal` as the sixth foundational Ring 0 entity (ADR 0054 / D-043; first entity drafted post-Step-1-source-landing). 9 envelope-only-kernel-set fields with NO field-level exceptions; NO `execution_context_id` at entity (mirrors AgentClient typed-identity-envelope; identity is execution-context-independent); NO chain-walk envelope superRefine (typed-identity-envelope precedent). `principalKindSchema = z.enum(['human', 'service_principal'])` at v1; `pseudo_principal` + `system_principal` are registry-canonical reservations. NEW `kernel_principal_resolver` producer (mirrors ADR 0037 `kernel_agent_client_resolver` precedent). Same-record `state ↔ valid_until` superRefine. Closes typed FK target for `ApprovalGrant.grantor_principal_ref` (no shape change — `entityIdSchema` both before and after; only semantic referent gains typed target); also closes future Session.principal_id, ADR 0025 requesting_principal_id, ADR 0036 cycle-history.md ratification verifier-identity. Structurally closes the ADR 0051 v4 §Self-approval rejection MT-Sec-2 zero-width-character evasion class via 4-step canonicalization-at-mint recipe (NFC + Cf-category strip + Unicode-aware lowercase fold + leading/trailing whitespace trim). TR39 confusable defense + Unicode version pinning reserved as future amendments. |
 | 1.14.0 | 2026-05-11 | Added the workflow-sequencing investigation §Step 1 foundational Ring 0 entities (`Decision`, `WorkspaceContext`, `ApprovalGrant`, `Lease`, `Run`) per ADRs 0049–0053 / D-037–D-041. Each entity has its own `*SchemaVersionSchema` literal at `'0.1.0'`. The four authorization envelopes (Decision, ApprovalGrant, Lease, Run) commit envelope-level superRefines for charter inv. 18 chain-walk rejection; WorkspaceContext mirrors AgentClient as a typed-identity envelope. Cross-record refinements (Session/Decision/ExecutionContext equality, lease uniqueness, producer-disjointness, gateway re-derive, self-approval rejection, valid_until inheritance, revoke-wins race tiebreaker, sandbox-acquire rejection) remain Ring 1 mint API responsibility per registry §Cross-context enforcement layer §Schema validation alone is not an enforcement layer. |
 | 1.13.1 | 2026-05-09 | Closed pre-existing source-vs-ledger drift on `OperationShape.schema_version`: source now exports `operationShapeSchemaVersionSchema = z.literal('0.2.0')` matching the registry ledger that has read `0.2.0` since Phase 2.2.2. ADR 0036 is the existing authority; no new ADR. |
 | 1.13.0 | 2026-05-09 | Recorded ADR 0047 cleanup-plan composition first schema slice: `cleanup_plan` operation_class on `OperationShape` (with `mutation_scope: "none"` and `target_kind: "workspace"` narrowing), `cleanup_plan` summary_kind on `DerivedSummary` (with Zod refinement constraining `summary_text` to the closed hint-status enum), `qualityGateOperationClassSchema` reconciled with `operationShapeOperationClassSchema` (adds both `workspace_verify` and `cleanup_plan`). Additive enum widenings only; no entity schema-version bumps. Decision.reason_kind reservations and cleanup_scope enum remain registry-canonical pending Ring 1 mint API schema PR. |

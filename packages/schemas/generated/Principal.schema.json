@@ -1,0 +1,159 @@
+{
+  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/Principal.schema.json",
+  "title": "Principal",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0",
+      "description": "Principal schema version (ADR 0054; M1 foundational entity #3; D-043)."
+    },
+    "principal_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "principal_kind": {
+      "type": "string",
+      "enum": [
+        "human",
+        "service_principal"
+      ],
+      "description": "Principal principal_kind values (ADR 0054 v1; 2 Zod-defined values). `pseudo_principal` (cycle-history.md ratification per ADR 0036 future Q-row) and `system_principal` (kernel-emitted record attribution) are registry-canonical reservations pending future schema PRs via the registered §Procedure rule."
+    },
+    "principal_state": {
+      "type": "string",
+      "enum": [
+        "active",
+        "retired"
+      ],
+      "description": "Lifecycle state for a Principal record (ADR 0054; mirrors agentClientStateSchema / workspaceContextStateSchema)."
+    },
+    "kernel_observed_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+      "description": "RFC 3339 timestamp with an explicit UTC offset."
+    },
+    "valid_until": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "producer": {
+      "type": "string",
+      "enum": [
+        "kernel_principal_resolver"
+      ],
+      "description": "Kernel-trusted producer allowlist for Principal records (ADR 0054). NEW producer mirroring ADR 0037 `kernel_agent_client_resolver` precedent; resolves Principal records from binding evidence (GitIdentityBinding for `human`; MachineIdentityBindingObservation for `service_principal`; future Q-row commit-signature-to-principal mappings). `kernel_dashboard` deferred to coordinated future ADR per ADRs 0051 v4 / 0052 / 0053 / 0054 scope discipline. Named enum schema for forward-compatible allowlist widening."
+    },
+    "audit_chain_link_hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "SHA-256 digest with algorithm prefix. It is not reversible secret material."
+    },
+    "evidence_refs": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "evidence_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+            "description": "Reference to an Evidence record or fixture."
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Human-readable source name or artifact path."
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+            "description": "RFC 3339 timestamp with an explicit UTC offset."
+          },
+          "valid_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "description": "RFC 3339 timestamp with an explicit UTC offset."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "authority": {
+            "type": "string",
+            "enum": [
+              "project-local",
+              "workspace-local",
+              "user-global",
+              "system",
+              "derived",
+              "sandbox-observation",
+              "host-observation",
+              "vendor-doc",
+              "installed-runtime",
+              "human-observed",
+              "self-asserted"
+            ],
+            "description": "Authority plane for a fact or observation. `self-asserted` is the lowest class — producer claims with no observation behind them — and cannot be promoted to any higher class per charter inv. 8 / inv. 18 chain-walk rejection."
+          },
+          "parser_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "authoritative",
+              "high",
+              "best-effort",
+              "stale",
+              "unknown"
+            ],
+            "description": "Confidence assigned to an observation by the producer."
+          }
+        },
+        "required": [
+          "evidence_id",
+          "source",
+          "observed_at",
+          "authority",
+          "confidence"
+        ],
+        "additionalProperties": false,
+        "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "principal_id",
+    "principal_kind",
+    "principal_state",
+    "kernel_observed_at",
+    "valid_until",
+    "producer",
+    "audit_chain_link_hash",
+    "evidence_refs"
+  ],
+  "additionalProperties": false,
+  "description": "Ring 0 Principal entity from ADR 0054. Typed identity for human or service-principal actors. Envelope-only kernel-set with NO field-level exceptions. NO chain-walk envelope superRefine — typed-identity-envelope precedent per AgentClient + WorkspaceContext; charter inv. 8 + inv. 18 deferred to Ring 1 mint API via producer-allowlist closure on `kernel_principal_resolver`. NO `execution_context_id` field at the entity layer — Principal identity is execution-context-independent (mirrors AgentClient); binding evidence cited via evidence_refs carries its own execution_context_id per inv. 19. Same-record refinement enforces principal_state ↔ valid_until correlation. Cross-record refinements (binding-evidence verification per principal_kind, synthetic-identity rejection, self-approval rejection typed-FK comparison with 4-step canonicalization-at-mint recipe per §Self-approval rejection rule registry section, `requesting_principal_id` FK liveness) live at Ring 1 mint API per registry §Cross-context enforcement layer."
+}

@@ -5,7 +5,32 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Upstream research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — Foundational Ring 0 schemas landed; Ring 1 implementation gated by policy + remaining M1 entities
+## Current Focus — Step 3 entity #1 Principal landed; Session next; Ring 1 implementation gated by policy + Session
+
+**2026-05-11 update:** ADR 0054 Principal accepted (D-043; commits
+`85ff783` v1 → `8494fdb` v2 → `f36b3ba` accept; 2-revision cycle
+matching ADR 0049 + ADR 0052 efficiency tier). Principal landed as Ring
+0 source in the coordinated schema PR following the Step 1 train pattern.
+Source-schema baseline shifts **9 of 22 → 10 of 22** canonical M1
+entities built. The coordinated slice also includes: structurally closing
+the ADR 0051 v4 §Self-approval rejection MT-Sec-2 zero-width-character
+evasion class via the new 4-step canonicalization-at-mint recipe (NFC +
+**Unicode general-category `Cf` strip** + Unicode-aware lowercase fold +
+leading/trailing whitespace trim) committed in the new discrete
+§Self-approval rejection rule registry section (registry change-set item
+7 v2-reframed from UPDATE → ADD); the `approval-grant.ts`
+`grantor_principal_ref` typed-FK target closure (no shape change — both
+before and after are `entityIdSchema`; `approvalGrantSchema.schema_
+version` remains `'0.1.0'`); 12-item registry change-set (v0.4.16 →
+v0.4.17). TR39 confusable defense + Unicode version pinning reserved as
+future amendments.
+
+**Step 3 progress (post-commit-`7fb7e05` highest-coupling remaining M1
+entities)**: entity #1 (`Principal` ADR 0054 / D-043) ✓ done; entity #2
+(`Session` — forward-references Principal via `session.principal_id`)
+pending.
+
+## Prior Focus — Foundational Ring 0 schemas landed; Ring 1 implementation gated by policy + remaining M1 entities
 
 **2026-05-11 truth alignment:** The five foundational Ring 0 ADRs are now
 landed as Ring 0 schema source per `.agents/skills/hcs-schema-change`:

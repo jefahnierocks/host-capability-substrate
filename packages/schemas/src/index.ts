@@ -377,6 +377,17 @@ export {
   policyPlanRedactionModeSchema,
 } from './entities/policy-plan-receipt.ts';
 export {
+  type Principal,
+  type PrincipalKind,
+  type PrincipalProducer,
+  type PrincipalState,
+  principalKindSchema,
+  principalProducerSchema,
+  principalSchema,
+  principalSchemaVersionSchema,
+  principalStateSchema,
+} from './entities/principal.ts';
+export {
   type ProjectSubstrateAdmissionObservation,
   type ProjectSubstrateAdmissionPayload,
   type ProjectSubstrateAdmissionStateKind,

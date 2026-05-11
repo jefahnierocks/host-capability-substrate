@@ -3,7 +3,7 @@ title: Workflow Sequencing Investigation
 category: research
 component: host_capability_substrate
 status: planning-input
-version: 0.1.2
+version: 0.1.3
 last_updated: 2026-05-11
 tags: [sequencing, ring-0, ring-1, ring-2, ring-3, milestone-1, phase-3, foundational-entities, decision, approval-grant, lease, workspace-context, run, trigger-detection, enforcement-gap]
 priority: high
@@ -29,15 +29,23 @@ Run}.schema.json`), focused schema tests, and consolidated docs updates
 (`docs/host-capability-substrate/ontology.md` v1.14.0;
 `docs/host-capability-substrate/ontology-registry.md` v0.4.16). The
 source-schema baseline below has therefore shifted from 4 of 22 built →
-**9 of 22 built**. Remaining gap: 13 canonical M1 entities (`HostProfile`,
-`Principal`, `Session`, `ToolProvider`, `ToolInstallation`, `ResolvedTool`,
-`Capability`, `CommandShape`, `PolicyRule`, `Artifact`, `Lock`,
-`SecretReference`, `ResourceBudget`). Step 1 is structurally complete at
-both the ADR-design layer AND the Ring 0 schema-source layer; Ring 1
-implementation at `packages/kernel/` is now contractually unblocked at the
-Ring 0 contract layer but still gated by Phase 2.5 canonical policy YAML +
-the highest-coupling remaining M1 entities (`Session` and `Principal`,
-forward-referenced by Lease/Run/ApprovalGrant).
+**9 of 22 built**. Step 1 is structurally complete at both the ADR-design
+layer AND the Ring 0 schema-source layer.
+
+Truth-alignment update (2026-05-11, second update of the day): ADR 0054
+Principal accepted (D-043) + landed as Ring 0 source in a coordinated
+schema PR following the Step 1 pattern. Source-schema baseline shifts
+**9 of 22 → 10 of 22**. Step 3 entity #1 of 2 highest-coupling done;
+Session (entity #2) pending. Remaining gap: 12 canonical M1 entities
+(`HostProfile`, `Session`, `ToolProvider`, `ToolInstallation`,
+`ResolvedTool`, `Capability`, `CommandShape`, `PolicyRule`, `Artifact`,
+`Lock`, `SecretReference`, `ResourceBudget`). Ring 1 implementation at
+`packages/kernel/` is now contractually unblocked at the Ring 0 contract
+layer but still gated by Phase 2.5 canonical policy YAML + Session (for
+Lease/Run forward-references). The ADR 0054 §Self-approval rejection
+rule discrete registry section ADD also closes the ADR 0051 v4 MT-Sec-2
+zero-width-character evasion class structurally via the 4-step
+canonicalization-at-mint recipe with Unicode `Cf`-category strip.
 
 ## Empirical Baseline (2026-05-10 sweep)
 
@@ -349,6 +357,7 @@ The substrate's well-typed observation ontology + registered rules will then hav
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.1.3 | 2026-05-11 | Step 3 entity #1 update after ADR 0054 Principal accepted (D-043) and landed as Ring 0 source in a coordinated schema PR. Source-schema baseline shifts 9 of 22 → 10 of 22 built. ADR 0054 also structurally closes the ADR 0051 v4 §Self-approval rejection MT-Sec-2 zero-width-character evasion class via the 4-step canonicalization-at-mint recipe with Unicode `Cf`-category strip; the new discrete §Self-approval rejection rule registry section is ADDed by ADR 0054's registry change-set (was a narrative mention only in v0.4.16). Next: Session ADR (entity #2 of 2 highest-coupling; forward-references Principal via session.principal_id). |
 | 0.1.2 | 2026-05-11 | Source-schema-landing update after the 5 ADRs landed as Ring 0 source. The five foundational entities (`Decision`, `WorkspaceContext`, `ApprovalGrant`, `Lease`, `Run`) are now present as Zod source, generated JSON Schema artifacts, focused schema tests, ontology.md v1.14.0 entries, and ontology-registry.md v0.4.16 entries. Source-schema baseline shifts from 4 of 22 → 9 of 22 built; remaining gap is 13 canonical M1 entities. Step 1 is structurally complete at both the ADR-design and Ring 0 source layers; Ring 1 is contractually unblocked at the Ring 0 contract layer but still gated by Phase 2.5 policy YAML + the highest-coupling remaining M1 entities (Session, Principal). |
 | 0.1.1 | 2026-05-10 | Truth-alignment update after ADRs 0049-0053 were accepted: clarifies that Step 1 is complete at the ADR/design layer only, and corrects the source-schema baseline to 4 of 22 canonical M1 entities built / 18 of 22 not built. |
 | 0.1.0 | 2026-05-10 | Initial workflow sequencing investigation. Records empirical state of Ring 0/1/2/3 layers (4 of 22 M1 canonical entities built; Ring 1/2/3 packages empty), traces 7 of 9 trigger-detection failures to the missing `Decision` entity + missing Ring 1 mint API, and recommends sequencing: complete Milestone 1 foundational entities first (`Decision`, `WorkspaceContext`, `ApprovalGrant`, `Lease`, `Run` priority-ordered), author Phase 2.5 canonical policy YAML in system-config in parallel, then begin Phase 3 Ring 1 services per existing PLAN.md milestone definitions. |

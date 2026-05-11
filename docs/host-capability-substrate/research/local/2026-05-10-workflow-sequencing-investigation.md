@@ -3,7 +3,7 @@ title: Workflow Sequencing Investigation
 category: research
 component: host_capability_substrate
 status: planning-input
-version: 0.1.0
+version: 0.1.1
 last_updated: 2026-05-10
 tags: [sequencing, ring-0, ring-1, ring-2, ring-3, milestone-1, phase-3, foundational-entities, decision, approval-grant, lease, workspace-context, run, trigger-detection, enforcement-gap]
 priority: high
@@ -17,13 +17,19 @@ Docs-only Ring 3 investigation. Records the empirical state of the substrate's f
 
 This investigation does NOT authorize schema, canonical policy YAML, Ring 1 services, adapters, dashboard routes, hooks, broker behavior, runtime behavior, provider mutation, or execution lanes. It records the state and the recommended order. Each authorization comes from a separate accepted ADR or from `system-config`.
 
+Truth-alignment update (2026-05-10): later on 2026-05-10, ADRs 0049-0053
+were accepted for `Decision`, `WorkspaceContext`, `ApprovalGrant`, `Lease`,
+and `Run`. Those acceptances complete the Step 1 **design/ADR train** only.
+They do not change the source-schema baseline below: the five entities are
+still not present as Zod source, generated JSON Schema, or tests.
+
 ## Empirical Baseline (2026-05-10 sweep)
 
 ### Ring 0 — `packages/schemas/src/entities/`
 
 27 entity files containing Zod schemas. The set divides into:
 
-**Foundational entities from Milestone 1's 22-entity canonical list (BUILT, 8 of 22):**
+**Foundational entities from Milestone 1's 22-entity canonical list (BUILT, 4 of 22):**
 
 - `AgentClient` (Phase 2.1.1; ADR 0037)
 - `OperationShape` (Phase 2.2.2; ADR 0029, ADR 0036, ADR 0047)
@@ -53,7 +59,7 @@ This investigation does NOT authorize schema, canonical policy YAML, Ring 1 serv
 - Project-substrate receipts (ADR 0044)
 - Backup-readiness receipts (ADR 0045)
 
-### Ring 0 entities REQUIRED by Milestone 1 acceptance but NOT BUILT (14 of 22)
+### Ring 0 entities REQUIRED by Milestone 1 acceptance but NOT BUILT (18 of 22)
 
 Per `PLAN.md` §Milestone 1 — Ontology schemas (Ring 0) §Acceptance, the canonical 22-entity list:
 
@@ -206,7 +212,9 @@ Priority order by dependency / number of registered rules referencing the entity
    - Required reviewers: `hcs-architect`, `hcs-ontology-reviewer`
    - Estimated: small ADR + small schema PR, 1 reviewer round
 
-Each schema PR follows `.agents/skills/hcs-schema-change`. Total Step 1 estimated effort: 5 ADR + schema-PR cycles, paced similarly to ADR 0047 / ADR 0048 (1-2 weeks per cycle at the current cadence; faster if batched).
+Each schema PR follows `.agents/skills/hcs-schema-change`. The five Step 1
+ADRs were accepted later on 2026-05-10; the implementation side remains as
+Ring 0 schema-change work and may be coordinated into one or more schema PRs.
 
 ### Step 2 (parallel-OK; cross-repo): Phase 2.5 canonical policy YAML in `system-config`
 
@@ -325,4 +333,5 @@ The substrate's well-typed observation ontology + registered rules will then hav
 
 | Version | Date | Change |
 |---|---:|---|
-| 0.1.0 | 2026-05-10 | Initial workflow sequencing investigation. Records empirical state of Ring 0/1/2/3 layers (8 of 22 M1 canonical entities built; Ring 1/2/3 packages empty), traces 7 of 9 trigger-detection failures to the missing `Decision` entity + missing Ring 1 mint API, and recommends sequencing: complete Milestone 1 foundational entities first (`Decision`, `WorkspaceContext`, `ApprovalGrant`, `Lease`, `Run` priority-ordered), author Phase 2.5 canonical policy YAML in system-config in parallel, then begin Phase 3 Ring 1 services per existing PLAN.md milestone definitions. |
+| 0.1.1 | 2026-05-10 | Truth-alignment update after ADRs 0049-0053 were accepted: clarifies that Step 1 is complete at the ADR/design layer only, and corrects the source-schema baseline to 4 of 22 canonical M1 entities built / 18 of 22 not built. |
+| 0.1.0 | 2026-05-10 | Initial workflow sequencing investigation. Records empirical state of Ring 0/1/2/3 layers (4 of 22 M1 canonical entities built; Ring 1/2/3 packages empty), traces 7 of 9 trigger-detection failures to the missing `Decision` entity + missing Ring 1 mint API, and recommends sequencing: complete Milestone 1 foundational entities first (`Decision`, `WorkspaceContext`, `ApprovalGrant`, `Lease`, `Run` priority-ordered), author Phase 2.5 canonical policy YAML in system-config in parallel, then begin Phase 3 Ring 1 services per existing PLAN.md milestone definitions. |

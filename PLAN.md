@@ -5,100 +5,54 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Upstream research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — Step 1 COMPLETE (all 5 foundational Ring 0 entities landed); substrate unblocked for Phase 2.5 policy YAML in system-config + Ring 1 services at packages/kernel/
+## Current Focus — Foundational ADR train accepted; source-schema truth still pending
 
-**2026-05-10 ADR 0053 (Run) accepted — Step 1 of workflow-sequencing
-investigation COMPLETE.** Final foundational-entity ADR per the
-workflow-sequencing investigation §Step 1 (entity #5 of 5). With Run
-accepted, all 5 foundational Ring 0 entities (Decision, WorkspaceContext,
-ApprovalGrant, Lease, Run) are landed. The substrate is unblocked
-for the remaining workflow-sequencing investigation steps.
+**2026-05-10 truth alignment:** ADR 0053 (`Run`) is accepted as D-041,
+completing the workflow-sequencing investigation Step 1 **at the ADR/design
+layer**. The accepted Step 1 ADR train is:
 
-The `Run` Ring 0 entity is committed with 13 envelope-level fields,
-**all kernel-set** (envelope-only-kernel-set with NO field-level
-exceptions — Run is purely kernel-observed; cleaner than Lease's
-mixed split per ADR 0031 v1). Single-`run_kind` v1 (`operation_execution`
-only; `system_task` and `diagnostic` are registry-canonical reservations
-pending future schema PRs via §Procedure rule). Closes the long-pending
-typed FK target for `Evidence.run_id` referenced by 12 Phase 2 evidence
-subtypes. Closes the charter §Forbidden patterns clause v1.3.1 line
-138 Run-execution-context-traceability structural defense (which
-operationalizes invariant 17, not invariant 13 as the v1 draft had
-misidentified). Authorizing-Decision requirement: every Run cites
-`authorizing_decision_id` typed FK to a Decision with `outcome: 'allow'`.
-Cross-context binding triple equality (Run ↔ invoker_session ↔
-authorizing_decision execution-context-equality) at Layer 1 mint API.
-D-037 producer-disjointness additive cross-step extension to
-Run-record-vs-authorizing-Decision (third extension after Decision↔
-ApprovalGrant and Lease-acquire↔authorizing-Decision); v1 forced-binary
-3-pair enumeration per security B-1. Charter inv. 6 preserved
-structurally upstream at OperationShape.operation_class enum closure +
-canonical policy YAML; per-run_kind `operation_class_scope` documentation-only
-column. Charter inv. 18 (Run forbidden in DerivedSummary.derived_from)
-preserved unchanged. Lifecycle (5 typed states; supersession-via-evidence_refs):
-`null → active`, `active → succeeded | failed | aborted | timeout`.
-Mid-run terminal-state mutation rejected. ONE schema-level refinement
-accepted (the only one in any foundational-entity ADR): Zod superRefine
-on `ended_at == null || ended_at >= started_at`. 5 NEW Decision.reason_kind
-reservations (all deny-only): `run_execution_context_unresolvable`,
-`run_authorizing_decision_unresolvable`, `run_invoker_session_mismatch`,
-`run_terminal_state_mutation_attempt`, `run_started_at_after_ended_at`.
-Extends §Decision.reason_kind status table from 27 to 32 reservations.
+- `Decision` — ADR 0049 / D-037
+- `WorkspaceContext` — ADR 0050 / D-038
+- `ApprovalGrant` — ADR 0051 / D-039
+- `Lease` — ADR 0052 / D-040
+- `Run` — ADR 0053 / D-041
 
-`runSchema` envelope-level superRefine for chain-walk per ADR
-0049/0050/0051/0052 precedent (walks UNCONDITIONALLY across envelope
-evidence_refs). Length-prefix canonical-concatenation discipline
-inherited from ADR 0051 v4 retroactive posture rule covering ADR
-0049/0050/0051/0052/0053 jointly. NEW §Procedure rule (9 steps;
-MT-4 at acceptance split step 3 into 3a typed scope shape + 3b
-envelope-level superRefine chain-walk extension commitment per ADR
-0052 MT-4 forward-look discipline). Strengthened sandbox-execution
-rule per ADR 0052 MT-5 ("no rule" not a valid §Procedure outcome).
-Producer allowlist `[mint_api, kernel_broker]`; `kernel_gateway`
-excluded by design; `kernel_dashboard` deferred to its own producer
-ADR.
+Source truth remains stricter than the acceptance prose: the corresponding
+Zod source files, generated JSON Schemas, tests, and registry sections for
+`Decision`, `WorkspaceContext`, `ApprovalGrant`, `Lease`, and `Run` are not
+yet present in `packages/schemas/`. The ADRs are accepted; the schemas are
+not implemented. `docs/host-capability-substrate/ontology-registry.md` also
+remains at v0.4.11; the v0.4.12 → v0.4.16 registry updates are reserved by
+the ADRs but still pending follow-on docs/schema work.
 
-**One-revision cycle** (continuation of ADR 0052's smoothest-cycle
-pattern): policy + security returned ready-for-acceptance on v1
-outright; architect returned 3 mechanical-text-only blocking + 7
-non-blocking; ontology returned 4 mechanical-text-only blocking +
-6 non-blocking — all blocking items were factual-citation corrections
-(inv. 13 misnumbering, evidence subtype enumeration undercount,
-`'run'` line 43 → 39, §Procedure step 3 split); all absorbed as
-mechanical tweaks at acceptance (MT-1 through MT-5 + 21 consolidated
-cosmetic items). **Cycle-time progression**: ADR 0049 = 2 revisions,
-ADR 0050 = 3 revisions, ADR 0051 = 4 revisions, ADR 0052 = 1 revision,
-ADR 0053 = 1 revision (preemptive-absorption strategy validated
-continuation).
+Therefore Ring 1 implementation is **not** honestly unblocked yet. Ring 1
+services at `packages/kernel/` remain blocked until the accepted foundational
+ADR designs are landed as Ring 0 schema source, generated JSON Schema, tests,
+ontology docs, and registry updates, and until the policy inputs needed by
+the target service are present.
 
-D-041 records the decision. Registry v0.4.15 → v0.4.16 with 11
-specific section additions/updates pending separate docs commit.
+**Next truthful lanes:**
 
-**Step 1 progress — COMPLETE**: entity #1 `Decision` ✓ (ADR 0049 /
-D-037); entity #2 `WorkspaceContext` ✓ (ADR 0050 / D-038); entity
-#3 `ApprovalGrant` ✓ (ADR 0051 / D-039); entity #4 `Lease` ✓ (ADR
-0052 / D-040); **entity #5 `Run` ✓ (ADR 0053 / D-041)** — all 5
-foundational Ring 0 entities landed.
-
-**Next**: substrate is unblocked for:
-- **Step 2 (parallel-OK)**: Phase 2.5 canonical policy YAML in
-  `system-config/policies/host-capability-substrate/` (cross-repo
-  lane; the next substantive substrate-shape work)
-- **Step 3 (batched)**: less-critical M1 entities (the remaining
-  17 of the 22 canonical entity list; lower-priority lanes can
-  batch)
-- **Step 4 (after Step 2)**: Phase 3 Ring 1 services starting at
-  `packages/kernel/` (mint API + broker FSM + audit hash chain +
-  lease manager + gateway re-derive + execution broker)
-- **Step 5 (after Step 4)**: Ring 2 adapters at `packages/adapters/`
-- **Step 6 (after Step 5)**: Ring 3 regression runner at
-  `packages/evals/`
-
-The 5 sibling-co-commitment schemaVersion literals
-(`decisionSchemaVersionSchema`, `workspaceContextSchemaVersionSchema`,
-`approvalGrantSchemaVersionSchema`, `leaseSchemaVersionSchema`,
-`runSchemaVersionSchema`) may land as a single coordinated schema
-PR at the Step 4 boundary.
+- **HCS-local Ring 0 schema landing:** coordinated implementation of the
+  five accepted foundational ADRs (`Decision`, `WorkspaceContext`,
+  `ApprovalGrant`, `Lease`, `Run`) per `.agents/skills/hcs-schema-change`.
+  This includes the five sibling schema-version literals
+  (`decisionSchemaVersionSchema`, `workspaceContextSchemaVersionSchema`,
+  `approvalGrantSchemaVersionSchema`, `leaseSchemaVersionSchema`,
+  `runSchemaVersionSchema`), entity schemas, generated JSON Schema,
+  focused tests, ontology docs, and registry updates.
+- **Parallel cross-repo policy lane:** Phase 2.5 canonical policy YAML in
+  `system-config/policies/host-capability-substrate/`. This lane is
+  authorizable in parallel because it drafts policy shape, not live Ring 1
+  enforcement.
+- **HCS-local remaining M1 entities:** after or alongside the schema landing,
+  batch the still-missing canonical entities by dependency. `Session` and
+  `Principal` are the highest-coupling identity/session candidates because
+  `Lease`, `Run`, and `ApprovalGrant` already forward-reference them.
+- **Ring 1 services:** begin only after the schema/policy prerequisites for
+  the selected service are actually present. Initial candidates remain mint
+  API, storage/audit hash chain, lease manager, gateway re-derive, and the
+  broker FSM, but these are implementation work, not current truth.
 
 ## Prior Focus — ADR 0052 (Lease) accepted; Step 1 entity #4 of 5 done
 

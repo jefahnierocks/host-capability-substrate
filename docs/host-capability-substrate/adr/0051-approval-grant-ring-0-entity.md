@@ -1,7 +1,7 @@
 ---
 adr_number: 0051
 title: ApprovalGrant Ring 0 entity introduction
-status: proposed
+status: accepted
 date: 2026-05-10
 charter_version: 1.4.0
 tags: [approval-grant, ring-0, milestone-1, foundational-entity, grant-kind, producer-disjointness, charter-v1-4-0, registry-v0-4-13-pending-v0-4-14, workflow-sequencing-step-1, adr-0049-mirror, revocation-tiebreaker, consumption-time-freshness, envelope-superrefine-chain-walk, self-approval-rejection, pre-emptive-deferred, canonical-concatenation-length-prefix]

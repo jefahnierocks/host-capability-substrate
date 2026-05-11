@@ -1,7 +1,7 @@
 ---
 adr_number: 0052
 title: Lease Ring 0 entity introduction
-status: proposed
+status: accepted
 date: 2026-05-10
 charter_version: 1.4.0
 tags: [lease, ring-0, milestone-1, foundational-entity, lease-kind, lease-state, worktree-lease, charter-v1-4-0, registry-v0-4-14-pending-v0-4-15, workflow-sequencing-step-1, adr-0031-mirror, envelope-superrefine-chain-walk, canonical-concatenation-length-prefix, force-break-separation-of-duties]

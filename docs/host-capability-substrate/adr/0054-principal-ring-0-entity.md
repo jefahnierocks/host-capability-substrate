@@ -1,7 +1,7 @@
 ---
 adr_number: 0054
 title: Principal Ring 0 entity introduction
-status: proposed
+status: accepted
 date: 2026-05-11
 charter_version: 1.4.0
 tags: [principal, ring-0, milestone-1, foundational-entity, principal-kind, identity-binding, charter-v1-4-0, registry-v0-4-16-pending-v0-4-17, workflow-sequencing-step-3, post-step-1-source-landing, adr-0051-v4-followup, adr-0036-followup, self-approval-rejection]
@@ -11,7 +11,30 @@ tags: [principal, ring-0, milestone-1, foundational-entity, principal-kind, iden
 
 ## Status
 
-`proposed`
+`accepted`
+
+Accepted 2026-05-11 (v2 ready-for-acceptance from all four required
+reviewers: `hcs-architect`, `hcs-ontology-reviewer`, `hcs-policy-reviewer`,
+`hcs-security-reviewer`). Three mechanical tweaks at acceptance:
+(MT-1, architect + ontology convergent) §Compliance change-set summary
+`11-item` → `12-item` count alignment at line 940 (already auto-applied
+by architect during re-review). (MT-2, security N1 absorbed) one-line
+acknowledgment added to §Compliance §Principal-id canonicalization rule
+clarifying that the leading/trailing-whitespace trim is leading/trailing
+only — embedded whitespace produces a structurally-distinct principal_id
+by design (not a security gap; clarity). (MT-3, architect non-blocking
++ ontology N-4 absorbed) coordinated-PR registry-section creation
+commitment recorded in §Future amendments — the §Self-approval rejection
+rule discrete registry section creation per change-set item 7 ADD lands
+together with the schema PR. v1 → v2 cycle absorbed all blockers from
+the v1 dispatch (Security B1 zero-width-character evasion not actually
+closed at v1; Architect B1 + Policy B1 §Self-approval rejection rule
+registry section non-existence; Architect B2 + Policy B2 line citation
+drift; Ontology B-1 schema-version literal count; Ontology B-2 "string-
+shape" framing; Ontology B-3 schema-version ledger update missing).
+Cycle-time: 2 revisions (matches ADR 0049 + ADR 0052 efficiency tier).
+D-043 records (D-042 is already taken by the 2026-05-10 foundational
+ADR train truth clarification per commit `e298b40`).
 
 Drafted 2026-05-11 immediately after the workflow-sequencing investigation
 §Step 1 schema train landed as Ring 0 source (commit `7fb7e05 schemas: land
@@ -937,7 +960,7 @@ ADR 0051 v4 §Future amendments §`Principal` Ring 0 entity, single
 slice). No cross-ring imports authored. No canonical policy YAML,
 runtime probes, dashboard route React components, MCP adapter contracts,
 hook bodies, charter invariant text changes, or Ring 1 mint API
-implementation in this commit. Registry-side changes (per the 11-item
+implementation in this commit. Registry-side changes (per the 12-item
 change-set in §Accepts) are bundled into this commit or a follow-on
 docs commit referencing this ADR. Complies with implementation charter
 v1.4.0.
@@ -988,7 +1011,13 @@ precedents):
   3. **Lowercase fold** — Unicode-aware lowercase folding (per
      Unicode case-folding tables; not ASCII tolower)
   4. **Leading/trailing-whitespace trim** — strip leading and
-     trailing whitespace (Unicode `\p{White_Space}` category)
+     trailing whitespace (Unicode `\p{White_Space}` category) ONLY.
+     Embedded whitespace within the surface ID is preserved by design:
+     `'ali ce'` (with U+0020 embedded space) produces a structurally-
+     distinct principal_id from `'alice'`. This is intentional — surface
+     IDs containing embedded whitespace are a distinct identity by
+     design, not an evasion surface (MT-2 at acceptance per security N1
+     v2 acknowledgment).
   5. The output is the canonicalized surface ID inserted into the
      Principal record's `principal_id` field
 

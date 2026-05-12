@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { decisionSchema } from '../src/index.ts';
 
@@ -29,7 +30,28 @@ const baseDenyDecision = {
   required_grant_kind: null,
 } as const;
 
-describe('Decision schema (ADR 0049 / D-037)', () => {
+type GeneratedSchemaObject = Record<string, unknown>;
+
+const asRecord = (value: unknown): GeneratedSchemaObject =>
+  value && typeof value === 'object' && !Array.isArray(value)
+    ? (value as GeneratedSchemaObject)
+    : {};
+
+const asArray = (value: unknown): unknown[] => (Array.isArray(value) ? value : []);
+
+const readGeneratedDecisionSchema = (): GeneratedSchemaObject =>
+  JSON.parse(
+    readFileSync(new URL('../generated/Decision.schema.json', import.meta.url), 'utf8'),
+  ) as GeneratedSchemaObject;
+
+const generatedDecisionReasonKindEnum = (): unknown[] => {
+  const schema = readGeneratedDecisionSchema();
+  const properties = asRecord(schema.properties);
+  const reasonKind = asRecord(properties.reason_kind);
+  return asArray(reasonKind.enum);
+};
+
+describe('Decision schema (ADR 0049 / ADR 0056 / D-037 / D-046)', () => {
   it('validates a deny Decision with a deny-only reason_kind', () => {
     const decision = decisionSchema.parse(baseDenyDecision);
     expect(decision.outcome).toBe('deny');
@@ -84,11 +106,104 @@ describe('Decision schema (ADR 0049 / D-037)', () => {
     expect(decision.required_grant_kind).toBe('gate_evidence_acknowledgment');
   });
 
+  it('accepts operation_class_unregistered only as a deny non-clearable Decision', () => {
+    const decision = decisionSchema.parse({
+      ...baseDenyDecision,
+      reason_kind: 'operation_class_unregistered',
+      required_grant_kind: null,
+    });
+    expect(decision.reason_kind).toBe('operation_class_unregistered');
+    expect(decision.required_grant_kind).toBeNull();
+  });
+
+  it('rejects operation_class_unregistered when any required_grant_kind is present', () => {
+    expect(
+      decisionSchema.safeParse({
+        ...baseDenyDecision,
+        reason_kind: 'operation_class_unregistered',
+        required_grant_kind: 'gate_evidence_acknowledgment',
+      }).success,
+    ).toBe(false);
+  });
+
+  it('accepts audit_chain_corruption_detected as a deny-only Decision', () => {
+    const decision = decisionSchema.parse({
+      ...baseDenyDecision,
+      reason_kind: 'audit_chain_corruption_detected',
+    });
+    expect(decision.reason_kind).toBe('audit_chain_corruption_detected');
+  });
+
   it('rejects required_grant_kind values outside the ApprovalGrant enum', () => {
     expect(
       decisionSchema.safeParse({
         ...baseDenyDecision,
         required_grant_kind: 'cleanup_plan_acknowledgment',
+      }).success,
+    ).toBe(false);
+  });
+
+  it('rejects operation_class_unregistered with an informational outcome', () => {
+    expect(
+      decisionSchema.safeParse({
+        ...baseDenyDecision,
+        outcome: 'informational',
+        reason_kind: 'operation_class_unregistered',
+      }).success,
+    ).toBe(false);
+  });
+
+  it('rejects audit_chain_corruption_detected with an informational outcome', () => {
+    expect(
+      decisionSchema.safeParse({
+        ...baseDenyDecision,
+        outcome: 'informational',
+        reason_kind: 'audit_chain_corruption_detected',
+      }).success,
+    ).toBe(false);
+  });
+
+  it('rejects ADR 0056 reason kinds with allow outcomes', () => {
+    for (const reason_kind of [
+      'operation_class_unregistered',
+      'audit_chain_corruption_detected',
+    ] as const) {
+      expect(
+        decisionSchema.safeParse({
+          ...baseDenyDecision,
+          outcome: 'allow',
+          reason_kind,
+        }).success,
+      ).toBe(false);
+    }
+  });
+
+  it('rejects operation_class_unregistered when operation_shape_ref is missing', () => {
+    const decision = {
+      ...baseDenyDecision,
+      reason_kind: 'operation_class_unregistered',
+    } as Record<string, unknown>;
+    delete decision.operation_shape_ref;
+
+    expect(decisionSchema.safeParse(decision).success).toBe(false);
+  });
+
+  it('rejects operation_class_unregistered when operation_shape_ref is null', () => {
+    expect(
+      decisionSchema.safeParse({
+        ...baseDenyDecision,
+        reason_kind: 'operation_class_unregistered',
+        operation_shape_ref: null,
+      }).success,
+    ).toBe(false);
+  });
+
+  it('rejects operation_class_unregistered when operation_shape_ref is invalid', () => {
+    expect(
+      decisionSchema.safeParse({
+        ...baseDenyDecision,
+        reason_kind: 'operation_class_unregistered',
+        operation_shape_ref: '',
       }).success,
     ).toBe(false);
   });
@@ -207,5 +322,11 @@ describe('Decision schema (ADR 0049 / D-037)', () => {
         reason_kind: 'producer_disjointness_violation',
       }).success,
     ).toBe(false);
+  });
+
+  it('includes ADR 0056 reason kinds in generated Decision JSON Schema', () => {
+    expect(generatedDecisionReasonKindEnum()).toEqual(
+      expect.arrayContaining(['operation_class_unregistered', 'audit_chain_corruption_detected']),
+    );
   });
 });

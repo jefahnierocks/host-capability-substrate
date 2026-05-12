@@ -6,7 +6,9 @@ import { qualityGateEvidenceRefSchema } from './quality-gate.ts';
 
 export const decisionSchemaVersionSchema = z
   .literal('0.1.0')
-  .describe('Decision schema version (ADR 0049; M1 foundational entity #1; D-037).');
+  .describe(
+    'Decision schema version (ADR 0049; M1 foundational entity #1; D-037). ADR 0056 adds Decision.reason_kind values by additive enum widening without bumping this literal.',
+  );
 
 export const decisionOutcomeSchema = z
   .enum(['allow', 'deny', 'informational'])
@@ -21,6 +23,7 @@ export const decisionReasonKindSchema = z
     'cleanup_plan_authority_source_stale',
     'cleanup_plan_target_under_active_lease',
     'worktree_lease_held_by_other_session',
+    'operation_class_unregistered',
     'gate_provisional',
     'gate_denied',
     'gate_expired',
@@ -31,9 +34,10 @@ export const decisionReasonKindSchema = z
     'containment_evidence_absent',
     'containment_evidence_producer_supplied',
     'containment_runtime_capability_exceeded',
+    'audit_chain_corruption_detected',
   ])
   .describe(
-    'Initial Zod-defined Decision.reason_kind union (ADR 0049 v1; 15 values chosen by enforcement-readiness criterion). 21+ additional reservations remain registry-canonical-pending per the registered §Procedure rule.',
+    'Zod-defined Decision.reason_kind union (ADR 0049 v1 plus ADR 0056 additive promotions; 17 values). Remaining reservations stay registry-canonical-pending per the registered §Procedure rule.',
   );
 
 export const decisionRequiredGrantKindSchema = approvalGrantKindSchema.describe(
@@ -64,6 +68,7 @@ const decisionReasonKindCompatibleOutcomes: Record<
   cleanup_plan_authority_source_stale: ['deny'],
   cleanup_plan_target_under_active_lease: ['deny'],
   worktree_lease_held_by_other_session: ['deny'],
+  operation_class_unregistered: ['deny'],
   gate_provisional: ['informational'],
   gate_denied: ['deny'],
   gate_expired: ['deny'],
@@ -74,6 +79,7 @@ const decisionReasonKindCompatibleOutcomes: Record<
   containment_evidence_absent: ['deny'],
   containment_evidence_producer_supplied: ['deny'],
   containment_runtime_capability_exceeded: ['deny'],
+  audit_chain_corruption_detected: ['deny'],
 };
 
 const retrievalArtifactIdPattern = /^(knowledge-chunk|derived-summary):/;
@@ -156,6 +162,18 @@ export const decisionSchema = z
         code: 'custom',
         message: `outcome '${value.outcome}' is not compatible with reason_kind '${value.reason_kind}' (per ADR 0049 §Decision outcome-compatibility classification). At v1, no reason_kind admits outcome 'allow'; future schema PRs may add allow-compatible reason_kinds via the §Procedure rule.`,
         path: ['outcome'],
+      });
+    }
+
+    if (
+      value.reason_kind === 'operation_class_unregistered' &&
+      value.required_grant_kind !== null
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          'operation_class_unregistered is non-clearable per ADR 0056; required_grant_kind must be null.',
+        path: ['required_grant_kind'],
       });
     }
 

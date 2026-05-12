@@ -7,7 +7,7 @@
     "schema_version": {
       "type": "string",
       "const": "0.1.0",
-      "description": "Decision schema version (ADR 0049; M1 foundational entity #1; D-037)."
+      "description": "Decision schema version (ADR 0049; M1 foundational entity #1; D-037). ADR 0056 adds Decision.reason_kind values by additive enum widening without bumping this literal."
     },
     "decision_id": {
       "type": "string",
@@ -38,6 +38,7 @@
         "cleanup_plan_authority_source_stale",
         "cleanup_plan_target_under_active_lease",
         "worktree_lease_held_by_other_session",
+        "operation_class_unregistered",
         "gate_provisional",
         "gate_denied",
         "gate_expired",
@@ -47,9 +48,10 @@
         "agent_client_axis_self_asserted",
         "containment_evidence_absent",
         "containment_evidence_producer_supplied",
-        "containment_runtime_capability_exceeded"
+        "containment_runtime_capability_exceeded",
+        "audit_chain_corruption_detected"
       ],
-      "description": "Initial Zod-defined Decision.reason_kind union (ADR 0049 v1; 15 values chosen by enforcement-readiness criterion). 21+ additional reservations remain registry-canonical-pending per the registered §Procedure rule."
+      "description": "Zod-defined Decision.reason_kind union (ADR 0049 v1 plus ADR 0056 additive promotions; 17 values). Remaining reservations stay registry-canonical-pending per the registered §Procedure rule."
     },
     "reason_text": {
       "type": "string",

@@ -1,7 +1,7 @@
 ---
 adr_number: 0056
 title: Promote operation-class and audit-chain reason kinds
-status: proposed
+status: accepted
 date: 2026-05-12
 charter_version: 1.4.0
 tags: [decision, reason-kind, ring-0, schema-extension, policy-lint, phase-2-5, adr-0049-followup, adr-0051-followup, audit-chain]
@@ -11,14 +11,22 @@ tags: [decision, reason-kind, ring-0, schema-extension, policy-lint, phase-2-5, 
 
 ## Status
 
-`proposed`
+`accepted`
+
+Accepted 2026-05-12 after human approval of the v3 consult decisions.
+v3 absorbs the v2 ontology blocker by making
+`operation_class_unregistered` explicitly non-clearable, keeps
+`Decision.operation_shape_ref` required, keeps
+`audit_chain_corruption_detected` deny-only, and separates hook cleanup,
+policy-lint placement, live policy activation, snapshot vendoring, and
+Ring 1 mint/audit work into follow-on slices. D-046 records.
 
 Drafted 2026-05-12 as the HCS-side Fix #4 path decision for Phase 2.5
 policy activation. Human direction selected the **source-defined** path:
 promote both reason kinds into `decisionReasonKindSchema` rather than
 carry a transitional allowlist in system-config lint.
 
-This ADR is docs-only at v2. It does not modify Zod source, generated
+This ADR is docs-only at v3. It does not modify Zod source, generated
 JSON Schema, tests, registry docs, live policy, or policy snapshots.
 The schema PR follows only after ADR acceptance per `.agents/skills/hcs-schema-change`.
 
@@ -34,7 +42,7 @@ The schema PR follows only after ADR acceptance per `.agents/skills/hcs-schema-c
   than relying on the OperationShape precedent alone. `hcs-policy-reviewer`
   returned one blocker: ADR 0056 omitted ADR 0029 as the HCS source
   authority for `operation_class_unregistered`.
-- **v2 (this revision)** absorbs the three blockers and eight
+- **v2** absorbs the three blockers and eight
   non-blocking findings. It adds ADR 0029 as source authority, distinguishes
   adding the missing `operation_class_unregistered` registry row from
   moving the existing `audit_chain_corruption_detected` row, commits the
@@ -44,6 +52,15 @@ The schema PR follows only after ADR acceptance per `.agents/skills/hcs-schema-c
   schema-test commitments, and states that temporary lint allowlists do
   not authorize live activation, snapshot vendoring, or schema-version
   posture changes.
+- **v3 (this revision)** absorbs the v2 ontology blocker and approved
+  consult decisions. It makes `operation_class_unregistered`
+  non-clearable by schema commitment: `required_grant_kind` must be
+  `null`, and any non-null grant kind must reject. It also commits
+  schema PR tests proving `operation_shape_ref` remains required for
+  this reason kind, rejecting missing, null, and invalid refs. It
+  clarifies that hook-local policy-copy cleanup, split policy lint,
+  live policy activation, snapshot vendoring, and Ring 1 mint/audit work
+  are separate follow-on slices and not part of this ADR's implementation.
 
 ## Date
 
@@ -152,6 +169,19 @@ If a future gateway path needs to reject a truly pre-classification
 operation with no OperationShape candidate, that path requires its own
 ADR/schema treatment before implementation.
 
+Denials with `reason_kind: 'operation_class_unregistered'` are
+non-clearable. The schema PR must reject any such Decision whose
+`required_grant_kind` is non-null and must accept the same reason only
+when `required_grant_kind` is `null`. No ApprovalGrant can clear this
+rejection because the class remains outside the registered OperationShape
+operation-class surface and has no approval path.
+
+`operation_shape_ref` remains required for this path. The schema PR must
+prove that missing, null, and invalid `operation_shape_ref` values reject
+when paired with `operation_class_unregistered`. This preserves the v3
+scope: defense-in-depth rejection after an OperationShape candidate
+exists, not a sentinel or pre-classification rejection model.
+
 ## Options considered
 
 ### Option A: Transitional system-config lint allowlist
@@ -237,6 +267,9 @@ ontology docs, and the registry status table in one change-set per
   OperationShape operation-class surface and have no approval path.
   Denials with this reason kind must not carry a clearing
   `required_grant_kind`; no ApprovalGrant can clear this rejection.
+  The follow-up schema PR must enforce this with a same-record
+  refinement: `required_grant_kind` must be `null` for this reason kind,
+  and any non-null grant kind rejects.
 - `audit_chain_corruption_detected` becomes the typed deny reason for
   Ring 1 mint API cycle detection in bounded authority-chain walks.
 - Phase 2.5 activation policy gains a citable HCS Zod-source closure for
@@ -265,6 +298,13 @@ ontology docs, and the registry status table in one change-set per
 - Nullable `Decision.operation_shape_ref` or sentinel OperationShape
   handling for this Phase 2.5 path. The accepted path is defense-in-depth
   rejection after an OperationShape candidate exists.
+- Any grant-clearing path for `operation_class_unregistered`. This
+  reason kind is non-escalable and non-clearable; a non-null
+  `required_grant_kind` is invalid for it.
+- Folding hook-local policy-copy cleanup, split policy-lint placement,
+  live policy activation, generated policy snapshot vendoring, or Ring 1
+  mint/audit implementation into this ADR. Those are follow-on slices
+  with their own review surfaces.
 
 ### Future amendments
 
@@ -286,12 +326,23 @@ ontology docs, and the registry status table in one change-set per
    - update `decisionSchemaVersionSchema` `.describe()` text to name ADR
      0056 and the Decision-specific no-bump additive-enum-widening rule,
      mirroring the precedent text in `operation-shape.ts`
+   - update `decisionReasonKindSchema` `.describe()` text to name ADR
+     0056 as the source-defined promotion for these two values
+   - add a same-record refinement that rejects
+     `operation_class_unregistered` when `required_grant_kind` is
+     non-null
 2. Regenerate JSON Schema and add required schema tests/fixtures:
    - accept-test for `operation_class_unregistered` with `outcome: 'deny'`
+     and `required_grant_kind: null`
+   - reject-test for `operation_class_unregistered` with any non-null
+     valid `required_grant_kind`
    - accept-test for `audit_chain_corruption_detected` with
      `outcome: 'deny'`
    - reject-tests for both new values with `outcome: 'allow'` and
      `outcome: 'informational'`
+   - reject-tests proving `operation_class_unregistered` still requires
+     a valid `operation_shape_ref`: missing, null, and invalid refs must
+     reject
    - closed-enum rejection test using a still-registry-only value
    - generated JSON Schema diff/fixture update proving both enum values
      appear in `Decision.schema.json`
@@ -305,6 +356,12 @@ ontology docs, and the registry status table in one change-set per
      registry-canonical to Zod-defined with ADR 0056 promotion authority
 4. Do not vendor any policy snapshot until the live system-config policy
    exists and the snapshot-binding step is separately authorized.
+5. Do not edit hooks in this schema PR. Hook-local forbidden-pattern
+   cleanup is a separate slice: delegate to Ring 1 RPC when available or
+   to a hash-bound generated runtime policy/cache sourced from the live
+   system-config policy. Any temporary backstop must be explicitly
+   non-authoritative, data-driven, sunsetted, and reviewed by
+   `hcs-hook-integrator` plus `hcs-security-reviewer`.
 
 ## References
 

@@ -3,8 +3,8 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.16.0
-last_updated: 2026-05-11
+version: 1.17.0
+last_updated: 2026-05-12
 tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0]
 priority: high
 ---
@@ -1167,17 +1167,21 @@ Key fields:
   refined at the schema layer: `deny`-only `reason_kind` values reject when
   paired with `informational`, and the v1 enum has no `allow`-compatible value
   (future ADRs may add allow-compatible reason_kinds via the §Procedure rule).
-- `reason_kind` is a closed Zod enum of 15 v1 values from ADR 0049 (12
-  deny-only + `gate_provisional` informational-only + 2 worktree/cleanup
-  deny-only). 21+ additional reservations remain registry-canonical pending
-  Ring 1 mint API schema PRs per the registered §Procedure for adding a new
-  reason_kind value rule.
+- `reason_kind` is a closed Zod enum of 17 values from ADR 0049 plus ADR
+  0056. ADR 0056 promotes `operation_class_unregistered` and
+  `audit_chain_corruption_detected` by additive enum widening without bumping
+  `Decision.schema_version`; both are deny-only.
 - `reason_text` is bounded to 1–256 characters; `reason_text_redaction_mode`
   uses `decisionRedactionModeSchema` (which excludes `'none'`). Resolved-
   secret substring scrubbing runs at Ring 1 mint per registry §Redaction
   posture.
 - `required_grant_kind` reuses `approvalGrantKindSchema` directly (no
-  duplicate enum) to prevent drift with ApprovalGrant.
+  duplicate enum) to prevent drift with ApprovalGrant. For
+  `operation_class_unregistered`, ADR 0056 makes the denial non-clearable:
+  `required_grant_kind` must be `null`, and any non-null grant kind rejects.
+- `operation_shape_ref` is required for every Decision, including
+  `operation_class_unregistered`; there is no nullable or sentinel
+  OperationShape path.
 - `decided_by` is one of `mint_api`, `kernel_broker`, `kernel_gateway`. The
   gateway re-derive emits Decisions but does not mint Grants/Leases/Runs.
 - `audit_chain_link_hash` carries the per-record chain link; the canonical
@@ -1771,6 +1775,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.17.0 | 2026-05-12 | Landed the ADR 0056 / D-046 Decision.reason_kind schema update: `operation_class_unregistered` and `audit_chain_corruption_detected` are now Zod-defined deny-only values without a `Decision.schema_version` bump. `operation_class_unregistered` is non-clearable (`required_grant_kind == null`; non-null rejects), while `Decision.operation_shape_ref` remains required with no nullable or sentinel OperationShape path. |
 | 1.16.0 | 2026-05-11 | Added `Session` as the seventh foundational Ring 0 entity (ADR 0055 / D-044; second of two highest-coupling remaining M1 entities per workflow-sequencing investigation §Step 3 priority order). 12 envelope-only-kernel-set fields with NO field-level exceptions; YES `execution_context_id` at entity (Session is execution-context-BOUND mirroring WorkspaceContext, NOT Principal which is execution-context-independent); NO chain-walk envelope superRefine (typed-identity-envelope precedent). `sessionKindSchema = z.enum(['agent_invocation'])` at v1; `dashboard` + `system_task` are registry-canonical reservations. `sessionStateSchema = z.enum(['active', 'ended'])` — cardinality matches AgentClient/WorkspaceContext/Principal long-lived precedents (1 active + 1 terminal at v1) but value-name diverges intentionally (Session is transient invocation that ends; not long-lived identity that retires). NEW `kernel_session_resolver` producer (mirrors ADR 0037 + ADR 0054 precedents); Ring 1 implementation MUST enforce sandbox-source rejection + transitive chain-walk rejection per security N1 + N4 v2 absorptions. Same-record superRefines: `state ↔ ended_at` correlation + `ended_at >= started_at` temporal consistency. Closes 4 forward-reference typed FK targets: Lease.held_by_session_id (ADR 0052), Run.invoker_session_id (ADR 0053), ADR 0030 v2 owning_session_id, and "consuming/requesting session" references in ADRs 0031 v1 / 0051 v4 / 0052 / 0054 self-approval rejection rule + holder-only release rule. Lease.ts + Run.ts `.describe()` text updated to reference Session as typed FK target (NO shape change to entityIdSchema; consuming entities' schema_version values remain `'0.1.0'`). |
 | 1.15.0 | 2026-05-11 | Added `Principal` as the sixth foundational Ring 0 entity (ADR 0054 / D-043; first entity drafted post-Step-1-source-landing). 9 envelope-only-kernel-set fields with NO field-level exceptions; NO `execution_context_id` at entity (mirrors AgentClient typed-identity-envelope; identity is execution-context-independent); NO chain-walk envelope superRefine (typed-identity-envelope precedent). `principalKindSchema = z.enum(['human', 'service_principal'])` at v1; `pseudo_principal` + `system_principal` are registry-canonical reservations. NEW `kernel_principal_resolver` producer (mirrors ADR 0037 `kernel_agent_client_resolver` precedent). Same-record `state ↔ valid_until` superRefine. Closes typed FK target for `ApprovalGrant.grantor_principal_ref` (no shape change — `entityIdSchema` both before and after; only semantic referent gains typed target); also closes future Session.principal_id, ADR 0025 requesting_principal_id, ADR 0036 cycle-history.md ratification verifier-identity. Structurally closes the ADR 0051 v4 §Self-approval rejection MT-Sec-2 zero-width-character evasion class via 4-step canonicalization-at-mint recipe (NFC + Cf-category strip + Unicode-aware lowercase fold + leading/trailing whitespace trim). TR39 confusable defense + Unicode version pinning reserved as future amendments. |
 | 1.14.0 | 2026-05-11 | Added the workflow-sequencing investigation §Step 1 foundational Ring 0 entities (`Decision`, `WorkspaceContext`, `ApprovalGrant`, `Lease`, `Run`) per ADRs 0049–0053 / D-037–D-041. Each entity has its own `*SchemaVersionSchema` literal at `'0.1.0'`. The four authorization envelopes (Decision, ApprovalGrant, Lease, Run) commit envelope-level superRefines for charter inv. 18 chain-walk rejection; WorkspaceContext mirrors AgentClient as a typed-identity envelope. Cross-record refinements (Session/Decision/ExecutionContext equality, lease uniqueness, producer-disjointness, gateway re-derive, self-approval rejection, valid_until inheritance, revoke-wins race tiebreaker, sandbox-acquire rejection) remain Ring 1 mint API responsibility per registry §Cross-context enforcement layer §Schema validation alone is not an enforcement layer. |

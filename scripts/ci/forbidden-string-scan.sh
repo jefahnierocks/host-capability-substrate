@@ -42,7 +42,7 @@ fi
 # Allowed in:
 #   - docs/** (documentation may describe forbidden patterns)
 #   - packages/evals/regression/** (eval corpus documents what agents must NOT do)
-#   - install-launchd.sh and hcs-hook (explicitly block or warn against these)
+#   - install-launchd.sh and hook docs/scripts (historical warnings and telemetry)
 #   - plist template (comment-only mentions as "NEVER" warnings)
 if grep -rnE '\blaunchctl\s+(load|unload)\b' packages/ scripts/ 2>/dev/null \
     | grep -v -E '(install-launchd|hcs-hook|packages/evals/regression/|/launchd/.*\.tmpl:\s*[^<]*NEVER)'; then
@@ -55,6 +55,16 @@ if grep -rE '"system\.audit\.log\.v[0-9]+"' packages/ scripts/ 2>/dev/null; then
   echo "  ✗ system.audit.log.v* exposed as agent-callable (charter invariant 4)" >&2
   fail=1
 fi
+
+# 5. Project hook bodies stay thin. Canonical policy lives in system-config
+# and hard decisions route through Ring 1 or an authorized generated/hash-bound
+# cache, never hook-local arrays or regex tables.
+for hook in .claude/hooks/hcs-hook .codex/hooks/hcs-hook; do
+  if grep -nE 'forbidden_patterns=|forbidden_regexes=|grep -E[q]? .*(TOKEN|SECRET|API_KEY|PASSWORD|PASSWD|PAT)|spctl --|csrutil |rm -rf |launchctl (load|unload)' "$hook"; then
+    echo "  ✗ hook-local forbidden policy pattern in $hook" >&2
+    fail=1
+  fi
+done
 
 if [ $fail -eq 0 ]; then
   echo "  ✓ no forbidden strings detected"

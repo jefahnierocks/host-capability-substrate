@@ -270,14 +270,16 @@ PRs implement them in the right ring:
    execution time; a policy change between mint and execution (for
    example a branch becoming newly protected) invalidates the proof, and
    the broker rejects the operation.
-4. **Substrate enforcement (`hcs-hook`).** `hcs-hook` MUST intercept the
-   three direct git command shapes — `git branch -D <ref>`,
-   `git push <remote> --delete <ref>`, and `git update-ref -d <ref>` —
-   against a literal-protected-list (`main`, `master`, `HEAD`) as defense
-   in depth. The authoritative protection classification (matching
-   non-literal protected refs such as `release-2026-04`) is queued as
-   ADR 0026 once `BranchProtectionObservation` exists; the literal list is
-   the floor enforcement until then.
+4. **Substrate enforcement (`hcs-hook` / Ring 1).** The future hard-decision
+   hook path MUST intercept the three direct git command shapes —
+   `git branch -D <ref>`, `git push <remote> --delete <ref>`, and
+   `git update-ref -d <ref>` — against protected branches as defense in
+   depth. D-047 retires the interim hook-local literal list; current project
+   hooks are measurement-only wrappers and do not implement this enforcement.
+   The authoritative protection classification (including non-literal
+   protected refs such as `release-2026-04`) is queued behind
+   `BranchProtectionObservation` and Ring 1 / authorized generated-cache
+   classification.
 5. **Broker FSM (operation-execution binding).** The broker rejects any
    operation whose effective force flag does not match
    `proof.deletion_intent.is_force_deletion`. The broker marks the proof
@@ -373,10 +375,10 @@ until schema review.
 - Force-deletion of protected branches is forbidden at five enforcement
   layers; the gateway/policy layer is the authoritative non-escalable
   point per inv. 6. The schema's structural guard is defense-in-depth.
-- `hcs-hook` substrate-level interception of direct git deletion commands
-  is committed as defense-in-depth against a literal-protected-list. The
-  full hook architecture for non-literal protected refs is queued as ADR
-  0026.
+- `hcs-hook` / Ring 1 substrate-level interception of direct git deletion
+  commands is committed as future defense-in-depth. D-047 removes the interim
+  hook-local literal list; the full hook architecture for protected refs is
+  queued behind Ring 1 / authorized generated-cache classification.
 - The broker FSM binds the proof's `is_force_deletion` to operation
   execution and rejects mismatch.
 - `BranchDeletionProof` is single-use; the broker marks it consumed at
@@ -423,7 +425,7 @@ until schema review.
 ### Future amendments
 
 - **ADR 0026 (queued)**: substrate hook architecture for protected-branch
-  classification beyond the literal-protected-list. Lands once
+  classification via Ring 1 / authorized generated-cache policy. Lands once
   `BranchProtectionObservation` exists from Q-006.
 - Schema implementation requires the underlying Q-006 evidence subtypes
   (`GitRepositoryObservation`, `GitWorktreeObservation`,

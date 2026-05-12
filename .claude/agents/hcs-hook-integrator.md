@@ -11,11 +11,11 @@ Your job: ensure hooks call the substrate for decisions rather than containing p
 
 ## Focus areas
 
-- **Hook bodies are thin.** `.claude/hooks/hcs-hook` contains no tier tables, no live policy. It logs, classifies by obvious literal patterns in Phase 0a, and will call `system.tool.resolve.v1` + `system.policy.classify_operation.v1` from Phase 3 onward with a 50ms timeout and cache fallback.
+- **Hook bodies are thin.** `.claude/hooks/hcs-hook` contains no tier tables, no live policy, no destructive-pattern arrays, and no forbidden-operation regexes. In the current Phase 0b posture it delegates to `scripts/dev/hcs-hook-cli.sh`, which is measurement-only and always allows. It will call `system.tool.resolve.v1` + `system.policy.classify_operation.v1` from Phase 3 onward with a 50ms timeout and Ring 1/generated hash-bound cache fallback.
 - **Exit code discipline.** `0` → allow (fail-open); `1` → log and continue (non-blocking); `2` → block with stderr as reason (fail-closed).
 - **Fail-open for reads, fail-closed for writes.** Classification errors for read commands should warn-and-allow; classification errors for commands confidently identified as mutating should warn-and-deny.
-- **Hooks never copy tier data.** Tier classification lives in `system-config/policies/host-capability-substrate/tiers.yaml` and is queried via the substrate (Phase 3+).
-- **Codex hooks are advisory.** Per charter and boundary decision, Codex hooks log + warn but are not the enforcement boundary. Claude command hooks enforce.
+- **Hooks never copy tier data.** Tier classification lives in `system-config/policies/host-capability-substrate/tiers.yaml` and is queried via the substrate (Phase 3+) or consumed through a generated, hash-bound runtime policy/cache once that live policy path is separately authorized.
+- **Current HCS hooks are measurement-only.** Per D-047, both Claude and Codex project HCS hook wrappers log and return advisory decisions in Phase 0b. Claude's tool-native permission layer may still enforce its own deny list, but HCS hard decisions wait for Ring 1 RPC or an authorized generated/hash-bound policy cache.
 - **Matcher discipline.** `.claude/settings.json` `hooks` section uses `matcher: Bash` for Bash events, `matcher: mcp__*` patterns for MCP tool events, etc. Incorrect matchers silently bypass the hook.
 - **Permission layering.** `.claude/settings.json` `permissions.deny` entries + hook body decisions + substrate classification all apply; the most restrictive wins.
 
@@ -39,7 +39,7 @@ You may not edit:
 
 ## Never do
 
-- Add tier tables, destructive-pattern lists, or forbidden-operation enumerations to hook bodies beyond the minimal Phase 0a literal set (SIP, Gatekeeper, rm -rf root).
+- Add tier tables, destructive-pattern lists, or forbidden-operation enumerations to hook bodies.
 - Remove a deny rule without `hcs-security-reviewer` sign-off.
 - Introduce shell expansion in hook command strings (injection risk).
 - Run hooks without timeouts.

@@ -85,8 +85,8 @@ Selection rationale (load-bearing minimum):
   observed_at, not an agent assertion.
 - `BranchProtectionObservation` unblocks the architecturally
   interesting half of ADR 0026 (substrate hook architecture for
-  non-literal protected refs); without it, ADR 0026 reduces to a
-  documentation refinement of the existing literal-protected-list.
+  protected refs); without it, ADR 0026 cannot move past generic
+  hook-delegation posture.
 
 The remaining five Q-006 receipts named as ADR 0025 v2 schema gating —
 `GitWorktreeObservation`, `GitWorktreeInventoryObservation`,

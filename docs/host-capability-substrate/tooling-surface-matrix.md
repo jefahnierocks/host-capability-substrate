@@ -3,8 +3,8 @@ title: HCS Tooling Surface Matrix
 category: reference
 component: host_capability_substrate
 status: active
-version: 1.4.0
-last_updated: 2026-05-01
+version: 1.5.0
+last_updated: 2026-05-12
 tags: [tooling, ide, claude-code, codex, cursor, warp, windsurf, vscode, iterm2, mcp, skills, integration, isolation]
 priority: high
 ---
@@ -78,11 +78,11 @@ or host-authoritative runtime facts until reconciled through typed evidence.
 
 | Surface | Config path | Scope | Canonical or generated | Can enforce | Can observe | Can call MCP | Can define skills | Allowed to contain policy | Owner | Phase 0a | Phase 3 | Phase 4 |
 |---------|-------------|-------|------------------------|-------------|-------------|--------------|-------------------|---------------------------|-------|----------|---------|---------|
-| `.claude/settings.json` | repo root | project | canonical (Claude Code project policy) | **yes** (permissions + hooks) | yes (hook telemetry) | yes (allowlist) | no | forbidden-literal list + server allowlist only | human owns; hcs-security-reviewer audits | model=opus, deny forbidden literals, hooks wired log-only | HCS MCP allowlisted | approval-mode managed |
+| `.claude/settings.json` | repo root | project | canonical (Claude Code project policy) | **yes** (permissions + hooks) | yes (hook telemetry) | yes (allowlist) | no | Claude permission deny list + server allowlist only; not HCS live policy | human owns; hcs-security-reviewer audits | model=opus, deny list in Claude permission layer, hooks wired log-only | HCS MCP allowlisted | approval-mode managed |
 | `.claude/settings.local.json` | repo root | local (not committed) | — | yes | yes | yes | no | no | individual dev | gitignored | gitignored | gitignored |
 | `.claude/agents/hcs-*.md` | repo | project | canonical (subagent behavior) | no (model-guided) | no | no (inherits project MCP) | no | no | human owns; hcs-architect reviews | 6 subagents | unchanged unless ontology evolves | unchanged |
 | `.claude/skills/` | repo | project | **Claude-specific wrappers only** | no | no | no | yes (Claude-specific) | no | hcs-architect + human | **empty at Phase 0a** | add only if Claude Code needs a wrapper for canonical `.agents/skills/` content | stable |
-| `.claude/hooks/hcs-hook` | repo | project | canonical (implementation-phase hook) | **yes** (exit 2 blocks) | yes (logs to `.logs/phase-0/`) | no | no | literal forbidden patterns only; never tier tables | hcs-hook-integrator + human | log-only, blocks literal forbidden | upgraded to RPC HCS gateway; 50ms timeout + cache fallback | same |
+| `.claude/hooks/hcs-hook` | repo | project | canonical (implementation-phase hook wrapper) | no in current Phase 0b; Phase 3 hard decisions via HCS RPC only | yes (delegates telemetry to `.logs/phase-0/`) | no | no | no | hcs-hook-integrator + human | thin wrapper to `scripts/dev/hcs-hook-cli.sh`; no hook-local policy | upgraded to RPC HCS gateway; 50ms timeout + Ring 1/generated hash-bound cache fallback | same |
 | `~/.claude/agents/` | user-global | user | — | no | no | yes | no | no | user | unchanged (existing 6 generic) | unchanged | unchanged |
 | `~/.claude.json` | user-global | user | generated per-machine | yes (permission precedence) | yes | yes (MCP baseline) | no | no (MCP config only) | user; `sync-mcp.sh` writes baseline | no HCS entry | no HCS entry | **decide via ADR** whether HCS joins baseline |
 | Claude Code Desktop settings UI | app-managed storage | user/app | generated/user-managed | yes (app posture) | yes | yes | no | no | user + Claude app | observe only | observe only; map to `ExecutionContext` facets after probes | observe only |
@@ -104,7 +104,7 @@ or host-authoritative runtime facts until reconciled through typed evidence.
 | Codex app Workspace Dependencies | app-managed bundle | user/app | generated | no | yes | no | no | no | Codex app | observe only | tool-resolution evidence only | tool-resolution evidence only |
 | Codex app local environments/actions | `.codex/` project folder | trusted project/app | canonical (worktree bootstrap + app actions) | limited | yes | no | no | no secrets, no startup auth | human owns | absent/minimal | bootstrap/actions only | bootstrap/actions only |
 | `~/.codex/skills/` | user-global | user | — | no | no | no | yes | no | user | unchanged (existing: codex-primary-runtime, pdf) | unchanged | unchanged |
-| Codex hooks (Bash-only coverage) | `~/.codex/config.toml` | user-global | canonical | **advisory only** (not sufficient for hard enforcement — see §21.4 of plan) | yes | no | no | literal forbidden patterns only | user | log + warn | log + warn; forward severe cases to dashboard | same |
+| Codex hooks (Bash-only coverage) | `~/.codex/config.toml` + project `.codex/hooks.json` | user/project | canonical | **advisory only** (not sufficient for hard enforcement — see §21.4 of plan) | yes | no | no | no HCS live policy; no hook-local forbidden arrays | user + hcs-hook-integrator | log + allow via thin wrapper | log + warn; future hard decisions remain substrate-side | same |
 
 ### Cursor surfaces
 
@@ -199,7 +199,7 @@ CLAUDE.md                  imports AGENTS.md + Claude-specific notes — require
 .claude/agents/            project-scoped subagents — 6 at Phase 0a
 .claude/settings.json      Claude Code project policy — enforceable; forbidden literals only
 .claude/skills/            Claude-specific wrappers only — empty at Phase 0a
-.claude/hooks/hcs-hook     thin bash helper — log-only at Phase 0a
+.claude/hooks/hcs-hook     thin bash wrapper — no hook-local policy
 Claude Code Desktop UI     app permission/worktree/preview posture — observe only
 Claude Preview sessions    runtime browser state — never repo state
 Claude web automation      PR/comment side effects — GitHub authority model
@@ -223,7 +223,7 @@ system-config policies     LIVE AUTHORITY for runtime policy — canonical
 When adding X to the repo, route by type:
 
 - **New skill / workflow**: `.agents/skills/<name>/SKILL.md`. Only if Claude Code fails to discover it, add a thin wrapper at `.claude/skills/<name>/SKILL.md` that references the canonical.
-- **New forbidden literal pattern**: `.claude/settings.json` `deny` list AND the `.claude/hooks/hcs-hook` body. Do **not** duplicate into `.cursor/rules/`, `.vscode/`, `WARP.md`, or AGENTS.md.
+- **New forbidden operation or literal guardrail**: canonical live policy belongs in `system-config/policies/host-capability-substrate/`; Claude permission-layer deny entries may be added to `.claude/settings.json` only as tool-native guardrails. Do **not** copy deny tables into hook bodies, `.cursor/rules/`, `.vscode/`, `WARP.md`, or AGENTS.md.
 - **New tier classification for a tool**: `system-config/policies/host-capability-substrate/tiers.yaml`. Never inline in `.claude/`, hooks, adapters, or Skills.
 - **New architectural decision**: `docs/host-capability-substrate/adr/<next-number>-<slug>.md`. Record accepted state in `DECISIONS.md`.
 - **New ontology entity or field**: `packages/schemas/src/entities/`. Simultaneous: `docs/host-capability-substrate/ontology.md`, tests, generated JSON Schema. One PR.
@@ -266,6 +266,7 @@ When adding X to the repo, route by type:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.5.0 | 2026-05-12 | Updated Claude/Codex hook surface posture for D-047: project hooks are thin wrappers with no hook-local policy, current Phase 0b behavior is measurement-only, and future hard decisions come from Ring 1 RPC or generated/hash-bound policy cache sourced from system-config live policy. |
 | 1.4.0 | 2026-05-01 | Added isolation vocabulary discipline and compatibility-only adjacent agent/cloud surface intake from the 2026-05-01 report. |
 | 1.3.0 | 2026-05-01 | Added Claude Desktop and Claude Code Desktop settings, filesystem permission, worktree, Preview, and web automation surfaces. |
 | 1.2.0 | 2026-05-01 | Added official Codex system/managed/app settings, Workspace Dependencies, and local-environment/action surfaces. |

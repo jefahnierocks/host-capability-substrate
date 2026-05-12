@@ -72,8 +72,10 @@ never gains an `approval_required_for` path.
 
 - Policy schemas and dashboard cards need a reason field.
 - Regression traps can assert both class and reason.
-- Hooks may carry only minimal literal patterns until the kernel policy service
-  exists; canonical classification remains Ring 1.
+- Historical Phase 0b hook experiments carried minimal literal patterns, but
+  D-047 supersedes that interim posture: current hook bodies are thin wrappers
+  only; canonical classification remains Ring 1 or an authorized
+  generated/hash-bound policy cache sourced from system-config live policy.
 
 ### Rejects
 

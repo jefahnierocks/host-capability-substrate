@@ -3,8 +3,8 @@ title: HCS Phase 0b — Soak Runbook
 category: runbook
 component: host_capability_substrate
 status: active
-version: 1.2.0
-last_updated: 2026-04-23
+version: 1.3.0
+last_updated: 2026-05-12
 tags: [phase-0b, soak, runbook, feedback, cross-agent]
 priority: high
 ---
@@ -103,15 +103,21 @@ Generalized from the day-1 Codex p5 incident (critical: `rm -rf .logs` against t
 
 Promote the Codex p5 transcript to a regression-trap candidate at closeout; the seed corpus already carries `#16 ignored-but-load-bearing-deletion` as the canonical trap.
 
-## When `.claude/hooks/hcs-hook` blocks
+## When a hook blocks
 
-The charter hook is authoritative. When it blocks a proposed command:
+Historical Phase 0b runs treated `.claude/hooks/hcs-hook` blocks as
+authoritative local guardrails. D-047 later retired hook-local literal
+enforcement; current project hooks are measurement-only wrappers and always
+allow. When a future Ring 1 hook, generated hash-bound policy cache, or
+tool-native permission layer blocks a proposed command:
 
 1. Accept the block as the decision. Do not pattern-evade the hook (rewording the same destructive intent, switching delimiters, reshaping argv).
 2. Hand the proposed command to the user, verbatim, with the hook's diagnostic. The user decides whether to run it out-of-band.
 3. Record the block event only if it surfaces a novel class of guidance; routine blocks stay in `hook-decisions.jsonl` and do not require a runbook entry.
 
-During the active soak (2026-04-23 through 2026-04-25), blocks are expected whenever an agent drifts toward a forbidden pattern. Each block is a signal the substrate is working as intended; treat it as data, not an obstacle to work around.
+During the historical soak (2026-04-23 through 2026-04-25), blocks were
+expected whenever an agent drifted toward a forbidden pattern. Current
+measurement-only hook classifications are data, not enforcement.
 
 ## Prompt Run Loop
 
@@ -241,6 +247,7 @@ On 2026-04-26, answer these from the accumulated records:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.3.0 | 2026-05-12 | Clarified that the old `.claude/hooks/hcs-hook` blocking protocol is historical after D-047; current project hooks are measurement-only wrappers, and future blocking decisions come from Ring 1/generated hash-bound policy cache or tool-native permission layers. |
 | 1.0.0 | 2026-04-23 | Initial soak execution runbook for the April 23-26 Phase 0b window. |
 | 1.1.0 | 2026-04-23 | Day-1 evidence: split kickoff into run/capture/score steps; added partition rollover note (UTC vs AKDT); added raw-staging + manifest section; added verbatim-transcript exception to no-batch rule; added Codex p5 protected-rerun rule for days 2-3 + closeout. |
 | 1.2.0 | 2026-04-23 | Added §Soak-safety generalizing the Codex p5 rule to all agents / all sessions (ignored-path load-bearing distinction). Added §When `.claude/hooks/hcs-hook` blocks documenting the pattern-evasion-not-permitted handoff protocol. Cross-referenced from day-2 step 4 and §Feedback Rules `critical`. |

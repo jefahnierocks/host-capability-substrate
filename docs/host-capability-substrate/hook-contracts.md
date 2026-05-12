@@ -3,51 +3,48 @@ title: HCS Hook Contracts
 category: reference
 component: host_capability_substrate
 status: stub
-version: 0.4.0
-last_updated: 2026-05-01
+version: 0.5.0
+last_updated: 2026-05-12
 tags: [hooks, claude-code, codex, policy, contracts]
 priority: medium
 ---
 
 # HCS Hook Contracts
 
-Defines how hooks interact with the HCS substrate. Populated in Phase 3 when the kernel exposes `system.tool.resolve.v1` and `system.policy.classify_operation.v1`. At Phase 0a, hooks log only. During the current Phase 0b soak, a separate measurement hook is also available.
+Defines how hooks interact with the HCS substrate. Populated in Phase 3 when the kernel exposes `system.tool.resolve.v1` and `system.policy.classify_operation.v1`. Current project hooks are thin adapters only: they do not contain policy tables, destructive-pattern arrays, or forbidden-operation regexes.
 
-## Phase 0a (log-only)
+## Current hook posture
 
 `.claude/hooks/hcs-hook` and `.codex/hooks/hcs-hook` scripts:
 
-- Reads JSON event from stdin
-- Writes to `.logs/phase-0/hook-events.jsonl`
-- Blocks only on literal forbidden patterns (SIP, Gatekeeper, `rm -rf /`, etc.)
-- Exit codes:
-  - 0 → allow
-  - 1 → log and continue (advisory)
-  - 2 → block with stderr reason
+- Resolve the HCS repo root.
+- Export `HCS_ROOT`.
+- Delegate to `scripts/dev/hcs-hook-cli.sh`.
+- Do not block, deny, or ask in the current Phase 0b posture.
+- Do not embed live policy, tier tables, forbidden-pattern arrays, or
+  destructive-operation regexes.
 
-## Phase 0b (current soak)
+The shared delegated hook (`scripts/dev/hcs-hook-cli.sh`):
 
-Three hook surfaces coexist during the soak:
-
-- `.claude/hooks/hcs-hook` remains the repo-local minimal guardrail for work inside this repo.
-- `.codex/hooks/hcs-hook` mirrors the repo-local minimal guardrail for trusted
-  Codex project config layers.
-- `scripts/dev/hcs-hook-cli.sh` is the opt-in global measurement hook installed by `just soak-install-hook`.
-
-The Phase 0b measurement hook:
-
-- Reads the same JSON hook envelope from stdin
+- Reads the JSON hook envelope from stdin
 - Classifies shell commands with `scripts/dev/classify.py`
 - Writes decision records to `.logs/phase-0/<YYYY-MM-DD>/hook-decisions.jsonl`
 - Always returns `allow` in Phase 0b; it is measurement-only, never the enforcement boundary
-- Exists to collect evidence for the April 23-25, 2026 soak, not to replace substrate policy
+- Exists to collect measurement evidence, not to replace substrate policy
+
+The interim classifier is a temporary measurement backstop only. It is
+non-authoritative, data-driven by the Phase 0b fixture corpus, and sunsetted:
+when Ring 1 RPC exists, hooks call `system.tool.resolve.v1` and
+`system.policy.classify_operation.v1`; before Ring 1 exists, any runtime cache
+used for decisions must be generated from the live system-config policy and
+hash-bound to source commit/path/hash. Hook bodies must not copy the classifier
+tables.
 
 Closeout parity on 2026-04-26 added trap #18 coverage to the interim
-classifier and repo-local literal hook: direct secret-shaped env echo and
-`printenv|env | grep` value enumeration are treated as forbidden measurement
-events. Safe alternatives are existence-only, names-only, classified, or hashed
-inspection. This remains a thin guardrail; canonical enforcement moves to Ring 1
-when `system.policy.classify_operation.v1` exists.
+classifier: direct secret-shaped env echo and `printenv|env | grep` value
+enumeration classify as forbidden measurement events. Safe alternatives are
+existence-only, names-only, classified, or hashed inspection. Canonical
+enforcement moves to Ring 1 when `system.policy.classify_operation.v1` exists.
 
 ## Phase 3+ (RPC to substrate)
 
@@ -62,6 +59,10 @@ Hook upgrades to:
 - Fail-open for reads (warn + allow on timeout or substrate-unreachable)
 - Fail-closed for writes (deny when command is confidently mutating/destructive and substrate can't classify)
 
+The cache fallback is not hand-authored hook policy. It must be either Ring 1
+managed state or a generated, hash-bound runtime policy/cache sourced from the
+live system-config policy.
+
 ## Phase 4+ (gateway integration)
 
 Hook additionally:
@@ -74,9 +75,9 @@ Hook additionally:
 
 Advisory only. Codex project hooks live in `.codex/hooks.json` and load only
 when the project `.codex/` layer is trusted. Bash coverage is incomplete per
-D-007 and the current Codex hooks documentation; Codex hooks can log and block
-minimal literal forbidden patterns, but substrate policy/gateway remains the
-real enforcement boundary.
+D-007 and the current Codex hooks documentation; Codex hooks can log and return
+advisory decisions, but substrate policy/gateway remains the real enforcement
+boundary.
 
 ## Populated by
 
@@ -96,6 +97,7 @@ real enforcement boundary.
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.5.0 | 2026-05-12 | Removed hook-local literal-block posture from the contract. `.claude/hooks/hcs-hook` and `.codex/hooks/hcs-hook` are now thin wrappers around the Phase 0b measurement CLI; any future hard-decision cache must be Ring 1 managed or generated/hash-bound from system-config live policy. |
 | 0.4.0 | 2026-05-01 | Added project-scoped `.codex/` hook contract notes and clarified that Codex hooks are trusted-project advisory guardrails, not the enforcement boundary. |
 | 0.3.0 | 2026-04-26 | Added Phase 0b closeout note for trap #18 secret-safe env-inspection parity in the interim classifier and repo-local hook. |
 | 0.2.0 | 2026-04-23 | Added the Phase 0b measurement-hook contract and clarified the distinction between the repo-local guardrail hook and the opt-in soak hook. |

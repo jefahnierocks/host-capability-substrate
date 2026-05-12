@@ -74,6 +74,39 @@ for fx in "$FIX_DIR"/*.json; do
 done
 
 echo "  — $pass/$total passed, $fail failed"
+
+wrapper_fixture="$FIX_DIR/forbidden__secret-env-grep.json"
+for wrapper in ".claude/hooks/hcs-hook" ".codex/hooks/hcs-hook"; do
+  total=$((total + 1))
+  hook_stdout=""
+  hook_exit=0
+  if ! hook_stdout=$("$HCS_ROOT/$wrapper" pre-bash < "$wrapper_fixture" 2>/dev/null); then
+    hook_exit=$?
+  fi
+  permission=$(printf '%s' "$hook_stdout" | jq -r '.hookSpecificOutput.permissionDecision // "missing"')
+  if [ "$hook_exit" -eq 0 ] && [ "$permission" = "allow" ]; then
+    ok=true
+    pass=$((pass + 1))
+    printf '  ✓ %-40s expected=%-20s actual=%-20s\n' "$wrapper" "allow" "$permission"
+  else
+    ok=false
+    fail=$((fail + 1))
+    printf '  ✗ %-40s expected=%-20s actual=%-20s\n' "$wrapper" "allow" "$permission"
+  fi
+
+  rec=$(jq -cn \
+    --arg ts "$(iso_now)" \
+    --arg fid "$wrapper" \
+    --arg exp "allow" \
+    --arg act "$permission" \
+    --argjson ok "$ok" \
+    --arg stdout "$hook_stdout" \
+    --argjson exit "$hook_exit" \
+    '{ts:$ts, fixture_id:$fid, expected:$exp, actual:$act, pass:$ok, hook_exit:$exit, hook_stdout:$stdout}')
+  jsonl_append "$OUT" "$rec"
+done
+
+echo "  — $pass/$total including wrapper allow-contract checks, $fail failed"
 echo "  → $(log_dir)/$OUT"
 
 # Exit non-zero if any failed.

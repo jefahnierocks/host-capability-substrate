@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 # classify.py — Phase 0b interim command classifier.
 #
-# PHASE 0b INTERIM: rules are embedded here because canonical policy
+# PHASE 0b INTERIM: rules are embedded here because canonical live policy
 # (tiers.yaml at system-config/policies/host-capability-substrate/) does not
-# yet exist. When it materializes (ADR-0006), this classifier must be replaced
-# by a consumer of the generated policy snapshot. See AGENTS.md §Hard boundaries:
-# "Do not copy policy into hooks. Hooks call HCS or read the generated policy
-# snapshot." This file is explicitly scoped to Phase 0b measurement only.
+# yet exist. This classifier is non-authoritative measurement code; hook bodies
+# must not copy its tables, and its output must not be treated as an HCS
+# decision. Sunset condition: replace this file with Ring 1 RPC or a consumer
+# of a hash-bound generated runtime policy/cache sourced from system-config live
+# policy. See AGENTS.md §Hard boundaries: "Do not copy policy into hooks. Hooks
+# call HCS or read the generated policy snapshot."
 #
 # Input: one shell-command string per invocation (argv or --command).
 # Output: JSON on stdout with keys: class, reason, first_token, pipeline_segments.

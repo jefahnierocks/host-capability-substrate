@@ -5,9 +5,11 @@
 # classify.py, appends a decision record to `.logs/phase-0/<today>/hook-decisions.jsonl`,
 # and writes a structured decision JSON on stdout. Always exits 0.
 #
-# PHASE 0b SCOPE: log-only. Never blocks, never denies, never asks. Phase 1+
-# will replace this with a kernel-backed hook that consumes canonical policy
-# (see AGENTS.md §Hard boundaries and implementation-charter.md invariants).
+# PHASE 0b SCOPE: log-only. Never blocks, never denies, never asks.
+# `classify.py` is a non-authoritative, data-driven measurement classifier,
+# not a policy backstop. Sunset condition: replace this path with Ring 1 RPC
+# or a hash-bound generated runtime policy/cache sourced from the live
+# system-config policy after that path is separately authorized.
 #
 # Hook event schema (Claude Code PreToolUse, per docs/hooks-guide):
 #   {"session_id": "...", "cwd": "...", "hook_event_name": "PreToolUse",
@@ -35,7 +37,7 @@ OUT="hook-decisions.jsonl"
 mkdir -p "$OUT_DIR"
 touch "$OUT_DIR/$OUT"
 
-# Read stdin with a bounded timeout so a stalled hook doesn't hang agent.
+# Read stdin from the hook runner. The runner-owned timeout bounds this script.
 input_json=""
 if ! input_json="$(cat)"; then
   input_json=""
@@ -105,5 +107,10 @@ record=$(jq -cn \
 printf '%s\n' "$record" >> "$OUT_DIR/$OUT"
 
 # Phase 0b contract: always allow. Future phases add deny/ask based on class.
-printf '%s\n' '{"continue":true,"suppressOutput":true,"hookSpecificOutput":{"hookEventName":"'"$hook_event"'","permissionDecision":"allow","permissionDecisionReason":"phase-0b log-only"}}'
+jq -cn \
+  --arg hook "$hook_event" \
+  '{continue: true, suppressOutput: true,
+    hookSpecificOutput: {hookEventName: $hook,
+      permissionDecision: "allow",
+      permissionDecisionReason: "phase-0b log-only"}}'
 exit 0

@@ -17,6 +17,11 @@ Live HCS policy (tier classifications, forbidden rules, approval escalation patt
 
 **Canonical live policy lives at `~/Organizations/jefahnierocks/system-config/policies/host-capability-substrate/`.** This repo contains only schemas and a CI-regenerated test snapshot at `policies/generated-snapshot/`.
 
+**2026-05-12 lint-placement clarification (D-048):** policy lint is split by
+authority boundary. `system-config` owns lint for canonical live policy
+activation and policy-authority invariants. HCS owns only vendored snapshot
+compatibility lint after a generated snapshot exists.
+
 ## Consequences
 
 ### Accepts
@@ -24,11 +29,16 @@ Live HCS policy (tier classifications, forbidden rules, approval escalation patt
 - Governance flows through system-config's review process.
 - Cross-host consistency falls out of chezmoi-managed policy deployment.
 - Repo is public source; live policy behavior does not depend on repo contents.
+- Live policy lint stays with the live policy source.
+- HCS snapshot lint validates source commit/path/hash binding and generated
+  schema compatibility without becoming live policy authority.
 
 ### Rejects
 
 - Policy in the target repo alone (would conflate public source with host authority).
 - Policy split (drift risk).
+- Duplicated live-policy activation lint in HCS.
+- Treating `policies/generated-snapshot/` as a policy authoring surface.
 
 ### Future amendments
 

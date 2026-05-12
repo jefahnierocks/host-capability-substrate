@@ -5,14 +5,14 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Upstream research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — ADR 0056 schema slice implemented; follow-on slices remain separate
+## Current Focus — Policy-lint split implemented on HCS side; live policy still gated
 
 **2026-05-12 status refresh:** HCS `main` was clean and aligned with
 `origin/main` at `d343406` (`docs: refresh hcs handoff status`) before
-the local ADR 0056 acceptance and schema update. Sibling `system-config`
-was clean and aligned with `origin/main` at `027c99e` (`ci(hcs): add
-policy draft lint stub`) during the same decision pass. The
-system-config Phase 2.5 activation candidate remains
+the local ADR 0056 / hook cleanup / policy-lint split sequence. Sibling
+`system-config` was clean and aligned with `origin/main` at `027c99e`
+(`ci(hcs): add policy draft lint stub`) during the same decision pass.
+The system-config Phase 2.5 activation candidate remains
 non-authoritative at
 `docs/host-capability-substrate/tiers.yaml.v0.2.0-skeleton.yaml`; no
 live `policies/host-capability-substrate/tiers.yaml` exists, no HCS
@@ -31,18 +31,31 @@ slice updates Zod source, generated JSON Schema, schema tests, ontology
 docs, and ontology-registry status tables together per
 `.agents/skills/hcs-schema-change`.
 
-**Next safe HCS slice:** finish review/commit discipline for the ADR
-0056 schema slice, then move to the separate hook-local policy-copy
-cleanup. Do not bundle policy-lint placement, live policy activation,
-generated policy snapshot vendoring, or Ring 1 service ADRs into the
-schema slice.
+Hook-local policy-copy cleanup is complete (D-047): project hook bodies
+are thin wrappers and no longer contain hook-local forbidden-pattern
+arrays. The interim classifier remains non-authoritative measurement
+code.
 
-**Follow-on sequence after the schema slice:** separate hook-local
-policy-copy cleanup; split policy lint (`system-config` for live policy,
-HCS for generated snapshots/schema compatibility); live `tiers.yaml`
-activation with source commit/path/hash; HCS snapshot vendoring; then a
-scoped Ring 1 mint API + audit-chain ADR. The first Ring 1 service
-should be mint/audit, not the execution broker.
+Policy-lint placement is split (D-048). `system-config` owns live policy
+lint for activation metadata, provenance, forbidden-no-approval posture,
+grant scope/reuse, provider evidence, sandbox lease-acquire posture,
+structured cross-record policy rules, and no secret material. HCS owns
+only generated-snapshot compatibility lint after a snapshot is vendored:
+source commit/path/hash binding, generated schema-ref compatibility,
+`operation_class_defaults` coverage, reason-kind compatibility, and
+snapshot path checks.
+
+**Next safe HCS slice:** do not activate live policy from this repo.
+The next cross-repo action is the system-config live-policy lane: land
+activation-grade lint fixtures for the reviewer blockers, convert the
+Phase 2.5 candidate to live `tiers.yaml` only after ADR 0056/schema
+status is accepted on the live-policy side, then vendor an HCS snapshot
+with source commit/path/hash.
+
+**Follow-on sequence:** live `tiers.yaml` activation with source
+commit/path/hash; HCS snapshot vendoring; then a scoped Ring 1 mint API
++ audit-chain ADR. The first Ring 1 service should be mint/audit, not
+the execution broker.
 
 ## Milestone Baseline — Step 3 complete (Principal + Session landed); Ring 1 implementation gated by policy + remaining-11 M1 entities
 
@@ -89,19 +102,20 @@ for services whose policy/schema prerequisites are present (mint API
    `operation_class_unregistered` and `audit_chain_corruption_detected`
    are promoted into `decisionReasonKindSchema`, with the accepted v3
    non-clearability and `operation_shape_ref` tests.
-2. **Hook policy-copy cleanup:** remove or replace hook-local
-   forbidden-pattern policy literals with the authorized delegation /
-   snapshot posture before claiming policy is not embedded in HCS hooks.
-3. **Cross-repo policy gate:** Phase 2.5 canonical policy YAML in
+2. **Hook policy-copy cleanup:** complete in D-047; hooks delegate and
+   carry no local policy arrays.
+3. **Policy-lint split:** complete on the HCS side in D-048; live-policy
+   lint and activation fixtures remain system-config-owned.
+4. **Cross-repo policy gate:** Phase 2.5 canonical policy YAML in
    `system-config/policies/host-capability-substrate/` for
    `OperationShape.operation_class → tier`, force-break grant posture,
    sandbox-acquire rejection, and producer-disjointness enforcement
    posture.
-4. **Ring 1 service ADRs:** Scope the first kernel service only after
+5. **Ring 1 service ADRs:** Scope the first kernel service only after
    its policy/schema prerequisites are explicit. Best first candidates
    remain mint API, audit hash chain/storage, lease manager, gateway
    re-derive, broker FSM, and execution broker.
-5. **Remaining M1 entities:** Draft + land the 11 lower-coupling
+6. **Remaining M1 entities:** Draft + land the 11 lower-coupling
    canonical entities as ADR + schema PR slices per
    `.agents/skills/hcs-schema-change`.
 

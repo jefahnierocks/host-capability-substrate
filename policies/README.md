@@ -17,6 +17,25 @@ Charter invariant 10 (ADR 0011): HCS is public source with a private deployment 
 - **Audit schema**: `system-config/policies/host-capability-substrate/storage.sql`
 - **In-repo snapshot** (this dir, CI-populated): `policies/generated-snapshot/`
 
+## Lint Ownership
+
+`system-config` owns lint for the canonical live policy: activation metadata,
+provenance, forbidden-no-approval rules, grant scope/reuse posture, provider
+evidence, sandbox lease-acquire posture, structured cross-record policy rules,
+and secret-material exclusion.
+
+HCS owns lint only after a generated snapshot is vendored here. The HCS
+snapshot lint checks source binding and schema compatibility:
+
+- `snapshot_binding.system_config_commit`
+- `snapshot_binding.source_policy_path`
+- `snapshot_binding.source_policy_sha256`
+- `snapshot_binding.hcs_snapshot_path`, when present
+- `schema_refs.operation_shape_schema_version`
+- `schema_refs.decision_schema_version`
+- `operation_class_defaults` coverage against generated `OperationShape`
+- policy `reason_kind` references against generated `Decision`
+
 ## Contributing
 
 Do **not** edit files here directly. Instead:

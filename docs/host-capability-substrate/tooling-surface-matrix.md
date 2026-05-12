@@ -70,8 +70,8 @@ or host-authoritative runtime facts until reconciled through typed evidence.
 | `DECISIONS.md` | repo root | project | canonical (decision ledger) | no | no | no | no | no | human owns | seeded with D-001–D-016 | grows per ADR | grows per ADR |
 | `docs/host-capability-substrate/implementation-charter.md` | repo / system-config | project | **canonical** (binding rule) | no (behavioral) | no | no | no | **yes (invariants)** | human owns; PRs via hcs-architect | v1.1.0 lifted from system-config | unchanged unless amended | unchanged unless amended |
 | `docs/host-capability-substrate/ontology.md` | repo | project | canonical (human-facing) | no | no | no | no | no | hcs-ontology-reviewer + human | stub | populated in Phase 1 Thread D | stable |
-| `system-config/policies/host-capability-substrate/` | system-config repo | project (governance) | **canonical** (live policy) | yes (via substrate) | no | no | no | **yes (runtime policy data)** | human; reviewed by hcs-policy-reviewer subagent | schema + seed tiers.yaml | populated incrementally | expanded with write-tier rules |
-| `policies/generated-snapshot/` in HCS repo | repo | test fixture | generated | no | no | no | no | no (fixture only) | CI | empty with README | snapshot present for tests | snapshot current |
+| `system-config/policies/host-capability-substrate/` | system-config repo | project (governance) | **canonical** (live policy) | yes (via substrate) | no | no | no | **yes (runtime policy data)** | human; reviewed by hcs-policy-reviewer subagent | schema + seed tiers.yaml; owns live-policy activation lint | populated incrementally | expanded with write-tier rules |
+| `policies/generated-snapshot/` in HCS repo | repo | test fixture | generated | no | no | no | no | no (fixture only; HCS lint checks source binding + schema compatibility) | CI | empty with README | snapshot present for tests | snapshot current |
 | `packages/schemas/` | repo | project | **canonical** (ontology) | no | no | no | no | no | hcs-ontology-reviewer | empty .gitkeep | 20 entities populated | stable + versioned |
 
 ### Claude Code surfaces
@@ -266,6 +266,7 @@ When adding X to the repo, route by type:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.5.1 | 2026-05-12 | Clarified D-048 policy-lint placement: system-config owns live-policy activation lint; HCS owns generated-snapshot source-binding and schema-compatibility lint only. |
 | 1.5.0 | 2026-05-12 | Updated Claude/Codex hook surface posture for D-047: project hooks are thin wrappers with no hook-local policy, current Phase 0b behavior is measurement-only, and future hard decisions come from Ring 1 RPC or generated/hash-bound policy cache sourced from system-config live policy. |
 | 1.4.0 | 2026-05-01 | Added isolation vocabulary discipline and compatibility-only adjacent agent/cloud surface intake from the 2026-05-01 report. |
 | 1.3.0 | 2026-05-01 | Added Claude Desktop and Claude Code Desktop settings, filesystem permission, worktree, Preview, and web automation surfaces. |

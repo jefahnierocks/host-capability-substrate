@@ -20,6 +20,64 @@ rule registry section ADD`). Session is the second of two highest-coupling
 remaining M1 entities per the post-Step-1-source-landing PLAN.md §Current
 Focus rewrite.
 
+**Revision history**:
+
+- **v1** (commit `4e8fe23`) dispatched the four required reviewers in
+  parallel. Architect + ontology returned blockers; policy + security
+  returned ready-for-acceptance. v2 absorbs:
+  - **Architect B1 (lifecycle naming-and-precedent divergence)**: v1
+    repeatedly claimed `sessionStateSchema = z.enum(['active',
+    'ended'])` "mirrors `agentClientStateSchema` /
+    `workspaceContextStateSchema` / `principalStateSchema` lifecycle
+    patterns." Verification: all three of those entities use
+    `['active', 'retired']`, NOT `['active', 'ended']`. The v1
+    "mirrors" framing was value-name-wrong. v2 reframes as a
+    **deliberate divergence**: Session lifecycle uses `ended`
+    (not `retired`) because Session is a **transient invocation**
+    (single-execution-context-bound; ends when the agent disconnects
+    / CLI exits / IDE workspace closes) rather than a **long-lived
+    identity** (AgentClient is an agent product/build; WorkspaceContext
+    is a worktree binding; Principal is an actor identity — all three
+    are reusable across invocations and "retire" when their referent
+    becomes inactive across the wider substrate). Session shares
+    cardinality with the three long-lived precedents (1 active + 1
+    terminal at v1) but the value-name divergence reflects the
+    semantic divergence. Mirror claims rewritten to cite cardinality-
+    mirror only and explicitly contrast value semantics.
+  - **Architect B3 + Ontology B-2**: `lease.ts:103` → `lease.ts:103`
+    (held_by_session_id actual line). Stale citation; mechanical fix.
+  - **Architect B3 + Ontology B-3**: `run.ts:104` → `run.ts:104`
+    (invoker_session_id actual line). Stale citation; mechanical fix.
+  - **Architect B4 + Ontology B-4/B-6/B-7/B-8/B-9**: registry line
+    citations drifted past current section headings. v2 corrected:
+    §Kernel-trusted producer allowlist final state line 867 → 899;
+    `kernel_principal_resolver` row line 893 → 910; §ADR 0049-0054
+    enum mirrors line 2493 → 2504; §Self-approval rejection rule line
+    2408 → 2419; §Audit-chain coverage of rejections line 671 → 686;
+    §Current schema-version ledger line 871 → 882; §Subject-kind
+    grounding requirement line 512 → 527; §Cross-context enforcement
+    layer line 615 → 630. All citation drift was systematic (+11 to
+    +27 in the lower half), consistent with drafting off a
+    pre-Principal-landing snapshot.
+  - **Security N1 absorbed**: NEW §Implementation-detail
+    acknowledgment naming the `kernel_session_resolver` Ring 1
+    sandbox-source rejection guard requirement explicitly (invocation
+    evidence must carry non-sandbox `authority` per inv. 8 / inv. 18).
+  - **Security N4 absorbed**: NEW §Implementation-detail
+    acknowledgment that Ring 1 mint API at
+    `packages/kernel/src/session/` will reject Session creation if
+    any cited binding evidence carries `authority: 'sandbox-observation'`
+    or `authority: 'self-asserted'`.
+
+- **v2 (this revision)** preserves all v1 substantive design decisions
+  (single-value `session_kind` v1 enum, YES execution_context_id on
+  envelope, NO chain-walk envelope superRefine, envelope-only-kernel-
+  set posture, NEW `kernel_session_resolver` producer, 4 NEW
+  Decision.reason_kind reservations, length-prefix discipline
+  extension to ADRs 0049-0055, 14-item registry change-set, 7-step
+  §Procedure rule). Only the v1 mechanical-citation and lifecycle-
+  framing imprecisions changed.
+
 ## Date
 
 2026-05-11
@@ -287,9 +345,11 @@ v1 Session entity carries:
   (paired with the future `system_principal` Zod-defined extension
   per ADR 0054 §Future amendments).
 - `session_state` — `sessionStateSchema = z.enum(['active', 'ended'])`
-  (kernel-set; mirrors `agentClientStateSchema` /
-  `workspaceContextStateSchema` / `principalStateSchema` lifecycle
-  patterns; 2 values).
+  (kernel-set; **cardinality** matches AgentClient + WorkspaceContext
+  + Principal (1 active + 1 terminal at v1) but **value-name diverges
+  intentionally**: Session uses `ended` (not `retired`) because Session
+  is a transient invocation rather than a long-lived identity — see
+  §Status revision history v2 absorption of architect B1).
 - `agent_client_id` — `entityIdSchema` (kernel-set; FK to the
   AgentClient that the session is invoked from). Mirrors the
   Lease.held_by_agent_client_id pattern per ADR 0031 v1 line 270-272
@@ -315,8 +375,10 @@ v1 Session entity carries:
 - `ended_at` — `isoDateTimeSchema.nullable()` (kernel-set; null while
   `session_state == 'active'`; set on lifecycle transition to
   `'ended'`). Same-record refinement enforces the state ↔ ended_at
-  correlation (mirrors Run per ADR 0053 + Lease per ADR 0052 +
-  WorkspaceContext per ADR 0050).
+  correlation (the **state-↔-nullable-timestamp refinement shape**
+  mirrors Run per ADR 0053 + Lease per ADR 0052 + WorkspaceContext
+  per ADR 0050, even though the specific timestamp-field name and
+  terminal-state name differ per entity-semantic conventions).
 - `producer` — `sessionProducerSchema = z.enum(['kernel_session_
   resolver'])` (kernel-set; named enum schema for forward-compatible
   allowlist widening; mirrors `principalProducerSchema` +
@@ -443,10 +505,12 @@ validation alone is not an enforcement layer:
 - **Session lifecycle (2 transitions, supersession-via-evidence_refs)**:
   `null → active → ended`. Lifecycle transitions are immutable: state
   changes via NEW Session record citing the prior in `evidence_refs`
-  (mirrors ADRs 0049-0054). Same-record schema-level refinement
-  enforces `session_state == 'active' iff ended_at == null` AND
-  `ended_at == null || ended_at >= started_at` (mirrors Run per ADR
-  0053).
+  (supersession-via-evidence_refs pattern, mirrors ADRs 0049-0054 in
+  pattern shape; the specific value-name divergence is `ended` vs
+  `retired` for the reasons in §Status v2 absorption). Same-record
+  schema-level refinement enforces `session_state == 'active' iff
+  ended_at == null` AND `ended_at == null || ended_at >= started_at`
+  (the **temporal-superRefine shape** mirrors Run per ADR 0053).
 
 - **Authority-discipline posture (envelope-only-kernel-set with NO
   field-level exceptions)**: all 12 envelope-level fields are kernel-
@@ -735,6 +799,11 @@ validation alone is not an enforcement layer:
   exit, `suspended` for credential-rotation-in-progress) may surface
   as Ring 1 mint API operational evidence informs. Future ADRs extend
   `sessionStateSchema` per the standard schema-extension procedure.
+  If future state names align more closely with the long-lived
+  identity precedents (AgentClient/WorkspaceContext/Principal
+  `retired`), the §Procedure rule allows that path without bumping
+  `sessionSchemaVersionSchema` to a major version (additive enum
+  widening per `.agents/skills/hcs-schema-change`).
 
 - **Session-level `valid_until` freshness ceiling** — future ADR may
   add if operational evidence shows session-level freshness binding
@@ -834,6 +903,35 @@ precedents):
   Mechanical Tweak #8 / Security-C). The divergence is registered
   explicitly to forestall reviewer churn on future schema PRs.
 
+- **Ring 1 `kernel_session_resolver` sandbox-source rejection guard
+  (security N1 v2 absorption)**: when Ring 1 implementation lands at
+  `packages/kernel/src/session/`, `kernel_session_resolver` MUST
+  enforce that invocation evidence cited by Session.evidence_refs
+  carries non-sandbox `authority` (i.e., NOT `'sandbox-observation'`
+  and NOT `'self-asserted'`). Charter inv. 8 + inv. 18 enforcement
+  for Session records lives at this rejection guard, not at the
+  schema layer (typed-identity-envelope precedent). Specifically,
+  for `session_kind: 'agent_invocation'`, the invocation evidence
+  classes are: MCP server connection evidence (kernel-observed via
+  the broker FSM), CLI invocation evidence (kernel-observed via
+  process telemetry), IDE workspace open evidence (kernel-observed
+  via IDE-host probe). Each evidence subtype's own ADR defines its
+  `authority`-class binding rules; the Ring 1 mint API rejects
+  Session creation if any cited evidence carries a sandbox-class or
+  self-asserted authority.
+
+- **Ring 1 `kernel_session_resolver` chain-walk rejection guard
+  (security N4 v2 absorption)**: when Ring 1 implementation lands,
+  `kernel_session_resolver` MUST reject Session creation if the
+  cited binding evidence transitively cites (via `derived_from`
+  chain-walk per ADR 0019 v3) any record carrying `authority:
+  'sandbox-observation'` or `authority: 'self-asserted'`. This is
+  the same producer-allowlist-closure substitute for the chain-walk
+  envelope superRefine that AgentClient + WorkspaceContext +
+  Principal defer to Ring 1. The walk-depth budget ≤ 64 records +
+  cycle-rejection via `audit_chain_corruption_detected` per the ADR
+  0051 v4 cross-step chain-walk discipline applies.
+
 ## References
 
 ### Internal
@@ -881,19 +979,21 @@ precedents):
     IDs that Session.principal_id references)
 - Registry: `docs/host-capability-substrate/ontology-registry.md`
   v0.4.17 (current frontmatter; ADR 0055 reserves v0.4.18 pending
-  docs commit) — §Authority discipline (line 279+), §ADR 0049–0054
-  foundational Ring 0 entity field authority subsection (line 443),
-  §Subject-kind grounding requirement (line 512), §Cross-context
-  enforcement layer (line 615), §Audit-chain coverage of rejections
-  (line 671), §Kernel-trusted producer allowlist final state (line
-  867; `kernel_principal_resolver` row from ADR 0054 at line 893+),
-  §Self-approval rejection rule (line 2408+; added by ADR 0054 v2),
-  §ADR 0049–0054 foundational Ring 0 entity enum mirrors section
-  (line 2493+; rename to ADR 0049–0055 per registry change-set item
-  8), §Current schema-version ledger (line 871+; add Session row
-  per registry change-set item 13), §Naming-discipline §Sub-rule 9
-  enum-value casing (line 203 — `lower_snake_case` mandate for new
-  enum values; `sessionKindSchema` values comply)
+  docs commit). v2-verified line citations (per ontology B-2/B-3/
+  B-4/B-6/B-7/B-8/B-9 + architect B4 absorption): §Authority
+  discipline (line 279+), §ADR 0049–0054 foundational Ring 0 entity
+  field authority subsection (line 443), §Subject-kind grounding
+  requirement (line 527), §Cross-context enforcement layer (line
+  630), §Audit-chain coverage of rejections (line 686), §Kernel-
+  trusted producer allowlist final state (line 899; `kernel_principal_
+  resolver` row from ADR 0054 at line 910), §Self-approval rejection
+  rule (line 2419; added by ADR 0054 v2), §ADR 0049–0054 foundational
+  Ring 0 entity enum mirrors section (line 2504; rename to ADR
+  0049–0055 per registry change-set item 8), §Current schema-version
+  ledger (line 882; add Session row per registry change-set item
+  13), §Naming-discipline §Sub-rule 9 enum-value casing (line 203 —
+  `lower_snake_case` mandate for new enum values; `sessionKindSchema`
+  values comply).
 - Workflow-sequencing investigation: `docs/host-capability-substrate/
   research/local/2026-05-10-workflow-sequencing-investigation.md`
   v0.1.3 (§Step 3 less-critical Ring 0 foundational entities entry
@@ -930,10 +1030,10 @@ precedents):
   - `packages/schemas/src/entities/agent-client.ts` (typed-identity-
     envelope precedent; same `state: 'active' | 'retired'` /
     `'active' | 'ended'` lifecycle pattern shape)
-  - `packages/schemas/src/entities/lease.ts:101` (`held_by_session_id`
+  - `packages/schemas/src/entities/lease.ts:103` (`held_by_session_id`
     typed FK target; this ADR's coordinated schema PR updates the
     `.describe()` text to reference Session)
-  - `packages/schemas/src/entities/run.ts:110` (`invoker_session_id`
+  - `packages/schemas/src/entities/run.ts:104` (`invoker_session_id`
     typed FK target; this ADR's coordinated schema PR updates the
     `.describe()` text to reference Session)
 - Currently-landed schemaVersion literals (12 entity-specific

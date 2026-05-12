@@ -3,9 +3,9 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.4.17
+version: 0.4.18
 last_updated: 2026-05-11
-tags: [ontology, registry, registry-consolidation, phase-2-4, phase-2-7, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, remote-agent, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011, decision, workspace-context, approval-grant, lease, run, principal, foundational-ring-0, workflow-sequencing-step-1, self-approval-rejection-rule]
+tags: [ontology, registry, registry-consolidation, phase-2-4, phase-2-7, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, remote-agent, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0, workflow-sequencing-step-1, workflow-sequencing-step-3, self-approval-rejection-rule]
 priority: high
 ---
 
@@ -440,12 +440,12 @@ Adding a new authority-class field to a payload requires:
 2. An `hcs-ontology-reviewer` pass before the schema PR using the new
    field lands.
 
-### ADR 0049–0054 foundational Ring 0 entity field authority
+### ADR 0049–0055 foundational Ring 0 entity field authority
 
-The six foundational Ring 0 entities (five workflow-sequencing
-investigation §Step 1 entities + ADR 0054 §Step 3 entity #1 Principal)
-each commit an envelope-level authority-discipline posture per their
-respective ADRs. Cross-record enforcement (Session/Decision/ExecutionContext
+The seven foundational Ring 0 entities (five workflow-sequencing
+investigation §Step 1 entities + ADR 0054 §Step 3 entity #1 Principal
++ ADR 0055 §Step 3 entity #2 Session) each commit an envelope-level
+authority-discipline posture per their respective ADRs. Cross-record enforcement (Session/Decision/ExecutionContext
 equality, lease uniqueness, producer-disjointness, gateway re-derive,
 self-approval rejection, valid_until inheritance, revoke-wins race
 tiebreaker, sandbox-acquire rejection, authorizing-Decision outcome
@@ -516,6 +516,26 @@ at Ring 1 mint API. Cross-context binding evidence cited via
 `evidence_refs` carries its own execution_context_id per inv. 19 where
 applicable (e.g., `MachineIdentityBindingObservation`). Same-record
 refinement enforces `principal_state == 'active' iff valid_until == null`.
+
+**`Session` (ADR 0055):** envelope-only-kernel-set with NO field-level
+exceptions; **YES `execution_context_id` field on the envelope**
+(Session is execution-context-BOUND at the entity layer, mirrors
+WorkspaceContext per ADR 0031 v1 Mechanical Tweak #8 / Security-C;
+DIVERGES from Principal). All 12 envelope-level fields are kernel-set:
+`schema_version`, `session_id`, `session_kind`, `session_state`,
+`agent_client_id`, `principal_id`, `execution_context_id`, `started_at`,
+`ended_at`, `producer`, `audit_chain_link_hash`, `evidence_refs`.
+Producer-allowlist closure on `kernel_session_resolver` is the
+structural defense; producer-supplied Session records rejected at Ring
+1 mint API. The Ring 1 resolver MUST enforce sandbox-source rejection +
+transitive chain-walk rejection per security N1 + N4 v2 absorptions of
+ADR 0055. Same-record refinements enforce `session_state == 'active'
+iff ended_at == null` AND `ended_at == null || ended_at >= started_at`.
+Session identity is **transient invocation**, not long-lived identity:
+the value-name `ended` (not `retired`) reflects the divergent
+semantics; cardinality (1 active + 1 terminal at v1) mirrors the long-
+lived precedents. Sessions that cross execution contexts are NEW
+Session records.
 
 Schema-side enforcement: Zod cannot reach kernel state, so the producer-
 allowlist registration above + the per-entity `*ProducerSchema` enums (each
@@ -894,6 +914,7 @@ work can cite one stable registry index.
 | `Lease` | `0.1.0` | ADR 0052 / D-040 foundational-entity introduction | `leaseSchemaVersionSchema = z.literal('0.1.0')`. Landed at commit `7fb7e05`. |
 | `Run` | `0.1.0` | ADR 0053 / D-041 foundational-entity introduction | `runSchemaVersionSchema = z.literal('0.1.0')`. Landed at commit `7fb7e05`. |
 | `Principal` | `0.1.0` | ADR 0054 / D-043 foundational-entity introduction (post-Step-1-source-landing) | `principalSchemaVersionSchema = z.literal('0.1.0')`. Closes ApprovalGrant.grantor_principal_ref + future Session.principal_id + ADR 0025 requesting_principal_id + ADR 0036 verifier-identity typed FK targets. Cf-category-strip canonicalization recipe structurally closes ADR 0051 v4 MT-Sec-2 zero-width-character evasion. |
+| `Session` | `0.1.0` | ADR 0055 / D-044 foundational-entity introduction (Step 3 entity #2 of 2 highest-coupling) | `sessionSchemaVersionSchema = z.literal('0.1.0')`. Closes 4 forward-reference typed FK targets: Lease.held_by_session_id (ADR 0052), Run.invoker_session_id (ADR 0053), ADR 0030 v2 owning_session_id, and consuming/requesting session references in ADRs 0031 v1 / 0051 v4 / 0052 / 0054. Execution-context-bound at entity layer (mirrors WorkspaceContext per ADR 0031 v1 Mechanical Tweak #8; DIVERGES from Principal which is execution-context-independent). |
 | Other standalone Phase 2.1 entities | `0.1.0` | Phase 2.1 entity introductions | Uses common `schemaVersionSchema`; future breaking changes require their own ADR. |
 
 ### Kernel-trusted producer allowlist final state
@@ -908,6 +929,7 @@ values that are kernel-set when present in `Evidence.producer`:
 | `kernel_telemetry` | ADR 0028 | Ring 1 telemetry readers | Host process, kqueue, ptrace, and equivalent host telemetry. |
 | `kernel_agent_client_resolver` | ADR 0037 | Ring 1 agent-client resolver | Resolves AgentClient axes and remote-cloud execution-context surfaces. |
 | `kernel_principal_resolver` | ADR 0054 | Ring 1 principal resolver | Mints `Principal` records from binding evidence (`GitIdentityBinding` for `human`; `MachineIdentityBindingObservation` for `service_principal`; future Q-row commit-signature-to-principal mappings per ADR 0036 §Future amendments). Canonicalizes `principal_id` surface IDs at mint per ADR 0054 §Compliance §Principal-id canonicalization rule 4-step recipe (NFC + Cf-category strip + Unicode-aware lowercase fold + leading/trailing whitespace trim). Mirrors `kernel_agent_client_resolver` precedent. |
+| `kernel_session_resolver` | ADR 0055 | Ring 1 session resolver | Mints `Session` records from invocation evidence (MCP server connection / CLI invocation / IDE workspace open kernel-observation paths). MUST enforce sandbox-source rejection (invocation evidence MUST NOT carry `authority: 'sandbox-observation'` or `'self-asserted'`) + transitive chain-walk rejection via `derived_from` per ADR 0019 v3 with walk-depth budget ≤ 64 + cycle-rejection via `audit_chain_corruption_detected` (security N1 + N4 v2 absorptions of ADR 0055). Mirrors `kernel_agent_client_resolver` (ADR 0037) + `kernel_principal_resolver` (ADR 0054) precedents. |
 | `kernel_workspace_diagnose` | ADR 0036, ADR 0050 | Ring 1 workspace diagnose service | Mints workspace diagnostic outputs, manifest projections, and `WorkspaceContext` identity records. |
 | `mint_api` | ADR 0028 | Ring 1 mint API | Kernel-set producer for synthetic or derived records. Authorized on `ApprovalGrant.granted_by`, `Lease.acquired_by`, `Run.recorded_by`, `Decision.decided_by`. |
 
@@ -2501,30 +2523,36 @@ table; reservation from ADR 0051 v4).
 - §Decision.reason_kind status table (`self_approval_rejected`
   registry-canonical reservation pending Ring 1 mint API Zod lift)
 
-### ADR 0049–0054 foundational Ring 0 entity enum mirrors
+### ADR 0049–0055 foundational Ring 0 entity enum mirrors
 
 The 2026-05-10 workflow-sequencing investigation §Step 1 landed five
 foundational Ring 0 entities (`Decision`, `WorkspaceContext`, `ApprovalGrant`,
 `Lease`, `Run`) via ADRs 0049 through 0053 (D-037 through D-041); ADR 0054 /
 D-043 (2026-05-11) added **Principal** as the sixth foundational entity (Step 3
 entity #1 of 2 highest-coupling — first entity drafted post-Step-1-source-
-landing). Each entity ships its own `*SchemaVersionSchema = z.literal('0.1.0')`
-literal so version bumps stay per-entity. Cross-record refinements (Session/
-Decision/ExecutionContext equality, lease uniqueness, producer-disjointness,
+landing); ADR 0055 / D-044 (2026-05-11) added **Session** as the seventh
+foundational entity (Step 3 entity #2 of 2 highest-coupling — closes 4
+forward-reference typed FK targets in the just-landed Step 1 train).
+Each entity ships its own `*SchemaVersionSchema = z.literal('0.1.0')`
+literal so version bumps stay per-entity. Cross-record refinements
+(execution-context binding equality, lease uniqueness, producer-disjointness,
 gateway re-derive, self-approval rejection, valid_until inheritance,
 revoke-wins race tiebreaker, sandbox-acquire rejection, authorizing-Decision
 outcome verification, principal-binding-evidence verification, synthetic-
-identity rejection) live at Ring 1 mint API per §Cross-context enforcement
-layer §Schema validation alone is not an enforcement layer.
+identity rejection, Session FK liveness verification + cross-context
+binding equality enforcement at consuming-record mint) live at Ring 1
+mint API per §Cross-context enforcement layer §Schema validation alone
+is not an enforcement layer.
 
 The four authorization envelopes (Decision, ApprovalGrant, Lease, Run) commit
 an envelope-level Zod `superRefine` that mirrors `qualityGateSchema`'s
 chain-walk rejection on `evidence_refs` (and, for ApprovalGrant, scope-payload
-acknowledged_* refs). WorkspaceContext + Principal do not carry the chain-walk
-superRefine; both are typed-identity envelopes mirroring AgentClient.
+acknowledged_* refs). WorkspaceContext + Principal + Session do not carry the
+chain-walk superRefine; all three are typed-identity envelopes mirroring
+AgentClient.
 
 **Canonical-concatenation length-prefix discipline** (ADR 0051 v4 retroactive
-posture rule, extended to ADRs 0049/0050/0051/0052/0053/0054 by ADR 0054):
+posture rule, extended to ADRs 0049/0050/0051/0052/0053/0054/0055 by ADR 0055):
 the `||` operator in any `audit_chain_link_hash` canonical-concatenation
 expression denotes length-prefix-encoded concatenation (each variable-length
 field encoded as `varint(byte_length) || field_bytes`). Defends against the
@@ -2876,6 +2904,85 @@ discipline.
    authority-binding-posture column) at the same change-set.
 6. Pass `hcs-ontology-reviewer`, `hcs-policy-reviewer`,
    `hcs-security-reviewer`, `hcs-architect` (all four required).
+
+#### `Session.session_kind` status table (ADR 0055)
+
+| session_kind | State | Invocation-evidence source | Required FK fields | Producer attribution |
+|---|---|---|---|---|
+| `agent_invocation` | Zod-defined v1 | MCP server connection / CLI invocation / IDE workspace open (kernel-observed via broker FSM / process telemetry / IDE-host probe) | `agent_client_id` + `principal_id` + `execution_context_id` all required | `kernel_session_resolver` |
+| `dashboard` | registry-canonical (ADR 0055 reservation; paired with future `kernel_dashboard` producer ADR) | dashboard tab open (future `kernel_dashboard` producer) | TBD per future ADR | TBD (future `kernel_dashboard`) |
+| `system_task` | registry-canonical (ADR 0055 reservation; paired with `system_principal` per ADR 0054) | kernel-initiated background work | `agent_client_id` may be relaxed to nullable; `principal_id` + `execution_context_id` required | TBD per future ADR |
+
+#### `Session.session_state` enum mirror (ADR 0055)
+
+```
+active | ended
+```
+
+**Cardinality matches** AgentClient/WorkspaceContext/Principal long-lived
+precedents (1 active + 1 terminal at v1). **Value-name diverges
+intentionally**: Session uses `ended` (not `retired`) because Session is a
+transient invocation rather than a long-lived identity (per ADR 0055 v2
+architect B1 absorption).
+
+#### `Session.producer` allowlist (ADR 0055)
+
+```
+kernel_session_resolver
+```
+
+NEW kernel-trusted producer added per ADR 0055 mirroring ADR 0037
+`kernel_agent_client_resolver` + ADR 0054 `kernel_principal_resolver`
+precedents. `kernel_dashboard` deferred to coordinated future ADR per
+ADRs 0051 v4 / 0052 / 0053 / 0054 / 0055 scope discipline.
+
+#### Procedure for adding a new `Session.session_kind` value (ADR 0055)
+
+1. Cite the source ADR / charter rule that the session_kind enforces.
+2. **Identify the invocation-evidence source**: which evidence
+   subtype(s) bind this kind (e.g., MCP server connection / CLI
+   invocation / IDE workspace open for `agent_invocation`; dashboard
+   tab open for future `dashboard`; kernel-initiated background work
+   for future `system_task`).
+3. **Identify the required FK fields per session_kind**: `agent_client_id`
+   (default yes for `agent_invocation`; future `system_task` may relax
+   to nullable per ADR 0054 §Future amendments `system_principal`
+   pairing), `principal_id` (default yes — every session has an
+   authenticated identity), `execution_context_id` (always yes per
+   inv. 17).
+4. **Commit lifecycle transitions** (default: same `active | ended`
+   pattern; new session_kinds may extend with `terminated`, `crashed`,
+   etc. per operational evidence).
+5. **Commit per-`session_kind` producer attribution**: which kernel-
+   trusted producer mints this session_kind (`agent_invocation` →
+   `kernel_session_resolver`; `dashboard` → future `kernel_dashboard`
+   (deferred); `system_task` → future producer (deferred)).
+6. Update §Session.session_kind status table (Zod-defined vs registry-
+   canonical, with invocation-evidence-source + required-FK-fields +
+   producer-attribution columns) at the same change-set.
+7. Pass `hcs-ontology-reviewer`, `hcs-policy-reviewer`,
+   `hcs-security-reviewer`, `hcs-architect` (all four required).
+
+#### NEW Decision.reason_kind reservations from ADR 0055
+
+The following 4 reason_kind values are reserved registry-canonical, with
+Zod-defined values to land at Ring 1 mint API schema PR per ADR 0049
+§Procedure rule. All deny-only:
+
+- `'session_agent_client_unresolvable'` — Layer 1 mint API cannot
+  resolve `Session.agent_client_id` to an active AgentClient.
+- `'session_principal_unresolvable'` — Layer 1 mint API cannot resolve
+  `Session.principal_id` to an active Principal.
+- `'session_execution_context_unresolvable'` — Layer 1 mint API cannot
+  resolve `Session.execution_context_id` to an active ExecutionContext
+  (operationalizes charter §Forbidden patterns line 138 / inv. 17
+  analogous to `run_execution_context_unresolvable` per ADR 0053).
+- `'session_started_at_after_ended_at'` — schema-level Zod superRefine
+  rejects when `ended_at < started_at` (temporal inconsistency; mirrors
+  `run_started_at_after_ended_at` per ADR 0053).
+
+These extend the registry §Decision.reason_kind status table from 32
+(after ADR 0053) to **36 total reservations**.
 
 ## Boundary dimension registry
 
@@ -3522,6 +3629,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.4.18 | 2026-05-11 | Recorded the seventh foundational Ring 0 entity (`Session`) per ADR 0055 / D-044 (workflow-sequencing investigation §Step 3 entity #2 of 2 highest-coupling — closes 4 forward-reference typed FK targets in the just-landed Step 1 train: Lease.held_by_session_id, Run.invoker_session_id, ADR 0030 v2 owning_session_id, and "consuming/requesting session" references in ADRs 0031 v1 / 0051 v4 / 0052 / 0054 self-approval rejection + holder-only release rules). Fourteen-item change-set: NEW §Session.session_kind status table (1 Zod-defined value `agent_invocation` + 2 registry-canonical reservations `dashboard` + `system_task`; invocation-evidence-source + required-FK-fields + producer-attribution columns); NEW §Session.session_state enum mirror (2 values; cardinality matches AgentClient/WorkspaceContext/Principal but value-name `ended` diverges from `retired` because Session is transient invocation not long-lived identity); NEW §Session.producer allowlist (`kernel_session_resolver`); NEW §Procedure for adding a new session_kind value rule (7 steps including invocation-evidence-source identification + required-FK-fields-per-kind + per-kind producer attribution + all-4-reviewer dispatch); NEW Decision.reason_kind reservations (4 deny-only: `session_agent_client_unresolvable`, `session_principal_unresolvable`, `session_execution_context_unresolvable`, `session_started_at_after_ended_at`); extends registry §Decision.reason_kind status table from 32 to 36 total reservations. UPDATE §Kernel-trusted producer allowlist final state — added `kernel_session_resolver` row (mirrors ADR 0037 `kernel_agent_client_resolver` + ADR 0054 `kernel_principal_resolver` precedents; MUST enforce sandbox-source rejection + transitive chain-walk rejection at Ring 1 per security N1 + N4 v2 absorptions). Renamed §ADR 0049–0054 foundational Ring 0 entity field authority subsection → §ADR 0049–0055 + added Session envelope-only-kernel-set entry contrasting with Principal (YES execution_context_id on envelope; Session is execution-context-BOUND at entity layer, mirrors WorkspaceContext per ADR 0031 v1 Mechanical Tweak #8). Renamed §ADR 0049–0054 foundational Ring 0 entity enum mirrors → §ADR 0049–0055 + body prose extended to 7 entities + Session sub-section with status table + state mirror + producer allowlist + §Procedure rule. Extended length-prefix canonical-concatenation discipline coverage from ADRs 0049-0054 to ADRs 0049-0055. Schema-version ledger (§Current schema-version ledger) gained a new Session row at `'0.1.0'`. The Session schema PR commits typed-FK closure for Lease.held_by_session_id + Run.invoker_session_id describe-text (NO shape change at consuming entities; `approvalGrantSchema.schema_version` / `leaseSchema.schema_version` / `runSchema.schema_version` all remain `'0.1.0'`). The §Self-approval rejection rule registry section (added by ADR 0054) gains the typed-FK consummation: the consuming-session `principal_id` reference becomes a typed FK via `Session.principal_id`; comparison form remains UUID-byte-equality on principal_id surface IDs canonicalized at Principal mint per the ADR 0054 4-step recipe (Cf-strip closure preserved). |
 | 0.4.17 | 2026-05-11 | Recorded the sixth foundational Ring 0 entity (`Principal`) per ADR 0054 / D-043 (workflow-sequencing investigation §Step 3 entity #1 of 2 highest-coupling; first entity drafted post-Step-1-source-landing). Twelve-item change-set: NEW §Self-approval rejection rule discrete registry section (ADD from item 7 v2-reframe — was UPDATE in v1 of ADR 0054, but the section did NOT exist as a discrete heading in v0.4.16, only narrative mentions inside §ADR 0049–0053 foundational Ring 0 entity field authority + §ADR 0049–0053 enum mirrors); NEW §Principal.principal_kind status table (2 Zod-defined values `human` + `service_principal`; 2 registry-canonical reservations `pseudo_principal` + `system_principal`); NEW §Principal.principal_state enum mirror (`active` + `retired`); NEW §Principal.producer allowlist (single-value `kernel_principal_resolver`); NEW §Procedure for adding a new `Principal.principal_kind` value rule (6 steps including binding-evidence source identification + authority-binding-posture classification with synthetic-identity rejection rule + all-4-reviewer dispatch). Updated §Kernel-trusted producer allowlist final state — added `kernel_principal_resolver` row (mirrors ADR 0037 `kernel_agent_client_resolver` precedent). Renamed §ADR 0049–0053 foundational Ring 0 entity field authority subsection → §ADR 0049–0054 + added Principal envelope-only-kernel-set entry (NO `execution_context_id` field on envelope; identity is execution-context-independent at the entity layer mirroring AgentClient). Renamed §ADR 0049–0053 foundational Ring 0 entity enum mirrors → §ADR 0049–0054 + added Principal sub-section with status table + state enum mirror + producer allowlist + §Procedure rule. Added Principal cross-reference to §Audit-chain coverage of rejections. Extended the length-prefix canonical-concatenation discipline coverage from ADRs 0049-0053 to ADRs 0049-0054 (Principal inherits the same hash-collision defense per ADR 0051 v4 retroactive posture rule). Schema-version ledger (§Current schema-version ledger) gained six new rows for the foundational entities (Decision/WorkspaceContext/ApprovalGrant/Lease/Run/Principal) at `'0.1.0'` — closes the pre-existing ledger drift noted by architect non-blocking observation post-ADR 0054 v2 (the prior-cohort entries existed only as the "Other standalone Phase 2.1 entities" generic row before this change-set). The §Self-approval rejection rule registry section commits the typed-FK comparison form (UUID-byte-equality), the 4-step canonicalization-at-mint recipe (NFC + Cf-category strip + Unicode-aware lowercase fold + leading/trailing-whitespace trim per ADR 0054 v2; the Cf-category strip structurally closes the ADR 0051 v4 §Self-approval rejection MT-Sec-2 zero-width-character evasion class), the non-readonly OperationShape.operation_class trigger set per ADR 0051 v4 §Rejects §Self-approval rejection, the Ring 1 mint API enforcement commitment, cross-references to ADRs 0051 v4 + 0054, and future-amendment commitments for Unicode version pinning (security N1) and Unicode TR39 confusable defense (security N2). |
 | 0.4.16 | 2026-05-11 | Recorded the workflow-sequencing investigation §Step 1 foundational Ring 0 entities (`Decision`, `WorkspaceContext`, `ApprovalGrant`, `Lease`, `Run`) per ADRs 0049–0053 / D-037–D-041. New §ADR 0049–0053 foundational Ring 0 entity enum mirrors section consolidates: §Decision.outcome enum mirror, §Decision.decided_by allowlist (adds `kernel_gateway`), §Decision.reason_kind status table (15 Zod-defined + 17 registry-canonical = 32 total reservations), §Decision §Procedure rule for new reason_kind values, §WorkspaceContext envelope (envelope-level kernel-set with 2 producer-asserted-kernel-verifiable exceptions per ADR 0031 v1), §ApprovalGrant.grant_kind enum mirror (3 Zod-defined), §ApprovalGrant.grant_state enum mirror, §ApprovalGrant.granted_by allowlist (excludes `kernel_gateway`), §ApprovalGrant §Procedure rule, §Lease.lease_kind status table (1 Zod-defined `worktree` + 2 registry-canonical reservations from ADR 0031 v1), §Lease.lease_state enum mirror, §Lease.acquired_by allowlist (excludes `kernel_gateway`), §Worktree-lease cardinality discipline (atomic-insert uniqueness per ADR 0031 v1 Mechanical Tweak #6 / Security-G), §Force-break separation of duties (ADR 0031 v1 Security-H; Phase 1 human-dashboard-only posture), §Lease §Procedure rule, §Run.run_kind status table (1 Zod-defined `operation_execution` + 2 registry-canonical reservations), §Run.run_state enum mirror, §Run.recorded_by allowlist (excludes `kernel_gateway`), §Evidence.run_id typed FK target closure (12 Phase 2 evidence subtypes per ADR 0053 MT-3), §Run §Procedure rule, §D-037 producer-disjointness rule (extended to Lease-acquire and Run-record cases). Updated §Kernel-trusted producer allowlist final state: added `kernel_gateway` row; extended `kernel_workspace_diagnose` scope to include `WorkspaceContext` identity records; clarified per-producer entity-field authorization scope across the new envelopes. Length-prefix canonical-concatenation discipline registered as a posture rule covering all foundational entity `audit_chain_link_hash` computations (ADR 0051 v4 retroactive). All cross-record refinements (Session/Decision/ExecutionContext equality, lease uniqueness, producer-disjointness, gateway re-derive, self-approval rejection, valid_until inheritance, revoke-wins race tiebreaker, sandbox-acquire rejection, authorizing-Decision outcome verification) remain Ring 1 mint API responsibility per §Cross-context enforcement layer §Schema validation alone is not an enforcement layer. |
 | 0.4.11 | 2026-05-09 | Replaced §Open follow-up evaluations with §Phase 2.7 candidate dispositions per ADR 0048 (proposed). Records the per-candidate classification for `machine_identity`, `project_substrate_contract`, and backup-readiness subject_kinds IF a future schema PR promotes them into `coordinationSubjectKindSchema`; default for all three is no enum addition unless a concrete coordination need surfaces. Currently none of the three are in `coordinationSubjectKindSchema`. |

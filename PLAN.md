@@ -5,7 +5,46 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Upstream research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — Step 3 entity #1 Principal landed; Session next; Ring 1 implementation gated by policy + Session
+## Current Focus — Step 3 complete (Principal + Session landed); Ring 1 implementation gated by policy + remaining-13 M1 entities
+
+**2026-05-11 update:** ADR 0055 Session accepted (D-044; commits
+`4e8fe23` v1 → `1ba8a2c` v2 → `01d1357` accept; 2-revision cycle
+matching ADR 0049 + ADR 0052 + ADR 0054 efficiency tier). Session
+landed as Ring 0 source in the coordinated schema PR following the
+Step 1 + Principal train patterns. Source-schema baseline shifts **10
+of 22 → 11 of 22** canonical M1 entities built. The coordinated slice
+also closed 4 forward-reference typed FK targets in the just-landed
+Step 1 train (Lease.held_by_session_id, Run.invoker_session_id,
+ADR 0030 v2 owning_session_id, and consuming/requesting session
+references in ADRs 0031 v1 / 0051 v4 / 0052 / 0054 self-approval
+rejection + holder-only release rules). 14-item registry change-set
+(v0.4.17 → v0.4.18). Lease.ts + Run.ts `.describe()` text updated to
+reference Session as typed FK target (NO shape change to
+entityIdSchema; consuming entities' schema_version values remain
+`'0.1.0'`).
+
+**Step 3 progress — COMPLETE at the highest-coupling layer**:
+- Entity #1 (`Principal`, ADR 0054 / D-043) ✓ designed + landed as
+  Ring 0 source at commit `8382194`
+- Entity #2 (`Session`, ADR 0055 / D-044) ✓ designed + landed as
+  Ring 0 source at this slice
+
+Both highest-coupling forward-references in the just-landed Step 1
+train (Decision/WorkspaceContext/ApprovalGrant/Lease/Run) are now
+closed at both the design AND the Ring 0 source layers.
+
+**Remaining-M1 gap (12 less-critical canonical entities)**:
+HostProfile, ToolProvider, ToolInstallation, ResolvedTool, Capability,
+CommandShape, PolicyRule, Artifact, Lock, SecretReference,
+ResourceBudget (11). These have lower coupling to the just-landed
+foundational train; each requires its own ADR + schema PR per the
+established pattern. Per the workflow-sequencing investigation §Step
+4, Ring 1 implementation at `packages/kernel/` can now honestly begin
+for services whose policy/schema prerequisites are present (mint API
++ broker FSM + audit hash chain + lease manager + gateway re-derive
++ execution broker).
+
+## Prior Focus — Step 3 entity #1 Principal landed; Session next; Ring 1 implementation gated by policy + Session
 
 **2026-05-11 update:** ADR 0054 Principal accepted (D-043; commits
 `85ff783` v1 → `8494fdb` v2 → `f36b3ba` accept; 2-revision cycle

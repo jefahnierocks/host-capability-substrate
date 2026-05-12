@@ -175,7 +175,7 @@ export const leaseSchema = z
     }
   })
   .describe(
-    'Ring 0 Lease entity from ADR 0052. Typed envelope for session-scoped resource holds. Envelope-level kernel-set with three producer-asserted-kernel-verifiable field-level exceptions per ADR 0031 v1 §Authority discipline (lease_kind, scope, valid_until). Chain-walk rejection at envelope superRefine fires unconditionally (charter inv. 18). Cross-record refinements (worktree-cardinality uniqueness, sandbox-acquire rejection, holder-only release, force-break separation of duties, D-037 producer-disjointness, valid_until inheritance) live at Ring 1 mint API per registry §Cross-context enforcement layer.',
+    'Ring 0 Lease entity from ADR 0052. Typed envelope for session-scoped resource holds. Envelope-level kernel-set with three producer-asserted-kernel-verifiable field-level exceptions per ADR 0031 v1 §Authority discipline (lease_kind, scope, valid_until). `held_by_session_id` is a typed FK to Session (ADR 0055 / D-044; FK shape unchanged at entityIdSchema; only the semantic referent gains a typed Ring 0 target). `held_by_agent_client_id` continues to be a typed FK to AgentClient. Chain-walk rejection at envelope superRefine fires unconditionally (charter inv. 18). Cross-record refinements (worktree-cardinality uniqueness, sandbox-acquire rejection, holder-only release via UUID-byte-equality on Session FK target per ADR 0052 §Identity comparison form, force-break separation of duties, D-037 producer-disjointness, valid_until inheritance) live at Ring 1 mint API per registry §Cross-context enforcement layer.',
   );
 
 export type Lease = z.infer<typeof leaseSchema>;

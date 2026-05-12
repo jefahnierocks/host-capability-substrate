@@ -3,7 +3,7 @@ title: Workflow Sequencing Investigation
 category: research
 component: host_capability_substrate
 status: planning-input
-version: 0.1.3
+version: 0.1.4
 last_updated: 2026-05-11
 tags: [sequencing, ring-0, ring-1, ring-2, ring-3, milestone-1, phase-3, foundational-entities, decision, approval-grant, lease, workspace-context, run, trigger-detection, enforcement-gap]
 priority: high
@@ -46,6 +46,25 @@ Lease/Run forward-references). The ADR 0054 §Self-approval rejection
 rule discrete registry section ADD also closes the ADR 0051 v4 MT-Sec-2
 zero-width-character evasion class structurally via the 4-step
 canonicalization-at-mint recipe with Unicode `Cf`-category strip.
+
+Truth-alignment update (2026-05-11, third update of the day): ADR 0055
+Session accepted (D-044) + landed as Ring 0 source in a coordinated
+schema PR following the Step 1 + Principal train pattern. Source-schema
+baseline shifts **10 of 22 → 11 of 22**. Step 3 entity #2 of 2 highest-
+coupling done; **Step 3 highest-coupling layer COMPLETE**. Both
+highest-coupling forward-references in the just-landed Step 1 train
+(Lease.held_by_session_id / Run.invoker_session_id / ADR 0030 v2
+owning_session_id / consuming-session principal_id surface in ADRs
+0051 v4 + 0054 self-approval rejection + ADR 0052 holder-only release)
+are now closed at both the design AND the Ring 0 source layers.
+Remaining gap: 11 less-critical canonical M1 entities (`HostProfile`,
+`ToolProvider`, `ToolInstallation`, `ResolvedTool`, `Capability`,
+`CommandShape`, `PolicyRule`, `Artifact`, `Lock`, `SecretReference`,
+`ResourceBudget`). These have lower coupling to the just-landed
+foundational train; each requires its own ADR + schema PR per the
+established pattern. Per §Step 4, Ring 1 implementation at
+`packages/kernel/` can now honestly begin for services whose policy/
+schema prerequisites are present.
 
 ## Empirical Baseline (2026-05-10 sweep)
 
@@ -357,6 +376,7 @@ The substrate's well-typed observation ontology + registered rules will then hav
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.1.4 | 2026-05-11 | Step 3 highest-coupling COMPLETE update after ADR 0055 Session accepted (D-044) and landed as Ring 0 source in a coordinated schema PR. Source-schema baseline shifts 10 of 22 → 11 of 22 built. Both highest-coupling forward-references in the just-landed Step 1 train (Decision/WorkspaceContext/ApprovalGrant/Lease/Run) are now closed at both the ADR-design AND Ring 0 source layers via ADR 0054 Principal (D-043) + ADR 0055 Session (D-044). Remaining gap: 11 less-critical canonical M1 entities. Next: per §Step 4, Ring 1 implementation at `packages/kernel/` can now begin for services whose policy/schema prerequisites are present (mint API + broker FSM + audit hash chain + lease manager + gateway re-derive + execution broker). |
 | 0.1.3 | 2026-05-11 | Step 3 entity #1 update after ADR 0054 Principal accepted (D-043) and landed as Ring 0 source in a coordinated schema PR. Source-schema baseline shifts 9 of 22 → 10 of 22 built. ADR 0054 also structurally closes the ADR 0051 v4 §Self-approval rejection MT-Sec-2 zero-width-character evasion class via the 4-step canonicalization-at-mint recipe with Unicode `Cf`-category strip; the new discrete §Self-approval rejection rule registry section is ADDed by ADR 0054's registry change-set (was a narrative mention only in v0.4.16). Next: Session ADR (entity #2 of 2 highest-coupling; forward-references Principal via session.principal_id). |
 | 0.1.2 | 2026-05-11 | Source-schema-landing update after the 5 ADRs landed as Ring 0 source. The five foundational entities (`Decision`, `WorkspaceContext`, `ApprovalGrant`, `Lease`, `Run`) are now present as Zod source, generated JSON Schema artifacts, focused schema tests, ontology.md v1.14.0 entries, and ontology-registry.md v0.4.16 entries. Source-schema baseline shifts from 4 of 22 → 9 of 22 built; remaining gap is 13 canonical M1 entities. Step 1 is structurally complete at both the ADR-design and Ring 0 source layers; Ring 1 is contractually unblocked at the Ring 0 contract layer but still gated by Phase 2.5 policy YAML + the highest-coupling remaining M1 entities (Session, Principal). |
 | 0.1.1 | 2026-05-10 | Truth-alignment update after ADRs 0049-0053 were accepted: clarifies that Step 1 is complete at the ADR/design layer only, and corrects the source-schema baseline to 4 of 22 canonical M1 entities built / 18 of 22 not built. |

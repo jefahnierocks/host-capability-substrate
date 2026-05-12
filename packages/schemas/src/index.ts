@@ -506,6 +506,17 @@ export {
   runnerHostSubstrateKindSchema,
 } from './entities/runner-host-observation.ts';
 export {
+  type Session,
+  type SessionKind,
+  type SessionProducer,
+  type SessionState,
+  sessionKindSchema,
+  sessionProducerSchema,
+  sessionSchema,
+  sessionSchemaVersionSchema,
+  sessionStateSchema,
+} from './entities/session.ts';
+export {
   type ClosedUnmergedReasonKind,
   closedUnmergedReasonKindSchema,
   type GitBranchAncestryKind,

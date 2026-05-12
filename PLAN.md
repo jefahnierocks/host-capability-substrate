@@ -5,7 +5,58 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Upstream research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — Step 3 complete (Principal + Session landed); Ring 1 implementation gated by policy + remaining-11 M1 entities
+## Current Focus — ADR 0056 v2 review blockers; no schema PR or Ring 1 work yet
+
+**2026-05-12 status refresh:** HCS `main` is clean and aligned with
+`origin/main` at `8f81e10` (`docs: revise adr 0056 reason-kind
+promotion`). Sibling `system-config` is clean and aligned with
+`origin/main` at `027c99e` (`ci(hcs): add policy draft lint stub`).
+The system-config Phase 2.5 activation candidate remains
+non-authoritative at
+`docs/host-capability-substrate/tiers.yaml.v0.2.0-skeleton.yaml`; no
+live `policies/host-capability-substrate/tiers.yaml` exists, no HCS
+policy snapshot has been vendored, and no Ring 1 service ADR has been
+opened.
+
+ADR 0056 v2 is still `proposed` and docs-only. It does not modify
+`packages/schemas/src/entities/decision.ts`, generated JSON Schema,
+schema tests, registry docs, live policy, or policy snapshots. The
+four-reviewer v2 findings are:
+
+- `hcs-architect`: ready-for-acceptance.
+- `hcs-security-reviewer`: ready-for-acceptance; recommended schema
+  regression coverage that `operation_class_unregistered` cannot be
+  minted without a valid `operation_shape_ref`.
+- `hcs-ontology-reviewer`: blocking. ADR 0056 says
+  `operation_class_unregistered` denials must not carry a clearing
+  `required_grant_kind`, but the implementation plan does not bind that
+  non-clearability to schema/test requirements. Current
+  `decisionSchema` accepts any valid nullable `required_grant_kind`
+  independently of `reason_kind`.
+- `hcs-policy-reviewer`: blocking. Pre-existing hook-local literal
+  forbidden-pattern policy remains embedded in `.claude/hooks/hcs-hook`
+  and `.codex/hooks/hcs-hook`, which prevents a clean "policy not
+  embedded in HCS" verdict. ADR 0056 v2 should also clarify that hook
+  backstops delegate to Ring 1/HCS or an authorized snapshot path, not
+  local policy literals.
+
+**Next safe HCS slice:** draft ADR 0056 v3 only. Absorb the ontology
+blocker by making `operation_class_unregistered` non-clearability an
+explicit schema/test commitment, including a reject test for non-null
+`required_grant_kind` and an accept test for null. Add the
+`decisionReasonKindSchema.describe()` update to the schema-PR
+commitments. Clarify the hook-backstop wording in the ADR. Separately
+scope the hook-local policy-copy cleanup with `hcs-hook-integrator` /
+`hcs-security-reviewer`; do not hide that blocker inside the reason-kind
+ADR.
+
+**Stop rules still active:** do not edit `decision.ts`, generated JSON
+Schema, schema fixtures/tests, ontology-registry status tables, HCS-side
+policy lint, generated policy snapshots, live system-config `tiers.yaml`,
+or Ring 1 service ADRs until ADR 0056 is accepted and the policy-copy
+blocker has an explicit resolution path.
+
+## Milestone Baseline — Step 3 complete (Principal + Session landed); Ring 1 implementation gated by policy + remaining-11 M1 entities
 
 **2026-05-11 update:** ADR 0055 Session accepted (D-044; commits
 `4e8fe23` v1 → `1ba8a2c` v2 → `01d1357` accept; 2-revision cycle
@@ -44,18 +95,24 @@ for services whose policy/schema prerequisites are present (mint API
 + broker FSM + audit hash chain + lease manager + gateway re-derive
 + execution broker).
 
-**Current next requirements:**
+**Post-blocker next requirements:**
 
-1. **Cross-repo policy gate:** Phase 2.5 canonical policy YAML in
+1. **ADR 0056 completion:** accept ADR 0056, then land the follow-up
+   schema PR that promotes `operation_class_unregistered` and
+   `audit_chain_corruption_detected` into `decisionReasonKindSchema`.
+2. **Hook policy-copy cleanup:** remove or replace hook-local
+   forbidden-pattern policy literals with the authorized delegation /
+   snapshot posture before claiming policy is not embedded in HCS hooks.
+3. **Cross-repo policy gate:** Phase 2.5 canonical policy YAML in
    `system-config/policies/host-capability-substrate/` for
    `OperationShape.operation_class → tier`, force-break grant posture,
    sandbox-acquire rejection, and producer-disjointness enforcement
    posture.
-2. **Ring 1 service ADRs:** Scope the first kernel service only after
+4. **Ring 1 service ADRs:** Scope the first kernel service only after
    its policy/schema prerequisites are explicit. Best first candidates
    remain mint API, audit hash chain/storage, lease manager, gateway
    re-derive, broker FSM, and execution broker.
-3. **Remaining M1 entities:** Draft + land the 11 lower-coupling
+5. **Remaining M1 entities:** Draft + land the 11 lower-coupling
    canonical entities as ADR + schema PR slices per
    `.agents/skills/hcs-schema-change`.
 

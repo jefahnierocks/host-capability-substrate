@@ -5,7 +5,7 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Upstream research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — Step 3 complete (Principal + Session landed); Ring 1 implementation gated by policy + remaining-13 M1 entities
+## Current Focus — Step 3 complete (Principal + Session landed); Ring 1 implementation gated by policy + remaining-11 M1 entities
 
 **2026-05-11 update:** ADR 0055 Session accepted (D-044; commits
 `4e8fe23` v1 → `1ba8a2c` v2 → `01d1357` accept; 2-revision cycle
@@ -33,16 +33,31 @@ Both highest-coupling forward-references in the just-landed Step 1
 train (Decision/WorkspaceContext/ApprovalGrant/Lease/Run) are now
 closed at both the design AND the Ring 0 source layers.
 
-**Remaining-M1 gap (12 less-critical canonical entities)**:
+**Remaining-M1 gap (11 less-critical canonical entities)**:
 HostProfile, ToolProvider, ToolInstallation, ResolvedTool, Capability,
 CommandShape, PolicyRule, Artifact, Lock, SecretReference,
-ResourceBudget (11). These have lower coupling to the just-landed
+ResourceBudget. These have lower coupling to the just-landed
 foundational train; each requires its own ADR + schema PR per the
 established pattern. Per the workflow-sequencing investigation §Step
 4, Ring 1 implementation at `packages/kernel/` can now honestly begin
 for services whose policy/schema prerequisites are present (mint API
 + broker FSM + audit hash chain + lease manager + gateway re-derive
 + execution broker).
+
+**Current next requirements:**
+
+1. **Cross-repo policy gate:** Phase 2.5 canonical policy YAML in
+   `system-config/policies/host-capability-substrate/` for
+   `OperationShape.operation_class → tier`, force-break grant posture,
+   sandbox-acquire rejection, and producer-disjointness enforcement
+   posture.
+2. **Ring 1 service ADRs:** Scope the first kernel service only after
+   its policy/schema prerequisites are explicit. Best first candidates
+   remain mint API, audit hash chain/storage, lease manager, gateway
+   re-derive, broker FSM, and execution broker.
+3. **Remaining M1 entities:** Draft + land the 11 lower-coupling
+   canonical entities as ADR + schema PR slices per
+   `.agents/skills/hcs-schema-change`.
 
 ## Prior Focus — Step 3 entity #1 Principal landed; Session next; Ring 1 implementation gated by policy + Session
 
@@ -117,9 +132,8 @@ Ring 0 contract layer** but still gated by:
    consuming-session principal_id comparison; by `Lease.held_by_session_id`;
    by `Run.invoker_session_id`) and `Principal` (forward-referenced by
    `ApprovalGrant.grantor_principal_ref` typed-FK semantics; v1 lives as
-   `entityIdSchema` string until typed). The 14 remaining canonical entities
-   from M1 (line 672+) carry less coupling and can batch after Session +
-   Principal.
+   `entityIdSchema` string until typed). The 13-entity canonical gap at
+   that point left 11 lower-coupling entities after Session + Principal.
 
 **Next truthful lanes:**
 

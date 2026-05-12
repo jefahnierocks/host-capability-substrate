@@ -1,7 +1,7 @@
 ---
 adr_number: 0055
 title: Session Ring 0 entity introduction
-status: proposed
+status: accepted
 date: 2026-05-11
 charter_version: 1.4.0
 tags: [session, ring-0, milestone-1, foundational-entity, session-kind, identity-binding, charter-v1-4-0, registry-v0-4-17-pending-v0-4-18, workflow-sequencing-step-3, post-step-1-source-landing, adr-0031-followup, adr-0051-v4-followup, adr-0054-followup, attribution-discipline]
@@ -11,7 +11,44 @@ tags: [session, ring-0, milestone-1, foundational-entity, session-kind, identity
 
 ## Status
 
-`proposed`
+`accepted`
+
+Accepted 2026-05-11 (v2 ready-for-acceptance from all four required
+reviewers: `hcs-architect`, `hcs-ontology-reviewer`,
+`hcs-policy-reviewer`, `hcs-security-reviewer`). Two mechanical tweaks
+at acceptance: (MT-1, architect N-1 absorbed) §Status v2 absorption
+block arrow notation clarified — the v1 broken-citation LHS in the
+"Architect B3 + Ontology B-2/B-3" bullets was lost when v1→v2
+`replace_all` corrections were applied; v2 absorption text now reads
+`(v1: lease.ts:101) → (v2-verified: lease.ts:103)` and similar for
+run.ts to preserve the historical record. (MT-2, architect F-2 +
+ontology F-1 absorbed) D-044 row added to DECISIONS.md recording both
+v1 dispatch + v2 absorption cycle per the established foundational-
+entity-train discipline. v1 dispatch (commit `4e8fe23`) returned
+architect blockers (B1 lifecycle naming-and-precedent divergence; B3
+schema-source line citations stale; B4 registry line citations stale)
++ ontology blockers (B-2/B-3 schema-source line citation drift;
+B-4/B-6/B-7/B-8/B-9 registry line citation drift, 7 total stale
+citations); policy + security returned ready-for-acceptance on v1
+outright. v2 (commit `1ba8a2c`) absorbed all 11 blockers (architect 4
++ ontology 7 — Architect B2 was withdrawn as verified-accurate on
+review). v2 ready-for-acceptance from architect + ontology + policy +
+security with no new blockers. Cycle-time: 2 revisions (matches ADR
+0049 + ADR 0052 + ADR 0054 efficiency tier). D-044 records.
+
+Drafted 2026-05-11 immediately after the workflow-sequencing investigation
+§Step 3 entity #1 (Principal, ADR 0054 / D-043) landed as Ring 0 source
+(commit `8382194 schemas: land adr 0054 principal + self-approval rejection
+rule registry section ADD`). Session is the second of two highest-coupling
+remaining M1 entities per the post-Step-1-source-landing PLAN.md §Current
+Focus rewrite.
+
+(Original "## Status / `proposed`" header retained below in the
+revision history block for historical clarity.)
+
+## Status (original proposed-stage content; retained for revision history)
+
+`proposed` (superseded by `accepted` above)
 
 Drafted 2026-05-11 immediately after the workflow-sequencing investigation
 §Step 3 entity #1 (Principal, ADR 0054 / D-043) landed as Ring 0 source
@@ -44,10 +81,12 @@ Focus rewrite.
     terminal at v1) but the value-name divergence reflects the
     semantic divergence. Mirror claims rewritten to cite cardinality-
     mirror only and explicitly contrast value semantics.
-  - **Architect B3 + Ontology B-2**: `lease.ts:103` → `lease.ts:103`
-    (held_by_session_id actual line). Stale citation; mechanical fix.
-  - **Architect B3 + Ontology B-3**: `run.ts:104` → `run.ts:104`
-    (invoker_session_id actual line). Stale citation; mechanical fix.
+  - **Architect B3 + Ontology B-2**: v1 cited `lease.ts:101`; actual
+    is `lease.ts:103` (held_by_session_id). Corrected to
+    `lease.ts:103` throughout v2. Stale citation; mechanical fix.
+  - **Architect B3 + Ontology B-3**: v1 cited `run.ts:110`; actual is
+    `run.ts:104` (invoker_session_id). Corrected to `run.ts:104`
+    throughout v2. Stale citation; mechanical fix.
   - **Architect B4 + Ontology B-4/B-6/B-7/B-8/B-9**: registry line
     citations drifted past current section headings. v2 corrected:
     §Kernel-trusted producer allowlist final state line 867 → 899;

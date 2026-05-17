@@ -7,17 +7,53 @@ Upstream research plan (canonical): `~/Organizations/jefahnierocks/system-config
 
 ## Current Focus — Policy-lint split implemented on HCS side; live policy still gated
 
-**2026-05-12 status refresh:** HCS `main` was clean and aligned with
-`origin/main` at `d343406` (`docs: refresh hcs handoff status`) before
-the local ADR 0056 / hook cleanup / policy-lint split sequence. Sibling
-`system-config` was clean and aligned with `origin/main` at `027c99e`
-(`ci(hcs): add policy draft lint stub`) during the same decision pass.
-The system-config Phase 2.5 activation candidate remains
-non-authoritative at
-`docs/host-capability-substrate/tiers.yaml.v0.2.0-skeleton.yaml`; no
-live `policies/host-capability-substrate/tiers.yaml` exists, no HCS
-policy snapshot has been vendored, and no Ring 1 service ADR has been
-opened.
+**2026-05-17 cross-repo refresh:** HCS `main` is clean at `78f0d13`
+(`ci: split policy snapshot lint`), aligned with `origin/main`. `just
+verify` passes (node-tools, static-gates, fixtures). Source-schema
+baseline holds at **11 of 22** canonical M1 entities (Principal +
+Session landed in commit `78e3995`; ADR 0056 reason-kind promotion
+landed in `0440c9c`).
+
+Sibling `system-config` has not advanced HCS-related work since
+`027c99e` (`ci(hcs): add policy draft lint stub`); recent commits there
+are device-admin scope only. The system-config side still owes the
+full activation lane before the HCS snapshot lane can open:
+
+- **`scripts/policy-lint.sh` (currently 156-line stub).** Six required
+  checks remain: grant-scope specificity + single-use + non-reuse;
+  `external_control_plane_mutation` typed provider evidence;
+  `worktree` lease-acquire blocks sandboxed execution contexts;
+  structured `cross_record_rules` shape for self-approval rejection +
+  producer disjointness + force-break posture; raw secret-material
+  rejection; source commit/path/hash binding (today the stub only
+  checks `source_policy_sha256`).
+- **Lint fixtures under `tests/policies/host-capability-substrate/`.**
+  None exist. The Phase 2.5 candidate lists nine `proposed_lint_fixtures`
+  paths all marked `status: not_created` (forbidden-with-approval-path,
+  broad-grant-scope, grant-reuse,
+  external-mutation-missing-provider-evidence,
+  sandboxed-worktree-lease-acquire, invalid-reason-kind,
+  raw-secret-material, snapshot-binding-missing,
+  tier-valid-until-ceiling-exceeded).
+- **Phase 2.5 candidate stale against HCS-side closures.** The
+  `tiers.yaml.v0.2.0-skeleton.yaml` still carries
+  `activation_blockers_remaining: [fix_4_reason_kind_path,
+  fix_7_policy_lint_placement]` — both closed (`fix_4` by D-046 +
+  ADR 0056 Option B; `fix_7` by D-048 split). Four forbidden-pattern
+  `reason_kind_status` rows + `forbidden_policy.reason_kind_strategy`
+  + `proposed_lint_fixtures.placement_status` still say
+  `pending_fix_*_decision`. `provenance.hcs_source_commit` is `f8792b3`,
+  superseded by HCS head `78f0d13`. The reviewer resolution packet
+  frontmatter remains `status: blocked-pending-activation-fixes`.
+- **Live `policies/host-capability-substrate/tiers.yaml`.** Not
+  promoted; the only file in that dir is
+  `project-substrate-admission.yaml`.
+
+The HCS Phase 2.5 activation candidate remains non-authoritative at
+`docs/host-capability-substrate/tiers.yaml.v0.2.0-skeleton.yaml` in
+system-config; no live `policies/host-capability-substrate/tiers.yaml`
+exists, no HCS policy snapshot has been vendored, and no Ring 1
+service ADR has been opened.
 
 ADR 0056 v3 is accepted (D-046). The follow-up schema slice now promotes
 `operation_class_unregistered` and `audit_chain_corruption_detected` into
@@ -45,17 +81,24 @@ source commit/path/hash binding, generated schema-ref compatibility,
 `operation_class_defaults` coverage, reason-kind compatibility, and
 snapshot path checks.
 
-**Next safe HCS slice:** do not activate live policy from this repo.
-The next cross-repo action is the system-config live-policy lane: land
-activation-grade lint fixtures for the reviewer blockers, convert the
-Phase 2.5 candidate to live `tiers.yaml` only after ADR 0056/schema
-status is accepted on the live-policy side, then vendor an HCS snapshot
-with source commit/path/hash.
+**Next safe HCS slice:** none. The HCS side has discharged its part
+of the Phase 2.5 lane (D-046 schema landed; D-047 hooks; D-048 split).
+The next action is system-config-side and is NOT to be performed from
+this repo. Specifically: expand `scripts/policy-lint.sh` with the six
+missing checks, create the nine negative-test fixtures, refresh the
+Phase 2.5 candidate to mark both `fix_4_reason_kind_path` and
+`fix_7_policy_lint_placement` resolved (citing D-046 / ADR 0056 and
+D-048), update `provenance.hcs_source_commit` to a current HCS head,
+then promote to live `policies/host-capability-substrate/tiers.yaml`
+with `status: active` and full source commit/path/hash binding.
 
-**Follow-on sequence:** live `tiers.yaml` activation with source
-commit/path/hash; HCS snapshot vendoring; then a scoped Ring 1 mint API
-+ audit-chain ADR. The first Ring 1 service should be mint/audit, not
-the execution broker.
+**Follow-on sequence:** once the live policy lands in system-config,
+the HCS side vendors a snapshot into `policies/generated-snapshot/`
+with `snapshot_binding.{system_config_commit, source_policy_path,
+source_policy_sha256}` populated and HCS-side snapshot compatibility
+lint enabled. Only after the snapshot exists does a scoped Ring 1
+mint API + audit-chain ADR open. The first Ring 1 service is
+mint/audit, not the execution broker.
 
 ## Milestone Baseline — Step 3 complete (Principal + Session landed); Ring 1 implementation gated by policy + remaining-11 M1 entities
 

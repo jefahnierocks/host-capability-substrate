@@ -7,17 +7,24 @@ Upstream research plan (canonical): `~/Organizations/jefahnierocks/system-config
 
 ## Current Focus — Policy-lint split implemented on HCS side; live policy still gated
 
-**2026-05-17 cross-repo refresh:** HCS `main` is clean at `78f0d13`
-(`ci: split policy snapshot lint`), aligned with `origin/main`. `just
-verify` passes (node-tools, static-gates, fixtures). Source-schema
-baseline holds at **11 of 22** canonical M1 entities (Principal +
-Session landed in commit `78e3995`; ADR 0056 reason-kind promotion
-landed in `0440c9c`).
+**2026-05-17 cross-repo refresh:** see
+`docs/host-capability-substrate/phase-2-5-policy-handoff-2026-05-17.md`
+for the fresh-agent packet. At the start of this closeout pass, HCS
+`main` was clean and aligned with `origin/main` at `4373007`
+(`docs: refresh hcs handoff status (2026-05-17)`). The HCS-side Phase
+2.5 closure commits are `0440c9c` (ADR 0056 reason-kind schema),
+`2d45327` (hook-local arrays removed), and `78f0d13` (policy snapshot
+lint split). Source-schema baseline holds at **11 of 22** canonical M1
+entities.
 
-Sibling `system-config` has not advanced HCS-related work since
-`027c99e` (`ci(hcs): add policy draft lint stub`); recent commits there
-are device-admin scope only. The system-config side still owes the
-full activation lane before the HCS snapshot lane can open:
+Sibling `system-config` has not advanced HCS-related policy work since
+the Phase 2.5 draft/lint-stub lane; recent commits there are
+device-admin scope only. During this closeout pass it was ahead of
+`origin/main` by two device-admin commits and had unrelated dirty files
+outside the HCS policy paths. No diffs were observed under
+`docs/host-capability-substrate/`, `policies/host-capability-substrate/`,
+or `scripts/policy-lint.sh`. The system-config side still owes the full
+activation lane before the HCS snapshot lane can open:
 
 - **`scripts/policy-lint.sh` (currently 156-line stub).** Six required
   checks remain: grant-scope specificity + single-use + non-reuse;
@@ -43,7 +50,8 @@ full activation lane before the HCS snapshot lane can open:
   `reason_kind_status` rows + `forbidden_policy.reason_kind_strategy`
   + `proposed_lint_fixtures.placement_status` still say
   `pending_fix_*_decision`. `provenance.hcs_source_commit` is `f8792b3`,
-  superseded by HCS head `78f0d13`. The reviewer resolution packet
+  superseded by the HCS-side closure commits (`0440c9c`, `2d45327`,
+  `78f0d13`) and later handoff commits. The reviewer resolution packet
   frontmatter remains `status: blocked-pending-activation-fixes`.
 - **Live `policies/host-capability-substrate/tiers.yaml`.** Not
   promoted; the only file in that dir is

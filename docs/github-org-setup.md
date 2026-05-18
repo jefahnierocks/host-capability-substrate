@@ -109,10 +109,11 @@ by checking it in.
 
 Add a required-status-check rule once `just verify` (or its CI
 equivalent) runs in Actions and is worth blocking pushes on. The
-quality-gate stack named in the master boundary decision §10
+quality-gate stack named in the source boundary decision §10
 (`format`, `typecheck`, unit tests, schema generation/drift, boundary
-import, policy lint, forbidden-string scan, gitleaks, no-runtime-state-in-repo,
-hook dry-run, AGENTS/CLAUDE pointer) all run via `just verify` today;
+import, policy lint, forbidden-string scan, agent contract identity scan,
+gitleaks, no-runtime-state-in-repo, hook dry-run, AGENTS/CLAUDE pointer)
+all run via `just verify` today;
 once an Actions workflow ships them as a status check, this is the
 place to document promoting it to required status. Currently HCS has
 no `.github/workflows/`; the gates run locally only.
@@ -136,7 +137,7 @@ land; at that point both repos need it in lockstep, and
 ## Related
 
 - [`.github/CODEOWNERS`](../.github/CODEOWNERS)
-- [`docs/host-capability-substrate/adr/0001-repo-boundary.md`](./host-capability-substrate/adr/0001-repo-boundary.md) — in-repo boundary ADR (short pointer; master in `system-config`)
+- [`docs/host-capability-substrate/adr/0001-repo-boundary.md`](./host-capability-substrate/adr/0001-repo-boundary.md) — in-repo boundary ADR (short pointer; source decision in `system-config`)
 - [`docs/host-capability-substrate/adr/0046-github-org-migration.md`](./host-capability-substrate/adr/0046-github-org-migration.md) — ADR recording the 2026-05-08 transfer to the `jefahnierocks` org
 - `~/Organizations/jefahnierocks/system-config/docs/github-org-setup.md` — sibling repo's parallel setup
-- `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate/0001-repo-boundary-decision.md` — master boundary decision (v1.3.0+)
+- `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate/0001-repo-boundary-decision.md` — source boundary decision (v1.3.0+)

@@ -13,7 +13,7 @@ priority: critical
 
 Binding rule for everyone (human and agent) touching HCS. Citable from every PR. Violations block merge.
 
-Parent research plan: `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`. Boundary decision: [`adr/0001-repo-boundary.md`](./adr/0001-repo-boundary.md). Tooling surface matrix: [`tooling-surface-matrix.md`](./tooling-surface-matrix.md).
+Research plan: `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`. Boundary decision: [`adr/0001-repo-boundary.md`](./adr/0001-repo-boundary.md). Tooling surface matrix: [`tooling-surface-matrix.md`](./tooling-surface-matrix.md).
 
 ## The four rings
 

@@ -3,9 +3,40 @@
 
 Milestone-by-milestone implementation plan. Follow in order. Each milestone has acceptance criteria and validation commands. Do not skip validation.
 
-Upstream research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
+Research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — Policy-lint split implemented on HCS side; live policy still gated
+## Current Focus — HCS-local workstation contract restatement
+
+**2026-05-17 docs-only restatement pass:** an operator-relayed
+integration directive created a Ring 3 / class A restatement slice for
+the HCS workstation surface. The first pass added
+`docs/host-capability-substrate/workstation-surface-contract.md`,
+recorded the inventory at
+`docs/host-capability-substrate/restatement-inventory-2026-05-17.md`,
+added the relayable readout at
+`docs/host-capability-substrate/usable-state-readout-2026-05-17.md`,
+and linked the contract from the root agent-facing files.
+
+This pass restates, in HCS wording, the four authority surfaces HCS must
+keep separate (actor identity, managed resource, authorization binding,
+runtime evaluation), the local role/responsibility framework, the
+Cloudflare operator identity transition (`jeffreyverlynjohnson@gmail.com`
+interim; `guardian@thenash.group` target after the Phase 2 account email
+migration), the OAuth-native Cloudflare MCP baseline
+(`cloudflare-api` at `https://mcp.cloudflare.com/mcp`), and HCS-side
+interfaces with nearby jefahnierocks projects.
+
+This docs slice does not change the Phase 2.5 code/policy gate: it does
+not authorize provider writes, live policy activation, sibling-repo
+edits, remote push, schema changes, hook behavior changes, or Ring 1
+service work. Historical ADRs, decision rows, and research notes may
+preserve older external vocabulary as provenance; current HCS operating
+guidance should be restated in HCS-owned docs before becoming default
+session context. `just agent-contract-identity-scan` is now part of
+`just verify` and guards the default contract surfaces against reintroducing
+external organizational identifiers as active operating guidance.
+
+## Prior Current Focus — Policy-lint split implemented on HCS side; live policy still gated
 
 **2026-05-17 cross-repo refresh:** see
 `docs/host-capability-substrate/phase-2-5-policy-handoff-2026-05-17.md`

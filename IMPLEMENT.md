@@ -16,6 +16,8 @@ Follow `PLAN.md` milestone by milestone.
 - Per-surface capability-state vocabulary is canonical in
   `docs/host-capability-substrate/dashboard-contracts.md`; ADRs may reference
   it but must not introduce competing state lists.
+- Agent-facing contract/restatement changes update the inventory or readout
+  when status changes and must pass `just agent-contract-identity-scan`.
 - Do not implement execution, approvals, sandbox, or audit-write endpoints unless the current milestone explicitly says so.
 - Honor the implementation charter at `docs/host-capability-substrate/implementation-charter.md`.
 

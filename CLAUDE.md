@@ -42,12 +42,15 @@ Return objections before fixes. Blocking issues first, non-blocking second.
 ## Claude-specific notes for this repo
 
 - Prefer specialized tools (Read, Edit, Grep, Glob) over Bash equivalents.
-- `zsh` is the only managed interactive shell on this host per parent system-config policy; do not introduce fish-specific patterns.
+- `zsh` is the only managed interactive shell on this host per system-config-managed host policy; do not introduce fish-specific patterns.
 - Use subagents scoped by tool and MCP server rather than the full toolbox.
 - When proposing a Bash command: include the argv decomposition and the resolved tool path in your response, not just the shell string.
 - When reviewing a Bash command proposal: if the proposer did not include argv + resolved path, that alone is a blocking comment.
 - **Skills canonical location is `.agents/skills/`** (cross-tool). `.claude/skills/` is reserved for Claude-specific wrappers only, and is empty at Phase 0a. Add a wrapper only if Claude Code fails to discover the canonical; the wrapper references the canonical body, never copies it.
 - Claude skills do not grant permissions — deny rules belong in `.claude/settings.json`.
+- HCS workstation-surface authority, local work roles, Cloudflare identity
+  transition, and MCP OAuth baseline are restated in
+  `docs/host-capability-substrate/workstation-surface-contract.md`.
 
 ## Settings posture
 
@@ -72,8 +75,9 @@ Six project-scoped subagents in `.claude/agents/`, all Opus 4.7, no Bash in any 
 
 ## Reference
 
-Parent research plan (in system-config): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md` (v0.3.0+).
+Research plan (system-config): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md` (v0.3.0+).
 
 Charter: `docs/host-capability-substrate/implementation-charter.md` (v1.3.0+).
+Workstation surface contract: `docs/host-capability-substrate/workstation-surface-contract.md`.
 Tooling surface matrix: `docs/host-capability-substrate/tooling-surface-matrix.md`.
-Boundary decision: see `docs/host-capability-substrate/adr/0001-repo-boundary.md` in this repo (master document lives in system-config).
+Boundary decision: see `docs/host-capability-substrate/adr/0001-repo-boundary.md` in this repo (source decision lives in system-config).

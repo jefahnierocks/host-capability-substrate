@@ -6,15 +6,40 @@ HCS is infrastructure. It is the substrate on which every agent's actions compos
 
 ## Status
 
-Phase 0b closeout — the April 23-25, 2026 measurement soak is captured and the April 26, 2026 closeout flow has landed. The governance scaffold is in place; kernel, adapters, and dashboard code are still intentionally unimplemented.
+Ring 0 schema landing is in progress. The source-schema baseline is 11 of 22
+canonical M1 entities, and the HCS side of the Phase 2.5 policy-lint split is
+closed. Kernel, adapters, and dashboard code are still intentionally
+unimplemented until their policy, snapshot, audit, lease, and approval
+prerequisites are explicit. The HCS-local agent-facing workstation contract
+restatement reached usable documentation state on 2026-05-17; see
+`docs/host-capability-substrate/usable-state-readout-2026-05-17.md`.
 
-## Canonical governance
+## Local Contract
 
-Authoritative documents live in [`system-config`](https://github.com/jefahnierocks/system-config) (`~/Organizations/jefahnierocks/system-config/`):
+HCS operating authority is restated in this repo. External policy and deployment
+sources are named where HCS consumes them, but root agent sessions should be able
+to understand HCS scope and boundaries from HCS-owned files.
+
+Read in order:
+
+1. `AGENTS.md` — canonical cross-tool contract
+2. `CLAUDE.md` — imports `AGENTS.md` + Claude-specific notes
+3. `docs/host-capability-substrate/workstation-surface-contract.md` — workstation authority surfaces, local roles, Cloudflare identity transition, MCP OAuth baseline, and cross-project interfaces
+4. `docs/host-capability-substrate/usable-state-readout-2026-05-17.md` — current restatement status and non-authorization boundaries
+5. `docs/host-capability-substrate/implementation-charter.md` — binding invariants
+6. `PLAN.md` — current milestone and acceptance criteria
+7. `IMPLEMENT.md` — per-PR workflow rules
+8. `DECISIONS.md` — human-readable decision ledger
+9. `docs/github-org-setup.md` — GitHub org / branch ruleset / CODEOWNERS recipe
+
+## External Inputs
+
+The following sources live outside this repo and are consumed through explicit
+HCS boundaries:
 
 - Research plan — `docs/host-capability-substrate-research-plan.md` (v0.3.0+)
 - Implementation charter — `docs/host-capability-substrate/implementation-charter.md` (v1.2.0+) — copy vendored here at `docs/host-capability-substrate/implementation-charter.md`
-- Boundary decision — in-repo pointer: `docs/host-capability-substrate/adr/0001-repo-boundary.md` (v1.1.0+; master lives in `system-config`)
+- Boundary decision — in-repo pointer: `docs/host-capability-substrate/adr/0001-repo-boundary.md` (v1.1.0+; source decision lives in `system-config`)
 - Tooling surface matrix — `docs/host-capability-substrate/tooling-surface-matrix.md` (v1.0.0+) — copy vendored here
 - Live runtime policy — `policies/host-capability-substrate/` (**canonical; not in this repo**)
 
@@ -46,18 +71,6 @@ just measure       # daily partition capture during the soak window
 just measure-brief # consolidated soak readout
 ```
 
-## Project contract
-
-Read in order:
-
-1. `AGENTS.md` — canonical cross-tool contract
-2. `CLAUDE.md` — imports `AGENTS.md` + Claude-specific notes
-3. `docs/host-capability-substrate/implementation-charter.md` — binding invariants
-4. `PLAN.md` — current milestone and acceptance criteria
-5. `IMPLEMENT.md` — per-PR workflow rules
-6. `DECISIONS.md` — human-readable decision ledger
-7. `docs/github-org-setup.md` — GitHub org / branch ruleset / CODEOWNERS recipe (repo administration)
-
 ## Runtime layout (not in this repo)
 
 - **State:** `~/Library/Application Support/host-capability-substrate/`
@@ -67,7 +80,7 @@ Read in order:
 
 ## Ownership
 
-Owned by **jefahnierocks** as a host-scoped HCS project. Parent-organization
-materials may be cited as research inputs, but HCS operating authority comes
-from this repo's charter, ADRs, decision ledger, and the external policy source
-explicitly named by those HCS-local documents.
+Owned by **jefahnierocks** as a host-scoped HCS project. External
+organizational materials may be used only as integration inputs. HCS operating
+authority comes from this repo's contract, charter, ADRs, decision ledger, and
+the external policy source explicitly named by those HCS-local documents.

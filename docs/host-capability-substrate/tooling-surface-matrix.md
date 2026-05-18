@@ -3,8 +3,8 @@ title: HCS Tooling Surface Matrix
 category: reference
 component: host_capability_substrate
 status: active
-version: 1.5.0
-last_updated: 2026-05-12
+version: 1.5.3
+last_updated: 2026-05-17
 tags: [tooling, ide, claude-code, codex, cursor, warp, windsurf, vscode, iterm2, mcp, skills, integration, isolation]
 priority: high
 ---
@@ -13,7 +13,7 @@ priority: high
 
 Authoritative reference for which config file belongs to which tool, what each tool can enforce vs observe, where skills and policy actually live, and what posture each surface must hold at Phase 0a / Phase 3 / Phase 4. Intended to prevent "where should this go?" drift.
 
-Parent decision: [`adr/0001-repo-boundary.md`](./adr/0001-repo-boundary.md). Charter: [`implementation-charter.md`](./implementation-charter.md).
+Boundary decision: [`adr/0001-repo-boundary.md`](./adr/0001-repo-boundary.md). Charter: [`implementation-charter.md`](./implementation-charter.md).
 
 ## Tool baseline (binding during early phases)
 
@@ -64,6 +64,8 @@ or host-authoritative runtime facts until reconciled through typed evidence.
 |---------|-------------|-------|------------------------|-------------|-------------|--------------|-------------------|---------------------------|-------|----------|---------|---------|
 | `AGENTS.md` | repo root | project | **canonical** | no (behavior only) | no | no | no (pointer) | pointer-only | hcs-architect + human | full contract; ≤ context cap | unchanged | unchanged |
 | `CLAUDE.md` | repo root | project | **canonical** (behavior) | no | no | no | no | no | hcs-architect + human | imports AGENTS.md; Claude-specific notes | unchanged | unchanged |
+| `docs/host-capability-substrate/workstation-surface-contract.md` | repo | project | **canonical** (workstation contract) | no | no | no | no | no | human owns; hcs-architect reviews | HCS-local authority surfaces, role framework, Cloudflare identity transition, MCP OAuth baseline, and cross-project interfaces | updated as workstation interfaces change | updated as workstation interfaces change |
+| `docs/host-capability-substrate/usable-state-readout-2026-05-17.md` | repo | project | canonical (status readout) | no | no | no | no | no | human owns | relayable status for the 2026-05-17 workstation-contract restatement slice | superseded by a new dated readout when status changes | superseded by a new dated readout when status changes |
 | `.agents/skills/` | repo root | project | **canonical** (skill content) | no | no | no | **yes** | no | hcs-architect + hcs-eval-reviewer | 6 seed skills (see charter §§) | add/edit as workflows emerge | unchanged |
 | `PLAN.md` | repo root | project | canonical (milestones) | no | no | no | no | no | human owns | milestones 0–6 | updated per milestone | updated per milestone |
 | `IMPLEMENT.md` | repo root | project | canonical (workflow rules) | no | no | no | no | no | human owns | rules + change classes | unchanged | unchanged |
@@ -195,6 +197,8 @@ and remote execution as one authority class.
 ```
 AGENTS.md                  canonical behavior contract — required, ≤ context cap
 CLAUDE.md                  imports AGENTS.md + Claude-specific notes — required
+workstation-surface-contract.md  HCS-local authority surfaces and workstation interfaces
+usable-state-readout-2026-05-17.md  relayable restatement status, not authorization
 .agents/skills/            cross-tool canonical workflow home — 6 skills at Phase 0a
 .claude/agents/            project-scoped subagents — 6 at Phase 0a
 .claude/settings.json      Claude Code project policy — enforceable; forbidden literals only
@@ -266,6 +270,8 @@ When adding X to the repo, route by type:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.5.3 | 2026-05-18 | Added the usable-state readout as a status surface for the HCS-local workstation-contract restatement slice. |
+| 1.5.2 | 2026-05-17 | Added the HCS workstation surface contract as a canonical cross-tool surface and removed stale external-inheritance wording from the matrix header. |
 | 1.5.1 | 2026-05-12 | Clarified D-048 policy-lint placement: system-config owns live-policy activation lint; HCS owns generated-snapshot source-binding and schema-compatibility lint only. |
 | 1.5.0 | 2026-05-12 | Updated Claude/Codex hook surface posture for D-047: project hooks are thin wrappers with no hook-local policy, current Phase 0b behavior is measurement-only, and future hard decisions come from Ring 1 RPC or generated/hash-bound policy cache sourced from system-config live policy. |
 | 1.4.0 | 2026-05-01 | Added isolation vocabulary discipline and compatibility-only adjacent agent/cloud surface intake from the 2026-05-01 report. |

@@ -42,6 +42,7 @@ run_group static-gates \
   boundary-check \
   policy-lint \
   forbidden-string-scan \
+  agent-contract-identity-scan \
   no-live-secrets \
   no-runtime-state-in-repo \
   shellcheck-scan

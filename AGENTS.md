@@ -13,19 +13,27 @@ Subsequent minor updates acceptable without re-baselining. Re-baseline after mat
 Read these before editing:
 
 1. `docs/host-capability-substrate/implementation-charter.md` — binding rules, four rings, non-negotiable invariants (v1.3.0+)
-2. `docs/host-capability-substrate/ontology.md` — entity schemas
-3. `docs/host-capability-substrate/tooling-surface-matrix.md` — where each config file belongs and what it can enforce
-4. `docs/host-capability-substrate/adr/` — architecture decisions
-5. `PLAN.md` — current milestone and acceptance criteria
-6. `IMPLEMENT.md` — workflow rules
-7. `DECISIONS.md` — human-readable decision ledger
-8. `docs/github-org-setup.md` — GitHub org / branch ruleset / CODEOWNERS recipe (repo administration; reproduces the GitHub-side configuration if rulesets, teams, or branch protection are lost)
+2. `docs/host-capability-substrate/workstation-surface-contract.md` — HCS-local workstation authority surfaces, roles, Cloudflare identity transition, MCP OAuth baseline, and cross-project interfaces
+3. `docs/host-capability-substrate/ontology.md` — entity schemas
+4. `docs/host-capability-substrate/tooling-surface-matrix.md` — where each config file belongs and what it can enforce
+5. `docs/host-capability-substrate/adr/` — architecture decisions
+6. `PLAN.md` — current milestone and acceptance criteria
+7. `IMPLEMENT.md` — workflow rules
+8. `DECISIONS.md` — human-readable decision ledger
+9. `docs/github-org-setup.md` — GitHub org / branch ruleset / CODEOWNERS recipe (repo administration; reproduces the GitHub-side configuration if rulesets, teams, or branch protection are lost)
 
-Upstream research plan (in system-config, canonical reference):
+Current restatement status:
+`docs/host-capability-substrate/usable-state-readout-2026-05-17.md`.
+
+Research plan (in system-config, canonical reference):
 `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
 Canonical live policy (not in this repo):
 `~/Organizations/jefahnierocks/system-config/policies/host-capability-substrate/`.
+
+Integration-time directive packets can inform HCS updates, but adopted rules
+must be restated in HCS-owned docs before they become default session context.
+Do not make normal HCS sessions depend on external governance files.
 
 ## Repo layout
 
@@ -99,6 +107,7 @@ just test mcp           # MCP adapter tests
 just generate-schemas --check   # confirms JSON Schema matches Zod
 just policy-lint        # checks policy files are well-formed and schema-valid
 just boundary-check     # enforces charter §Package boundary enforcement
+just agent-contract-identity-scan # checks default agent-facing surfaces stay in HCS wording
 ```
 
 ## Definition of done

@@ -103,6 +103,10 @@ policy-lint:
 forbidden-string-scan:
 	@bash scripts/ci/forbidden-string-scan.sh
 
+# HCS-local wording scan for default agent-facing surfaces
+agent-contract-identity-scan:
+	@bash scripts/ci/agent-contract-identity-scan.sh
+
 # Secret scan
 no-live-secrets:
 	@bash scripts/ci/no-live-secrets.sh

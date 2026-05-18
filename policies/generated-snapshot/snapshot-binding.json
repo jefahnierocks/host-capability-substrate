@@ -1,0 +1,6 @@
+{
+  "snapshot_file": "policies/generated-snapshot/tiers.yaml",
+  "system_config_commit": "136dbaa",
+  "source_policy_path": "policies/host-capability-substrate/tiers.yaml",
+  "source_policy_sha256": "sha256:e06442e02db50604e8ae8cbc1572a4ecec91ae87bfac6705e52161fd450ae68b"
+}

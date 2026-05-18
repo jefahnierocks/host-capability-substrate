@@ -41,6 +41,7 @@ run_group static-gates \
   generate-schemas-check \
   boundary-check \
   policy-lint \
+  snapshot-binding-check \
   forbidden-string-scan \
   agent-contract-identity-scan \
   no-live-secrets \

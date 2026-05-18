@@ -99,6 +99,10 @@ boundary-check:
 policy-lint:
 	@bash scripts/ci/policy-lint.sh
 
+# Generated snapshot binding and schema compatibility validation
+snapshot-binding-check:
+	@bash scripts/ci/snapshot-binding-check.sh
+
 # Forbidden-string scan (universal shell names, op:// resolved values, etc.)
 forbidden-string-scan:
 	@bash scripts/ci/forbidden-string-scan.sh

@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# policy-lint.sh — validate HCS policy snapshot compatibility.
+# policy-lint.sh — validate HCS policy snapshot policy-shape compatibility.
 #
 # Canonical live policy lives in system-config. This repo owns only the
 # generated snapshot fixture and its compatibility with HCS schemas.
+# Live-to-vendored source binding is checked by snapshot-binding-check.sh.
 
 set -euo pipefail
 
@@ -33,7 +34,6 @@ require 'json'
 require 'set'
 require 'yaml'
 
-SNAPSHOT_SOURCE_PATH = 'policies/host-capability-substrate/tiers.yaml'
 OPERATION_SHAPE_SCHEMA = 'packages/schemas/generated/OperationShape.schema.json'
 DECISION_SCHEMA = 'packages/schemas/generated/Decision.schema.json'
 
@@ -50,14 +50,6 @@ end
 
 def mapping?(value)
   value.is_a?(Hash)
-end
-
-def sha256?(value)
-  value.is_a?(String) && value.match?(/\A(?:sha256:)?[a-f0-9]{64}\z/)
-end
-
-def commit_sha?(value)
-  value.is_a?(String) && value.match?(/\A[a-f0-9]{7,40}\z/)
 end
 
 def collect_property_values(node, property_name)
@@ -123,31 +115,6 @@ Dir.glob(File.join(snapshot_dir, '**', '*.{yaml,yml}')).sort.each do |path|
   end
 
   lint_error(rel, 'missing required root field schema_version') unless present?(policy['schema_version'])
-
-  binding = policy['snapshot_binding']
-  unless mapping?(binding)
-    lint_error(rel, 'missing required snapshot_binding mapping')
-    next
-  end
-
-  unless commit_sha?(binding['system_config_commit'])
-    lint_error(rel, 'snapshot_binding.system_config_commit must be a Git commit SHA')
-  end
-
-  unless binding['source_policy_path'] == SNAPSHOT_SOURCE_PATH
-    lint_error(
-      rel,
-      "snapshot_binding.source_policy_path must be #{SNAPSHOT_SOURCE_PATH.inspect}",
-    )
-  end
-
-  unless sha256?(binding['source_policy_sha256'])
-    lint_error(rel, 'snapshot_binding.source_policy_sha256 must be a sha256 digest')
-  end
-
-  if present?(binding['hcs_snapshot_path']) && binding['hcs_snapshot_path'] != rel
-    lint_error(rel, "snapshot_binding.hcs_snapshot_path must match #{rel.inspect}")
-  end
 
   schema_refs = policy['schema_refs']
   if mapping?(schema_refs)

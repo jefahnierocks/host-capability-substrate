@@ -7,7 +7,7 @@ import { qualityGateEvidenceRefSchema } from './quality-gate.ts';
 export const decisionSchemaVersionSchema = z
   .literal('0.1.0')
   .describe(
-    'Decision schema version (ADR 0049; M1 foundational entity #1; D-037). ADR 0056 adds Decision.reason_kind values by additive enum widening without bumping this literal.',
+    'Decision schema version (ADR 0049; M1 foundational entity #1; D-037). ADRs 0056 and 0058 add Decision.reason_kind values by additive enum widening without bumping this literal.',
   );
 
 export const decisionOutcomeSchema = z
@@ -35,9 +35,10 @@ export const decisionReasonKindSchema = z
     'containment_evidence_producer_supplied',
     'containment_runtime_capability_exceeded',
     'audit_chain_corruption_detected',
+    'authority_chain_walk_depth_exceeded',
   ])
   .describe(
-    'Zod-defined Decision.reason_kind union (ADR 0049 v1 plus ADR 0056 additive promotions; 17 values). Remaining reservations stay registry-canonical-pending per the registered §Procedure rule.',
+    'Zod-defined Decision.reason_kind union (ADR 0049 v1 plus ADR 0056 and ADR 0058 additive promotions; 18 values). Remaining reservations stay registry-canonical-pending per the registered §Procedure rule.',
   );
 
 export const decisionRequiredGrantKindSchema = approvalGrantKindSchema.describe(
@@ -80,6 +81,7 @@ const decisionReasonKindCompatibleOutcomes: Record<
   containment_evidence_producer_supplied: ['deny'],
   containment_runtime_capability_exceeded: ['deny'],
   audit_chain_corruption_detected: ['deny'],
+  authority_chain_walk_depth_exceeded: ['deny'],
 };
 
 const retrievalArtifactIdPattern = /^(knowledge-chunk|derived-summary):/;
@@ -175,6 +177,26 @@ export const decisionSchema = z
           'operation_class_unregistered is non-clearable per ADR 0056; required_grant_kind must be null.',
         path: ['required_grant_kind'],
       });
+    }
+
+    if (value.reason_kind === 'authority_chain_walk_depth_exceeded') {
+      if (value.required_grant_kind !== null) {
+        ctx.addIssue({
+          code: 'custom',
+          message:
+            'authority_chain_walk_depth_exceeded is non-clearable per ADR 0058; required_grant_kind must be null.',
+          path: ['required_grant_kind'],
+        });
+      }
+
+      if (value.decided_by !== 'mint_api' && value.decided_by !== 'kernel_broker') {
+        ctx.addIssue({
+          code: 'custom',
+          message:
+            'authority_chain_walk_depth_exceeded may only be emitted by mint_api or kernel_broker per ADR 0058; kernel_gateway remains excluded pending a future gateway ADR.',
+          path: ['decided_by'],
+        });
+      }
     }
 
     for (const [index, ref] of value.evidence_refs.entries()) {

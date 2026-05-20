@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { decisionSchema } from '../src/index.ts';
+import { decisionReasonKindSchema, decisionSchema } from '../src/index.ts';
 
 const baseChainAwareEvidenceRef = {
   evidence_id: 'evidence:decision:test',
@@ -30,6 +30,12 @@ const baseDenyDecision = {
   required_grant_kind: null,
 } as const;
 
+const authorityChainDepthOverflowDecision = (overrides: Record<string, unknown> = {}) => ({
+  ...baseDenyDecision,
+  reason_kind: 'authority_chain_walk_depth_exceeded',
+  ...overrides,
+});
+
 type GeneratedSchemaObject = Record<string, unknown>;
 
 const asRecord = (value: unknown): GeneratedSchemaObject =>
@@ -51,7 +57,7 @@ const generatedDecisionReasonKindEnum = (): unknown[] => {
   return asArray(reasonKind.enum);
 };
 
-describe('Decision schema (ADR 0049 / ADR 0056 / D-037 / D-046)', () => {
+describe('Decision schema (ADR 0049 / ADR 0056 / ADR 0058 / D-037 / D-046 / D-053)', () => {
   it('validates a deny Decision with a deny-only reason_kind', () => {
     const decision = decisionSchema.parse(baseDenyDecision);
     expect(decision.outcome).toBe('deny');
@@ -134,6 +140,23 @@ describe('Decision schema (ADR 0049 / ADR 0056 / D-037 / D-046)', () => {
     expect(decision.reason_kind).toBe('audit_chain_corruption_detected');
   });
 
+  it('accepts authority_chain_walk_depth_exceeded as a deny-only non-clearable Decision from mint_api', () => {
+    const decision = decisionSchema.parse(authorityChainDepthOverflowDecision());
+    expect(decision.reason_kind).toBe('authority_chain_walk_depth_exceeded');
+    expect(decision.outcome).toBe('deny');
+    expect(decision.required_grant_kind).toBeNull();
+    expect(decision.decided_by).toBe('mint_api');
+  });
+
+  it('accepts authority_chain_walk_depth_exceeded from kernel_broker', () => {
+    const decision = decisionSchema.parse(
+      authorityChainDepthOverflowDecision({
+        decided_by: 'kernel_broker',
+      }),
+    );
+    expect(decision.decided_by).toBe('kernel_broker');
+  });
+
   it('rejects required_grant_kind values outside the ApprovalGrant enum', () => {
     expect(
       decisionSchema.safeParse({
@@ -163,6 +186,44 @@ describe('Decision schema (ADR 0049 / ADR 0056 / D-037 / D-046)', () => {
     ).toBe(false);
   });
 
+  it('rejects authority_chain_walk_depth_exceeded with non-deny outcomes', () => {
+    for (const outcome of ['allow', 'informational'] as const) {
+      expect(
+        decisionSchema.safeParse(authorityChainDepthOverflowDecision({ outcome })).success,
+      ).toBe(false);
+    }
+  });
+
+  it('rejects authority_chain_walk_depth_exceeded when any required_grant_kind is present', () => {
+    expect(
+      decisionSchema.safeParse(
+        authorityChainDepthOverflowDecision({
+          required_grant_kind: 'gate_evidence_acknowledgment',
+        }),
+      ).success,
+    ).toBe(false);
+  });
+
+  it('rejects authority_chain_walk_depth_exceeded from kernel_gateway', () => {
+    expect(
+      decisionSchema.safeParse(
+        authorityChainDepthOverflowDecision({
+          decided_by: 'kernel_gateway',
+        }),
+      ).success,
+    ).toBe(false);
+  });
+
+  it('rejects authority_chain_walk_depth_exceeded from non-Decision producers', () => {
+    expect(
+      decisionSchema.safeParse(
+        authorityChainDepthOverflowDecision({
+          decided_by: 'kernel_telemetry',
+        }),
+      ).success,
+    ).toBe(false);
+  });
+
   it('rejects ADR 0056 reason kinds with allow outcomes', () => {
     for (const reason_kind of [
       'operation_class_unregistered',
@@ -176,6 +237,16 @@ describe('Decision schema (ADR 0049 / ADR 0056 / D-037 / D-046)', () => {
         }).success,
       ).toBe(false);
     }
+  });
+
+  it('keeps cycle and depth-overflow reason kinds distinct and Zod-defined', () => {
+    expect(decisionReasonKindSchema.parse('audit_chain_corruption_detected')).toBe(
+      'audit_chain_corruption_detected',
+    );
+    expect(decisionReasonKindSchema.parse('authority_chain_walk_depth_exceeded')).toBe(
+      'authority_chain_walk_depth_exceeded',
+    );
+    expect('audit_chain_corruption_detected').not.toBe('authority_chain_walk_depth_exceeded');
   });
 
   it('rejects operation_class_unregistered when operation_shape_ref is missing', () => {
@@ -205,6 +276,33 @@ describe('Decision schema (ADR 0049 / ADR 0056 / D-037 / D-046)', () => {
         reason_kind: 'operation_class_unregistered',
         operation_shape_ref: '',
       }).success,
+    ).toBe(false);
+  });
+
+  it('rejects authority_chain_walk_depth_exceeded when operation_shape_ref is missing', () => {
+    const decision = authorityChainDepthOverflowDecision() as Record<string, unknown>;
+    delete decision.operation_shape_ref;
+
+    expect(decisionSchema.safeParse(decision).success).toBe(false);
+  });
+
+  it('rejects authority_chain_walk_depth_exceeded when operation_shape_ref is null', () => {
+    expect(
+      decisionSchema.safeParse(
+        authorityChainDepthOverflowDecision({
+          operation_shape_ref: null,
+        }),
+      ).success,
+    ).toBe(false);
+  });
+
+  it('rejects authority_chain_walk_depth_exceeded when operation_shape_ref is invalid', () => {
+    expect(
+      decisionSchema.safeParse(
+        authorityChainDepthOverflowDecision({
+          operation_shape_ref: '',
+        }),
+      ).success,
     ).toBe(false);
   });
 
@@ -268,6 +366,42 @@ describe('Decision schema (ADR 0049 / ADR 0056 / D-037 / D-046)', () => {
     ).toBe(false);
   });
 
+  it('applies evidence-ref authority rejection to authority_chain_walk_depth_exceeded', () => {
+    for (const evidenceRef of [
+      {
+        ...baseChainAwareEvidenceRef,
+        authority: 'sandbox-observation',
+      },
+      {
+        ...baseChainAwareEvidenceRef,
+        authority: 'self-asserted',
+      },
+      {
+        ...baseChainAwareEvidenceRef,
+        evidence_id: 'knowledge-chunk:hcs:retrieved-0',
+      },
+      {
+        ...baseChainAwareEvidenceRef,
+        evidence_chain_refs: [
+          {
+            record_kind: 'derived_summary',
+            record_id: 'derived-summary:hcs:unpromoted',
+            authority: 'derived',
+            allowed_for_gate: false,
+          },
+        ],
+      },
+    ] as const) {
+      expect(
+        decisionSchema.safeParse(
+          authorityChainDepthOverflowDecision({
+            evidence_refs: [evidenceRef],
+          }),
+        ).success,
+      ).toBe(false);
+    }
+  });
+
   it('rejects evidence-chain refs citing unpromoted derived_summary records', () => {
     expect(
       decisionSchema.safeParse({
@@ -324,9 +458,13 @@ describe('Decision schema (ADR 0049 / ADR 0056 / D-037 / D-046)', () => {
     ).toBe(false);
   });
 
-  it('includes ADR 0056 reason kinds in generated Decision JSON Schema', () => {
+  it('includes ADR 0056 and ADR 0058 reason kinds in generated Decision JSON Schema', () => {
     expect(generatedDecisionReasonKindEnum()).toEqual(
-      expect.arrayContaining(['operation_class_unregistered', 'audit_chain_corruption_detected']),
+      expect.arrayContaining([
+        'operation_class_unregistered',
+        'audit_chain_corruption_detected',
+        'authority_chain_walk_depth_exceeded',
+      ]),
     );
   });
 });

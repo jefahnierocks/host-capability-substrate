@@ -7,7 +7,7 @@
     "schema_version": {
       "type": "string",
       "const": "0.1.0",
-      "description": "Decision schema version (ADR 0049; M1 foundational entity #1; D-037). ADR 0056 adds Decision.reason_kind values by additive enum widening without bumping this literal."
+      "description": "Decision schema version (ADR 0049; M1 foundational entity #1; D-037). ADRs 0056 and 0058 add Decision.reason_kind values by additive enum widening without bumping this literal."
     },
     "decision_id": {
       "type": "string",
@@ -49,9 +49,10 @@
         "containment_evidence_absent",
         "containment_evidence_producer_supplied",
         "containment_runtime_capability_exceeded",
-        "audit_chain_corruption_detected"
+        "audit_chain_corruption_detected",
+        "authority_chain_walk_depth_exceeded"
       ],
-      "description": "Zod-defined Decision.reason_kind union (ADR 0049 v1 plus ADR 0056 additive promotions; 17 values). Remaining reservations stay registry-canonical-pending per the registered §Procedure rule."
+      "description": "Zod-defined Decision.reason_kind union (ADR 0049 v1 plus ADR 0056 and ADR 0058 additive promotions; 18 values). Remaining reservations stay registry-canonical-pending per the registered §Procedure rule."
     },
     "reason_text": {
       "type": "string",

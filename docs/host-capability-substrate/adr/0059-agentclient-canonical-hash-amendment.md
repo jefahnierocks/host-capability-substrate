@@ -2,7 +2,7 @@
 adr_number: 0059
 title: AgentClient canonical-hash amendment
 status: proposed
-version: v1
+version: v2
 date: 2026-05-19
 charter_version: 1.4.1
 tags: [agent-client, ring-0, audit-chain, canonical-hash, adr-0057-followup]
@@ -15,11 +15,28 @@ tags: [agent-client, ring-0, audit-chain, canonical-hash, adr-0057-followup]
 `proposed`
 
 Drafted 2026-05-19 as the ADR 0057 follow-up for AgentClient
-canonical field order and GENESIS handling. This ADR is design-only at
-v1. It does not modify Zod source, generated JSON Schema, tests,
+canonical field order and GENESIS handling. This ADR is design-only
+through v2. It does not modify Zod source, generated JSON Schema, tests,
 registry docs, ADR 0037, ADR 0057, ADR 0058, live policy, generated
 snapshots, system-config, or Ring 1 implementation code. The schema PR
 follows only after ADR acceptance per `.agents/skills/hcs-schema-change`.
+
+v1 was dispatched to all five reviewers for round 1 on 2026-05-19.
+Round 1 returned two blockers: security found that `canonical(evidence_refs)`
+left absent/null optional-field encoding unresolved, making AgentClient
+hashes nondeterministic for all schema-valid values; eval found that
+the producer-spoofing regression-coverage row overclaimed existing
+trap coverage and conflated self-asserted AgentClient axes with
+service-path producer spoofing. v2 absorbs both blockers by pinning
+fixed-slot evidence-ref encoding, persisted evidence-ref array order,
+and hash-vector obligations for absent/null/string cases, and by
+splitting service-path spoofing into an implementation-test obligation
+with no trap until observed incident or fixture failure. v2 also absorbs
+round-1 mechanical findings: D-051 snapshot-reference wording,
+ADR 0057 fail-closed reason-kind discipline, narrower producer-payload
+wording, AgentClient schema-version wording, cross-context reuse
+preservation, generated-schema assertion coverage, and explicit future
+implementation-test buckets.
 
 ## Date
 
@@ -170,6 +187,13 @@ the authenticated resolver path and records resolver attribution in
 append/rejection audit-event metadata. Payloads that self-assert resolver
 authority reject.
 
+AgentClient mint and rejection handling inherits ADR 0057's service-wide
+reason-kind discipline. The service emits a typed Decision only when an
+applicable Zod-defined, outcome-compatible `reason_kind` and a valid
+Decision envelope exist; otherwise rejection remains on the audit path
+and fails closed without inventing, borrowing, or reusing an unrelated
+reason kind.
+
 ## Canonical field order
 
 AgentClient `audit_chain_link_hash` covers the length-prefix-encoded
@@ -252,14 +276,24 @@ Canonical encodings for AgentClient are:
 - Nullable fields use the established `'' for null` substitution; the
   empty byte string is still length-prefix encoded.
 - `evidence_refs` encodes as an array length followed by each element's
-  canonical encoding in the resolver-provided deterministic order.
-  Reordering evidence refs changes the hash.
-- Each evidence reference encodes fields in `evidenceRefSchema` order:
-  `evidence_id`, `source`, `observed_at`, optional `valid_until`,
-  `authority`, optional `parser_version`, and `confidence`, using the
-  same null/absent-field discipline committed by the schema PR.
-- No producer payload value participates in the canonical hash unless a
-  future ADR adds a producer field to AgentClient.
+  canonical encoding in the persisted array order stored on the minted
+  AgentClient record. Reordering evidence refs changes the hash.
+- Each evidence reference encodes a fixed seven-slot sequence in
+  `evidenceRefSchema` order: `evidence_id`, `source`, `observed_at`,
+  `valid_until`, `authority`, `parser_version`, and `confidence`.
+  Optional or nullable slots are never omitted from the sequence:
+  absent `valid_until`, null `valid_until`, and absent `parser_version`
+  normalize to the empty byte string, and the empty byte string is still
+  length-prefix encoded. Present string values encode as their UTF-8
+  bytes after schema validation. The follow-up schema PR must include
+  generated-schema assertion coverage for this encoding rule, and the
+  later implementation slice must include hash-vector coverage for
+  absent/null/string `valid_until` cases and absent/string
+  `parser_version` cases.
+- No producer-attribution field or self-asserted resolver-authority
+  payload value participates in the canonical hash unless a future ADR
+  adds a producer field to AgentClient. This does not exclude
+  `permission_mode`: it remains a hash input after kernel verification.
 
 ## Coordinated effects
 
@@ -284,9 +318,10 @@ implementation:
 
 | Failure class | Coverage posture |
 |---|---|
-| AgentClient canonical field-order drift | Schema/source-description and generated-schema assertion in the follow-up schema PR; implementation test when mint/audit hashing lands. |
+| AgentClient canonical field-order drift | Schema/source-description and generated-schema assertion in the follow-up schema PR; implementation test when mint/audit hashing lands; no trap until observed incident or fixture failure. |
 | GENESIS duplicate or forged genesis | Implementation test obligation for the future audit-events/storage and mint/audit service; no trap until observed incident or fixture failure. |
-| Producer spoofing via payload self-assertion | Implementation test obligation for `kernel_agent_client_resolver` service-path matching; existing adjacent trap coverage remains for self-asserted AgentClient axes. |
+| Self-asserted AgentClient axes | Adjacent scaffold coverage remains relevant as a known failure shape, but this ADR does not claim runnable incident-cited trap coverage from that scaffold. |
+| `kernel_agent_client_resolver` service-path spoofing | Implementation test obligation for authenticated service-path matching; future trap candidate only after observed incident or fixture failure. |
 | Evidence-ref reordering or naive concatenation collision | Implementation test obligation for deterministic hash vectors; no trap until observed incident or fixture failure. |
 
 ## Out of scope
@@ -298,10 +333,12 @@ This ADR explicitly does not authorize:
 - Edits to ADRs 0049-0055 or their canonical-hash rules.
 - HCS source schema edits in this commit. `agent-client.ts` changes land
   only in the follow-up schema PR per `.agents/skills/hcs-schema-change`.
-- Decision schema-version changes or any other entity schema-version
+- AgentClient schema-version changes or any other entity schema-version
   bump.
 - Live policy or `tiers.yaml` changes.
 - `policies/generated-snapshot/` changes.
+- Snapshot refresh or generated-snapshot rebinding. ADR 0059 does not
+  change the D-051 snapshot-binding posture.
 - Ring 1 mint/audit implementation code.
 - New AgentClient producers. The producer allowlist remains ADR 0037 and
   ADR 0057 scoped.
@@ -309,6 +346,8 @@ This ADR explicitly does not authorize:
   host-state, dashboard, adapter, or hook behavior.
 - System-config edits.
 - Provider operations.
+- Changes to ADR 0037 cross-workspace AgentClient reuse rejection or ADR
+  0019 cross-context substitution defaults.
 
 ## Consequences
 
@@ -355,12 +394,17 @@ The follow-up schema PR per `.agents/skills/hcs-schema-change` should:
 4. Update `docs/host-capability-substrate/ontology-registry.md`
    audit-chain coverage, kernel-trusted producer allowlist notes if
    needed, schema-version ledger notes if needed, and change log.
-5. Add focused schema/docs tests or generated-schema assertions that
-   prove the AgentClient generated schema exposes the ADR 0059 hash
-   discipline and that `schema_version` remains unchanged.
-6. Leave Ring 1 mint/audit implementation, hash-vector tests, and
-   storage uniqueness checks to their own implementation slice after the
-   schema PR lands.
+5. Add generated-schema assertions that prove the AgentClient generated
+   schema exposes canonical field order, GENESIS text, length-prefix
+   discipline, fixed-slot evidence-ref encoding, service-path producer
+   attribution, and unchanged `schema_version`.
+6. Leave Ring 1 mint/audit implementation, hash-determinism/hash-vector
+   tests, GENESIS classification and duplicate-genesis tests, service-
+   path producer-attribution tests, and storage uniqueness checks to
+   their own implementation slice after the schema PR lands.
+7. Before implementation hash vectors are accepted, pin the exact varint
+   codec as shortest-form unsigned varint or cite the central HCS codec
+   that provides equivalent deterministic encoding.
 
 ## Acceptance criteria
 
@@ -414,7 +458,7 @@ The follow-up schema PR per `.agents/skills/hcs-schema-change` should:
   `docs/host-capability-substrate/adr/0058-depth-overflow-reason-kind-promotion.md`
   -- sibling ADR 0057 follow-up amendment pattern.
 - Decision ledger:
-  `DECISIONS.md` D-052 and D-053.
+  `DECISIONS.md` D-051, D-052, and D-053.
 - Charter:
   `docs/host-capability-substrate/implementation-charter.md` v1.4.1
   invariants 4, 8, 17, 18, and 19.
@@ -425,5 +469,6 @@ The follow-up schema PR per `.agents/skills/hcs-schema-change` should:
   sections `Producer-vs-kernel-set authority fields`,
   `Current schema-version ledger`,
   `Kernel-trusted producer allowlist final state`, `AgentClient
-  identity-axis enums`, and `Canonical-concatenation length-prefix
-  discipline`.
+  identity-axis enums`, and `ADR 0049–0055 foundational Ring 0 entity
+  enum mirrors` / named posture rule `Canonical-concatenation
+  length-prefix discipline`.

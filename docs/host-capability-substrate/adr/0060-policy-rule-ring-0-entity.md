@@ -1,7 +1,7 @@
 ---
 adr_number: 0060
 title: PolicyRule Ring 0 entity
-status: proposed
+status: accepted
 version: v2
 date: 2026-05-29
 charter_version: 1.4.1
@@ -12,18 +12,25 @@ tags: [policy-rule, ring-0, m1-entity, operation-class, tier, non-minted, policy
 
 ## Status
 
-`proposed`
+`accepted`
 
-Drafted 2026-05-29 as the first entity in the resumed M1 forward train per the
-2026-05-29 jefahnierocks-coordinator directive (orchestration tree:
+Accepted 2026-05-29 (D-057) as the first entity in the resumed M1 forward train
+per the 2026-05-29 jefahnierocks-coordinator directive (orchestration tree:
 `/Users/verlyn13/Organizations/jefahnierocks/docs/orchestration/2026-05-29-hcs-ring1-progress.md`
-— a workspace-shell packet, not an HCS-repo file). Design-only through the
-reviewer cycle; the schema PR follows acceptance per
-`.agents/skills/hcs-schema-change`.
+— a workspace-shell packet, not an HCS-repo file).
 
-Round 1 (v1) returned three `yes-with-mechanical-tweaks` (architect, ontology,
-policy) and one `no` (security, two blockers). v2 absorbs both security blockers
-and the consolidated mechanical tweaks; see §Revision history.
+Two-round four-reviewer cycle: round 1 = three `yes-with-mechanical-tweaks`
+(architect, ontology, policy) + one `no` (security: B-1 audit-attribution claim
+unsupported by `decision.ts`; B-2 self-assertable provenance). v2 absorbed both
+blockers (B-1 → named `Decision`-amendment dependency + corrected claim; B-2 →
+normative Ring-1 digest-verification requirement) and all mechanical tweaks.
+Round 2 = 4/4 `yes`, zero new blockers. Mechanical tweaks folded at acceptance:
+`isoDurationSchema` net-new-primitive naming; change-set primitive/enum label.
+
+Design-only acceptance: the schema PR follows per
+`.agents/skills/hcs-schema-change`; the `Decision`-attribution amendment (B-1) is
+its own ADR; no live-policy byte change or snapshot re-vendor (operator +
+system-config lane).
 
 ## Date
 
@@ -58,7 +65,7 @@ and a read-only vendored snapshot, not the authoring surface).
     the asserted `source_policy_sha256` against the bound, verified snapshot
     digest before a rule influences a `Decision`, and states the `authority`
     literal carries no authority absent that match (new §Provenance verification).
-  - Mechanical (architect/ontology/policy): `iso8601DurationSchema` is net-new
+  - Mechanical (architect/ontology/policy): `isoDurationSchema` is net-new
     (narrow `PT…` regex in `common.ts`); reuse the existing
     `approvalGrantProducerSchema` rather than a new enum; add the
     `required_grant_kind ∈ allowed_grant_kinds` refinement; frame
@@ -240,8 +247,8 @@ Envelope fields:
    constrained string (see field 12 / §Provenance verification secret note) —
    scope-descriptor tokens only, never resolved values.
 10. `valid_until_ceiling` — envelope-level (one ceiling per rule):
-    `policyRuleValidUntilCeilingSchema = z.union([iso8601DurationSchema,
-    z.literal('not_applicable')])`. **`iso8601DurationSchema` is net-new** (no
+    `policyRuleValidUntilCeilingSchema = z.union([isoDurationSchema,
+    z.literal('not_applicable')])`. **`isoDurationSchema` is net-new** (no
     duration schema exists in the package today); the schema PR defines it in
     `common.ts` as a **narrow** anchored regex over the hour/minute/second subset
     the policy actually uses — `/^PT(?:\d+H)?(?:\d+M)?(?:\d+S)?$/` with a guard
@@ -356,8 +363,8 @@ with the Zod source:
    reused-enum note for `operation_class`, `required_grant_kind`/`allowed_grant_kinds`,
    and `producer_allowlist`; the §Decision-attribution dependency and
    §Provenance-verification Ring-1 obligation).
-2. New enum registrations: `policyRuleTierSchema` (5 values),
-   `policyRuleDashboardVisibilitySchema` (2 values), `iso8601DurationSchema`
+2. New enum + primitive registrations: `policyRuleTierSchema` (5 values),
+   `policyRuleDashboardVisibilitySchema` (2 values), `isoDurationSchema`
    (new `common.ts` primitive, narrow regex), `policyRuleScopeDescriptorSchema`,
    `policyRulePolicyPathSchema`. **Extend registry §Naming-suffix-discipline
    Sub-rule 9's kebab-case grandfather list** to name `policyRuleTierSchema`
@@ -439,7 +446,7 @@ own ADRs).
 - The non-minted posture takes on a **named dependency** (the `Decision`
   attribution amendment, B-1) and a **named Ring-1 obligation** (digest
   verification, B-2). Both are recorded so the posture is honest.
-- A new `iso8601DurationSchema` primitive enters `common.ts` (narrow by design).
+- A new `isoDurationSchema` primitive enters `common.ts` (narrow by design).
 
 ### Rejects
 
@@ -459,7 +466,7 @@ own ADRs).
 - Widen `requires_typed_provider_evidence` to the structured
   `required_pre_execution_evidence` shape if the gateway needs per-sub-requirement
   granularity at the record layer.
-- Widen `iso8601DurationSchema` if day-scale ceilings are ever needed.
+- Widen `isoDurationSchema` if day-scale ceilings are ever needed.
 
 ## Procedure rule for changing PolicyRule scope (registered with the schema PR)
 
@@ -480,7 +487,7 @@ approval path; (4) update the registry status tables and schema-version ledger;
   escalation hole; no secret-shaped content in `evidence_bound_scope` /
   `source_policy_path`.
 - `hcs-ontology-reviewer` confirms envelope fields, reused-enum sourcing, the new
-  `iso8601DurationSchema` shape, `source_policy_sha256` basis, Sub-rule 9
+  `isoDurationSchema` shape, `source_policy_sha256` basis, Sub-rule 9
   grandfather extension, registry change-set, and schema-version-ledger row.
 - `hcs-policy-reviewer` confirms no policy-content duplication, forbidden
   non-escalability, approval-shape fidelity, and `required_grant_kind ∈

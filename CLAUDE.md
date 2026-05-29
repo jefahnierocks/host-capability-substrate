@@ -62,7 +62,7 @@ Harness-level enforcement (Claude Code settings) is layered with substrate-level
 
 ## Subagent table
 
-Six project-scoped subagents in `.claude/agents/`, all Opus 4.7, no Bash in any tool list:
+Six project-scoped subagents in `.claude/agents/`, all on the `opus` alias (currently Opus 4.8 per D-054), no Bash in any tool list:
 
 | Subagent | Tools | Role |
 |----------|-------|------|

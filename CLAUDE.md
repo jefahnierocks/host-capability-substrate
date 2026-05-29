@@ -6,7 +6,7 @@ You are helping build a host operations substrate. Favor boundary clarity over s
 
 ## Tool baseline
 
-Early-phase HCS work assumes Claude Code CLI `2.1.120` minimum with Opus 4.7 (`opus` in `.claude/settings.json`). Claude app build identifiers are tracked separately from CLI semver. Subsequent minor updates acceptable; see `DECISIONS.md` D-029.
+Early-phase HCS work runs on Claude Code CLI `2.1.156` (observed; ≥ `2.1.120` floor per charter inv. 12) with Opus 4.8 (`claude-opus-4-8`, 1M context; `opus` short-name in `.claude/settings.json`). Claude app build identifiers are tracked separately from CLI semver. Re-baselined 2026-05-28 in `DECISIONS.md` D-054 (supersedes D-029), triggered by the Opus 4.7→4.8 model change; charter inv. 12 floor and named-4.7 text are unchanged (separate charter-amendment ADR). Subsequent minor updates acceptable.
 
 ## When asked to implement
 

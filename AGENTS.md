@@ -3,10 +3,13 @@
 
 ## Tool baseline (binding during early phases)
 
-- **Claude Code CLI:** `2.1.120` minimum; Opus 4.7 (`opus` in settings). Claude macOS app build tracked separately.
-- **Codex CLI:** `0.125.0` minimum; GPT-5.5/GPT-5.4-compatible HCS profiles. Codex macOS app build tracked separately.
+Current observed baseline (re-recorded 2026-05-28 in `DECISIONS.md` D-054, superseding D-029; triggered by the Opus 4.7→4.8 model change). Public CLI semver and app-build identifiers are separate authority facts (D-029).
 
-Subsequent minor updates acceptable without re-baselining. Re-baseline after material version changes; see `DECISIONS.md` D-029.
+- **Claude Code CLI:** `2.1.156` observed; model posture Opus 4.8 (`claude-opus-4-8`, 1M context; `opus` short-name in settings). Floor remains ≥ `2.1.120` (charter inv. 12). Claude macOS app build tracked separately.
+- **Codex CLI:** verify via `codex --version` (not re-observed in this packet); GPT-5.5/GPT-5.4-compatible HCS profiles. Floor remains ≥ `0.125.0` (charter inv. 12). Codex macOS app `26.519.81530 (3178)` / Workspace dependencies `26.521.10419` tracked separately as app-build facts.
+- **Host OS:** macOS Tahoe `26.5`.
+
+Subsequent minor updates acceptable without re-baselining. Re-baseline after material version changes; see `DECISIONS.md` D-054 (supersedes D-029). Charter invariant 12 still names Opus 4.7 and the ≥ `2.1.120` / ≥ `0.125.0` floors; amending that invariant text is a separate charter-amendment ADR.
 
 ## Source of truth
 

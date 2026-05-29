@@ -3,8 +3,8 @@ title: HCS Workstation Surface Contract
 category: contract
 component: host_capability_substrate
 status: active
-version: 0.1.0
-last_updated: 2026-05-17
+version: 0.2.0
+last_updated: 2026-05-28
 tags: [workstation, authority, agent-contract, mcp, oauth, cloudflare]
 priority: high
 ---
@@ -111,10 +111,55 @@ reason locally.
 | `system-config` | current host config deployment records, live policy source, generated-policy snapshot source binding, MCP config baseline evidence | live policy authoring, host deployment mutation from this repo, resolved secrets |
 | `HomeNetOps` | LAN and router state evidence when an operation needs it | LAN topology, router configuration, appliance lifecycle |
 | `cloudflare-dns` or successor family-home Cloudflare project | provider object references, zone/project state evidence, identity-transition notes | Cloudflare resource provisioning, Pulumi/OpenTofu project flow, provider writes |
+| Parent-org secure control plane (org/cloud scope; documentation-only, non-authorizing) | workload-identity claim shape; decision-receipt and audit-envelope shapes — kept congruent with, not adopted as schema | org secret authority, OpenBao, cloud IAM, OpenTofu state, GitHub-OIDC federation, the org PEP |
 
 References to project paths or names that are known to be moving should be kept
 easy to replace. HCS should depend on typed interfaces and evidence shapes, not
 on a sibling project's current filesystem name.
+
+### Parent-Org Control-Plane Congruence (integration restatement, 2026-05-28)
+
+The parent organization adopted a secure control-plane reference strategy at
+org/cloud scope, in a documentation-only, non-authorizing posture. Its
+identity-and-policy-as-code model — a three-plane authorization architecture
+(identity plane / decision plane / native-enforcement plane) backed by a
+stateful control plane and a policy-enforcement point (PEP) — is the org-scope
+analog of the HCS authority model on this host. HCS restates the correspondence
+in its own terms:
+
+- Org **identity plane** ↔ HCS **actor-identity** surface (Principal,
+  AgentClient, Session, credential-source evidence). The **workload-identity
+  claim** is an integration-input shape HCS keeps its actor-identity evidence
+  congruent with.
+- Org **decision plane** (policy-as-code) ↔ HCS **authorization-binding**
+  surface and gateway/policy path (OperationShape, Decision, ApprovalGrant, the
+  canonical policy snapshot). The **decision-receipt** and **audit-envelope**
+  are integration-input shapes HCS keeps its Decision records and audit-chain
+  envelope congruent with.
+- Org **native-enforcement plane** plus the **stateful control plane / PEP** ↔
+  HCS **runtime-evaluation** surface and the gateway + execution-broker +
+  approval-grant + audit + lease kernel. HCS evaluates at host scope; the org
+  plane evaluates at org/cloud scope; neither subsumes the other.
+
+This is congruence at the shape level only. HCS does not adopt these shapes as
+schema, kernel, Ring 1, Q-013, or policy work; it authors no org policy; and it
+changes no provider, secret, or runtime state. The org plane is non-authorizing
+for HCS.
+
+HCS does not own the org enforcement substrate: org secret authority, the org
+secret store (OpenBao), cloud IAM, infrastructure-as-code state (OpenTofu),
+GitHub-OIDC workload federation, or the org PEP. These may produce evidence HCS
+consumes by reference shape, but they remain outside this repo's authority
+unless a future HCS ADR accepts a typed interface. Secret material crosses only
+as `op://`-style reference shape; no secret values.
+
+Optionally and bidirectionally, HCS may later publish typed host-capability
+evidence toward the org "hardware custody" question — for example Secure
+Enclave, Touch ID, or hardware-security-token presence — as
+existence-and-shape evidence only, never device identifiers, serials, or key
+material, and consistent with HCS's existence-only / names-only / classified /
+hashed inspection discipline. This is optional and not yet built; emitting any
+such typed evidence interface would require its own HCS ADR.
 
 ## Historical Records
 

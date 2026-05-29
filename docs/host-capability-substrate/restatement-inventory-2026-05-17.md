@@ -3,8 +3,8 @@ title: HCS Agent-Facing Restatement Inventory
 category: inventory
 component: host_capability_substrate
 status: active
-version: 0.1.2
-last_updated: 2026-05-18
+version: 0.1.3
+last_updated: 2026-05-28
 tags: [agent-contract, restatement, workstation, inventory]
 priority: medium
 ---
@@ -99,6 +99,31 @@ Classification:
 Decision D-050 records the boundary: do not bulk-rewrite provenance records
 solely to remove historical vocabulary. When guidance from those records is
 promoted into default session context, restate it in HCS-owned wording first.
+
+## 2026-05-28 — Parent-Org Control-Plane Shape-Sync (Third Pass)
+
+On 2026-05-28 the operator relayed a parent-organization integration input: a
+secure control-plane reference strategy adopted at org/cloud scope
+(documentation-only, non-authorizing / P0). HCS restated the org-plane direction
+in its own vocabulary in `workstation-surface-contract.md`
+(§ Parent-Org Control-Plane Congruence) and added a Cross-Project Interfaces row.
+
+- The parent file under the parent org's directory was **not read**. Per the
+  jefahnierocks workspace boundary and the Organizations routing rule, parent
+  guidance reaches HCS by operator-relayed restatement, not by an entity-scope
+  agent traversing into parent files; the relayed summary was sufficient.
+- HCS consumes, as congruence shapes only (not adopted as schema): the
+  workload-identity claim shape, and the decision-receipt and audit-envelope
+  shapes.
+- HCS does not own: org secret authority, the org secret store (OpenBao), cloud
+  IAM, infrastructure-as-code state (OpenTofu), GitHub-OIDC workload federation,
+  or the org policy-enforcement point.
+- Optional and bidirectional: HCS may later publish typed host-capability
+  evidence (Secure Enclave / Touch ID / hardware-token presence,
+  existence-and-shape only, never identifiers or key material) toward the org
+  hardware-custody question. Not built; ADR-gated.
+- Non-authorizing: this pass changed no schema, kernel, Ring 1, Q-013, policy,
+  provider, secret, or runtime state, and pushed no remote branch.
 
 ## Remaining Work
 

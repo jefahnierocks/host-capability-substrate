@@ -142,7 +142,7 @@ project-scoped reviewer definitions are mirrored for Claude Code and Codex in
 | `hcs-hook-integrator` | Read, Grep, Glob, Edit | .claude/hooks/, .codex/hooks/, .codex/hooks.json, adapter hook docs | Wires hooks without owning policy |
 | `hcs-eval-reviewer` | Read, Grep, Glob, Edit | packages/evals/, packages/fixtures/ | Regression trap quality |
 
-Claude Code subagents default to Opus 4.7; Codex reviewer definitions inherit
+Claude Code subagents pin `model: opus` (the alias; currently Opus 4.8 per D-054); Codex reviewer definitions inherit
 the active Codex model/profile. No reviewer subagent has Bash in its tool list —
 reviewers catch drift, not execute commands. Implementation work happens in the
 main session with explicit permission.

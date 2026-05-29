@@ -5,7 +5,54 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — HCS-local workstation contract restatement
+## Current Focus — Ring-1 forward surface OPEN; policy gate SATISFIED; resuming the M1 entity train
+
+**2026-05-29 update (supersedes the stale gating framing below).** The Phase 2.5
+policy gate is **satisfied**, verified against HCS-vendored evidence: the
+`system-config` live `policies/host-capability-substrate/tiers.yaml` is
+`status: active`, schema `0.2.0`, operator-approved
+(`jeffreyverlynjohnson@gmail.com`, 2026-05-18T17:10:15Z) via the deliberate
+`hcs_unblock_fast` activation path; the HCS snapshot is vendored at
+`policies/generated-snapshot/tiers.yaml` with `snapshot-binding.json` bound to
+system-config commit `136dbaa` (`source_policy_sha256 e06442e0…`), and
+`just snapshot-binding-check` is wired into `just verify` and green (D-051). The
+earlier "next safe HCS slice: none / live policy not promoted" framing is stale.
+
+The forward surface is OPEN. Active HCS lane (per the 2026-05-29 coordinator
+directive `docs/orchestration/2026-05-29-hcs-ring1-progress.md`):
+
+1. **Resume the Ring-0 M1 entity train** in Ring-1-mint dependency order —
+   **PolicyRule first** (the live policy references it as
+   `policy_rule_schema_version: null`; landing it removes that dangling ref),
+   then **Capability** and **CommandShape** (the mint/audit service validates
+   operation references against these). Each is its own ADR + 4-subagent pass +
+   Zod + generated JSON Schema + tests + ontology/registry docs per the proven
+   ADR 0049–0055 pattern (`.agents/skills/hcs-schema-change`). Confirm the exact
+   order against ADR 0038 before drafting.
+2. **Then open the scoped Ring-1 mint/audit IMPLEMENTATION ADR** per ADR 0057's
+   accepted design — interfaces/schema/contracts only (producer allowlist,
+   audit-chain integrity, cross-record enforcement, fail-closed reason-kind
+   discipline), scoped to the six landed mint entities
+   (Decision/ApprovalGrant/Lease/Run/Principal/Session); AgentClient deferred
+   pending ADR 0059. **No runtime/SQLite/launchd/persistence/agent-callable
+   mutation endpoints** — charter inv. 7; class-I work is unmergeable until M4.
+3. Q-013 credential-plane v1 schema is ready-now (optional; unblocks Q-014).
+
+**Deferred post-activation hardening lives in system-config's lane** (not HCS):
+`policy-lint.sh` six-check expansion; nine negative-test fixtures; and the live
+policy's own stale internal markers (`hcs_snapshot_status: not_vendored`,
+`hcs_source_commit: 83b24eb`, the internal candidate-blob `source_policy_sha256`).
+Fixing those changes operator-approved policy bytes, so it needs operator sign-off
+plus a coordinated byte-identical HCS re-vendor; none hard-blocks the Ring-1
+design ADR.
+
+Recent landed context: the 2026-05-28 integration passes are merged to `main`
+`9e289e0` — D-054/D-055/D-056 (tool-baseline re-baseline to Opus 4.8 / CC
+`2.1.156` + codex capability staleness + credential-plane seam; PR #5 `d4b1653`)
+and the parent-org control-plane restatement (PR #6 `9e289e0`). ADR 0059
+(AgentClient canonical-hash) is v2 `proposed`; round-2 dispatch is operator-gated.
+
+## Prior Focus — HCS-local workstation contract restatement
 
 **2026-05-17 docs-only restatement pass:** an operator-relayed
 integration directive created a Ring 3 / class A restatement slice for
@@ -36,7 +83,12 @@ session context. `just agent-contract-identity-scan` is now part of
 `just verify` and guards the default contract surfaces against reintroducing
 external organizational identifiers as active operating guidance.
 
-## Prior Current Focus — Policy-lint split implemented on HCS side; live policy still gated
+## Prior Focus — Policy-lint split implemented on HCS side (SUPERSEDED 2026-05-29)
+
+**SUPERSEDED 2026-05-29:** the live policy is now `status: active` and the HCS
+snapshot is vendored (D-051), so the "live policy still gated" / "next safe HCS
+slice: none" framing in this section is historical. See the Current Focus above.
+The detail below is retained as provenance for the Phase 2.5 closeout.
 
 **2026-05-17 cross-repo refresh:** see
 `docs/host-capability-substrate/phase-2-5-policy-handoff-2026-05-17.md`
@@ -120,7 +172,7 @@ source commit/path/hash binding, generated schema-ref compatibility,
 `operation_class_defaults` coverage, reason-kind compatibility, and
 snapshot path checks.
 
-**Next safe HCS slice:** none. The HCS side has discharged its part
+**Next safe HCS slice:** ~~none~~ **(SUPERSEDED 2026-05-29 — the activation this waited on has happened: live policy `status: active`, snapshot vendored (D-051). Current forward surface is the M1 entity train (PolicyRule → Capability → CommandShape) then the Ring-1 mint/audit design ADR; see Current Focus.)** Original text: none. The HCS side has discharged its part
 of the Phase 2.5 lane (D-046 schema landed; D-047 hooks; D-048 split).
 The next action is system-config-side and is NOT to be performed from
 this repo. Specifically: expand `scripts/policy-lint.sh` with the six
@@ -139,7 +191,23 @@ lint enabled. Only after the snapshot exists does a scoped Ring 1
 mint API + audit-chain ADR open. The first Ring 1 service is
 mint/audit, not the execution broker.
 
-## Milestone Baseline — Step 3 complete (Principal + Session landed); Ring 1 implementation gated by policy + remaining-11 M1 entities
+## Milestone Baseline — M1 forward train resuming (policy gate satisfied); Ring-1 mint/audit DESIGN ADR is the next milestone
+
+**2026-05-29 update.** Policy gate **satisfied** (live `tiers.yaml status: active`
+2026-05-18; HCS snapshot vendored + bound at system-config `136dbaa`, D-051), so
+Ring-1 implementation is no longer policy-gated — it is gated only on the
+lower-coupling M1 entity landings and on charter inv. 7 (which keeps the first
+Ring-1 ADR to design/interface scope: no execution endpoints, no
+SQLite/launchd/persistence, class-I unmergeable until M4). Since the 2026-05-11
+Step-3 snapshot below: ADR 0057 (Ring-1 mint/audit service **design**) accepted
+(D-052); ADR 0058 (depth-overflow reason_kind) accepted + schema landed (D-053);
+ADR 0059 (AgentClient canonical-hash) v2 `proposed`; the generated-snapshot lane
+opened (D-051); the 2026-05-28 tool-baseline + config-posture passes landed
+(D-054/D-055/D-056) and the parent-org control-plane restatement merged. Source-
+schema baseline remains **11 of 22** canonical M1 entities. The active lane lands
+**PolicyRule → Capability → CommandShape** next (Ring-1-mint dependency order),
+then the scoped Ring-1 mint/audit design ADR for the six landed mint entities
+(AgentClient deferred pending ADR 0059).
 
 **2026-05-11 update:** ADR 0055 Session accepted (D-044; commits
 `4e8fe23` v1 → `1ba8a2c` v2 → `01d1357` accept; 2-revision cycle

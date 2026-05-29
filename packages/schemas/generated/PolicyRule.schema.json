@@ -1,0 +1,225 @@
+{
+  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/PolicyRule.schema.json",
+  "title": "PolicyRule",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0",
+      "description": "PolicyRule schema version (ADR 0060; first non-minted Ring 0 entity; D-057). New-entity introduction at 0.1.0; not a breaking bump."
+    },
+    "policy_rule_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "operation_class": {
+      "type": "string",
+      "enum": [
+        "read_only_diagnostic",
+        "agent_internal_state",
+        "destructive_git",
+        "external_control_plane_mutation",
+        "worktree_mutation",
+        "merge_or_push",
+        "workspace_verify",
+        "cleanup_plan"
+      ],
+      "description": "OperationShape operation_class values from ADR 0029, ADR 0036, and ADR 0047."
+    },
+    "tier": {
+      "type": "string",
+      "enum": [
+        "read-safe",
+        "write-local",
+        "write-project",
+        "write-destructive",
+        "forbidden"
+      ],
+      "description": "PolicyRule tier (ADR 0060). Five active tiers mirroring the live policy `tiers:` keys verbatim; `write-host` was removed from live policy v0.1.0 and is a registry-canonical reservation. kebab-case mirrors the live-policy keys (registry §Naming-suffix-discipline Sub-rule 9 grandfather extension; no other Ring 0 enum may adopt kebab-case). `forbidden` is non-escalable per charter inv. 6, enforced structurally by the envelope superRefine."
+    },
+    "classification_basis": {
+      "type": "string",
+      "const": "typed_operation_class"
+    },
+    "requires_active_lease": {
+      "type": "boolean"
+    },
+    "requires_deletion_authority": {
+      "type": "boolean"
+    },
+    "requires_typed_provider_evidence": {
+      "type": "boolean"
+    },
+    "approval": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "approval_required": {
+              "type": "boolean",
+              "const": false
+            },
+            "approval_path_allowed": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "approval_required",
+            "approval_path_allowed"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "approval_required": {
+              "type": "boolean",
+              "const": true
+            },
+            "approval_path_allowed": {
+              "type": "boolean",
+              "const": true
+            },
+            "required_grant_kind": {
+              "type": "string",
+              "enum": [
+                "gate_evidence_acknowledgment",
+                "worktree_clean_acknowledgment",
+                "pr_absence_acknowledgment"
+              ],
+              "description": "ApprovalGrant grant_kind values from ADR 0051 v4. Closes the three registry §Decision.required_grant_kind reservations (ADR 0030 + ADR 0035). Re-used by Decision.required_grant_kind to prevent enum drift."
+            },
+            "allowed_grant_kinds": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "gate_evidence_acknowledgment",
+                  "worktree_clean_acknowledgment",
+                  "pr_absence_acknowledgment"
+                ],
+                "description": "ApprovalGrant grant_kind values from ADR 0051 v4. Closes the three registry §Decision.required_grant_kind reservations (ADR 0030 + ADR 0035). Re-used by Decision.required_grant_kind to prevent enum drift."
+              }
+            },
+            "producer_allowlist": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "mint_api",
+                  "kernel_broker"
+                ],
+                "description": "Kernel-trusted producer allowlist for ApprovalGrant records (ADR 0051 v4). `kernel_gateway` is intentionally excluded: the gateway re-derive is the authoritative non-escalable layer and does not mint grants. `kernel_dashboard` deferred to its own producer ADR."
+              }
+            },
+            "dashboard_visibility": {
+              "type": "string",
+              "enum": [
+                "not_required",
+                "required_before_grant_consumption"
+              ],
+              "description": "PolicyRule approval dashboard-visibility posture (ADR 0060; mirrors the live policy `policy_local_enums.dashboard_visibility`)."
+            },
+            "single_use": {
+              "type": "boolean"
+            },
+            "evidence_bound_scope": {
+              "type": "string",
+              "pattern": "^[a-z0-9_]+$",
+              "description": "Evidence-bound scope descriptor token (ADR 0060). Descriptor identifiers only (lower_snake) — never resolved values, secret material, or `op://`- / path-shaped strings (charter inv. 5; the forbidden-string scan covers committed fixtures)."
+            }
+          },
+          "required": [
+            "approval_required",
+            "approval_path_allowed",
+            "required_grant_kind",
+            "allowed_grant_kinds",
+            "producer_allowlist",
+            "dashboard_visibility",
+            "single_use",
+            "evidence_bound_scope"
+          ],
+          "additionalProperties": false
+        }
+      ],
+      "description": "PolicyRule approval requirement (ADR 0060), discriminated on `approval_required`. The false branch carries only `approval_path_allowed`; the true branch carries the grant/producer/dashboard/scope detail and pins `approval_path_allowed: true`. `producer_allowlist` reuses `approvalGrantProducerSchema` (mint_api/kernel_broker; kernel_gateway excluded per ADR 0051 v4) — the policy-permitted set, distinct from ApprovalGrant.granted_by (the actual minter), same closed domain. `required_grant_kind` must be a member of `allowed_grant_kinds` (envelope superRefine)."
+    },
+    "valid_until_ceiling": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^PT(?=\\d)(?:\\d+H)?(?:\\d+M)?(?:\\d+S)?$",
+          "description": "Narrow ISO-8601 duration: hour/minute/second components only (e.g. `PT24H`, `PT1H`, `PT30M`). At least one component is required (bare `PT` rejected). Calendar components (Y/M/W/D) and fractional seconds are intentionally excluded per ADR 0060; widening is an additive ADR-gated change."
+        },
+        {
+          "type": "string",
+          "const": "not_applicable"
+        }
+      ],
+      "description": "PolicyRule freshness ceiling (ADR 0060): a narrow ISO-8601 duration (e.g. `PT24H`, `PT1H`) or the literal `not_applicable` for non-gated tiers. The schema does not bind a ceiling to a tier — that mapping is live-policy content (charter inv. 1 / inv. 10)."
+    },
+    "valid_until_ceiling_source_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_provenance": {
+      "type": "object",
+      "properties": {
+        "authority": {
+          "type": "string",
+          "const": "system_config_live_policy"
+        },
+        "source_policy_path": {
+          "type": "string",
+          "pattern": "^(?!.*\\.\\.)[A-Za-z0-9._-]+(?:\\/[A-Za-z0-9._-]+)*$",
+          "description": "system-config canonical RELATIVE path to the live policy (ADR 0060), e.g. `policies/host-capability-substrate/tiers.yaml`. No absolute paths, no `..` traversal, no secret-shaped values."
+        },
+        "source_policy_sha256": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "SHA-256 digest with algorithm prefix. It is not reversible secret material."
+        },
+        "source_policy_sha256_basis": {
+          "type": "string",
+          "const": "live_policy_blob"
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        }
+      },
+      "required": [
+        "authority",
+        "source_policy_path",
+        "source_policy_sha256",
+        "source_policy_sha256_basis",
+        "observed_at"
+      ],
+      "additionalProperties": false,
+      "description": "PolicyRule provenance to the operator-approved live policy (ADR 0060). `authority` is a standalone literal, intentionally DISJOINT from evidenceAuthoritySchema — PolicyRule is not an Evidence record; this is a provenance tag, not an evidence trust class, and must not be wired into chain-walk logic. The digest covers the live-policy content blob bound by `snapshot-binding.json` (NOT the stale internal candidate-skeleton field carried inside the live policy). The `authority` literal confers NO authority on its own: per charter inv. 4 the Ring 1 loader MUST verify `source_policy_sha256` against the bound, verified snapshot digest before a rule influences a Decision (ADR 0060 §Provenance verification)."
+    }
+  },
+  "required": [
+    "schema_version",
+    "policy_rule_id",
+    "operation_class",
+    "tier",
+    "classification_basis",
+    "requires_active_lease",
+    "requires_deletion_authority",
+    "requires_typed_provider_evidence",
+    "approval",
+    "valid_until_ceiling",
+    "valid_until_ceiling_source_ref",
+    "source_provenance"
+  ],
+  "additionalProperties": false,
+  "description": "Ring 0 PolicyRule entity from ADR 0060 (D-057). NON-MINTED typed shape of a single policy rule, keyed to OperationShape.operation_class. No audit_chain_link_hash, no producer-mint field, no evidence_refs — PolicyRule is not an audit-chain mint entity and is absent from the ADR 0057 mint scope; rule provenance is `source_provenance`, bound to the operator-approved live policy. The schema encodes ONLY structural invariants: forbidden non-escalability via the nonEscalableTiers set (charter inv. 6); approval-path consistency via the discriminated union; and required_grant_kind ∈ allowed_grant_kinds. It never encodes the operation_class→tier or tier→approval mappings, which are live-policy content owned by system-config (charter inv. 1 / inv. 10). Two named Ring-1 obligations of the non-minted posture: (B-1) a follow-up Decision schema amendment adds policy_rule_ref + the resolved source_policy_sha256 for audit attribution (Decision lacks it today); (B-2) the gateway/loader MUST verify source_provenance.source_policy_sha256 against the bound, verified snapshot digest before a rule influences a Decision. Landing this entity sets the live policy policy_rule_schema_version null→0.1.0 (operator + system-config lane)."
+}

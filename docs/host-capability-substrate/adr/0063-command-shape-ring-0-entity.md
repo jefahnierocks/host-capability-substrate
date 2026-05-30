@@ -1,7 +1,7 @@
 ---
 adr_number: 0063
 title: CommandShape Ring-0 entity
-status: proposed
+status: accepted
 version: v2
 date: 2026-05-30
 charter_version: 1.4.1
@@ -12,7 +12,7 @@ tags: [command-shape, ring-0, operation-shape, argv, env, non-minted, m1-entity]
 
 ## Status
 
-`proposed`
+`accepted`
 
 Drafted 2026-05-30 as the third and last entity in the
 `PolicyRule → Capability → CommandShape` policy-registry / operation-pipeline
@@ -49,6 +49,17 @@ forward-reference naming choice and its non-secret describe() obligation;
 records the `timeout_seconds` ceiling rationale; and extends the schema-PR test
 list + regression-coverage table. v2 is presented for the operator acceptance
 gate.
+
+ADR 0063 is accepted 2026-05-30 as D-061. Round 1 returned zero blockers and v2
+folded every mechanical tweak, so no confirming round 2 was required. This
+closes the `PolicyRule → Capability → CommandShape` policy-registry chain at
+the ADR layer. The follow-up schema PR (`command-shape.ts` + generated schema +
+tests + ontology/registry) lands per `.agents/skills/hcs-schema-change`; the
+Ring-1 obligations — the typed argument-class distinction (charter line 98),
+`cwd` absolute-root confinement, deprecated-verb render refusal (inv. 11),
+SecretReference FK closure + env value resolution, `operation_shape_ref` FK
+closure, and lease/approval/dashboard gating — are carried forward to the
+relevant Ring-1 ADRs (gateway / renderer / broker).
 
 ## Date
 

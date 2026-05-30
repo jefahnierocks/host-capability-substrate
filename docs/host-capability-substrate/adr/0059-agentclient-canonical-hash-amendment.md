@@ -1,7 +1,7 @@
 ---
 adr_number: 0059
 title: AgentClient canonical-hash amendment
-status: proposed
+status: accepted
 version: v2
 date: 2026-05-19
 charter_version: 1.4.1
@@ -12,7 +12,7 @@ tags: [agent-client, ring-0, audit-chain, canonical-hash, adr-0057-followup]
 
 ## Status
 
-`proposed`
+`accepted`
 
 Drafted 2026-05-19 as the ADR 0057 follow-up for AgentClient
 canonical field order and GENESIS handling. This ADR is design-only
@@ -37,6 +37,22 @@ ADR 0057 fail-closed reason-kind discipline, narrower producer-payload
 wording, AgentClient schema-version wording, cross-context reuse
 preservation, generated-schema assertion coverage, and explicit future
 implementation-test buckets.
+
+ADR 0059 v2 was dispatched to all five reviewers for round 2 on 2026-05-29.
+Round 2 returned **unanimous `yes` with zero new blockers**; both round-1
+blockers were confirmed absorbed cleanly (security: the fixed-slot
+evidence-ref encoding makes AgentClient hashes deterministic across the
+absent/null/string optional slots; eval: the service-path
+producer-spoofing row no longer overclaims trap coverage). All round-2
+non-blockers are follow-up-schema-PR-targeted and are folded into the
+implementation plan below: assert `evidenceRefSchema`'s field set and order
+(not only AgentClient's top-level order); add an explicit AgentClient row
+to the registry schema-version ledger; name the shortest-form unsigned
+varint codec in the generated-schema assertion; and add a present-empty vs
+absent hash vector at the implementation slice. ADR 0059 is accepted
+2026-05-29 as D-058. It closes ADR 0057's AgentClient canonical-hash
+future-amendment item at the design layer; AgentClient minting remains
+blocked until the follow-up schema PR lands.
 
 ## Date
 
@@ -393,15 +409,21 @@ The follow-up schema PR per `.agents/skills/hcs-schema-change` should:
    narrative.
 4. Update `docs/host-capability-substrate/ontology-registry.md`
    audit-chain coverage, kernel-trusted producer allowlist notes if
-   needed, schema-version ledger notes if needed, and change log.
+   needed, an explicit AgentClient schema-version ledger row stating
+   `schema_version` stays `0.1.0` under ADR 0059 (the canonical-hash
+   amendment is non-version-bumping), and change log.
 5. Add generated-schema assertions that prove the AgentClient generated
    schema exposes canonical field order, GENESIS text, length-prefix
-   discipline, fixed-slot evidence-ref encoding, service-path producer
-   attribution, and unchanged `schema_version`.
+   discipline, the fixed-slot evidence-ref encoding asserted against
+   `evidenceRefSchema`'s field set and order (not only AgentClient's
+   top-level order) and naming the shortest-form unsigned varint codec,
+   service-path producer attribution, and unchanged `schema_version`.
 6. Leave Ring 1 mint/audit implementation, hash-determinism/hash-vector
-   tests, GENESIS classification and duplicate-genesis tests, service-
-   path producer-attribution tests, and storage uniqueness checks to
-   their own implementation slice after the schema PR lands.
+   tests (including a present-empty vs absent `valid_until` / `parser_version`
+   vector proving the two do not collide), GENESIS classification and
+   duplicate-genesis tests, service-path producer-attribution tests, and
+   storage uniqueness checks to their own implementation slice after the
+   schema PR lands.
 7. Before implementation hash vectors are accepted, pin the exact varint
    codec as shortest-form unsigned varint or cite the central HCS codec
    that provides equivalent deterministic encoding.

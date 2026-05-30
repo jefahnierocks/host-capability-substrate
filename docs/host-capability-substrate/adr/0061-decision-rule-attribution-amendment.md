@@ -2,7 +2,7 @@
 adr_number: 0061
 title: Decision rule-attribution amendment
 status: proposed
-version: v1
+version: v2
 date: 2026-05-29
 charter_version: 1.4.1
 tags: [decision, ring-0, policy-rule, audit-attribution, schema-extension, adr-0060-followup, b-1]
@@ -23,10 +23,31 @@ follow-up schema PR follows only after ADR acceptance per
 itself lands (the new `policy_rule_ref` is a typed reference to a
 `PolicyRule` record, so its FK target must exist first).
 
-v1 is dispatched to all five reviewers (`hcs-architect`,
+v1 was dispatched to all five reviewers (`hcs-architect`,
 `hcs-ontology-reviewer`, `hcs-policy-reviewer`, `hcs-security-reviewer`,
 `hcs-eval-reviewer`) for round 1, matching the Decision-amendment review
-discipline used for ADR 0056 and ADR 0058.
+discipline used for ADR 0056 and ADR 0058. Round 1 returned **zero
+blockers**: `hcs-policy-reviewer` and `hcs-security-reviewer` returned
+`yes`; `hcs-architect`, `hcs-ontology-reviewer`, and `hcs-eval-reviewer`
+returned `yes-with-mechanical-tweaks`. (Three reviewers each noted that an
+earlier StructuredOutput call in the run fired prematurely, before its file
+reads resolved, and explicitly superseded that stale result with the
+authoritative verdict recorded here.)
+
+v2 absorbs every mechanical tweak: it pins the pair-consistency predicate to
+*attributed-ness* (present **and** non-null) rather than the absent-vs-null
+distinction; adds the mixed-empty must-accept test cases, the generated
+JSON-Schema optional/nullable/not-`required` assertion, and Ring-0
+trust-deferral guard tests (a well-formed but non-matching digest still
+accepts at Ring 0; a non-rule `reason_kind` carrying both fields still
+accepts) to the follow-up test list; distinguishes the
+additive-optional-field change class from additive enum widening in the
+ledger note; guards the `resolved_policy_sha256` basis against the stale
+internal snapshot-binding field; corrects the registry-version citation to
+its contingent value; and routes the Ring-1 mandatory-attribution and B-2
+digest-verify obligations to the mint/audit implementation ADR open-items.
+No blocker required a re-review, so v2 is presented for acceptance under the
+mechanical-tweaks-at-acceptance discipline (ADR 0058 precedent).
 
 ## Date
 
@@ -35,7 +56,10 @@ discipline used for ADR 0056 and ADR 0058.
 ## Charter version
 
 Written against implementation charter v1.4.1 and
-`docs/host-capability-substrate/ontology-registry.md` v0.4.21. The
+`docs/host-capability-substrate/ontology-registry.md` v0.4.20 on `main`
+(v0.4.21 once the PolicyRule schema PR lands; the ADR 0061 schema PR is
+sequenced after it and bumps the registry from whatever PolicyRule leaves
+it at). The
 amendment is constrained by charter invariants 1 (no policy decision in an
 adapter), 4 (audit is the integrity surface), and 10 (live policy is
 canonical in system-config). The PolicyRule record this Decision field
@@ -88,9 +112,13 @@ non-optional structural changes and therefore bumped.
 
 Add `policy_rule_ref` (`entityIdSchema`, nullable + optional) and
 `resolved_policy_sha256` (`sha256DigestSchema`, nullable + optional) to the
-`Decision` envelope. A same-record refinement requires the pair to be
-consistent: both present (non-null) or both absent/null. The Ring 1
-mint/audit service populates the pair for rule-applying (gate) decisions
+`Decision` envelope. A same-record refinement pins pair consistency to *attributed-ness*: a field
+counts as attributed only when it is present **and** non-null. The refinement
+rejects a Decision iff exactly one field is attributed; it accepts both
+attributed (the gate case) and every neither-attributed combination
+(absent+absent, null+null, and the mixed absent+null / null+absent cases).
+The Ring 1 mint/audit service populates the pair for rule-applying (gate)
+decisions
 and leaves it absent for non-rule decisions (for example
 `audit_chain_corruption_detected` or
 `authority_chain_walk_depth_exceeded`). `Decision.schema_version` stays
@@ -162,9 +190,12 @@ schema PR:
   `source_provenance.source_policy_sha256` at resolution time. Absent/null
   when no rule applies.
 
-A same-record `superRefine` enforces pair consistency: a Decision with one
-field present and the other absent/null is rejected. Both present (the
-gate-decision case) and both absent/null (the non-rule case) are valid.
+A same-record `superRefine` enforces pair consistency on *attributed-ness* (a
+field is attributed only when present **and** non-null): a Decision where
+exactly one field is attributed is rejected. Both attributed (the
+gate-decision case) and neither attributed (the non-rule case — including
+absent+absent, null+null, and the mixed absent+null / null+absent
+combinations) are valid.
 
 `Decision.schema_version` stays `0.1.0`. The amendment is additive
 nullable-optional, so existing serialized Decisions remain valid and the
@@ -190,6 +221,15 @@ rule against. That match is **B-2**, a Ring 1 loader obligation tracked for
 the mint/audit implementation ADR; this ADR and its schema PR do not
 implement it. The Ring 0 schema only guarantees the digest is well-formed
 (`sha256:` + 64 hex) and paired with a rule reference.
+
+The digest `resolved_policy_sha256` records is the bound live-policy **blob**
+digest — the value `snapshot-binding-check` recomputes over the vendored
+snapshot, and the same value as the referenced rule's
+`source_provenance.source_policy_sha256` (ADR 0060). It is explicitly **not**
+the live policy's stale internal `snapshot_binding.source_policy_sha256`
+marker, which ADR 0060 flags as the wrong basis. The follow-up schema PR's
+`.describe()` text must say so, so an implementer does not pick the stale
+field.
 
 `policy_rule_ref` is a local entity identifier, not an FK the schema can
 dereference; the schema validates its format via `entityIdSchema`. The
@@ -228,6 +268,11 @@ exists and matches the operation class — also a Ring 1 obligation.
 - If a single decision must cite more than one rule, widen
   `policy_rule_ref` to an ordered list in a future amendment (which would
   then weigh a schema-version bump).
+- The mint/audit implementation ADR's open-items list must carry, as tracked
+  Ring 1 obligations: (a) which gate decisions must populate the attribution
+  pair (mandatory attribution by `reason_kind` / `outcome`), and (b) the B-2
+  digest-verification of `resolved_policy_sha256` against the bound, verified
+  snapshot. This ADR's deferral of both to Ring 1 must not evaporate.
 
 ## Out of scope
 
@@ -256,7 +301,11 @@ schema lands), should:
      `resolved_policy_sha256: sha256DigestSchema.nullable().optional()` to
      `decisionSchema`;
    - add a same-record `superRefine` that rejects a Decision where exactly
-     one of the pair is present (both present or both absent/null only);
+     one field is *attributed* (present and non-null), accepting both
+     attributed and neither attributed (including the mixed absent/null
+     cases); emit distinct issue paths/messages for the two partial-state
+     failures (rule-attributed-digest-missing vs digest-attributed-rule-
+     missing) so audit triage can tell which half is absent;
    - update `decisionSchemaVersionSchema.describe()` to cite ADR 0061 as an
      additive nullable-optional field extension with no version bump.
 2. Regenerate generated JSON Schema and prove `policy_rule_ref` and
@@ -274,16 +323,33 @@ schema lands), should:
      absent/null rejects;
    - a malformed `resolved_policy_sha256` (missing `sha256:` prefix or
      wrong length) rejects;
+   - a Decision with `policy_rule_ref` absent and `resolved_policy_sha256`
+     explicitly `null` accepts, and the mirror case (`policy_rule_ref` null,
+     digest absent) accepts (the neither-attributed mixed-empty cases);
+   - a non-rule `reason_kind` (for example
+     `authority_chain_walk_depth_exceeded`) carrying both attribution fields
+     accepts — the schema must not encode which reason kinds may carry
+     attribution (that is Ring 1);
+   - a well-formed `resolved_policy_sha256` that matches no bound snapshot
+     still accepts at Ring 0 (proving Ring 0 performs no B-2 trust check);
+   - an uppercase-hex digest and an empty `policy_rule_ref` reject
+     (`sha256DigestSchema` is lowercase-only; `entityIdSchema` is `.min(1)`);
+   - the generated `Decision.schema.json` lists `policy_rule_ref` and
+     `resolved_policy_sha256` as nullable, optional properties absent from
+     `required`;
    - all pre-existing Decision refinements (outcome-compatibility,
      reason-kind producer scope, evidence-authority rejection,
-     non-clearable rules) continue to pass unchanged.
+     non-clearable rules) continue to pass unchanged, and a Decision that
+     violates pair-consistency and a pre-existing refinement at once surfaces
+     both issues (the new refinement composes additively and masks none).
 4. Update `docs/host-capability-substrate/ontology.md` and
    `docs/host-capability-substrate/ontology-registry.md`:
    - extend the Decision entity section with the two new optional fields;
-   - update the Decision schema-version ledger note to record ADR 0061 as
-     an additive nullable-optional extension that does not bump
-     `Decision.schema_version` (mirroring how the ledger cites ADR 0056 and
-     ADR 0058 for additive Decision changes).
+   - update the Decision schema-version ledger note to record ADR 0061 as an
+     additive **nullable-optional field** extension that does not bump
+     `Decision.schema_version` — a distinct change class from the additive
+     **enum widening** the ledger already cites for ADR 0056 and ADR 0058;
+     the note must name the two fields, not copy the enum-widening phrasing.
 5. Do not edit live policy, generated snapshots, system-config, Ring 1
    service code, ADR 0060, or ADR 0049 in the schema PR unless separately
    authorized.
@@ -294,7 +360,7 @@ schema lands), should:
 |---|---|
 | Additive field extension | Schema tests in the follow-up schema PR; no regression trap unless an observed agent/implementation failure with cited fixture evidence appears. |
 | Pair-consistency violation | Schema tests assert reject for one-of-pair-present; no synthetic trap at ADR acceptance. |
-| Self-asserted resolved digest | Ring 0 only validates digest format; the trust check (resolved digest matches bound snapshot) is a mint/audit implementation test (B-2) when that service lands; trajectory-asserted, not final-state-only. |
+| Self-asserted resolved digest | Ring 0 only validates digest format; the trust check is a mint/audit implementation test (B-2) when that service lands — it MUST assert the loader rejects at the digest-verification step (an intermediate trajectory checkpoint, when `resolved_policy_sha256` != the bound, verified snapshot digest), not merely that the final Decision is rejected. |
 | Mandatory-attribution-by-reason-kind | Deferred Ring 1 enforcement; no Ring 0 coverage now. |
 | Snapshot binding | No `Decision.schema_version` change in this ADR, so the existing `decision_schema_version` snapshot binding remains valid; no snapshot test change. |
 

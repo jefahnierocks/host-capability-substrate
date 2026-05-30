@@ -5,6 +5,7 @@ export {
   evidenceConfidenceSchema,
   evidenceRefSchema,
   isoDateTimeSchema,
+  isoDurationSchema,
   observationStatusSchema,
   schemaVersionSchema,
   sha256DigestSchema,
@@ -376,6 +377,23 @@ export {
   policyPlanReceiptSchema,
   policyPlanRedactionModeSchema,
 } from './entities/policy-plan-receipt.ts';
+export {
+  type PolicyRule,
+  type PolicyRuleApproval,
+  type PolicyRuleDashboardVisibility,
+  type PolicyRuleSourceProvenance,
+  type PolicyRuleTier,
+  type PolicyRuleValidUntilCeiling,
+  policyRuleApprovalSchema,
+  policyRuleDashboardVisibilitySchema,
+  policyRulePolicyPathSchema,
+  policyRuleSchema,
+  policyRuleSchemaVersionSchema,
+  policyRuleScopeDescriptorSchema,
+  policyRuleSourceProvenanceSchema,
+  policyRuleTierSchema,
+  policyRuleValidUntilCeilingSchema,
+} from './entities/policy-rule.ts';
 export {
   type Principal,
   type PrincipalKind,

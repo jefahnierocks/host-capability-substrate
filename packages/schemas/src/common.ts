@@ -15,6 +15,13 @@ export const isoDateTimeSchema = z
   .datetime({ offset: true })
   .describe('RFC 3339 timestamp with an explicit UTC offset.');
 
+export const isoDurationSchema = z
+  .string()
+  .regex(/^PT(?=\d)(?:\d+H)?(?:\d+M)?(?:\d+S)?$/)
+  .describe(
+    'Narrow ISO-8601 duration: hour/minute/second components only (e.g. `PT24H`, `PT1H`, `PT30M`). At least one component is required (bare `PT` rejected). Calendar components (Y/M/W/D) and fractional seconds are intentionally excluded per ADR 0060; widening is an additive ADR-gated change.',
+  );
+
 export const evidenceAuthoritySchema = z
   .enum([
     'project-local',

@@ -32,6 +32,7 @@ import {
   mcpCredentialAudienceObservationSchema,
   operationShapeSchema,
   policyPlanReceiptSchema,
+  policyRuleSchema,
   principalSchema,
   projectSubstrateAdmissionObservationSchema,
   projectSubstrateBackupRequirementObservationSchema,
@@ -335,6 +336,11 @@ const schemaEntries: SchemaEntry[] = [
     file: 'PolicyPlanReceipt.schema.json',
     title: 'PolicyPlanReceipt',
     schema: policyPlanReceiptSchema,
+  },
+  {
+    file: 'PolicyRule.schema.json',
+    title: 'PolicyRule',
+    schema: policyRuleSchema,
   },
   {
     file: 'Principal.schema.json',

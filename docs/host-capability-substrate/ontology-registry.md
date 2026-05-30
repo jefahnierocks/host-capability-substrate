@@ -3,9 +3,9 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.4.20
-last_updated: 2026-05-19
-tags: [ontology, registry, registry-consolidation, phase-2-4, phase-2-7, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, remote-agent, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0, workflow-sequencing-step-1, workflow-sequencing-step-3, self-approval-rejection-rule]
+version: 0.4.21
+last_updated: 2026-05-29
+tags: [ontology, registry, registry-consolidation, phase-2-4, phase-2-7, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, remote-agent, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0, workflow-sequencing-step-1, workflow-sequencing-step-3, self-approval-rejection-rule, policy-rule]
 priority: high
 ---
 
@@ -222,6 +222,13 @@ Sub-rules:
      `self-asserted`). The casing predates this rule; new authority
      classes added to that enum may continue to use `kebab-case` for
      enum-internal consistency, but no other enum may adopt
+     `kebab-case`.
+   - `policyRuleTierSchema` enum values use `kebab-case`
+     (`read-safe`, `write-local`, `write-project`, `write-destructive`,
+     `forbidden`) because they mirror the operator-approved live policy
+     `tiers:` keys verbatim (ADR 0060 / D-057). The casing is inherited from
+     the live-policy keys, not chosen; new tier values may continue
+     `kebab-case` for live-policy fidelity, but no other enum may adopt
      `kebab-case`.
 
    New enum values added to any other Ring 0 enum require
@@ -915,6 +922,7 @@ work can cite one stable registry index.
 | `Run` | `0.1.0` | ADR 0053 / D-041 foundational-entity introduction | `runSchemaVersionSchema = z.literal('0.1.0')`. Landed at commit `7fb7e05`. |
 | `Principal` | `0.1.0` | ADR 0054 / D-043 foundational-entity introduction (post-Step-1-source-landing) | `principalSchemaVersionSchema = z.literal('0.1.0')`. Closes ApprovalGrant.grantor_principal_ref + future Session.principal_id + ADR 0025 requesting_principal_id + ADR 0036 verifier-identity typed FK targets. Cf-category-strip canonicalization recipe structurally closes ADR 0051 v4 MT-Sec-2 zero-width-character evasion. |
 | `Session` | `0.1.0` | ADR 0055 / D-044 foundational-entity introduction (Step 3 entity #2 of 2 highest-coupling) | `sessionSchemaVersionSchema = z.literal('0.1.0')`. Closes 4 forward-reference typed FK targets: Lease.held_by_session_id (ADR 0052), Run.invoker_session_id (ADR 0053), ADR 0030 v2 owning_session_id, and consuming/requesting session references in ADRs 0031 v1 / 0051 v4 / 0052 / 0054. Execution-context-bound at entity layer (mirrors WorkspaceContext per ADR 0031 v1 Mechanical Tweak #8; DIVERGES from Principal which is execution-context-independent). |
+| `PolicyRule` | `0.1.0` | ADR 0060 / D-057 introduction (first of the remaining-11 M1 entities in the resumed forward train; first NON-MINTED Ring 0 entity) | `policyRuleSchemaVersionSchema = z.literal('0.1.0')`. NON-MINTED — no `audit_chain_link_hash`, no producer-mint field, no `evidence_refs`; absent from the ADR 0057 mint scope. Keyed to `OperationShape.operation_class`; reuses `operationShapeOperationClassSchema` + `approvalGrantKindSchema` + `approvalGrantProducerSchema`. New narrow `isoDurationSchema` primitive added to `common.ts`. Structural superRefine enforces charter inv. 6 forbidden non-escalability (`nonEscalableTiers` set) + `required_grant_kind ∈ allowed_grant_kinds`; never the `operation_class → tier` mapping (live-policy content, inv. 1/10). Landing flips live policy `policy_rule_schema_version` `null → '0.1.0'`. Named Ring-1 deps: B-1 `Decision` attribution amendment, B-2 loader digest-verification. |
 | Other standalone Phase 2.1 entities | `0.1.0` | Phase 2.1 entity introductions | Uses common `schemaVersionSchema`; future breaking changes require their own ADR. |
 
 ### Kernel-trusted producer allowlist final state
@@ -3008,6 +3016,25 @@ status table from 32 (after ADR 0053) to **36 total reservations**. ADR
 `audit_chain_corruption_detected`; ADR 0058 extends it to **38 total
 reservations** while Zod-lifting `authority_chain_walk_depth_exceeded`.
 
+### `PolicyRule` enum mirrors (ADR 0060)
+
+PolicyRule (ADR 0060 / D-057) is non-minted and reuses
+`operationShapeOperationClassSchema`, `approvalGrantKindSchema`, and
+`approvalGrantProducerSchema` (no new mirror needed for those — they move with
+their owning entities). Its two own closed enums mirror here:
+
+#### `PolicyRule.tier` enum mirror (ADR 0060)
+
+```
+read-safe | write-local | write-project | write-destructive | forbidden
+```
+
+#### `PolicyRule.approval.dashboard_visibility` enum mirror (ADR 0060)
+
+```
+not_required | required_before_grant_consumption
+```
+
 ## Boundary dimension registry
 
 Entries are alphabetised by name. Status reflects ontology review on this
@@ -3650,6 +3677,7 @@ Changes to this registry follow the schema-change workflow at
 - ADR 0055: `docs/host-capability-substrate/adr/0055-session-ring-0-entity.md`
 - ADR 0056: `docs/host-capability-substrate/adr/0056-promote-reason-kinds-operation-class-unregistered-and-audit-chain-corruption-detected.md`
 - ADR 0058: `docs/host-capability-substrate/adr/0058-depth-overflow-reason-kind-promotion.md`
+- ADR 0060: `docs/host-capability-substrate/adr/0060-policy-rule-ring-0-entity.md`
 - Q-011: `DECISIONS.md`
 - Ontology overview: `docs/host-capability-substrate/ontology.md`
 - Schema-change skill: `.agents/skills/hcs-schema-change/SKILL.md`
@@ -3658,6 +3686,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.4.21 | 2026-05-29 | Recorded `PolicyRule` (ADR 0060 / D-057), the first non-minted Ring 0 entity and first of the remaining-11 M1 entities in the resumed forward train. Change-set: NEW §Current-schema-version-ledger row (`PolicyRule @ '0.1.0'`, non-minted — no `audit_chain_link_hash` / producer / `evidence_refs`; absent from ADR 0057 mint scope); NEW §Schema-enum-mirrors `PolicyRule` subsection (`PolicyRule.tier` 5 values + `PolicyRule.approval.dashboard_visibility` 2 values); EXTENDED §Naming-suffix-discipline Sub-rule 9 kebab-case grandfather list to `policyRuleTierSchema` (mirrors the operator-approved live policy `tiers:` keys verbatim; second grandfathered enum after `evidenceAuthoritySchema`). Reuses `operationShapeOperationClassSchema` + `approvalGrantKindSchema` + `approvalGrantProducerSchema` (no enum drift); new narrow `isoDurationSchema` primitive in `common.ts`. The schema encodes only structural invariants (forbidden non-escalability via `nonEscalableTiers` set + `required_grant_kind ∈ allowed_grant_kinds`); it never encodes the `operation_class → tier` mapping (live-policy content owned by system-config, charter inv. 1 / inv. 10). Landing flips live policy `policy_rule_schema_version` `null → '0.1.0'` (operator + system-config lane). Two named Ring-1 dependencies of the non-minted posture: B-1 a `Decision` schema amendment (add `policy_rule_ref` + resolved `source_policy_sha256` for audit attribution), B-2 a Ring-1 loader digest-verification obligation. |
 | 0.4.20 | 2026-05-19 | Landed ADR 0058 / D-053 Decision.reason_kind status update: `authority_chain_walk_depth_exceeded` is a Zod-defined deny-only value in `decisionReasonKindSchema`, with no `Decision.schema_version` bump. The value is non-clearable (`required_grant_kind == null`; non-null rejects), producer-scoped to `mint_api` + `kernel_broker` with `kernel_gateway` excluded pending a future gateway ADR, and typed Decision emission remains gated on a valid `operation_shape_ref`; non-operation and pure chain-validation overflows stay audit-rejection-only. The status table now reads after ADRs 0049–0058 with 18 Zod-defined + 20 registry-canonical values, 38 total. |
 | 0.4.19 | 2026-05-12 | Landed ADR 0056 / D-046 Decision.reason_kind status update: `operation_class_unregistered` and `audit_chain_corruption_detected` are Zod-defined deny-only values in `decisionReasonKindSchema`, with no `Decision.schema_version` bump. `operation_class_unregistered` is registered as non-clearable (`required_grant_kind == null`; non-null rejects), and `Decision.operation_shape_ref` remains required with no nullable or sentinel OperationShape. Also reconciles the ADR 0055 session denial reservations into the status table body that v0.4.18 had already claimed to extend. |
 | 0.4.18 | 2026-05-11 | Recorded the seventh foundational Ring 0 entity (`Session`) per ADR 0055 / D-044 (workflow-sequencing investigation §Step 3 entity #2 of 2 highest-coupling — closes 4 forward-reference typed FK targets in the just-landed Step 1 train: Lease.held_by_session_id, Run.invoker_session_id, ADR 0030 v2 owning_session_id, and "consuming/requesting session" references in ADRs 0031 v1 / 0051 v4 / 0052 / 0054 self-approval rejection + holder-only release rules). Fourteen-item change-set: NEW §Session.session_kind status table (1 Zod-defined value `agent_invocation` + 2 registry-canonical reservations `dashboard` + `system_task`; invocation-evidence-source + required-FK-fields + producer-attribution columns); NEW §Session.session_state enum mirror (2 values; cardinality matches AgentClient/WorkspaceContext/Principal but value-name `ended` diverges from `retired` because Session is transient invocation not long-lived identity); NEW §Session.producer allowlist (`kernel_session_resolver`); NEW §Procedure for adding a new session_kind value rule (7 steps including invocation-evidence-source identification + required-FK-fields-per-kind + per-kind producer attribution + all-4-reviewer dispatch); NEW Decision.reason_kind reservations (4 deny-only: `session_agent_client_unresolvable`, `session_principal_unresolvable`, `session_execution_context_unresolvable`, `session_started_at_after_ended_at`); extends registry §Decision.reason_kind status table from 32 to 36 total reservations. UPDATE §Kernel-trusted producer allowlist final state — added `kernel_session_resolver` row (mirrors ADR 0037 `kernel_agent_client_resolver` + ADR 0054 `kernel_principal_resolver` precedents; MUST enforce sandbox-source rejection + transitive chain-walk rejection at Ring 1 per security N1 + N4 v2 absorptions). Renamed §ADR 0049–0054 foundational Ring 0 entity field authority subsection → §ADR 0049–0055 + added Session envelope-only-kernel-set entry contrasting with Principal (YES execution_context_id on envelope; Session is execution-context-BOUND at entity layer, mirrors WorkspaceContext per ADR 0031 v1 Mechanical Tweak #8). Renamed §ADR 0049–0054 foundational Ring 0 entity enum mirrors → §ADR 0049–0055 + body prose extended to 7 entities + Session sub-section with status table + state mirror + producer allowlist + §Procedure rule. Extended length-prefix canonical-concatenation discipline coverage from ADRs 0049-0054 to ADRs 0049-0055. Schema-version ledger (§Current schema-version ledger) gained a new Session row at `'0.1.0'`. The Session schema PR commits typed-FK closure for Lease.held_by_session_id + Run.invoker_session_id describe-text (NO shape change at consuming entities; `approvalGrantSchema.schema_version` / `leaseSchema.schema_version` / `runSchema.schema_version` all remain `'0.1.0'`). The §Self-approval rejection rule registry section (added by ADR 0054) gains the typed-FK consummation: the consuming-session `principal_id` reference becomes a typed FK via `Session.principal_id`; comparison form remains UUID-byte-equality on principal_id surface IDs canonicalized at Principal mint per the ADR 0054 4-step recipe (Cf-strip closure preserved). |

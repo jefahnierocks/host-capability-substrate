@@ -3,9 +3,9 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.18.0
-last_updated: 2026-05-19
-tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0]
+version: 1.19.0
+last_updated: 2026-05-29
+tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0, policy-rule]
 priority: high
 ---
 
@@ -1513,6 +1513,72 @@ approval rejection FK consumption per ADR 0051 v4 + ADR 0054) live
 at Ring 1 mint API per registry §Cross-context enforcement layer
 §Schema validation alone is not an enforcement layer.
 
+## PolicyRule (Ring 0 — non-minted policy-rule shape)
+
+### `PolicyRule`
+
+Source: `packages/schemas/src/entities/policy-rule.ts`
+
+Typed Ring 0 shape of a single policy rule (ADR 0060 / D-057), keyed to
+`OperationShape.operation_class`. PolicyRule is the **first non-minted Ring 0
+entity**: it types the shape the operator-approved live policy (and the HCS
+vendored snapshot) conform to, and landing it sets the live policy's
+`policy_rule_schema_version` from `null` to `'0.1.0'` (an operator +
+system-config edit, not performed by the schema PR). It carries **no**
+`audit_chain_link_hash`, **no** producer-mint field, and **no** `evidence_refs`
+— it is not an audit-chain mint entity and is absent from the ADR 0057 mint
+scope. The Ring 1 gateway *decides using* rules; PolicyRule never decides
+(charter inv. 1). The schema encodes only structural invariants, never the
+`operation_class → tier` or `tier → approval` mappings, which are live-policy
+content owned by system-config (charter inv. 1 / inv. 10).
+
+Key fields:
+
+- `operation_class` reuses `operationShapeOperationClassSchema` (the closed
+  8-value enum); a record types exactly one operation class. Set-coverage of all
+  classes is a lint concern over a collection of PolicyRule records, not a
+  per-record invariant.
+- `tier` is `policyRuleTierSchema` (`read-safe | write-local | write-project |
+  write-destructive | forbidden`), mirroring the live policy `tiers:` keys
+  verbatim (kebab-case; registry §Naming-suffix-discipline Sub-rule 9 grandfather
+  extension). `write-host` is a registry-canonical reservation, removed from live
+  policy v0.1.0.
+- `classification_basis` is the literal `typed_operation_class` — primary intent
+  is the typed enum; regex is renderer/hook/lint defense-in-depth only (inv. 2).
+- `approval` is a discriminated union on `approval_required`: the `false` branch
+  carries only `approval_path_allowed`; the `true` branch carries
+  `required_grant_kind` + `allowed_grant_kinds` (reusing `approvalGrantKindSchema`),
+  `producer_allowlist` (reusing `approvalGrantProducerSchema` — `mint_api` /
+  `kernel_broker`, `kernel_gateway` excluded per ADR 0051 v4),
+  `dashboard_visibility`, `single_use`, and `evidence_bound_scope` (a descriptor
+  token only, never a resolved/secret value).
+- `requires_active_lease`, `requires_deletion_authority`, and
+  `requires_typed_provider_evidence` are booleans recording the requirement; the
+  last is a deliberate lossy projection of the live policy's structured
+  `required_pre_execution_evidence` block (inv. 16), enforced in detail by the
+  gateway.
+- `valid_until_ceiling` is a narrow `isoDurationSchema` (`PT…H/M/S`) or
+  `not_applicable`; `valid_until_ceiling_source_ref` preserves the citing
+  provenance.
+- `source_provenance` binds the record to the operator-approved live policy:
+  `authority: 'system_config_live_policy'` (a provenance tag, **disjoint** from
+  `evidenceAuthoritySchema` — not an evidence trust class), `source_policy_path`
+  (relative; no absolute/traversal/secret shapes), `source_policy_sha256` (the
+  bound live-policy blob digest), and `source_policy_sha256_basis:
+  'live_policy_blob'`.
+
+A structural `superRefine` enforces charter inv. 6 (any tier in the
+`nonEscalableTiers` set — `forbidden` at v1 — must take the no-approval variant
+with `approval_path_allowed: false`; no approval path, no grant detail) and
+`required_grant_kind ∈ allowed_grant_kinds`. Two Ring-1 obligations of the
+non-minted posture are deferred and named in ADR 0060: **(B-1)** a follow-up
+`Decision` schema amendment adds `policy_rule_ref` + the resolved
+`source_policy_sha256` for audit attribution (charter inv. 4; `Decision` lacks
+it today); **(B-2)** the gateway/loader MUST verify
+`source_provenance.source_policy_sha256` against the bound, verified snapshot
+digest before a rule influences a `Decision` — the `authority` literal confers
+no authority on its own.
+
 ## Phase 1 Boundary Observation Envelope
 
 ### `BoundaryObservation`
@@ -1784,6 +1850,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.19.0 | 2026-05-29 | Added `PolicyRule` (ADR 0060 / D-057) — the first non-minted Ring 0 entity. Typed shape of a single policy rule keyed to `OperationShape.operation_class`; tier / approval (discriminated union reusing `approvalGrantKindSchema` + `approvalGrantProducerSchema`) / lease-deletion-evidence flags / `valid_until_ceiling` (new narrow `isoDurationSchema` primitive in `common.ts`) / `source_provenance`. NO `audit_chain_link_hash`, NO producer-mint field, NO `evidence_refs`; absent from the ADR 0057 mint scope. Structural superRefine enforces charter inv. 6 forbidden non-escalability (`nonEscalableTiers` set) + `required_grant_kind ∈ allowed_grant_kinds`; never encodes the `operation_class → tier` mapping (live-policy content, inv. 1/10). Landing sets the live policy `policy_rule_schema_version` `null → '0.1.0'`. Two named Ring-1 dependencies: B-1 `Decision` attribution amendment, B-2 loader digest-verification. |
 | 1.18.0 | 2026-05-19 | Landed the ADR 0058 / D-053 Decision.reason_kind schema update: `authority_chain_walk_depth_exceeded` is now a Zod-defined deny-only value without a `Decision.schema_version` bump. The reason kind is non-clearable (`required_grant_kind == null`; non-null rejects), producer-scoped to `mint_api` + `kernel_broker`, and typed Decision emission remains gated on a valid `operation_shape_ref`; non-operation and pure chain-validation overflows stay audit-rejection-only. `audit_chain_corruption_detected` remains cycle-only. |
 | 1.17.0 | 2026-05-12 | Landed the ADR 0056 / D-046 Decision.reason_kind schema update: `operation_class_unregistered` and `audit_chain_corruption_detected` are now Zod-defined deny-only values without a `Decision.schema_version` bump. `operation_class_unregistered` is non-clearable (`required_grant_kind == null`; non-null rejects), while `Decision.operation_shape_ref` remains required with no nullable or sentinel OperationShape path. |
 | 1.16.0 | 2026-05-11 | Added `Session` as the seventh foundational Ring 0 entity (ADR 0055 / D-044; second of two highest-coupling remaining M1 entities per workflow-sequencing investigation §Step 3 priority order). 12 envelope-only-kernel-set fields with NO field-level exceptions; YES `execution_context_id` at entity (Session is execution-context-BOUND mirroring WorkspaceContext, NOT Principal which is execution-context-independent); NO chain-walk envelope superRefine (typed-identity-envelope precedent). `sessionKindSchema = z.enum(['agent_invocation'])` at v1; `dashboard` + `system_task` are registry-canonical reservations. `sessionStateSchema = z.enum(['active', 'ended'])` — cardinality matches AgentClient/WorkspaceContext/Principal long-lived precedents (1 active + 1 terminal at v1) but value-name diverges intentionally (Session is transient invocation that ends; not long-lived identity that retires). NEW `kernel_session_resolver` producer (mirrors ADR 0037 + ADR 0054 precedents); Ring 1 implementation MUST enforce sandbox-source rejection + transitive chain-walk rejection per security N1 + N4 v2 absorptions. Same-record superRefines: `state ↔ ended_at` correlation + `ended_at >= started_at` temporal consistency. Closes 4 forward-reference typed FK targets: Lease.held_by_session_id (ADR 0052), Run.invoker_session_id (ADR 0053), ADR 0030 v2 owning_session_id, and "consuming/requesting session" references in ADRs 0031 v1 / 0051 v4 / 0052 / 0054 self-approval rejection rule + holder-only release rule. Lease.ts + Run.ts `.describe()` text updated to reference Session as typed FK target (NO shape change to entityIdSchema; consuming entities' schema_version values remain `'0.1.0'`). |

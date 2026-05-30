@@ -2,7 +2,7 @@
 adr_number: 0062
 title: Capability Ring-0 entity
 status: proposed
-version: v1
+version: v2
 date: 2026-05-29
 charter_version: 1.4.1
 tags: [capability, ring-0, policy-registry, operation-class, non-minted, m1-entity]
@@ -22,11 +22,36 @@ other ADRs, live policy, generated snapshots, system-config, or Ring 1
 implementation code. The follow-up schema PR follows only after ADR
 acceptance per `.agents/skills/hcs-schema-change`.
 
-v1 is dispatched to four reviewers (`hcs-architect`,
+v1 was dispatched to four reviewers (`hcs-architect`,
 `hcs-ontology-reviewer`, `hcs-policy-reviewer`, `hcs-security-reviewer`),
-matching the PolicyRule (ADR 0060) entity-review discipline; the entity
-reuses a closed enum and references a typed operation taxonomy, so
-`hcs-ontology-reviewer` is mandatory per the meta-ADR FK-table rule.
+matching the PolicyRule (ADR 0060) entity-review discipline (the entity reuses
+a closed enum and references a typed operation taxonomy, so
+`hcs-ontology-reviewer` is mandatory per the meta-ADR FK-table rule). Round 1
+returned **zero blockers**: `hcs-architect` and `hcs-policy-reviewer` returned
+`yes`; `hcs-ontology-reviewer` and `hcs-security-reviewer` returned
+`yes-with-mechanical-tweaks`. (Each reviewer's prematurely-emitted
+StructuredOutput `no` during an empty-read window was explicitly superseded by
+its authoritative verdict; disregard those.) The reviewers singled out the
+three-senses disambiguation as the strongest part and confirmed the
+`source_provenance` mirror of PolicyRule field-for-field.
+
+v2 folds every mechanical tweak, so no confirming round 2 was required
+(mechanical-tweaks-at-acceptance, ADR 0058 precedent): it reconciles the
+inv. 11 render-refusal onto the CommandShape renderer; re-phrases the inv. 6
+registration refusal to PolicyRule's non-escalable / forbidden *set* (ADR
+0060 `nonEscalableTiers`); names the Ring-1 `source_registry_sha256`
+digest-trust as a carried-forward obligation; documents the `operation_name`
+grammar as intentionally distinct from the `operation_class` enum (with its
+first-segment-no-underscore asymmetry) so it is not silently relaxed; drops
+the inapplicable Sub-rule 9 hedge and names the three registry touch-points;
+adds `.strict()` no-policy-leak / verb-agnostic-accept / format-only-digest /
+absolute-and-scheme-path-reject schema-PR tests; extends the `op://` /
+gitleaks committed-fixture scan to Capability; and adds a
+three-senses-confusion regression row. It also reflects the now-concrete
+state: the PolicyRule schema landed (PR #10 / `cc167e3`), so
+`operationShapeOperationClassSchema` and the `common.ts` primitives are
+importable and the registry is v0.4.21. v2 is presented for the operator
+acceptance gate.
 
 ## Date
 
@@ -35,8 +60,9 @@ reuses a closed enum and references a typed operation taxonomy, so
 ## Charter version
 
 Written against implementation charter v1.4.1 and
-`docs/host-capability-substrate/ontology-registry.md` v0.4.20 on `main`
-(v0.4.21 once the PolicyRule schema PR lands). The entity is constrained by
+`docs/host-capability-substrate/ontology-registry.md` v0.4.21 on `main` (the
+PolicyRule schema PR landed as PR #10 / `cc167e3`; the Capability schema PR
+bumps the registry from its then-current value). The entity is constrained by
 charter invariants 1 (no policy decision in an adapter/schema), 2 (typed
 operation over shell strings), 6 (forbidden operations are not registered as
 capabilities), 10 (live policy is canonical in system-config), and 11 (the
@@ -61,8 +87,10 @@ operation is known, and (via its operation class) which policy governs it.
   registered, known kernel operation, tagged with the `operation_class` that
   governs it.
 - `CommandShape` renders an operation into an argv vector + env profile +
-  execution lane; charter inv. 11 says the capability registry refuses to
-  render deprecated verbs.
+  execution lane; charter inv. 11 requires deprecated verbs not be rendered —
+  operationally the CommandShape renderer refuses them (the registry marks a
+  capability `deprecated`; the renderer refuses to render it; see §What stays
+  in Ring 1).
 
 ### The three "capability" senses (disambiguation)
 
@@ -203,14 +231,21 @@ coupling). The schema enforces only field formats and `.strict()` closure.
   capabilities." The schema does not carry the tier and cannot know which
   `operation_class` is forbidden (that is live-policy content via PolicyRule,
   inv. 1 / inv. 10). The Ring 1 capability-registration service MUST refuse to
-  register a `Capability` whose governing `PolicyRule.tier == 'forbidden'`.
+  register a `Capability` whose governing `PolicyRule.tier` is in the
+  non-escalable / forbidden set (ADR 0060's `nonEscalableTiers`, not a bare
+  `== 'forbidden'` literal, so a future non-escalable tier trips the same
+  gate).
 - **Charter inv. 11** — the CommandShape renderer (Ring 1 / downstream) MUST
   refuse to render a `Capability` whose `capability_state` is `deprecated` or
   `retired`. The schema only carries the state.
 - **`source_registry_sha256` trust** — the Ring 1 loader MUST verify the
   digest against the bound, verified capability-registry blob before a
   declaration is trusted (a B-2-style obligation mirroring ADR 0060's
-  PolicyRule loader rule). The schema only validates digest format.
+  PolicyRule loader rule). The schema only validates digest format. This is a
+  **named, carried-forward obligation** on the future Ring 1
+  capability-registration ADR (tracked the way ADR 0060 carries B-1 / B-2), so
+  the Ring-0 format-only posture is never later misread as "digest already
+  trusted".
 - **`operation_name` uniqueness** and the FK closure of `operation_class` to
   the registered class set are Ring 1 registration obligations.
 
@@ -280,6 +315,11 @@ The follow-up schema PR, and only that PR, should:
      `capabilitySourceProvenanceSchema`, and the `.strict()` `capabilitySchema`
      reusing `operationShapeOperationClassSchema` (import) and the `common.ts`
      primitives (`entityIdSchema`, `sha256DigestSchema`, `isoDateTimeSchema`);
+   - a `.describe()` / comment recording that `operation_name` is a free-form
+     dotted-identifier grammar **intentionally distinct** from the
+     `operation_class` enum (do not constrain one to the other), and that its
+     first segment forbids `_` while later segments allow it — so neither is
+     silently "normalized" into a looser pattern later;
    - type exports for each schema.
 2. Register the entity in `packages/schemas/src/index.ts` and
    `packages/schemas/scripts/generate-json-schemas.ts`; regenerate
@@ -292,15 +332,29 @@ The follow-up schema PR, and only that PR, should:
    - an `operation_class` outside `operationShapeOperationClassSchema` rejects
      (proving the reuse, no local redefinition);
    - a `source_provenance` with the wrong `authority` literal, a non-`sha256:`
-     digest, a `..`-bearing `source_registry_path`, or a missing field rejects;
+     digest, a `..`-bearing / absolute (`/etc/x`) / `://`-scheme
+     `source_registry_path`, or a missing field rejects;
+   - a well-formed-but-arbitrary `source_registry_sha256` ACCEPTS at Ring 0
+     (format-only; proving Ring 0 performs no digest-trust check);
+   - an `operation_name` whose verb collides with a deprecated/forbidden verb
+     literal (e.g. `launchctl.load`) ACCEPTS — the schema is verb-agnostic, so
+     no forbidden-literal denylist creeps into Ring 0 (the inv. 11 refusal is
+     the downstream renderer's job);
+   - an injected `tier` / `approval_required` / `grant_scope` / producer /
+     `audit_chain_link_hash` / `evidence_refs` top-level field rejects
+     (`.strict()`), proving no policy/approval/mint shape leaks onto the
+     registry record and the non-minted posture is enforced, not just intended;
    - an unknown top-level field rejects (`.strict()`), and the absence of
      `audit_chain_link_hash` / `evidence_refs` / producer is intentional (the
      entity is non-minted).
 4. Update `docs/host-capability-substrate/ontology.md` (a `Capability`
-   section) and `docs/host-capability-substrate/ontology-registry.md` (a
-   `Capability @ '0.1.0'` schema-version-ledger row; enum mirrors for
-   `capabilityStateSchema`; Sub-rule 9 kebab/identifier grandfather if the
-   `operation_name` form requires it; a References row for ADR 0062).
+   section) and `docs/host-capability-substrate/ontology-registry.md` with the
+   three registry touch-points: (a) a `Capability @ '0.1.0'`
+   schema-version-ledger row; (b) a `capabilityStateSchema` enum mirror in
+   §Schema enum mirrors; (c) a References row for ADR 0062. No Sub-rule 9
+   grandfather is needed: Sub-rule 9 governs enum values, not the free-form
+   `operation_name` regex, and `capability_state` / `capability_registry` /
+   `capability_registry_blob` are already snake_case / single-token.
 5. Do not edit live policy, a capability-registry blob, generated snapshots,
    system-config, other ADRs, or Ring 1 code in the schema PR.
 
@@ -313,10 +367,12 @@ The follow-up schema PR, and only that PR, should:
 | `operation_class` drift from `operationShapeOperationClassSchema` | Schema test asserts an out-of-enum class rejects (proves reuse, not redefinition). |
 | Self-asserted `source_registry_sha256` trusted | Ring 0 validates digest format only; the digest-vs-bound-registry trust check is a Ring 1 capability-registration implementation test (trajectory-asserted: reject at the verification step), not a Ring 0 test or an ADR-time trap. |
 | Forbidden operation registered / deprecated verb rendered | Ring 1 capability-registration / CommandShape-rendering implementation tests when those services land; no Ring 0 coverage now. |
+| Three-senses confusion (a sense-1 `*_capable` token or a sense-2 observation-state value such as `proven` / `stale` set on `capability_state`) | Schema test asserts `capability_state` rejects any value outside `active \| deprecated \| retired`, guarding against a future "unification" of the registry lifecycle with the containment-class axis or the observation-state vocabulary. |
+| Path/secret slipping into a committed Capability fixture | Extend the `op://` / gitleaks committed-fixture forbidden-string scan to Capability `operation_name` and `source_registry_path` (mirrors ADR 0060's PolicyRule fixture-scan extension); defense-in-depth even though the regexes reject at validation time. |
 
 ## Acceptance criteria
 
-- Operator confirms the ADR 0062 v1 scope and the non-minted registry-entity
+- Operator confirms the ADR 0062 v2 scope and the non-minted registry-entity
   design.
 - All four reviewers return ready-for-acceptance, or all blockers are absorbed
   in a later revision: `hcs-architect`, `hcs-ontology-reviewer`,
@@ -344,7 +400,9 @@ The follow-up schema PR, and only that PR, should:
   — invariants 1, 2, 6, 10, 11.
 - ADR 0060 / D-057: `PolicyRule` Ring 0 entity — the non-minted
   policy-registry peer, the `source_provenance` pattern, and the
-  `operationShapeOperationClassSchema` reuse precedent.
+  `operationShapeOperationClassSchema` reuse precedent. Its schema landed as
+  PR #10 (`cc167e3`); `packages/schemas/src/entities/policy-rule.ts` is the
+  built peer to mirror.
 - ADR 0037: `AgentClient` — the `containment_mechanism` capability-class axis
   (sense 1) and `containment_runtime_capability_exceeded` reason kind.
 - ADR 0022 / ADR 0017: `BoundaryObservation.observation_state` and the

@@ -1,7 +1,7 @@
 ---
 adr_number: 0061
 title: Decision rule-attribution amendment
-status: proposed
+status: accepted
 version: v2
 date: 2026-05-29
 charter_version: 1.4.1
@@ -12,7 +12,7 @@ tags: [decision, ring-0, policy-rule, audit-attribution, schema-extension, adr-0
 
 ## Status
 
-`proposed`
+`accepted`
 
 Drafted 2026-05-29 as the B-1 dependency named by ADR 0060 (PolicyRule,
 D-057). This ADR is design-only. It does not modify Zod source, generated
@@ -48,6 +48,14 @@ its contingent value; and routes the Ring-1 mandatory-attribution and B-2
 digest-verify obligations to the mint/audit implementation ADR open-items.
 No blocker required a re-review, so v2 is presented for acceptance under the
 mechanical-tweaks-at-acceptance discipline (ADR 0058 precedent).
+
+ADR 0061 is accepted 2026-05-29 as D-059. Round 1 returned zero blockers and
+v2 folded every mechanical tweak, so no confirming round 2 was required. It
+discharges ADR 0060's §Decision-attribution B-1 dependency. The follow-up
+schema PR is sequenced after the PolicyRule schema PR lands (so
+`policy_rule_ref`'s referent shape exists), and the Ring-1 population plus
+B-2 digest-verification obligations are routed to the mint/audit
+implementation ADR's open-items.
 
 ## Date
 

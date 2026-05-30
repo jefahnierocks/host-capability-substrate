@@ -155,6 +155,17 @@ export {
   vmKindSchema,
 } from './entities/boundary-observation.ts';
 export {
+  type Capability,
+  type CapabilitySourceProvenance,
+  type CapabilityState,
+  capabilityOperationNameSchema,
+  capabilitySchema,
+  capabilitySchemaVersionSchema,
+  capabilitySourceProvenanceSchema,
+  capabilitySourceRegistryPathSchema,
+  capabilityStateSchema,
+} from './entities/capability.ts';
+export {
   type CleanRoomSmokePayload,
   type CleanRoomSmokeReceipt,
   cleanRoomSmokePayloadSchema,

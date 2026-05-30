@@ -8,6 +8,7 @@ import {
   backupCredentialCustodyObservationSchema,
   backupReadinessObservationSchema,
   boundaryObservationSchema,
+  capabilitySchema,
   cleanRoomSmokeReceiptSchema,
   coordinationFactSchema,
   credentialAuthorityObservationSchema,
@@ -201,6 +202,11 @@ const schemaEntries: SchemaEntry[] = [
     file: 'CredentialAuthorityObservation.schema.json',
     title: 'CredentialAuthorityObservation',
     schema: credentialAuthorityObservationSchema,
+  },
+  {
+    file: 'Capability.schema.json',
+    title: 'Capability',
+    schema: capabilitySchema,
   },
   {
     file: 'CleanRoomSmokeReceipt.schema.json',

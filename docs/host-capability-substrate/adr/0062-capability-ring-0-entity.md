@@ -1,7 +1,7 @@
 ---
 adr_number: 0062
 title: Capability Ring-0 entity
-status: proposed
+status: accepted
 version: v2
 date: 2026-05-29
 charter_version: 1.4.1
@@ -12,7 +12,7 @@ tags: [capability, ring-0, policy-registry, operation-class, non-minted, m1-enti
 
 ## Status
 
-`proposed`
+`accepted`
 
 Drafted 2026-05-29 as the second of the remaining-11 M1 canonical Ring-0
 entities, in the `PolicyRule → Capability → CommandShape` policy-registry
@@ -52,6 +52,15 @@ state: the PolicyRule schema landed (PR #10 / `cc167e3`), so
 `operationShapeOperationClassSchema` and the `common.ts` primitives are
 importable and the registry is v0.4.21. v2 is presented for the operator
 acceptance gate.
+
+ADR 0062 is accepted 2026-05-29 as D-060. Round 1 returned zero blockers and
+v2 folded every mechanical tweak, so no confirming round 2 was required. The
+follow-up schema PR (`capability.ts` + generated schema + tests + ontology /
+registry) lands per `.agents/skills/hcs-schema-change`; the Ring-1
+capability-registration obligations — inv. 6 registration refusal, inv. 11
+render refusal, and the `source_registry_sha256` digest-vs-bound-registry
+verification — are carried forward to the future Ring-1 capability-registration
+ADR.
 
 ## Date
 

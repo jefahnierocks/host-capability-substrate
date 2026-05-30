@@ -3,9 +3,9 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.19.0
+version: 1.20.0
 last_updated: 2026-05-29
-tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0, policy-rule]
+tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0, policy-rule, capability]
 priority: high
 ---
 
@@ -1579,6 +1579,65 @@ it today); **(B-2)** the gateway/loader MUST verify
 digest before a rule influences a `Decision` — the `authority` literal confers
 no authority on its own.
 
+## Capability (Ring 0 — non-minted registry declaration)
+
+### `Capability`
+
+Source: `packages/schemas/src/entities/capability.ts`
+
+A non-minted Ring 0 registry declaration of a known kernel operation (ADR 0062 /
+D-060). `Capability` is a **structural peer of `PolicyRule`**: it types a single
+entry in the capability registry — the set of operations the kernel knows how to
+shape and render. It carries **no** `audit_chain_link_hash`, **no** producer-mint
+field, and **no** `evidence_refs`; it is not an audit-chain mint entity and is
+absent from the ADR 0057 mint scope. Like `PolicyRule`, its provenance is
+`source_provenance`, bound to the capability-registry blob it was read from, and
+it never decides anything — the Ring 1 gateway *decides using* the registry, but
+`Capability` is a declaration, not a Decision (charter inv. 1).
+
+Key fields:
+
+- `operation_name` (`capabilityOperationNameSchema`) is a lowercase dotted
+  identifier of at least two segments (e.g. `service.activate`). It is
+  **intentionally distinct** from `operation_class`: the schema does not
+  constrain one to the other, because one `operation_class` groups many
+  `operation_name`s. The first segment forbids `_`; later segments allow it. The
+  regex forbids path/URI/secret shapes by construction (no `/`, no `://`, no
+  `op://`). It is verb-agnostic — there is no forbidden-literal denylist at
+  Ring 0; deprecation/forbidding is a `capability_state` + policy/renderer
+  concern, not a name concern.
+- `operation_class` reuses `operationShapeOperationClassSchema` (the closed
+  8-value enum); a record declares exactly one operation class. The schema
+  reuses, never redefines, this enum.
+- `capability_state` (`capabilityStateSchema`) is `active | deprecated |
+  retired`: registry lifecycle. `active` = renderable; `deprecated` = registered
+  but render-refused (charter inv. 11, enforced by the CommandShape renderer, not
+  this schema); `retired` = retained historical record, render-refused.
+- `source_provenance` binds the record to the capability-registry blob:
+  `authority: 'capability_registry'` (a provenance tag, **disjoint** from
+  `evidenceAuthoritySchema` — not an evidence trust class, and confers no
+  authority by itself), `source_registry_path` (relative; no absolute/traversal/
+  URI/secret shapes), `source_registry_sha256` (the bound registry-blob digest),
+  and `source_registry_sha256_basis: 'capability_registry_blob'`. The digest is
+  **format-only at Ring 0**; the digest-vs-bound-registry trust check is a Ring 1
+  capability-registration obligation. Mirrors `PolicyRule.source_provenance`.
+
+There is **no** `superRefine` — `Capability` has no cross-field coupling and no
+containment-class axis. The record is a flat `.strict()` envelope.
+
+**Three-senses disambiguation.** The word "capability" is overloaded in this
+ontology across three deliberately separate senses; this entity is sense 1 only:
+
+1. **`Capability` (this entity)** — a non-minted Ring 0 registry declaration of a
+   known kernel operation, keyed to `operation_name` + `operation_class`.
+2. The **`AgentClient` containment-class axis** (`containment_mechanism` /
+   capability-class evidence: what a product *can* provide). NOT this entity.
+3. The **`BoundaryObservation` capability-state observation vocabulary** (per-
+   surface observed capability status, e.g. `proven` / `stale`). NOT this entity.
+
+`capability_state` is therefore disjoint from both the sense-2 containment tokens
+and the sense-3 observation vocabulary.
+
 ## Phase 1 Boundary Observation Envelope
 
 ### `BoundaryObservation`
@@ -1850,6 +1909,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.20.0 | 2026-05-29 | Added `Capability` (ADR 0062 / D-060) — a non-minted Ring 0 registry declaration of a known kernel operation and a structural peer of `PolicyRule`. Flat `.strict()` envelope: `operation_name` (lowercase dotted identifier of ≥2 segments, intentionally distinct from `operation_class` and verb-agnostic — no forbidden-literal denylist at Ring 0), `operation_class` (reuses `operationShapeOperationClassSchema`, never redefined), `capability_state` (`active`/`deprecated`/`retired` registry lifecycle; `deprecated`/`retired` render-refusal is enforced by the CommandShape renderer per charter inv. 11, not this schema), and `source_provenance` (binds to the capability-registry blob; `authority: 'capability_registry'` disjoint from `evidenceAuthoritySchema`; `source_registry_sha256` format-only at Ring 0, the digest-trust check is a Ring 1 capability-registration obligation). NO `audit_chain_link_hash`, NO producer-mint field, NO `evidence_refs`, NO observation-state enum, NO containment-class axis, NO `superRefine`; absent from the ADR 0057 mint scope. Documents the three-senses disambiguation: this entity (sense 1) is NOT the `AgentClient` containment-class axis (sense 2) nor the `BoundaryObservation` capability-state observation vocabulary (sense 3). |
 | 1.19.0 | 2026-05-29 | Added `PolicyRule` (ADR 0060 / D-057) — the first non-minted Ring 0 entity. Typed shape of a single policy rule keyed to `OperationShape.operation_class`; tier / approval (discriminated union reusing `approvalGrantKindSchema` + `approvalGrantProducerSchema`) / lease-deletion-evidence flags / `valid_until_ceiling` (new narrow `isoDurationSchema` primitive in `common.ts`) / `source_provenance`. NO `audit_chain_link_hash`, NO producer-mint field, NO `evidence_refs`; absent from the ADR 0057 mint scope. Structural superRefine enforces charter inv. 6 forbidden non-escalability (`nonEscalableTiers` set) + `required_grant_kind ∈ allowed_grant_kinds`; never encodes the `operation_class → tier` mapping (live-policy content, inv. 1/10). Landing sets the live policy `policy_rule_schema_version` `null → '0.1.0'`. Two named Ring-1 dependencies: B-1 `Decision` attribution amendment, B-2 loader digest-verification. |
 | 1.18.0 | 2026-05-19 | Landed the ADR 0058 / D-053 Decision.reason_kind schema update: `authority_chain_walk_depth_exceeded` is now a Zod-defined deny-only value without a `Decision.schema_version` bump. The reason kind is non-clearable (`required_grant_kind == null`; non-null rejects), producer-scoped to `mint_api` + `kernel_broker`, and typed Decision emission remains gated on a valid `operation_shape_ref`; non-operation and pure chain-validation overflows stay audit-rejection-only. `audit_chain_corruption_detected` remains cycle-only. |
 | 1.17.0 | 2026-05-12 | Landed the ADR 0056 / D-046 Decision.reason_kind schema update: `operation_class_unregistered` and `audit_chain_corruption_detected` are now Zod-defined deny-only values without a `Decision.schema_version` bump. `operation_class_unregistered` is non-clearable (`required_grant_kind == null`; non-null rejects), while `Decision.operation_shape_ref` remains required with no nullable or sentinel OperationShape path. |

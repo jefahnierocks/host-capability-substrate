@@ -1,0 +1,96 @@
+{
+  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/Capability.schema.json",
+  "title": "Capability",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0",
+      "description": "Capability schema version. New entities start at 0.1.0."
+    },
+    "capability_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "operation_name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:\\.[a-z][a-z0-9_]*)+$",
+      "description": "A declared kernel operation name (e.g. `service.activate`): a lowercase dotted identifier of at least two segments. Intentionally DISTINCT from `operation_class` (a closed enum) — the schema does not constrain one to the other; an operation_class groups many operation_names. The first segment forbids `_`; later segments allow it. The regex forbids path/URI/secret shapes by construction (no `/`, no `://`, no `op://`). It is not a secret value."
+    },
+    "operation_class": {
+      "type": "string",
+      "enum": [
+        "read_only_diagnostic",
+        "agent_internal_state",
+        "destructive_git",
+        "external_control_plane_mutation",
+        "worktree_mutation",
+        "merge_or_push",
+        "workspace_verify",
+        "cleanup_plan"
+      ],
+      "description": "OperationShape operation_class values from ADR 0029, ADR 0036, and ADR 0047."
+    },
+    "capability_state": {
+      "type": "string",
+      "enum": [
+        "active",
+        "deprecated",
+        "retired"
+      ],
+      "description": "Capability registry lifecycle. `active` = renderable; `deprecated` = registered but render-refused (charter inv. 11, enforced by the CommandShape renderer, NOT this schema); `retired` = retained historical record, render-refused. Deliberately DISJOINT from the BoundaryObservation capability-STATE observation vocabulary (sense 3) and the AgentClient containment-class axis (sense 2)."
+    },
+    "source_provenance": {
+      "type": "object",
+      "properties": {
+        "authority": {
+          "type": "string",
+          "const": "capability_registry",
+          "description": "Source-of-truth marker; deliberately disjoint from evidenceAuthoritySchema and confers no authority by itself."
+        },
+        "source_registry_path": {
+          "type": "string",
+          "pattern": "^(?!.*\\.\\.)[A-Za-z0-9._-]+(?:\\/[A-Za-z0-9._-]+)*$",
+          "description": "Relative path to the capability-registry blob a Capability declaration was read from. No `..` traversal, no absolute path, no URI scheme. It is not a secret value."
+        },
+        "source_registry_sha256": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "Digest of the bound capability-registry blob. Format-only at Ring 0; the digest-vs-bound-registry trust check is a Ring 1 capability-registration obligation."
+        },
+        "source_registry_sha256_basis": {
+          "type": "string",
+          "const": "capability_registry_blob"
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        }
+      },
+      "required": [
+        "authority",
+        "source_registry_path",
+        "source_registry_sha256",
+        "source_registry_sha256_basis",
+        "observed_at"
+      ],
+      "additionalProperties": false,
+      "description": "Binds a Capability declaration to the capability-registry blob it was read from. Mirrors PolicyRule.source_provenance."
+    }
+  },
+  "required": [
+    "schema_version",
+    "capability_id",
+    "operation_name",
+    "operation_class",
+    "capability_state",
+    "source_provenance"
+  ],
+  "additionalProperties": false,
+  "description": "A non-minted Ring-0 registry declaration of a known kernel operation (ADR 0062). NOT minted, NOT audit-chain-committed."
+}

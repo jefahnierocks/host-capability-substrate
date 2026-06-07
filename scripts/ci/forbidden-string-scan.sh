@@ -29,9 +29,16 @@ for pattern in '"bash\.run"' '"shell\.exec"' '"exec\.unsafe_shell"\s*[,)]'; do
   fi
 done
 
-# 2. Resolved op:// values — configs should use op:// references, never resolved tokens
-# Heuristic: look for patterns like "sk-...", "ghp_...", raw-looking API keys that
-# aren't inside op:// URIs.
+# 2. Resolved secret values — configs/fixtures should use op:// references, never
+# resolved tokens. Heuristic: patterns like "sk-...", "ghp_...", raw-looking API keys.
+# This recursive scan over $scan_dirs (incl. packages/) is the committed-fixture
+# backstop for CommandShape argv/env/cwd (ADR 0063 §Follow-up regression coverage):
+# the Ring 0 CommandShape schema ACCEPTS a secret-shaped argv element because the
+# argument-class distinction (ProviderObjectReference / PublicClientId /
+# PolicySelectorValue / SecretReference / raw secret) is a Ring 1 gateway obligation
+# (charter line 98), so no resolved token may land in a committed fixture. The
+# command-shape.test.ts argv-secret-inlining trap builds its token-shaped elements by
+# runtime concatenation precisely so it documents that gap WITHOUT tripping this scan.
 # (Phase 0a: conservative scan. Extend with gitleaks in no-live-secrets.sh.)
 if grep -rE '\b(sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|xoxb-[0-9]+-[A-Za-z0-9]+|AKIA[0-9A-Z]{16})\b' $scan_dirs 2>/dev/null; then
   echo "  ✗ likely resolved secret value found" >&2

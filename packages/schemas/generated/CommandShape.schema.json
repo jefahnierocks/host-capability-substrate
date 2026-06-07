@@ -1,0 +1,115 @@
+{
+  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/CommandShape.schema.json",
+  "title": "CommandShape",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0",
+      "description": "CommandShape schema version (ADR 0063; non-minted Ring 0 entity; D-061). New-entity introduction at 0.1.0; not a breaking bump."
+    },
+    "command_shape_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable local entity identifier. It is not a secret value."
+    },
+    "operation_shape_ref": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Typed FK to the OperationShape this plan was rendered from (the render source and provenance). A bare format-validated id at Ring 0; FK existence + the OperationShape.operation_class linkage (so the gateway can resolve the governing PolicyRule/Capability) are Ring 1 obligations. `operation_class` is intentionally NOT echoed onto CommandShape — it is derivable via this FK and would otherwise duplicate live-policy-adjacent content (charter inv. 1)."
+    },
+    "argv": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Typed argv VECTOR; `argv[0]` is the executable, every element a non-empty string. There is NO shell-string field anywhere on the entity (charter inv. 2): the plan is a typed vector by construction and can never be a shell string. NOTE: a flat string vector cannot distinguish a SecretReference / ProviderObjectReference / PublicClientId / PolicySelectorValue / raw secret inside an element — the argument-class distinction (charter line 98) is a deferred Ring 1 gateway obligation, recorded by a seeded regression trap; Ring 0 accepts an inlined secret-shaped element."
+    },
+    "env": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+            "description": "Environment variable name only. The schema intentionally has no value field."
+          },
+          "value_source": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "secret_reference"
+                  },
+                  "secret_reference_ref": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "description": "Forward reference to the (unbuilt) SecretReference entity; FK closure is a Ring 1 obligation (follows the `_ref` forward-reference precedent, not the resolvable `_id` suffix). An opaque reference id — NOT a secret value, NOT an `op://` URI, NOT a resolved token. The Ring 1 broker resolves the value at execution time."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "secret_reference_ref"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "execution_context_inherited"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "Typed source of an env variable VALUE, discriminated on `kind`. `secret_reference` carries an opaque `secret_reference_ref` (resolved by the Ring 1 broker at execution time); `execution_context_inherited` stores no value (inherited from the target execution context at execution time). NO variant carries an inline resolved value (charter inv. 5)."
+          }
+        },
+        "required": [
+          "name",
+          "value_source"
+        ],
+        "additionalProperties": false,
+        "description": "One environment entry: a variable NAME plus a typed value-SOURCE reference. The value itself is never stored at Ring 0 (charter inv. 5)."
+      },
+      "description": "Environment profile: variable NAMES plus typed value-SOURCE references, never resolved values (charter inv. 5). May be empty. Env `name`s are unique within the array (envelope superRefine)."
+    },
+    "cwd": {
+      "type": "string",
+      "pattern": "^(?!.*\\.\\.)\\/?[A-Za-z0-9._-]+(?:\\/[A-Za-z0-9._-]+)*$",
+      "description": "Working-directory path for the plan. Optional leading `/` (absolute) or relative; no `..` traversal, no URI scheme, no secret shape. Ring 0 cannot know the allowed roots — confining `cwd` to permitted roots (e.g. blocking `/etc`, `/Users/.../.ssh`) is a Ring 1 broker obligation. It is not a secret value."
+    },
+    "timeout_seconds": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 86400,
+      "description": "Bounded positive timeout in seconds. The 86400 (24h) bound is a hard CEILING, not a default and not an authorization; the Ring 1 broker is expected to apply its own tighter per-operation budget (cross-referencing the future ResourceBudget entity). A plan parameter, never an execution trigger."
+    }
+  },
+  "required": [
+    "schema_version",
+    "command_shape_id",
+    "operation_shape_ref",
+    "argv",
+    "env",
+    "cwd",
+    "timeout_seconds"
+  ],
+  "additionalProperties": false,
+  "description": "Ring 0 CommandShape entity from ADR 0063 (D-061). A NON-MINTED typed PLAN (argv + env + cwd + timeout) rendered from an OperationShape (`operation_shape_ref` provenance). Central boundary: a typed plan, NOT an execution authorization — it carries no execution semantics and unblocks no execute lane (charter inv. 7; the broker stays blocked until the approval-grant + dashboard-review stack exists). No audit_chain_link_hash, no producer-mint field, no evidence_refs (absent from the ADR 0057 mint scope); no operation_class echo. The schema embodies inv. 2 (typed argv vector, no shell string) and inv. 5 (env names + value-source references, no resolved values) and enforces ONLY field formats, argv/env typing, and env-name uniqueness. Deprecated-verb render-refusal (inv. 11), cwd absolute-root confinement, SecretReference FK closure + env value resolution, operation_shape_ref FK existence, the argv argument-class distinction (charter line 98), and lease/approval/dashboard gating are Ring 1 renderer/broker/gateway obligations."
+}

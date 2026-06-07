@@ -5,7 +5,36 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — Ring-1 forward surface OPEN; policy gate SATISFIED; resuming the M1 entity train
+## Current Focus — PolicyRule→Capability→CommandShape chain COMPLETE; Ring-1 mint/audit DESIGN ADR is next
+
+**2026-05-30 update.** The policy-registry entity chain is **complete at the
+ADR layer**: PolicyRule (ADR 0060 / D-057, schema PR #10 merged), Capability
+(ADR 0062 / D-060, schema PR #13 merged), and CommandShape (ADR 0063 / D-061,
+**acceptance PR #14 OPEN** — merges CommandShape's accepted ADR + the D-061 row;
+its schema PR follows after merge). ADR 0059 (AgentClient canonical-hash) is
+**accepted (D-058)** and ADR 0061 (Decision rule-attribution / B-1) is
+**accepted (D-059)**, both merged (PR #11). `main` is at `6d2a068`; registry is
+**v0.4.22**, ontology **v1.20.0**; ADRs span **0001–0063**.
+
+**Active next surface (in order):**
+
+1. **Merge PR #14** (operator-gated), then land the **CommandShape schema PR**
+   (`command-shape.ts` + generated JSON Schema + tests + ontology/registry per
+   ADR 0063 §Implementation plan; mirrors the `capability.ts` non-minted peer).
+2. **Then open the scoped Ring-1 mint/audit DESIGN ADR** per ADR 0057's accepted
+   design — interfaces/schema/contracts only, scoped to the six landed mint
+   entities (Decision/ApprovalGrant/Lease/Run/Principal/Session) plus AgentClient
+   (now unblocked by ADR 0059); the AgentClient + Decision-attribution (ADR 0061)
+   schema PRs sequence in here too. **No runtime/SQLite/launchd/persistence/
+   agent-callable mutation endpoints** — charter inv. 7; class-I work is
+   unmergeable until M4.
+3. Q-013 credential-plane v1 schema is ready-now (optional; unblocks Q-014).
+4. Remaining lower-coupling M1 entities (HostProfile, ToolProvider,
+   ToolInstallation, ResolvedTool, Artifact, Lock, SecretReference,
+   ResourceBudget) follow as independent ADR + schema slices.
+
+The detail below records how the chain became unblocked; it is retained as
+provenance.
 
 **2026-05-29 update (supersedes the stale gating framing below).** The Phase 2.5
 policy gate is **satisfied**, verified against HCS-vendored evidence: the
@@ -47,10 +76,13 @@ plus a coordinated byte-identical HCS re-vendor; none hard-blocks the Ring-1
 design ADR.
 
 Recent landed context: the 2026-05-28 integration passes are merged to `main`
-`9e289e0` — D-054/D-055/D-056 (tool-baseline re-baseline to Opus 4.8 / CC
-`2.1.156` + codex capability staleness + credential-plane seam; PR #5 `d4b1653`)
-and the parent-org control-plane restatement (PR #6 `9e289e0`). ADR 0059
-(AgentClient canonical-hash) is v2 `proposed`; round-2 dispatch is operator-gated.
+— D-054/D-055/D-056 (tool-baseline re-baseline to Opus 4.8 / CC `2.1.156` +
+codex capability staleness + credential-plane seam; PR #5) and the parent-org
+control-plane restatement (PR #6). The 2026-05-29/30 M1 train then landed
+PolicyRule (PR #9 + #10), ADR 0059 + ADR 0061 acceptance (PR #11), Capability
+(PR #12 + #13), and CommandShape acceptance (PR #14, open). ADR 0059
+(AgentClient canonical-hash) is **accepted (D-058)** — its round-2 returned a
+unanimous yes.
 
 ## Prior Focus — HCS-local workstation contract restatement
 
@@ -201,13 +233,15 @@ Ring-1 ADR to design/interface scope: no execution endpoints, no
 SQLite/launchd/persistence, class-I unmergeable until M4). Since the 2026-05-11
 Step-3 snapshot below: ADR 0057 (Ring-1 mint/audit service **design**) accepted
 (D-052); ADR 0058 (depth-overflow reason_kind) accepted + schema landed (D-053);
-ADR 0059 (AgentClient canonical-hash) v2 `proposed`; the generated-snapshot lane
-opened (D-051); the 2026-05-28 tool-baseline + config-posture passes landed
-(D-054/D-055/D-056) and the parent-org control-plane restatement merged. Source-
-schema baseline remains **11 of 22** canonical M1 entities. The active lane lands
-**PolicyRule → Capability → CommandShape** next (Ring-1-mint dependency order),
-then the scoped Ring-1 mint/audit design ADR for the six landed mint entities
-(AgentClient deferred pending ADR 0059).
+ADR 0059 (AgentClient canonical-hash) accepted (D-058); ADR 0061 (Decision
+rule-attribution / B-1) accepted (D-059); the generated-snapshot lane opened
+(D-051); the 2026-05-28 tool-baseline + config-posture passes landed
+(D-054/D-055/D-056) and the parent-org control-plane restatement merged; and the
+**PolicyRule → Capability → CommandShape** chain landed (D-057 / D-060 / D-061),
+taking the source-schema baseline to **13 of 22** canonical M1 entities
+(PolicyRule + Capability merged; CommandShape schema follows PR #14). The active
+lane is now the scoped Ring-1 mint/audit design ADR for the six landed mint
+entities plus AgentClient (unblocked by ADR 0059).
 
 **2026-05-11 update:** ADR 0055 Session accepted (D-044; commits
 `4e8fe23` v1 → `1ba8a2c` v2 → `01d1357` accept; 2-revision cycle

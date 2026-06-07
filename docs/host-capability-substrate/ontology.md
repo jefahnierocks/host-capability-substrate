@@ -3,9 +3,9 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.20.0
-last_updated: 2026-05-29
-tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0, policy-rule, capability]
+version: 1.21.0
+last_updated: 2026-06-07
+tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0, policy-rule, capability, command-shape]
 priority: high
 ---
 
@@ -50,7 +50,7 @@ ToolInstallation     a specific instance of a tool on this host
 ResolvedTool         the authoritative answer for "what tool X in this context"
 Capability           a declared kernel operation (e.g., service.activate)
 OperationShape       semantic operation proposal with target + mutation scope
-CommandShape         argv vector + env profile + execution lane (rendered from Operation)
+CommandShape         argv vector + env (names + refs) + cwd + timeout — typed plan from OperationShape
 VerificationCommandSpec producer-asserted workspace verify command spec
 Evidence             a fact with provenance, freshness, authority, confidence
 GitIdentityBinding   direct Evidence subtype for Git author/signing identity
@@ -1638,6 +1638,69 @@ ontology across three deliberately separate senses; this entity is sense 1 only:
 `capability_state` is therefore disjoint from both the sense-2 containment tokens
 and the sense-3 observation vocabulary.
 
+## CommandShape (Ring 0 — non-minted typed plan)
+
+### `CommandShape`
+
+Source: `packages/schemas/src/entities/command-shape.ts`
+
+A non-minted Ring 0 typed **plan** — `argv` + `env` + `cwd` + `timeout_seconds`
+— rendered from an `OperationShape` (ADR 0063 / D-061). `CommandShape` is the
+third and last entity in the `PolicyRule → Capability → CommandShape`
+policy-registry / operation-pipeline chain and a **structural peer of
+`PolicyRule` and `Capability`**: it carries **no** `audit_chain_link_hash`,
+**no** producer-mint field, and **no** `evidence_refs`; it is absent from the
+ADR 0057 mint scope. Its provenance is the typed `operation_shape_ref` (a render
+of an already-evidenced OperationShape), not an audit-chain hash.
+
+**Central boundary: a typed plan, not an execution authorization.** Typing the
+plan at Ring 0 creates, implies, and unblocks no execute lane, and carries no
+execution semantics. The execution broker stays blocked until the
+approval-grant + dashboard-review stack exists (charter inv. 7); `CommandShape`
+only gives that future stack a typed object to reason about.
+
+Key fields:
+
+- `operation_shape_ref` (`entityIdSchema`) is the typed FK to the
+  `OperationShape` this plan was rendered from — the render source and
+  provenance. A bare format-validated id at Ring 0; FK existence and the
+  `OperationShape.operation_class` linkage are Ring 1 obligations.
+  `operation_class` is **not** echoed onto `CommandShape` (it is derivable via
+  this FK and would otherwise duplicate live-policy-adjacent content, inv. 1).
+- `argv` (`z.array(z.string().min(1)).min(1)`) is the typed argv **vector**;
+  `argv[0]` is the executable, every element a non-empty string. There is **no**
+  shell-string field anywhere on the entity (charter inv. 2): the plan is a
+  typed vector by construction. A flat string vector cannot distinguish a
+  `SecretReference` / `ProviderObjectReference` / `PublicClientId` /
+  `PolicySelectorValue` / raw secret inside an element — the argument-class
+  distinction (charter line 98) is a deferred **Ring 1 gateway** obligation,
+  recorded by a seeded regression trap (the schema accepts an inlined
+  secret-shaped element) paired with the `forbidden-string-scan` committed-
+  fixture backstop.
+- `env` (`z.array(commandShapeEnvEntrySchema)`, may be empty) carries variable
+  **names** plus a typed value-**source** reference, never resolved values
+  (charter inv. 5). `commandShapeEnvValueSourceSchema` is a discriminated union
+  on `kind`: `secret_reference` (an opaque `secret_reference_ref` forward
+  reference to the unbuilt `SecretReference`; the broker resolves the value at
+  execution time) or `execution_context_inherited` (no value stored). No variant
+  carries an inline resolved value. An envelope `superRefine` requires env
+  `name`s to be unique within the array.
+- `cwd` (`commandShapeCwdSchema`) is a working-directory path: optional leading
+  `/` (absolute) or relative, no `..` traversal, no URI scheme, no secret shape.
+  Ring 0 cannot know the allowed roots; confining `cwd` to permitted roots is a
+  Ring 1 broker obligation.
+- `timeout_seconds` (`z.number().int().positive().max(86400)`) is a bounded
+  positive timeout. The `86400` (24h) bound is a hard **ceiling**, not a default
+  and not an authorization; the Ring 1 broker applies its own tighter
+  per-operation budget (cross-referencing the future `ResourceBudget` entity).
+
+The record is a `.strict()` envelope; its only `superRefine` is env-`name`
+uniqueness. Deprecated-verb render-refusal (inv. 11), `cwd` absolute-root
+confinement, `SecretReference` FK closure + env value resolution,
+`operation_shape_ref` FK existence, the argv argument-class distinction
+(line 98), and lease / approval / dashboard gating are Ring 1 renderer / broker /
+gateway obligations, not Ring 0 schema checks.
+
 ## Phase 1 Boundary Observation Envelope
 
 ### `BoundaryObservation`
@@ -1909,6 +1972,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.21.0 | 2026-06-07 | Added `CommandShape` (ADR 0063 / D-061) — the third and last entity in the `PolicyRule → Capability → CommandShape` chain; a NON-MINTED Ring 0 typed plan (`argv` + `env` + `cwd` + `timeout_seconds`) rendered from an `OperationShape` (`operation_shape_ref` provenance). Central boundary: a typed plan, NOT an execution authorization — no execution semantics, no execute lane (charter inv. 7). Structurally embodies inv. 2 (typed `argv` vector, no shell-string field) and inv. 5 (`env` names + value-source references via a `secret_reference` / `execution_context_inherited` discriminated union, no resolved values); envelope `superRefine` enforces env-name uniqueness only. NO `audit_chain_link_hash`, NO producer-mint field, NO `evidence_refs`, NO `operation_class` echo; absent from the ADR 0057 mint scope. Reconciled the §Entities one-liner (dropped the stale "execution lane" — no such v1 field; the lane is reachable via `operation_shape_ref → OperationShape.execution_context_id`, and a direct echo is a deferred additive amendment). Deferred Ring-1 obligations: deprecated-verb render-refusal (inv. 11), cwd absolute-root confinement, SecretReference FK closure + env value resolution, operation_shape_ref FK existence, and the argv argument-class distinction (charter line 98, recorded as a seeded accept-and-trap fixture + a `forbidden-string-scan.sh` committed-fixture backstop extended to CommandShape argv/env/cwd). |
 | 1.20.0 | 2026-05-29 | Added `Capability` (ADR 0062 / D-060) — a non-minted Ring 0 registry declaration of a known kernel operation and a structural peer of `PolicyRule`. Flat `.strict()` envelope: `operation_name` (lowercase dotted identifier of ≥2 segments, intentionally distinct from `operation_class` and verb-agnostic — no forbidden-literal denylist at Ring 0), `operation_class` (reuses `operationShapeOperationClassSchema`, never redefined), `capability_state` (`active`/`deprecated`/`retired` registry lifecycle; `deprecated`/`retired` render-refusal is enforced by the CommandShape renderer per charter inv. 11, not this schema), and `source_provenance` (binds to the capability-registry blob; `authority: 'capability_registry'` disjoint from `evidenceAuthoritySchema`; `source_registry_sha256` format-only at Ring 0, the digest-trust check is a Ring 1 capability-registration obligation). NO `audit_chain_link_hash`, NO producer-mint field, NO `evidence_refs`, NO observation-state enum, NO containment-class axis, NO `superRefine`; absent from the ADR 0057 mint scope. Documents the three-senses disambiguation: this entity (sense 1) is NOT the `AgentClient` containment-class axis (sense 2) nor the `BoundaryObservation` capability-state observation vocabulary (sense 3). |
 | 1.19.0 | 2026-05-29 | Added `PolicyRule` (ADR 0060 / D-057) — the first non-minted Ring 0 entity. Typed shape of a single policy rule keyed to `OperationShape.operation_class`; tier / approval (discriminated union reusing `approvalGrantKindSchema` + `approvalGrantProducerSchema`) / lease-deletion-evidence flags / `valid_until_ceiling` (new narrow `isoDurationSchema` primitive in `common.ts`) / `source_provenance`. NO `audit_chain_link_hash`, NO producer-mint field, NO `evidence_refs`; absent from the ADR 0057 mint scope. Structural superRefine enforces charter inv. 6 forbidden non-escalability (`nonEscalableTiers` set) + `required_grant_kind ∈ allowed_grant_kinds`; never encodes the `operation_class → tier` mapping (live-policy content, inv. 1/10). Landing sets the live policy `policy_rule_schema_version` `null → '0.1.0'`. Two named Ring-1 dependencies: B-1 `Decision` attribution amendment, B-2 loader digest-verification. |
 | 1.18.0 | 2026-05-19 | Landed the ADR 0058 / D-053 Decision.reason_kind schema update: `authority_chain_walk_depth_exceeded` is now a Zod-defined deny-only value without a `Decision.schema_version` bump. The reason kind is non-clearable (`required_grant_kind == null`; non-null rejects), producer-scoped to `mint_api` + `kernel_broker`, and typed Decision emission remains gated on a valid `operation_shape_ref`; non-operation and pure chain-validation overflows stay audit-rejection-only. `audit_chain_corruption_detected` remains cycle-only. |

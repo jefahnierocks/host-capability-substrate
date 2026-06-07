@@ -174,6 +174,16 @@ export {
   dependencyInstallOutcomeKindSchema,
 } from './entities/clean-room-smoke-receipt.ts';
 export {
+  type CommandShape,
+  type CommandShapeEnvEntry,
+  type CommandShapeEnvValueSource,
+  commandShapeCwdSchema,
+  commandShapeEnvEntrySchema,
+  commandShapeEnvValueSourceSchema,
+  commandShapeSchema,
+  commandShapeSchemaVersionSchema,
+} from './entities/command-shape.ts';
+export {
   allowedForGateSchema,
   type CoordinationTargetKind,
   type CoordinationTargetRef,

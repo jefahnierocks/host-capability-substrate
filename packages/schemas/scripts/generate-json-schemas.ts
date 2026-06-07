@@ -10,6 +10,7 @@ import {
   boundaryObservationSchema,
   capabilitySchema,
   cleanRoomSmokeReceiptSchema,
+  commandShapeSchema,
   coordinationFactSchema,
   credentialAuthorityObservationSchema,
   credentialSourceSchema,
@@ -212,6 +213,11 @@ const schemaEntries: SchemaEntry[] = [
     file: 'CleanRoomSmokeReceipt.schema.json',
     title: 'CleanRoomSmokeReceipt',
     schema: cleanRoomSmokeReceiptSchema,
+  },
+  {
+    file: 'CommandShape.schema.json',
+    title: 'CommandShape',
+    schema: commandShapeSchema,
   },
   {
     file: 'CoordinationFact.schema.json',

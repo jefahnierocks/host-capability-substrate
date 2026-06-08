@@ -1,7 +1,7 @@
 ---
 adr_number: 0064
 title: Ring 1 mint/audit service interface contracts
-status: proposed
+status: accepted
 version: v2
 date: 2026-06-07
 charter_version: 1.4.1
@@ -12,7 +12,7 @@ tags: [ring-1, mint-api, audit-chain, audit-event, contracts, producer-attributi
 
 ## Status
 
-`proposed`
+`accepted`
 
 Drafted 2026-06-07 as the ADR 0057 follow-up that types the mint/audit
 service's interface contracts. This ADR is design-only. It does not
@@ -52,6 +52,15 @@ WorkspaceContext as hash-bearing-but-not-in-the-seven (ontology); and
 corrects the dispatch-plan "trap" wording to "test obligation" (eval). No
 blocker required a re-review; v2 is presented for acceptance under the
 mechanical-tweaks-at-acceptance discipline (ADR 0058 precedent).
+
+ADR 0064 is accepted 2026-06-07 as D-062. Round 1 returned zero blockers
+and v2 folded every mechanical tweak, so no confirming round 2 was required.
+It completes ADR 0057's interface-contract layer (left as prose in ADR 0057
+§Service boundary) and discharges ADR 0061's routed B-1 / B-2 open-items;
+AgentClient joins as the seventh audit-chain-committed mint entity. The
+follow-on schema PR (any contract Zod types), the audit-events/storage ADR
+(persistence, atomic per-chain-root append, unique-genesis), and the
+consuming broker/gateway/dashboard ADRs remain future work.
 
 ## Date
 

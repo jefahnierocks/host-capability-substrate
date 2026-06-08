@@ -1,7 +1,7 @@
 ---
 adr_number: 0068
 title: ToolInstallation Ring-0 entity
-status: proposed
+status: accepted
 version: v2
 date: 2026-06-08
 charter_version: 1.4.1
@@ -12,7 +12,7 @@ tags: [tool-installation, ring-0, non-minted, tool-resolution, tool-provider-fol
 
 ## Status
 
-`proposed`
+`accepted`
 
 Drafted 2026-06-08 as the next entity in the tool-resolution chain (per PLAN.md
 §Current Focus order, after `ToolProvider`): the durable per-install record — the
@@ -45,6 +45,22 @@ clarification that `install_surface_kind` is a descriptive authority-surface FAC
 §Follow-up that `install_path` inherits `ToolProvenance`'s exact canonicalization
 posture (no stronger claim). Because round 1 returned zero blockers, no confirming
 round 2 was required (mechanical-tweaks-at-acceptance, ADR 0058 precedent).
+
+ADR 0068 is accepted 2026-06-08 as D-066. Round 1 returned zero blockers and v2
+folded every mechanical tweak, so no confirming round 2 was required. It
+establishes the durable per-install record as the MIDDLE of `ToolProvider →
+ToolInstallation → ResolvedTool`, with the new `install_surface_kind`
+authority-surface axis distinct from `ToolProvider.manager_kind` and
+`ToolProvenance.install_source_kind`, `install_path` reusing the ADR 0034
+tool-file-path primitive (the correct inverse of ADR 0067's bare-root case), and
+the pre-reserved `Evidence.subject_kind: 'tool_installation'` fulfilled with no
+`Evidence` schema change. The follow-on schema PR (`tool-installation.ts` +
+generated + tests + ontology/registry, including the `version` / `tool_name`
+`hostProfileOsVersionSchema`-charset pin and the `tool_installation_id`
+raw-shape accept-and-trap) and the Ring 1 tool-resolution obligations
+(`tool_provider_id` FK existence, `install_path` deep canonicalization,
+installed-runtime + non-sandbox observation per inv. 8, `tool_installation_id`
+opacity, supersession) remain future work.
 
 ## Date
 

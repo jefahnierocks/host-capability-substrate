@@ -60,6 +60,7 @@ import {
   startupPhaseSchema,
   statusCheckSourceObservationSchema,
   toolProvenanceSchema,
+  toolProviderSchema,
   verificationCommandSpecSchema,
   workflowRunReceiptSchema,
   workspaceContextSchema,
@@ -457,6 +458,11 @@ const schemaEntries: SchemaEntry[] = [
     file: 'ToolProvenance.schema.json',
     title: 'ToolProvenance',
     schema: toolProvenanceSchema,
+  },
+  {
+    file: 'ToolProvider.schema.json',
+    title: 'ToolProvider',
+    schema: toolProviderSchema,
   },
   {
     file: 'VerificationCommandSpec.schema.json',

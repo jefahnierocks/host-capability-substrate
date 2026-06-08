@@ -27,6 +27,7 @@ import {
   gitRepositoryObservationSchema,
   gitWorktreeInventoryObservationSchema,
   gitWorktreeObservationSchema,
+  hostProfileSchema,
   knowledgeChunkSchema,
   knowledgeSourceSchema,
   leaseSchema,
@@ -324,6 +325,11 @@ const schemaEntries: SchemaEntry[] = [
     file: 'ExecutionContext.schema.json',
     title: 'ExecutionContext',
     schema: executionContextSchema,
+  },
+  {
+    file: 'HostProfile.schema.json',
+    title: 'HostProfile',
+    schema: hostProfileSchema,
   },
   {
     file: 'KnowledgeChunk.schema.json',

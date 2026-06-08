@@ -43,6 +43,10 @@ done
 # permissive reference kinds (env_var_name / broker_handle / hcs_uri tails) likewise
 # ACCEPT a token-shaped locator at Ring 0, and secret-reference.test.ts builds its
 # token fixtures by runtime concatenation for the same reason.
+# ADR 0066 likewise covers HostProfile: host_identity.digest is sha256-locked (a raw
+# machine identifier cannot land there), but host_profile_id is entityIdSchema and
+# accepts a raw-UUID shape — a recorded accept-and-trap routed to Ring 1; this scan is
+# the committed-fixture backstop, and host-profile.test.ts uses only a synthetic UUID.
 # (Phase 0a: conservative scan. Extend with gitleaks in no-live-secrets.sh.)
 if grep -rE '\b(sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|xoxb-[0-9]+-[A-Za-z0-9]+|AKIA[0-9A-Z]{16})\b' $scan_dirs 2>/dev/null; then
   echo "  ✗ likely resolved secret value found" >&2

@@ -51,7 +51,11 @@ const runnerHostObservationBaseSchema = z.object({
   confidence: evidenceConfidenceSchema,
   parser_version: z.string().min(1),
   producer: z.string().min(1).optional(),
-  host_id: entityIdSchema.optional(),
+  host_id: entityIdSchema
+    .optional()
+    .describe(
+      'Optional FK to the durable HostProfile entity (built by ADR 0066 / D-064); the transient observation points at the canonical host record. FK existence is a Ring 1 obligation.',
+    ),
   workspace_id: entityIdSchema.optional(),
   execution_context_id: entityIdSchema.optional(),
   session_id: entityIdSchema.optional(),

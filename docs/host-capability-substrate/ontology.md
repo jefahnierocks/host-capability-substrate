@@ -3,7 +3,7 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.21.0
+version: 1.22.0
 last_updated: 2026-06-07
 tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0, policy-rule, capability, command-shape]
 priority: high
@@ -146,6 +146,26 @@ Key fields:
 runtime execution endpoints. Gate behavior such as narrower-wins composition
 between product capability and runtime containment remains Ring 1 / policy work
 queued by ADR 0037.
+
+ADR 0059 (D-058) commits `AgentClient` to the mint/audit-service audit-chain
+commitment list — joining `Decision`, `ApprovalGrant`, `Lease`, `Run`,
+`Principal`, and `Session` for seven-entity coverage. It pins the canonical
+field order, GENESIS handling, and length-prefix discipline for
+`audit_chain_link_hash`: the `||` operator denotes length-prefix-encoded
+concatenation (`varint(byte_length) || field_bytes` with a shortest-form
+unsigned varint codec), `schema_version` and `audit_chain_link_hash` are
+excluded from the concatenation, nullable inputs use the `'' for null`
+substitution, and each `evidence_refs` element encodes a fixed seven-slot
+sequence in `evidenceRefSchema` order (`evidence_id`, `source`, `observed_at`,
+`valid_until`, `authority`, `parser_version`, `confidence`) with optional or
+nullable slots never omitted. The first link for an `agent_client_id` uses the
+literal `GENESIS` sentinel. Producer attribution stays service-path authority:
+`kernel_agent_client_resolver` is the sole trusted producer path and is not an
+`AgentClient` record field. The amendment is non-version-bumping — it adds
+source `.describe()` text + generated-schema assertions only, with no field-set
+change, so `AgentClient.schema_version` stays `0.1.0`. Deterministic hash-vector
+tests and GENESIS / duplicate-genesis enforcement are Ring 1 mint/audit
+obligations.
 
 ### `VerificationCommandSpec`
 
@@ -1972,6 +1992,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.22.0 | 2026-06-07 | Landed the ADR 0059 / D-058 `AgentClient` canonical-hash amendment schema PR (no `schema_version` bump). `agentClientSchema` now documents the canonical field order, GENESIS handling, and length-prefix discipline on `audit_chain_link_hash` (`varint(byte_length) || field_bytes` shortest-form unsigned varint; `schema_version` and `audit_chain_link_hash` excluded from the concatenation; `'' for null` substitution; fixed seven-slot `evidenceRefSchema` evidence-ref encoding), and the entity description records service-path producer attribution (`kernel_agent_client_resolver`, not a record field). Regenerated `AgentClient.schema.json`; added generated-schema assertions to `agent-client.test.ts`. `AgentClient` joins `Decision`, `ApprovalGrant`, `Lease`, `Run`, `Principal`, and `Session` on the mint/audit-service audit-chain commitment list (seven-entity coverage). No field-set change; deterministic hash-vector + GENESIS-duplicate enforcement remain Ring 1 mint/audit obligations. |
 | 1.21.0 | 2026-06-07 | Added `CommandShape` (ADR 0063 / D-061) — the third and last entity in the `PolicyRule → Capability → CommandShape` chain; a NON-MINTED Ring 0 typed plan (`argv` + `env` + `cwd` + `timeout_seconds`) rendered from an `OperationShape` (`operation_shape_ref` provenance). Central boundary: a typed plan, NOT an execution authorization — no execution semantics, no execute lane (charter inv. 7). Structurally embodies inv. 2 (typed `argv` vector, no shell-string field) and inv. 5 (`env` names + value-source references via a `secret_reference` / `execution_context_inherited` discriminated union, no resolved values); envelope `superRefine` enforces env-name uniqueness only. NO `audit_chain_link_hash`, NO producer-mint field, NO `evidence_refs`, NO `operation_class` echo; absent from the ADR 0057 mint scope. Reconciled the §Entities one-liner (dropped the stale "execution lane" — no such v1 field; the lane is reachable via `operation_shape_ref → OperationShape.execution_context_id`, and a direct echo is a deferred additive amendment). Deferred Ring-1 obligations: deprecated-verb render-refusal (inv. 11), cwd absolute-root confinement, SecretReference FK closure + env value resolution, operation_shape_ref FK existence, and the argv argument-class distinction (charter line 98, recorded as a seeded accept-and-trap fixture + a `forbidden-string-scan.sh` committed-fixture backstop extended to CommandShape argv/env/cwd). |
 | 1.20.0 | 2026-05-29 | Added `Capability` (ADR 0062 / D-060) — a non-minted Ring 0 registry declaration of a known kernel operation and a structural peer of `PolicyRule`. Flat `.strict()` envelope: `operation_name` (lowercase dotted identifier of ≥2 segments, intentionally distinct from `operation_class` and verb-agnostic — no forbidden-literal denylist at Ring 0), `operation_class` (reuses `operationShapeOperationClassSchema`, never redefined), `capability_state` (`active`/`deprecated`/`retired` registry lifecycle; `deprecated`/`retired` render-refusal is enforced by the CommandShape renderer per charter inv. 11, not this schema), and `source_provenance` (binds to the capability-registry blob; `authority: 'capability_registry'` disjoint from `evidenceAuthoritySchema`; `source_registry_sha256` format-only at Ring 0, the digest-trust check is a Ring 1 capability-registration obligation). NO `audit_chain_link_hash`, NO producer-mint field, NO `evidence_refs`, NO observation-state enum, NO containment-class axis, NO `superRefine`; absent from the ADR 0057 mint scope. Documents the three-senses disambiguation: this entity (sense 1) is NOT the `AgentClient` containment-class axis (sense 2) nor the `BoundaryObservation` capability-state observation vocabulary (sense 3). |
 | 1.19.0 | 2026-05-29 | Added `PolicyRule` (ADR 0060 / D-057) — the first non-minted Ring 0 entity. Typed shape of a single policy rule keyed to `OperationShape.operation_class`; tier / approval (discriminated union reusing `approvalGrantKindSchema` + `approvalGrantProducerSchema`) / lease-deletion-evidence flags / `valid_until_ceiling` (new narrow `isoDurationSchema` primitive in `common.ts`) / `source_provenance`. NO `audit_chain_link_hash`, NO producer-mint field, NO `evidence_refs`; absent from the ADR 0057 mint scope. Structural superRefine enforces charter inv. 6 forbidden non-escalability (`nonEscalableTiers` set) + `required_grant_kind ∈ allowed_grant_kinds`; never encodes the `operation_class → tier` mapping (live-policy content, inv. 1/10). Landing sets the live policy `policy_rule_schema_version` `null → '0.1.0'`. Two named Ring-1 dependencies: B-1 `Decision` attribution amendment, B-2 loader digest-verification. |

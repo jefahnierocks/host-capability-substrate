@@ -1,0 +1,100 @@
+{
+  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/ToolInstallation.schema.json",
+  "title": "ToolInstallation",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0",
+      "description": "ToolInstallation schema version (ADR 0068; non-minted Ring 0 entity; D-066). New entities start at 0.1.0."
+    },
+    "tool_installation_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable ToolInstallation id. SHOULD be opaque/derived — `entityIdSchema` accepts a raw machine-ish shape, which Ring 0 cannot reject (a Ring-0 denylist would violate inv. 1), so id-opacity is a Ring 1 producer obligation (recorded accept-and-trap, mirroring ToolProvider.tool_provider_id / HostProfile.host_profile_id)."
+    },
+    "tool_provider_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "REQUIRED FK to the ToolProvider (ADR 0067) this install comes from. A `system` / `manual` install is recorded against a ToolProvider whose `manager_kind` is `system` / `unknown`. FK existence is a Ring 1 obligation; Ring 0 only types the reference."
+    },
+    "tool_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[A-Za-z0-9._+-]+$",
+      "description": "The installed tool identifier (e.g. `node`, `python3`, `ripgrep`, `rust-analyzer`). A bounded fact, never an identity or a sink: no whitespace, no `/`, no `:` (so no `://` / `op://`), no path/secret shape; bounded length. Pinned to the shipped `hostProfileOsVersionSchema` charset precedent."
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[A-Za-z0-9._+-]+$",
+      "description": "The installed tool version string (e.g. `24.3.0`, `v18.16.0`, `1.2.3-beta.1`, `3.12`). A version FACT, never an identity or a sink: no whitespace, no `/`, no `:` (so no `://` / `op://`), no path/secret shape; bounded length. Pinned to the shipped `hostProfileOsVersionSchema` charset precedent."
+    },
+    "install_surface_kind": {
+      "type": "string",
+      "enum": [
+        "host_path",
+        "manager_shim",
+        "app_bundled",
+        "devcontainer",
+        "cloud_image",
+        "setup_script",
+        "unknown"
+      ],
+      "description": "The authority SURFACE the install is exposed on (ADR 0068): WHERE/HOW the tool is reachable as an authority surface. This is a THIRD axis, distinct from `ToolProvider.manager_kind` (the SOURCE/manager grain — which source manages a family of tools) and from ADR 0034 `ToolProvenance.install_source_kind` (the install-MECHANISM grain — how a tool was installed). `host_path` = a binary on the host PATH; `manager_shim` = a mise/asdf/brew shim; `app_bundled` = ships in an app dependency bundle (e.g. Codex Workspace Dependencies — NOT host-PATH truth); `devcontainer` / `cloud_image` = a devcontainer or cloud base-image tool; `setup_script` = installed by a CI/setup script. A descriptive FACT that Ring 1 policy READS as input, never a trust verdict or policy content the entity carries (inv. 1). Widening (e.g. `nix_profile`) via the registered §Procedure rule."
+    },
+    "install_path": {
+      "description": "OPTIONAL canonical tool FILE path (REUSES the ADR 0034 `toolProvenanceCanonicalPathSchema` — an install path IS a tool file under a whitelisted root, the correct grain, the inverse of ToolProvider.root_path). Optional because `app_bundled` / `cloud_image` surfaces may have no canonical host file path at Ring 0. Inherits the ToolProvenance canonicalization posture: it rejects URI/whitespace by requiring an anchored root but does not structurally reject a mid-path `..` (deep `..` resolution is a Ring 1 obligation).",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?:\\$\\{(?:HOME|USERS_SHARED|TMPDIR|XDG_CACHE_HOME|XDG_DATA_HOME|XDG_CONFIG_HOME)\\}\\/.+|\\/usr\\/local\\/.+|\\/opt\\/.+|\\/Library\\/Frameworks\\/.+)$"
+    },
+    "installation_state": {
+      "type": "string",
+      "enum": [
+        "active",
+        "retired"
+      ],
+      "description": "ToolInstallation lifecycle. A materially-changed install produces a NEW `active` ToolInstallation and retires the prior (a Ring 1 supersession obligation); `retired` is a valid historical record, NOT a policy-denied state."
+    },
+    "source_provenance": {
+      "type": "object",
+      "properties": {
+        "authority": {
+          "type": "string",
+          "const": "tool_installation_declaration",
+          "description": "Declaration-site marker (a durable record, NOT an observation); deliberately DISJOINT from evidenceAuthoritySchema and conferring no authority by itself. Installed-runtime sourcing (e.g. `mise ls` / `brew list` / shim introspection) + non-sandbox authority (charter inv. 8) are Ring 1 producer obligations, not encoded here."
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        }
+      },
+      "required": [
+        "authority",
+        "observed_at"
+      ],
+      "additionalProperties": false,
+      "description": "Binds a ToolInstallation declaration to its declaration site. Carries no secret/sensitive material. Mirrors the ToolProvider / HostProfile / Capability / SecretReference non-minted provenance pattern."
+    }
+  },
+  "required": [
+    "schema_version",
+    "tool_installation_id",
+    "tool_provider_id",
+    "tool_name",
+    "version",
+    "install_surface_kind",
+    "installation_state",
+    "source_provenance"
+  ],
+  "additionalProperties": false,
+  "description": "Ring 0 ToolInstallation entity from ADR 0068 (D-066). A NON-MINTED durable per-install record (structural peer of ToolProvider/HostProfile/Capability/SecretReference) — the MIDDLE of the tool-resolution chain ToolProvider -> ToolInstallation -> ResolvedTool. Carries the authority-surface axis `install_surface_kind` (distinct from ToolProvider.manager_kind source axis and ADR 0034 install_source_kind mechanism axis); a REQUIRED tool_provider_id FK to ToolProvider; tool_name + version bounded facts; an OPTIONAL install_path reusing the ADR 0034 tool-file-path primitive. Fulfills the pre-reserved Evidence.subject_kind `tool_installation` with no Evidence schema change. No `audit_chain_link_hash`, no producer-mint field, no `evidence_refs`; absent from the ADR 0057 mint scope. An installed tool is a FACT and a read-only policy INPUT to Ring 1, never policy content (inv. 1). Install observation (installed-runtime, non-sandbox per inv. 8), tool_provider_id FK existence, install_path deep canonicalization, tool_installation_id opacity, and supersession are Ring 1 obligations."
+}

@@ -52,6 +52,10 @@ done
 # root_path forbids URI/whitespace and bare token shapes by requiring an anchored provider
 # root, but a long token-shaped final segment under a real root would land — this scan is the
 # committed-fixture backstop, and tool-provider.test.ts uses only synthetic anchored roots.
+# ADR 0068 likewise covers ToolInstallation: tool_installation_id is entityIdSchema and accepts a
+# raw machine-ish shape (a recorded accept-and-trap routed to Ring 1, mirroring ToolProvider); its
+# install_path REUSES toolProvenanceCanonicalPathSchema (the same committed-fixture backstop posture)
+# and tool-installation.test.ts uses only synthetic anchored roots + non-secret version/tool_name.
 # (Phase 0a: conservative scan. Extend with gitleaks in no-live-secrets.sh.)
 if grep -rE '\b(sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|xoxb-[0-9]+-[A-Za-z0-9]+|AKIA[0-9A-Z]{16})\b' $scan_dirs 2>/dev/null; then
   echo "  ✗ likely resolved secret value found" >&2

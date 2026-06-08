@@ -59,6 +59,7 @@ import {
   sessionSchema,
   startupPhaseSchema,
   statusCheckSourceObservationSchema,
+  toolInstallationSchema,
   toolProvenanceSchema,
   toolProviderSchema,
   verificationCommandSpecSchema,
@@ -453,6 +454,11 @@ const schemaEntries: SchemaEntry[] = [
     file: 'StartupPhase.schema.json',
     title: 'StartupPhase',
     schema: startupPhaseSchema,
+  },
+  {
+    file: 'ToolInstallation.schema.json',
+    title: 'ToolInstallation',
+    schema: toolInstallationSchema,
   },
   {
     file: 'ToolProvenance.schema.json',

@@ -11,7 +11,7 @@ const commandShapeEnvSecretReferenceSourceSchema = z
   .object({
     kind: z.literal('secret_reference'),
     secret_reference_ref: entityIdSchema.describe(
-      'Forward reference to the (unbuilt) SecretReference entity; FK closure is a Ring 1 obligation (follows the `_ref` forward-reference precedent, not the resolvable `_id` suffix). An opaque reference id — NOT a secret value, NOT an `op://` URI, NOT a resolved token. The Ring 1 broker resolves the value at execution time.',
+      'Typed FK to the SecretReference entity (built by ADR 0065 / D-063); follows the `_ref` optional/forward cross-record-FK precedent, not the resolvable `_id` suffix. FK existence verification remains a Ring 1 obligation. An opaque reference id — NOT a secret value, NOT an `op://` URI, NOT a resolved token. The Ring 1 broker resolves the value at execution time.',
     ),
   })
   .strict();

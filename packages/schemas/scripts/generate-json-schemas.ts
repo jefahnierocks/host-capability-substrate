@@ -54,6 +54,7 @@ import {
   runnerHostObservationSchema,
   runnerIsolationObservationSchema,
   runSchema,
+  secretReferenceSchema,
   sessionSchema,
   startupPhaseSchema,
   statusCheckSourceObservationSchema,
@@ -430,6 +431,11 @@ const schemaEntries: SchemaEntry[] = [
     title: 'RestoreDrillReceipt',
     schema: restoreDrillReceiptSchema,
     jsonSchemaTransform: withJsonSchemaAllOf([restoreDrillSucceededGuard]),
+  },
+  {
+    file: 'SecretReference.schema.json',
+    title: 'SecretReference',
+    schema: secretReferenceSchema,
   },
   {
     file: 'Session.schema.json',

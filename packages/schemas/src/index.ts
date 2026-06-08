@@ -545,6 +545,15 @@ export {
   runnerHostSubstrateKindSchema,
 } from './entities/runner-host-observation.ts';
 export {
+  type SecretReference,
+  type SecretReferenceReferenceKind,
+  type SecretReferenceSourceProvenance,
+  secretReferenceReferenceKindSchema,
+  secretReferenceSchema,
+  secretReferenceSchemaVersionSchema,
+  secretReferenceSourceProvenanceSchema,
+} from './entities/secret-reference.ts';
+export {
   type Session,
   type SessionKind,
   type SessionProducer,

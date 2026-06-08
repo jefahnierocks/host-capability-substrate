@@ -47,6 +47,11 @@ done
 # machine identifier cannot land there), but host_profile_id is entityIdSchema and
 # accepts a raw-UUID shape — a recorded accept-and-trap routed to Ring 1; this scan is
 # the committed-fixture backstop, and host-profile.test.ts uses only a synthetic UUID.
+# ADR 0067 likewise covers ToolProvider: tool_provider_id is entityIdSchema and accepts a
+# raw machine-ish shape (a recorded accept-and-trap routed to Ring 1, mirroring HostProfile);
+# root_path forbids URI/whitespace and bare token shapes by requiring an anchored provider
+# root, but a long token-shaped final segment under a real root would land — this scan is the
+# committed-fixture backstop, and tool-provider.test.ts uses only synthetic anchored roots.
 # (Phase 0a: conservative scan. Extend with gitleaks in no-live-secrets.sh.)
 if grep -rE '\b(sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|xoxb-[0-9]+-[A-Za-z0-9]+|AKIA[0-9A-Z]{16})\b' $scan_dirs 2>/dev/null; then
   echo "  ✗ likely resolved secret value found" >&2

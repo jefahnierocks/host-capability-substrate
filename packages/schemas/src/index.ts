@@ -712,6 +712,18 @@ export {
   toolProvenanceVersionDriftKindSchema,
 } from './entities/tool-provenance.ts';
 export {
+  type ToolProvider,
+  type ToolProviderManagerKind,
+  type ToolProviderSourceProvenance,
+  type ToolProviderState,
+  toolProviderManagerKindSchema,
+  toolProviderRootPathSchema,
+  toolProviderSchema,
+  toolProviderSchemaVersionSchema,
+  toolProviderSourceProvenanceSchema,
+  toolProviderStateSchema,
+} from './entities/tool-provider.ts';
+export {
   type VerificationCommandEnvCaptureMode,
   type VerificationCommandEnvRef,
   type VerificationCommandExpectedExitCodes,

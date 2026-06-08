@@ -697,6 +697,21 @@ export {
   startupPhaseSchema,
 } from './entities/startup-phase.ts';
 export {
+  type ToolInstallation,
+  type ToolInstallationInstallSurfaceKind,
+  type ToolInstallationSourceProvenance,
+  type ToolInstallationState,
+  type ToolInstallationToolName,
+  type ToolInstallationVersion,
+  toolInstallationInstallSurfaceKindSchema,
+  toolInstallationSchema,
+  toolInstallationSchemaVersionSchema,
+  toolInstallationSourceProvenanceSchema,
+  toolInstallationStateSchema,
+  toolInstallationToolNameSchema,
+  toolInstallationVersionSchema,
+} from './entities/tool-installation.ts';
+export {
   type ToolProvenance,
   type ToolProvenanceInstallSourceKind,
   type ToolProvenancePayload,

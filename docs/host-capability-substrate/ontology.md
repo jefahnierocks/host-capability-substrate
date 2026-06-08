@@ -3,9 +3,9 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.26.0
+version: 1.27.0
 last_updated: 2026-06-08
-tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0, policy-rule, capability, command-shape, tool-provider]
+tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0, policy-rule, capability, command-shape, tool-provider, tool-installation]
 priority: high
 ---
 
@@ -1845,6 +1845,51 @@ non-sandbox per inv. 8), FK existence (`ToolProvenance.tool_or_provider_ref`,
 future `ToolInstallation`), and supersession — are Ring 1 obligations. A tool
 source is a read-only policy INPUT to Ring 1, never policy content (inv. 1).
 
+### `ToolInstallation`
+
+Source: `packages/schemas/src/entities/tool-installation.ts`
+
+Durable per-install record (ADR 0068 / D-066) — a specific instance of a tool on
+this host (e.g. `node` `24.3.0` installed by a `mise` provider). The MIDDLE of
+the tool-resolution chain `ToolProvider → ToolInstallation → ResolvedTool`. A
+NON-MINTED Ring-0 entity and structural peer of `ToolProvider` / `HostProfile` /
+`Capability` / `SecretReference`: no `audit_chain_link_hash`, no producer-mint
+field, no `evidence_refs`; absent from the ADR 0057 mint scope.
+
+Key fields:
+
+- `tool_provider_id` is a REQUIRED FK to the `ToolProvider` (ADR 0067) this
+  install comes from; a `system` / `manual` install is recorded against a
+  provider whose `manager_kind` is `system` / `unknown`. FK existence is a Ring 1
+  obligation.
+- `tool_name` and `version` are bounded fact strings (pinned to the
+  `hostProfileOsVersionSchema` charset — no whitespace / `/` / `:` / path / secret
+  shape; bounded length), e.g. `node` `24.3.0`.
+- `install_surface_kind` is the NEW authority-surface enum: `host_path` |
+  `manager_shim` | `app_bundled` | `devcontainer` | `cloud_image` |
+  `setup_script` | `unknown`. It is a THIRD axis, distinct from
+  `ToolProvider.manager_kind` (the SOURCE grain) and ADR 0034
+  `ToolProvenance.install_source_kind` (the install-MECHANISM grain): `app_bundled`
+  is not host-PATH truth, etc. A descriptive FACT Ring 1 reads as input, never a
+  trust verdict the entity carries (inv. 1).
+- `install_path` is OPTIONAL and REUSES the ADR 0034
+  `toolProvenanceCanonicalPathSchema` — an install path IS a tool FILE under a
+  whitelisted root (the correct grain, the inverse of `ToolProvider.root_path`).
+  Optional because `app_bundled` / `cloud_image` surfaces may have no canonical
+  host file path. It inherits `ToolProvenance`'s canonicalization posture (URI /
+  non-rooted rejected; deep `..` resolution a Ring 1 obligation).
+- `installation_state` is `active` | `retired` (supersession via a NEW `active`
+  record; `retired` is a historical record, not policy-denied).
+- `source_provenance` is a `.strict()` declaration-site binding (disjoint
+  `tool_installation_declaration` authority + `observed_at`).
+
+`ToolInstallation` fulfills the pre-reserved `Evidence.subject_kind:
+'tool_installation'` with NO `evidenceSubjectKindSchema` change and NO
+`Evidence.schema_version` bump. `tool_installation_id` is `entityIdSchema` and
+accepts a raw-shape id, so id-opacity — plus install observation (installed-runtime,
+non-sandbox per inv. 8), `tool_provider_id` FK existence, `install_path` deep
+canonicalization, and supersession — are Ring 1 obligations.
+
 ## Phase 1 Boundary Observation Envelope
 
 ### `BoundaryObservation`
@@ -2116,6 +2161,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.27.0 | 2026-06-08 | Landed the ADR 0068 / D-066 `ToolInstallation` schema PR — the non-minted Ring-0 durable per-install record and MIDDLE of the tool-resolution chain `ToolProvider → ToolInstallation → ResolvedTool`. `toolInstallationSchema` (`.strict()`): `tool_installation_id` + a REQUIRED `tool_provider_id` FK to `ToolProvider` (ADR 0067) + `tool_name` + `version` (both pinned to the `hostProfileOsVersionSchema` charset) + a NEW `install_surface_kind` enum (host_path/manager_shim/app_bundled/devcontainer/cloud_image/setup_script/unknown) + an OPTIONAL `install_path` (REUSES the ADR 0034 `toolProvenanceCanonicalPathSchema` — an install path IS a tool FILE path, the inverse of ADR 0067's bare-root case) + `installation_state` (active/retired) + a `.strict()` `source_provenance` (disjoint `tool_installation_declaration` authority). Reuses `entityIdSchema` + `isoDateTimeSchema` + `toolProvenanceCanonicalPathSchema`. Core work: the three-axis disambiguation — `manager_kind` (source) vs `install_source_kind` (mechanism) vs the new `install_surface_kind` (authority surface). Fulfills the pre-reserved `Evidence.subject_kind: 'tool_installation'` with NO `evidenceSubjectKindSchema` change and NO `Evidence.schema_version` bump. `tool_installation_id` accepts a raw-shape id (a recorded accept-and-trap; opacity is a Ring 1 obligation, mirroring `ToolProvider`/`HostProfile`). NO policy-tier denylist (inv. 1). Regenerated `ToolInstallation.schema.json`; added schema tests. |
 | 1.26.0 | 2026-06-08 | Landed the ADR 0067 / D-065 `ToolProvider` schema PR — the non-minted Ring-0 durable tool-source entity and head of the tool-resolution chain `ToolProvider → ToolInstallation → ResolvedTool`. `toolProviderSchema` (`.strict()`): `tool_provider_id` + `manager_kind` (mise/homebrew/system/project_local/unknown) + `provider_state` (active/retired) + an OPTIONAL `root_path` (a NEW `toolProviderRootPathSchema` provider-ROOT primitive) + a `.strict()` `source_provenance` (disjoint `tool_provider_declaration` authority). Reuses `entityIdSchema` + `isoDateTimeSchema`. The tool-source field is named `manager_kind`, NOT `provider_kind`, to avoid the shipped `PullRequestReceipt.payload.provider_kind` + charter-inv-16-reserved `Capability.provider_kind` field-name collisions, and is a distinct axis from ADR 0034 `install_source_kind`. `root_path` uses a deliberate SIBLING of the tool-file-path `toolProvenanceCanonicalPathSchema` (accepts bare provider roots incl. `/usr/local`; genuinely forbids `..` via `(?!.*\.\.)`), NOT a reuse. `tool_provider_id` is `entityIdSchema` and accepts a raw-shape id (a recorded accept-and-trap; keeping it opaque/derived is a Ring 1 obligation, mirroring `HostProfile.host_profile_id`). NO policy-tier denylist (inv. 1); a tool source is a read-only policy input. Regenerated `ToolProvider.schema.json`; added schema tests. |
 | 1.25.0 | 2026-06-07 | Landed the ADR 0066 / D-064 `HostProfile` schema PR — the non-minted Ring-0 canonical host identity + stable facts entity closing `RunnerHostObservation.host_id` (ADR 0032). `hostProfileSchema` (`.strict()`): `host_profile_id` + `host_state` (active/retired) + `os_name` / `os_version` (bounded version regex) / `arch` + `host_identity` (`{ kind, digest }` — a NON-REVERSIBLE `sha256:` digest; the `sha256:` shape bars a raw IOPlatformUUID/serial from the digest) + a `.strict()` `source_provenance` (disjoint `host_profile_declaration` authority). Reuses `entityIdSchema` + `sha256DigestSchema` + `isoDateTimeSchema`. The never-the-raw-identifier guarantee is structural for `host_identity.digest` but NOT `host_profile_id` (`entityIdSchema` accepts a raw-UUID shape — a recorded accept-and-trap; keeping it opaque/derived is a Ring 1 obligation). NO policy-tier denylist (inv. 1); host facts are read-only policy inputs. No `RunnerHostObservation` shape change (`host_id` stays `entityIdSchema.optional()`; its `.describe()` now notes the built FK target). Regenerated `HostProfile.schema.json`; added schema tests. |
 | 1.24.0 | 2026-06-07 | Landed the ADR 0065 / D-063 `SecretReference` schema PR — the non-minted Ring-0 secret-reference entity closing `CommandShape`'s forward `secret_reference_ref` FK (ADR 0063). `secretReferenceSchema` (`.strict()`): `reference_kind` (op_uri / hcs_uri / keychain_item / env_var_name / broker_handle) + `reference_locator` (opaque reference, per-kind `superRefine`, NEVER a value, inv. 5) + optional nullable `credential_source_ref` FK to `CredentialSource` (ADR 0018) + a `.strict()` `source_provenance` (disjoint `secret_reference_declaration` authority + `observed_at`). Reuses `entityIdSchema` + `envVariableNameSchema`. The never-the-value guarantee is structural for the STRUCTURED kinds (op_uri/keychain_item) and a recorded accept-and-trap for the PERMISSIVE kinds (env_var_name/broker_handle/hcs_uri tails accept a token-shaped locator; backstop = forbidden-string-scan + Ring 1 deep check, mirroring ADR 0063). NO policy-tier denylist (inv. 1); disjoint from the four other typed argument classes (inv. 16). No CommandShape shape change (`secret_reference_ref` stays `entityIdSchema`; its `.describe()` now notes the built FK target). Regenerated `SecretReference.schema.json`; added schema tests. |

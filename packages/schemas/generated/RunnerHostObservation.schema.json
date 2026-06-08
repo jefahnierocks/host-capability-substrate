@@ -93,10 +93,10 @@
           "minLength": 1
         },
         "host_id": {
+          "description": "Optional FK to the durable HostProfile entity (built by ADR 0066 / D-064); the transient observation points at the canonical host record. FK existence is a Ring 1 obligation.",
           "type": "string",
           "minLength": 1,
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-          "description": "Stable local entity identifier. It is not a secret value."
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
         },
         "workspace_id": {
           "type": "string",
@@ -404,10 +404,10 @@
           "minLength": 1
         },
         "host_id": {
+          "description": "Optional FK to the durable HostProfile entity (built by ADR 0066 / D-064); the transient observation points at the canonical host record. FK existence is a Ring 1 obligation.",
           "type": "string",
           "minLength": 1,
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-          "description": "Stable local entity identifier. It is not a secret value."
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
         },
         "workspace_id": {
           "type": "string",
@@ -715,10 +715,10 @@
           "minLength": 1
         },
         "host_id": {
+          "description": "Optional FK to the durable HostProfile entity (built by ADR 0066 / D-064); the transient observation points at the canonical host record. FK existence is a Ring 1 obligation.",
           "type": "string",
           "minLength": 1,
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-          "description": "Stable local entity identifier. It is not a secret value."
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
         },
         "workspace_id": {
           "type": "string",
@@ -1026,10 +1026,10 @@
           "minLength": 1
         },
         "host_id": {
+          "description": "Optional FK to the durable HostProfile entity (built by ADR 0066 / D-064); the transient observation points at the canonical host record. FK existence is a Ring 1 obligation.",
           "type": "string",
           "minLength": 1,
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-          "description": "Stable local entity identifier. It is not a secret value."
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
         },
         "workspace_id": {
           "type": "string",

@@ -3,7 +3,7 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.24.0
+version: 1.25.0
 last_updated: 2026-06-07
 tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0, policy-rule, capability, command-shape]
 priority: high
@@ -1775,6 +1775,37 @@ material (charter inv. 16 / line 98). Value resolution, FK existence, the deep
 reference-vs-secret check, and the `reference_locator`-vs-bound-`CredentialSource`
 resolution precedence are Ring 1 broker obligations.
 
+### `HostProfile`
+
+Source: `packages/schemas/src/entities/host-profile.ts`
+
+Canonical host identity + stable facts (ADR 0066 / D-064), closing
+`RunnerHostObservation.host_id` (ADR 0032) — the durable host record, distinct
+from the transient `RunnerHostObservation`. A NON-MINTED Ring-0 entity and
+structural peer of `Capability` / `SecretReference`: no `audit_chain_link_hash`,
+no producer-mint field, no `evidence_refs`; absent from the ADR 0057 mint scope.
+
+Key fields:
+
+- `host_state` is `active` | `retired`; a materially-changed host produces a NEW
+  `active` record and retires the prior (a Ring 1 supersession obligation).
+- `os_name` (`macos` | `linux` | `windows` | `unknown`), `os_version` (a bounded
+  version-shaped string — no whitespace / `/` / `:` / path / secret shape), and
+  `arch` (`arm64` | `x86_64` | `unknown`) are the stable facts.
+- `host_identity` is `{ kind, digest }`: a NON-REVERSIBLE `sha256:` digest of a
+  stable identifier (`kind` = `platform_uuid_sha256` | `install_id_sha256` |
+  `unknown`). The `sha256:` shape structurally bars a raw `IOPlatformUUID` /
+  serial / machine-id from landing — the host fingerprint is never stored raw
+  (charter sensitive-data discipline).
+- `source_provenance` is a `.strict()` declaration-site binding (disjoint
+  `host_profile_declaration` authority + `observed_at`).
+
+The structural `sha256:` guarantee covers `host_identity.digest` only;
+`host_profile_id` is `entityIdSchema` and accepts a raw-UUID shape, so keeping it
+opaque/derived — plus installed-runtime + non-sandbox observation (inv. 8),
+digest computation, FK existence, and supersession — are Ring 1 obligations. Host
+facts are read-only policy INPUTS to Ring 1, never policy content (inv. 1).
+
 ## Phase 1 Boundary Observation Envelope
 
 ### `BoundaryObservation`
@@ -2046,6 +2077,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.25.0 | 2026-06-07 | Landed the ADR 0066 / D-064 `HostProfile` schema PR — the non-minted Ring-0 canonical host identity + stable facts entity closing `RunnerHostObservation.host_id` (ADR 0032). `hostProfileSchema` (`.strict()`): `host_profile_id` + `host_state` (active/retired) + `os_name` / `os_version` (bounded version regex) / `arch` + `host_identity` (`{ kind, digest }` — a NON-REVERSIBLE `sha256:` digest; the `sha256:` shape bars a raw IOPlatformUUID/serial from the digest) + a `.strict()` `source_provenance` (disjoint `host_profile_declaration` authority). Reuses `entityIdSchema` + `sha256DigestSchema` + `isoDateTimeSchema`. The never-the-raw-identifier guarantee is structural for `host_identity.digest` but NOT `host_profile_id` (`entityIdSchema` accepts a raw-UUID shape — a recorded accept-and-trap; keeping it opaque/derived is a Ring 1 obligation). NO policy-tier denylist (inv. 1); host facts are read-only policy inputs. No `RunnerHostObservation` shape change (`host_id` stays `entityIdSchema.optional()`; its `.describe()` now notes the built FK target). Regenerated `HostProfile.schema.json`; added schema tests. |
 | 1.24.0 | 2026-06-07 | Landed the ADR 0065 / D-063 `SecretReference` schema PR — the non-minted Ring-0 secret-reference entity closing `CommandShape`'s forward `secret_reference_ref` FK (ADR 0063). `secretReferenceSchema` (`.strict()`): `reference_kind` (op_uri / hcs_uri / keychain_item / env_var_name / broker_handle) + `reference_locator` (opaque reference, per-kind `superRefine`, NEVER a value, inv. 5) + optional nullable `credential_source_ref` FK to `CredentialSource` (ADR 0018) + a `.strict()` `source_provenance` (disjoint `secret_reference_declaration` authority + `observed_at`). Reuses `entityIdSchema` + `envVariableNameSchema`. The never-the-value guarantee is structural for the STRUCTURED kinds (op_uri/keychain_item) and a recorded accept-and-trap for the PERMISSIVE kinds (env_var_name/broker_handle/hcs_uri tails accept a token-shaped locator; backstop = forbidden-string-scan + Ring 1 deep check, mirroring ADR 0063). NO policy-tier denylist (inv. 1); disjoint from the four other typed argument classes (inv. 16). No CommandShape shape change (`secret_reference_ref` stays `entityIdSchema`; its `.describe()` now notes the built FK target). Regenerated `SecretReference.schema.json`; added schema tests. |
 | 1.23.0 | 2026-06-07 | Landed the ADR 0061 / D-059 Decision rule-attribution schema PR (additive nullable-optional; no `Decision.schema_version` bump). Adds `policy_rule_ref` (typed FK to `PolicyRule.policy_rule_id`, ADR 0060) and `resolved_policy_sha256` (the bound live-policy blob digest the rule was resolved against — the same value as the rule's `source_provenance.source_policy_sha256`, NOT the stale internal `snapshot_binding.source_policy_sha256` marker) to `decisionSchema`. A same-record `superRefine` enforces pair consistency on attributed-ness (present and non-null): exactly-one-attributed rejects with distinct issue paths (`resolved_policy_sha256` vs `policy_rule_ref`); both-attributed and every neither-attributed combination (absent/absent, null/null, mixed absent/null) accept. Ring 0 validates field format + pair-consistency only; population, mandatory-attribution-by-reason_kind, and the B-2 digest-vs-bound-snapshot trust check are Ring 1 mint/audit obligations. Closes ADR 0060's §Decision-attribution B-1 dependency. Regenerated `Decision.schema.json` (both fields nullable, optional, absent from `required`); added schema tests. |
 | 1.22.0 | 2026-06-07 | Landed the ADR 0059 / D-058 `AgentClient` canonical-hash amendment schema PR (no `schema_version` bump). `agentClientSchema` now documents the canonical field order, GENESIS handling, and length-prefix discipline on `audit_chain_link_hash` (`varint(byte_length) || field_bytes` shortest-form unsigned varint; `schema_version` and `audit_chain_link_hash` excluded from the concatenation; `'' for null` substitution; fixed seven-slot `evidenceRefSchema` evidence-ref encoding), and the entity description records service-path producer attribution (`kernel_agent_client_resolver`, not a record field). Regenerated `AgentClient.schema.json`; added generated-schema assertions to `agent-client.test.ts`. `AgentClient` joins `Decision`, `ApprovalGrant`, `Lease`, `Run`, `Principal`, and `Session` on the mint/audit-service audit-chain commitment list (seven-entity coverage). No field-set change; deterministic hash-vector + GENESIS-duplicate enforcement remain Ring 1 mint/audit obligations. |

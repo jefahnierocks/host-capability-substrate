@@ -325,6 +325,23 @@ export {
   gitSigningFormatKindSchema,
 } from './entities/git-identity-binding.ts';
 export {
+  type HostProfile,
+  type HostProfileArch,
+  type HostProfileHostIdentity,
+  type HostProfileHostIdentityKind,
+  type HostProfileOsName,
+  type HostProfileSourceProvenance,
+  type HostProfileState,
+  hostProfileArchSchema,
+  hostProfileHostIdentityKindSchema,
+  hostProfileHostIdentitySchema,
+  hostProfileOsNameSchema,
+  hostProfileSchema,
+  hostProfileSchemaVersionSchema,
+  hostProfileSourceProvenanceSchema,
+  hostProfileStateSchema,
+} from './entities/host-profile.ts';
+export {
   type KnowledgeChunk,
   type KnowledgeChunkKind,
   knowledgeChunkKindSchema,

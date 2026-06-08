@@ -1,7 +1,7 @@
 ---
 adr_number: 0066
 title: HostProfile Ring-0 entity
-status: proposed
+status: accepted
 version: v2
 date: 2026-06-07
 charter_version: 1.4.1
@@ -12,7 +12,7 @@ tags: [host-profile, ring-0, non-minted, host-identity, privacy, runner-host-obs
 
 ## Status
 
-`proposed`
+`accepted`
 
 Drafted 2026-06-07 as the next lower-coupling M1 Ring-0 entity (per PLAN.md
 §Current Focus order, after `SecretReference`): the canonical host identity +
@@ -47,6 +47,16 @@ adds the policy-input clarification plus the `.strict()` / authority / retired /
 host_profile_id schema-test obligations. No blocker required a re-review; v2 is
 presented for acceptance under the mechanical-tweaks-at-acceptance discipline
 (ADR 0058 precedent).
+
+ADR 0066 is accepted 2026-06-07 as D-064. Round 1 returned zero blockers and v2
+folded every mechanical tweak, so no confirming round 2 was required. It closes
+`RunnerHostObservation.host_id` as the next non-minted M1 entity (the canonical
+host record), holding the never-the-raw-identifier posture for
+`host_identity.digest` (structural `sha256:`) and routing the `host_profile_id`
+non-raw-id, installed-runtime observation, and non-sandbox authority to Ring 1.
+The follow-on schema PR (`host-profile.ts` + generated + tests, including the
+`host_profile_id` raw-UUID accept-and-trap) and the Ring 1 host-state/resolver
+obligations remain future work.
 
 ## Date
 

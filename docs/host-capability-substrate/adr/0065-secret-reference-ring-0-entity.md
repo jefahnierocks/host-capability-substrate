@@ -1,7 +1,7 @@
 ---
 adr_number: 0065
 title: SecretReference Ring-0 entity
-status: proposed
+status: accepted
 version: v2
 date: 2026-06-07
 charter_version: 1.4.1
@@ -12,7 +12,7 @@ tags: [secret-reference, ring-0, non-minted, credential-plane, command-shape-fol
 
 ## Status
 
-`proposed`
+`accepted`
 
 Drafted 2026-06-07 as the next lower-coupling M1 Ring-0 entity, closing
 `CommandShape`'s forward `secret_reference_ref` FK (ADR 0063). This ADR is
@@ -50,6 +50,16 @@ overstating CI enforcement (eval); and cites the charter by clause rather
 than fragile line numbers (policy/security). No blocker required a re-review;
 v2 is presented for acceptance under the mechanical-tweaks-at-acceptance
 discipline (ADR 0058 precedent).
+
+ADR 0065 is accepted 2026-06-07 as D-063. Round 1 returned zero blockers and
+v2 folded every mechanical tweak, so no confirming round 2 was required. It
+closes `CommandShape`'s forward `secret_reference_ref` FK as the next
+non-minted M1 entity, holding the never-the-value boundary (inv. 5) — honest
+for the structured kinds, with a recorded accept-and-trap for the permissive
+kinds — and the typed-slot distinction (inv. 16). The follow-on schema PR
+(`secret-reference.ts` + generated + tests + ontology/registry, including the
+recorded accept-and-trap fixture) and the Ring 1 broker resolution /
+FK-existence obligations remain future work.
 
 ## Date
 

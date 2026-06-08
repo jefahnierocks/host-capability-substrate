@@ -7,7 +7,7 @@ import { qualityGateEvidenceRefSchema } from './quality-gate.ts';
 export const decisionSchemaVersionSchema = z
   .literal('0.1.0')
   .describe(
-    'Decision schema version (ADR 0049; M1 foundational entity #1; D-037). ADRs 0056 and 0058 add Decision.reason_kind values by additive enum widening without bumping this literal.',
+    'Decision schema version (ADR 0049; M1 foundational entity #1; D-037). ADRs 0056 and 0058 add Decision.reason_kind values by additive enum widening without bumping this literal. ADR 0061 / D-059 adds the additive nullable-optional attribution pair policy_rule_ref + resolved_policy_sha256 — an additive nullable-optional field extension (a distinct change class from additive enum widening) that likewise does not bump this literal.',
   );
 
 export const decisionOutcomeSchema = z
@@ -155,6 +155,18 @@ export const decisionSchema = z
     execution_context_id: entityIdSchema,
     audit_chain_link_hash: sha256DigestSchema,
     required_grant_kind: decisionRequiredGrantKindSchema.nullable(),
+    policy_rule_ref: entityIdSchema
+      .nullable()
+      .optional()
+      .describe(
+        'ADR 0061 / D-059: typed reference to the PolicyRule.policy_rule_id (ADR 0060) that authorized this gate decision. Additive nullable-optional — absent/null when no rule applies; no Decision.schema_version bump. Pair-consistent with resolved_policy_sha256 on attributed-ness (both present-and-non-null, or neither). FK existence + operation-class match are Ring 1 mint/audit obligations, not Ring 0.',
+      ),
+    resolved_policy_sha256: sha256DigestSchema
+      .nullable()
+      .optional()
+      .describe(
+        'ADR 0061 / D-059: the live-policy BLOB digest the referenced PolicyRule was resolved against — the value snapshot-binding-check recomputes over the vendored snapshot, equal to the source_provenance.source_policy_sha256 of the referenced rule (ADR 0060), and explicitly NOT the live policy stale internal snapshot_binding.source_policy_sha256 marker. Ring 0 validates format only (sha256: + 64 lowercase hex); the digest-vs-bound-snapshot trust check (B-2) is a Ring 1 loader obligation. Additive nullable-optional — absent/null when no rule applies; pair-consistent with policy_rule_ref on attributed-ness.',
+      ),
   })
   .strict()
   .superRefine((value, ctx) => {
@@ -201,6 +213,26 @@ export const decisionSchema = z
 
     for (const [index, ref] of value.evidence_refs.entries()) {
       chainWalkRefineDecisionEvidenceRef(ref, ctx, index);
+    }
+
+    const ruleAttributed = value.policy_rule_ref !== undefined && value.policy_rule_ref !== null;
+    const digestAttributed =
+      value.resolved_policy_sha256 !== undefined && value.resolved_policy_sha256 !== null;
+    if (ruleAttributed && !digestAttributed) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          'policy_rule_ref is attributed but resolved_policy_sha256 is absent/null; a rule-attributed Decision must also carry the resolved policy digest (ADR 0061 pair-consistency on attributed-ness).',
+        path: ['resolved_policy_sha256'],
+      });
+    }
+    if (digestAttributed && !ruleAttributed) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          'resolved_policy_sha256 is attributed but policy_rule_ref is absent/null; a digest-attributed Decision must also carry the rule reference (ADR 0061 pair-consistency on attributed-ness).',
+        path: ['policy_rule_ref'],
+      });
     }
   })
   .describe(

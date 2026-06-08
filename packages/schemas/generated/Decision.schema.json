@@ -7,7 +7,7 @@
     "schema_version": {
       "type": "string",
       "const": "0.1.0",
-      "description": "Decision schema version (ADR 0049; M1 foundational entity #1; D-037). ADRs 0056 and 0058 add Decision.reason_kind values by additive enum widening without bumping this literal."
+      "description": "Decision schema version (ADR 0049; M1 foundational entity #1; D-037). ADRs 0056 and 0058 add Decision.reason_kind values by additive enum widening without bumping this literal. ADR 0061 / D-059 adds the additive nullable-optional attribution pair policy_rule_ref + resolved_policy_sha256 — an additive nullable-optional field extension (a distinct change class from additive enum widening) that likewise does not bump this literal."
     },
     "decision_id": {
       "type": "string",
@@ -257,6 +257,33 @@
             "pr_absence_acknowledgment"
           ],
           "description": "Decision.required_grant_kind alias for the canonical approvalGrantKindSchema. Shared source prevents enum drift between Decision and ApprovalGrant (ADR 0049 + ADR 0051 v4 cross-reference commitment)."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "policy_rule_ref": {
+      "description": "ADR 0061 / D-059: typed reference to the PolicyRule.policy_rule_id (ADR 0060) that authorized this gate decision. Additive nullable-optional — absent/null when no rule applies; no Decision.schema_version bump. Pair-consistent with resolved_policy_sha256 on attributed-ness (both present-and-non-null, or neither). FK existence + operation-class match are Ring 1 mint/audit obligations, not Ring 0.",
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "resolved_policy_sha256": {
+      "description": "ADR 0061 / D-059: the live-policy BLOB digest the referenced PolicyRule was resolved against — the value snapshot-binding-check recomputes over the vendored snapshot, equal to the source_provenance.source_policy_sha256 of the referenced rule (ADR 0060), and explicitly NOT the live policy stale internal snapshot_binding.source_policy_sha256 marker. Ring 0 validates format only (sha256: + 64 lowercase hex); the digest-vs-bound-snapshot trust check (B-2) is a Ring 1 loader obligation. Additive nullable-optional — absent/null when no rule applies; pair-consistent with policy_rule_ref on attributed-ness.",
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "SHA-256 digest with algorithm prefix. It is not reversible secret material."
         },
         {
           "type": "null"

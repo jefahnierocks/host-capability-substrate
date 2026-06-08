@@ -468,3 +468,176 @@ describe('Decision schema (ADR 0049 / ADR 0056 / ADR 0058 / D-037 / D-046 / D-05
     );
   });
 });
+
+describe('Decision rule-attribution (ADR 0061 / D-059)', () => {
+  const ruleRef = 'policy-rule:hcs:service-activate';
+  const policyDigest = `sha256:${'ab'.repeat(32)}`;
+
+  it('accepts a Decision with both attribution fields present (gate-decision case)', () => {
+    const decision = decisionSchema.parse({
+      ...baseDenyDecision,
+      policy_rule_ref: ruleRef,
+      resolved_policy_sha256: policyDigest,
+    });
+    expect(decision.policy_rule_ref).toBe(ruleRef);
+    expect(decision.resolved_policy_sha256).toBe(policyDigest);
+  });
+
+  it('accepts a Decision with both attribution fields absent (back-compat with existing records)', () => {
+    const decision = decisionSchema.parse(baseDenyDecision);
+    expect(decision.policy_rule_ref).toBeUndefined();
+    expect(decision.resolved_policy_sha256).toBeUndefined();
+  });
+
+  it('accepts a Decision with both attribution fields explicitly null', () => {
+    const decision = decisionSchema.parse({
+      ...baseDenyDecision,
+      policy_rule_ref: null,
+      resolved_policy_sha256: null,
+    });
+    expect(decision.policy_rule_ref).toBeNull();
+    expect(decision.resolved_policy_sha256).toBeNull();
+  });
+
+  it('accepts the neither-attributed mixed absent/null combinations', () => {
+    expect(
+      decisionSchema.safeParse({ ...baseDenyDecision, resolved_policy_sha256: null }).success,
+    ).toBe(true);
+    expect(decisionSchema.safeParse({ ...baseDenyDecision, policy_rule_ref: null }).success).toBe(
+      true,
+    );
+  });
+
+  it('rejects a Decision attributed on policy_rule_ref but missing the resolved digest', () => {
+    for (const resolved of [undefined, null] as const) {
+      const candidate = { ...baseDenyDecision, policy_rule_ref: ruleRef } as Record<
+        string,
+        unknown
+      >;
+      if (resolved === null) {
+        candidate.resolved_policy_sha256 = null;
+      }
+      const result = decisionSchema.safeParse(candidate);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        // Distinct issue paths (ADR 0061 §Implementation plan step 1): exactly the
+        // digest half is flagged, never the rule half — so audit triage can tell which is absent.
+        const paths = result.error.issues.map((issue) => issue.path.join('.'));
+        expect(paths).toContain('resolved_policy_sha256');
+        expect(paths).not.toContain('policy_rule_ref');
+      }
+    }
+  });
+
+  it('rejects a Decision attributed on resolved_policy_sha256 but missing the rule reference', () => {
+    for (const rule of [undefined, null] as const) {
+      const candidate = { ...baseDenyDecision, resolved_policy_sha256: policyDigest } as Record<
+        string,
+        unknown
+      >;
+      if (rule === null) {
+        candidate.policy_rule_ref = null;
+      }
+      const result = decisionSchema.safeParse(candidate);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        const paths = result.error.issues.map((issue) => issue.path.join('.'));
+        expect(paths).toContain('policy_rule_ref');
+        expect(paths).not.toContain('resolved_policy_sha256');
+      }
+    }
+  });
+
+  it('rejects a malformed resolved_policy_sha256 (missing prefix, wrong length, or wrong algorithm)', () => {
+    for (const bad of [
+      'ab'.repeat(32),
+      `sha256:${'ab'.repeat(31)}`,
+      `sha512:${'ab'.repeat(32)}`,
+      'md5:deadbeef',
+    ]) {
+      expect(
+        decisionSchema.safeParse({
+          ...baseDenyDecision,
+          policy_rule_ref: ruleRef,
+          resolved_policy_sha256: bad,
+        }).success,
+      ).toBe(false);
+    }
+  });
+
+  it('keeps pair-consistency outcome-agnostic — informational gate_provisional carrying both fields accepts (Ring 1 owns attribution gating)', () => {
+    const decision = decisionSchema.parse({
+      ...baseDenyDecision,
+      outcome: 'informational',
+      reason_kind: 'gate_provisional',
+      policy_rule_ref: ruleRef,
+      resolved_policy_sha256: policyDigest,
+    });
+    expect(decision.outcome).toBe('informational');
+    expect(decision.policy_rule_ref).toBe(ruleRef);
+  });
+
+  it('rejects an uppercase-hex digest (lowercase-only) and an empty policy_rule_ref', () => {
+    expect(
+      decisionSchema.safeParse({
+        ...baseDenyDecision,
+        policy_rule_ref: ruleRef,
+        resolved_policy_sha256: `sha256:${'AB'.repeat(32)}`,
+      }).success,
+    ).toBe(false);
+    expect(
+      decisionSchema.safeParse({
+        ...baseDenyDecision,
+        policy_rule_ref: '',
+        resolved_policy_sha256: policyDigest,
+      }).success,
+    ).toBe(false);
+  });
+
+  it('does not encode which reason_kind may carry attribution — a non-rule reason_kind carrying both fields accepts (Ring 1 owns that)', () => {
+    const decision = decisionSchema.parse(
+      authorityChainDepthOverflowDecision({
+        policy_rule_ref: ruleRef,
+        resolved_policy_sha256: policyDigest,
+      }),
+    );
+    expect(decision.reason_kind).toBe('authority_chain_walk_depth_exceeded');
+    expect(decision.policy_rule_ref).toBe(ruleRef);
+  });
+
+  it('performs no B-2 trust check at Ring 0 — a well-formed digest matching no bound snapshot still accepts', () => {
+    const arbitraryDigest = `sha256:${'0123456789abcdef'.repeat(4)}`;
+    const decision = decisionSchema.parse({
+      ...baseDenyDecision,
+      policy_rule_ref: ruleRef,
+      resolved_policy_sha256: arbitraryDigest,
+    });
+    expect(decision.resolved_policy_sha256).toBe(arbitraryDigest);
+  });
+
+  it('surfaces BOTH a pair-consistency issue and a pre-existing refinement issue at once (additive, masks none)', () => {
+    const result = decisionSchema.safeParse({
+      ...baseDenyDecision,
+      reason_kind: 'operation_class_unregistered',
+      required_grant_kind: 'gate_evidence_acknowledgment',
+      policy_rule_ref: ruleRef,
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const paths = result.error.issues.map((issue) => issue.path.join('.'));
+      expect(paths).toContain('required_grant_kind');
+      expect(paths).toContain('resolved_policy_sha256');
+    }
+  });
+
+  it('lists policy_rule_ref + resolved_policy_sha256 as nullable, optional properties absent from required (generated schema)', () => {
+    const schema = readGeneratedDecisionSchema();
+    expect(asArray(schema.required)).not.toContain('policy_rule_ref');
+    expect(asArray(schema.required)).not.toContain('resolved_policy_sha256');
+    const properties = asRecord(schema.properties);
+    for (const field of ['policy_rule_ref', 'resolved_policy_sha256']) {
+      const branches = asArray(asRecord(properties[field]).anyOf).map((branch) => asRecord(branch));
+      expect(branches.some((branch) => branch.type === 'null')).toBe(true);
+    }
+  });
+});

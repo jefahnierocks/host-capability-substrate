@@ -3,7 +3,7 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.22.0
+version: 1.23.0
 last_updated: 2026-06-07
 tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0, policy-rule, capability, command-shape]
 priority: high
@@ -1219,6 +1219,21 @@ Key fields:
   field.
 - `valid_until` is non-null per charter inv. 19; freshness binding for
   gateway re-derive consumption.
+- `policy_rule_ref` and `resolved_policy_sha256` are an additive
+  nullable-optional **attribution pair** (ADR 0061 / D-059): `policy_rule_ref`
+  is a typed reference to the `PolicyRule.policy_rule_id` (ADR 0060) that
+  authorized a gate decision, and `resolved_policy_sha256` is the live-policy
+  blob digest that rule was resolved against — the same value as the referenced
+  rule's `source_provenance.source_policy_sha256`, NOT the live policy's stale
+  internal `snapshot_binding.source_policy_sha256` marker. A same-record
+  refinement enforces pair consistency on *attributed-ness* (present and
+  non-null): a Decision with exactly one field attributed rejects (with distinct
+  issue paths for the two partial states); both attributed (the gate case) and
+  neither attributed (the non-rule case, including the mixed absent/null
+  combinations) accept. The pair is populated by the Ring 1 mint/audit service;
+  deciding which decisions must carry attribution and verifying the digest
+  against the bound snapshot (B-2) are Ring 1 obligations, not Ring 0. Additive
+  nullable-optional — no `Decision.schema_version` bump.
 
 `Decision` is envelope-level kernel-set with no field-level exceptions.
 Producer-supplied `Decision` records are rejected at the future Ring 1 mint
@@ -1590,11 +1605,12 @@ Key fields:
 A structural `superRefine` enforces charter inv. 6 (any tier in the
 `nonEscalableTiers` set — `forbidden` at v1 — must take the no-approval variant
 with `approval_path_allowed: false`; no approval path, no grant detail) and
-`required_grant_kind ∈ allowed_grant_kinds`. Two Ring-1 obligations of the
-non-minted posture are deferred and named in ADR 0060: **(B-1)** a follow-up
-`Decision` schema amendment adds `policy_rule_ref` + the resolved
-`source_policy_sha256` for audit attribution (charter inv. 4; `Decision` lacks
-it today); **(B-2)** the gateway/loader MUST verify
+`required_grant_kind ∈ allowed_grant_kinds`. ADR 0060 named two follow-ups of
+the non-minted posture: **(B-1)** a `Decision` schema amendment for audit
+attribution (charter inv. 4; `Decision` lacked it) — **landed** via ADR 0061 /
+D-059, which added the additive nullable-optional `policy_rule_ref` +
+`resolved_policy_sha256` pair to `decisionSchema`; and **(B-2)** a still-deferred
+Ring-1 obligation: the gateway/loader MUST verify
 `source_provenance.source_policy_sha256` against the bound, verified snapshot
 digest before a rule influences a `Decision` — the `authority` literal confers
 no authority on its own.
@@ -1992,6 +2008,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.23.0 | 2026-06-07 | Landed the ADR 0061 / D-059 Decision rule-attribution schema PR (additive nullable-optional; no `Decision.schema_version` bump). Adds `policy_rule_ref` (typed FK to `PolicyRule.policy_rule_id`, ADR 0060) and `resolved_policy_sha256` (the bound live-policy blob digest the rule was resolved against — the same value as the rule's `source_provenance.source_policy_sha256`, NOT the stale internal `snapshot_binding.source_policy_sha256` marker) to `decisionSchema`. A same-record `superRefine` enforces pair consistency on attributed-ness (present and non-null): exactly-one-attributed rejects with distinct issue paths (`resolved_policy_sha256` vs `policy_rule_ref`); both-attributed and every neither-attributed combination (absent/absent, null/null, mixed absent/null) accept. Ring 0 validates field format + pair-consistency only; population, mandatory-attribution-by-reason_kind, and the B-2 digest-vs-bound-snapshot trust check are Ring 1 mint/audit obligations. Closes ADR 0060's §Decision-attribution B-1 dependency. Regenerated `Decision.schema.json` (both fields nullable, optional, absent from `required`); added schema tests. |
 | 1.22.0 | 2026-06-07 | Landed the ADR 0059 / D-058 `AgentClient` canonical-hash amendment schema PR (no `schema_version` bump). `agentClientSchema` now documents the canonical field order, GENESIS handling, and length-prefix discipline on `audit_chain_link_hash` (`varint(byte_length) || field_bytes` shortest-form unsigned varint; `schema_version` and `audit_chain_link_hash` excluded from the concatenation; `'' for null` substitution; fixed seven-slot `evidenceRefSchema` evidence-ref encoding), and the entity description records service-path producer attribution (`kernel_agent_client_resolver`, not a record field). Regenerated `AgentClient.schema.json`; added generated-schema assertions to `agent-client.test.ts`. `AgentClient` joins `Decision`, `ApprovalGrant`, `Lease`, `Run`, `Principal`, and `Session` on the mint/audit-service audit-chain commitment list (seven-entity coverage). No field-set change; deterministic hash-vector + GENESIS-duplicate enforcement remain Ring 1 mint/audit obligations. |
 | 1.21.0 | 2026-06-07 | Added `CommandShape` (ADR 0063 / D-061) — the third and last entity in the `PolicyRule → Capability → CommandShape` chain; a NON-MINTED Ring 0 typed plan (`argv` + `env` + `cwd` + `timeout_seconds`) rendered from an `OperationShape` (`operation_shape_ref` provenance). Central boundary: a typed plan, NOT an execution authorization — no execution semantics, no execute lane (charter inv. 7). Structurally embodies inv. 2 (typed `argv` vector, no shell-string field) and inv. 5 (`env` names + value-source references via a `secret_reference` / `execution_context_inherited` discriminated union, no resolved values); envelope `superRefine` enforces env-name uniqueness only. NO `audit_chain_link_hash`, NO producer-mint field, NO `evidence_refs`, NO `operation_class` echo; absent from the ADR 0057 mint scope. Reconciled the §Entities one-liner (dropped the stale "execution lane" — no such v1 field; the lane is reachable via `operation_shape_ref → OperationShape.execution_context_id`, and a direct echo is a deferred additive amendment). Deferred Ring-1 obligations: deprecated-verb render-refusal (inv. 11), cwd absolute-root confinement, SecretReference FK closure + env value resolution, operation_shape_ref FK existence, and the argv argument-class distinction (charter line 98, recorded as a seeded accept-and-trap fixture + a `forbidden-string-scan.sh` committed-fixture backstop extended to CommandShape argv/env/cwd). |
 | 1.20.0 | 2026-05-29 | Added `Capability` (ADR 0062 / D-060) — a non-minted Ring 0 registry declaration of a known kernel operation and a structural peer of `PolicyRule`. Flat `.strict()` envelope: `operation_name` (lowercase dotted identifier of ≥2 segments, intentionally distinct from `operation_class` and verb-agnostic — no forbidden-literal denylist at Ring 0), `operation_class` (reuses `operationShapeOperationClassSchema`, never redefined), `capability_state` (`active`/`deprecated`/`retired` registry lifecycle; `deprecated`/`retired` render-refusal is enforced by the CommandShape renderer per charter inv. 11, not this schema), and `source_provenance` (binds to the capability-registry blob; `authority: 'capability_registry'` disjoint from `evidenceAuthoritySchema`; `source_registry_sha256` format-only at Ring 0, the digest-trust check is a Ring 1 capability-registration obligation). NO `audit_chain_link_hash`, NO producer-mint field, NO `evidence_refs`, NO observation-state enum, NO containment-class axis, NO `superRefine`; absent from the ADR 0057 mint scope. Documents the three-senses disambiguation: this entity (sense 1) is NOT the `AgentClient` containment-class axis (sense 2) nor the `BoundaryObservation` capability-state observation vocabulary (sense 3). |

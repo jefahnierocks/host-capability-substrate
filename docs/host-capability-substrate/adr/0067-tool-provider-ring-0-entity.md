@@ -1,7 +1,7 @@
 ---
 adr_number: 0067
 title: ToolProvider Ring-0 entity
-status: proposed
+status: accepted
 version: v2
 date: 2026-06-08
 charter_version: 1.4.1
@@ -12,7 +12,7 @@ tags: [tool-provider, ring-0, non-minted, tool-resolution, tool-provenance-follo
 
 ## Status
 
-`proposed`
+`accepted`
 
 Drafted 2026-06-08 as the next lower-coupling M1 Ring-0 entity (per PLAN.md
 §Current Focus order, after `HostProfile`): the durable "source of tools"
@@ -46,7 +46,24 @@ in v2:
 v2 also folds the mechanical tweaks (name the no-suffix durable-identity
 classification; strengthen the axis-confusion + injected-field tests; cross-ref
 the existing tool-provenance path-primitive coverage). Because round 1 carried
-blockers, v2 is dispatched for a confirming round 2 before acceptance.
+blockers, v2 was dispatched for a confirming round 2.
+
+ADR 0067 is accepted 2026-06-08 as D-065. The confirming round-2 5-lens review
+(`hcs-architect` / `hcs-ontology-reviewer` / `hcs-policy-reviewer` /
+`hcs-security-reviewer` / `hcs-eval-reviewer`) returned all five `accept` with
+`confirms_round1_fixes: true` and **zero blockers**, each verifying the claims
+against source: the SHIPPED `PullRequestReceipt.payload.provider_kind`, the
+charter-inv-16-RESERVED-but-not-yet-shipped `Capability.provider_kind`, the
+`/usr/local/.+` branch of `toolProvenanceCanonicalPathSchema` (so it rejects the
+bare `/usr/local` root), and the `(?!.*\.\.)` no-traversal precedent at
+`command-shape.ts`. The lone round-2 non-blocking factual slip — a §References
+row calling `Capability.provider_kind` "shipped" when it is charter-reserved —
+was folded. The follow-on schema PR (`tool-provider.ts` + generated + tests +
+ontology/registry, including the `manager_kind` axis/name-collision rejection
+tests, the bare-`/usr/local`-accepts + `..`-rejects `root_path` tests, and the
+`tool_provider_id` raw-shape accept-and-trap note) and the Ring 1 tool-resolution
+obligations (provider observation per charter inv. 8, FK existence, supersession,
+`tool_provider_id` opacity) remain future work.
 
 ## Date
 

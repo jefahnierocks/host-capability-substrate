@@ -1,0 +1,72 @@
+import { z } from 'zod';
+import { entityIdSchema, isoDateTimeSchema } from '../common.ts';
+
+export const resourceBudgetSchemaVersionSchema = z
+  .literal('0.1.0')
+  .describe(
+    'ResourceBudget schema version (ADR 0072; non-minted Ring 0 entity; D-070). New entities start at 0.1.0.',
+  );
+
+export const resourceBudgetResourceKindSchema = z
+  .enum(['cpu', 'memory', 'network', 'sandbox_concurrency', 'unknown'])
+  .describe(
+    'The budgeted resource dimension (ADR 0072): `cpu`, `memory`, `network`, `sandbox_concurrency`, or `unknown` (the universal house sentinel). A descriptive FACT that Ring 1 policy READS as input, never a trust verdict or policy content the entity carries (inv. 1). Distinct from the ResourceBudgetObservation pressure payload — this is the ALLOCATION dimension, not a reading. Widening via the registered §Procedure rule.',
+  );
+
+export const resourceBudgetLimitUnitSchema = z
+  .enum(['cores', 'bytes', 'bytes_per_sec', 'count', 'percent', 'unknown'])
+  .describe(
+    'The unit of `limit_value` (ADR 0072): `cores`, `bytes`, `bytes_per_sec`, `count`, `percent`, or `unknown`. Made explicit because units are heterogeneous across dimensions. A descriptive FACT, never a verdict (inv. 1). Ring 0 does NOT cross-constrain `resource_kind` <-> `limit_unit` (a `cpu` budget with `limit_unit: bytes` is structurally ACCEPTED at Ring 0 — a recorded accept-and-trap; the dimension<->unit consistency is a Ring 1 obligation, mirroring the ResolvedTool basis<->context non-cross-constraint). Widening via the registered §Procedure rule.',
+  );
+
+export const resourceBudgetStateSchema = z
+  .enum(['active', 'retired'])
+  .describe(
+    'ResourceBudget lifecycle. A re-allocation produces a NEW `active` ResourceBudget and retires the prior (a Ring 1 supersession obligation); `retired` is a valid historical record, NOT a policy-denied state. Uses the `_state` lifecycle-suffix convention (peer of resolution_state / installation_state / provider_state / ...).',
+  );
+
+export const resourceBudgetSourceProvenanceSchema = z
+  .object({
+    authority: z
+      .literal('resource_budget_declaration')
+      .describe(
+        'Declaration-site marker (a coordination record, NOT an observation); deliberately DISJOINT from evidenceAuthoritySchema and conferring no authority by itself. Sourcing the allocation from host-authoritative state, and NOT promoting a sandbox-observed allocation to a host-authoritative ResourceBudget (charter inv. 8), are Ring 1 producer obligations, not encoded here.',
+      ),
+    observed_at: isoDateTimeSchema,
+  })
+  .strict()
+  .describe(
+    'Binds a ResourceBudget declaration to its declaration site. Carries no secret/sensitive material. Mirrors the Artifact / Lock / ToolInstallation non-minted provenance pattern.',
+  );
+
+export const resourceBudgetSchema = z
+  .object({
+    schema_version: resourceBudgetSchemaVersionSchema,
+    resource_budget_id: entityIdSchema.describe(
+      'Stable ResourceBudget id. SHOULD be opaque/derived — `entityIdSchema` accepts a raw machine-ish shape, which Ring 0 cannot reject (a Ring-0 denylist would violate inv. 1), so id-opacity is a Ring 1 producer obligation (recorded accept-and-trap, mirroring the storage-primitive peers).',
+    ),
+    session_id: entityIdSchema.describe(
+      'REQUIRED FK to the `Session` (ADR 0055) this budget is allocated to ("per-session"). The `_id` (not `_ref`) suffix is correct (required, monomorphic, target exists). FK existence is a Ring 1 obligation.',
+    ),
+    resource_kind: resourceBudgetResourceKindSchema,
+    limit_value: z
+      .number()
+      .int()
+      .min(0)
+      .describe(
+        'The allocation limit magnitude: a non-negative integer FACT in the unit named by `limit_unit`. A descriptive fact Ring 1 reads; carries no value/secret.',
+      ),
+    limit_unit: resourceBudgetLimitUnitSchema,
+    budget_state: resourceBudgetStateSchema,
+    source_provenance: resourceBudgetSourceProvenanceSchema,
+  })
+  .strict()
+  .describe(
+    'Ring 0 ResourceBudget entity from ADR 0072 (D-070). A NON-MINTED, per-dimension, per-session resource allocation record (the third and final storage primitive; landing it closes the M1 22-entity Ring-0 set). One record per (session, resource): resource_budget_id + a REQUIRED session_id FK to Session + a resource_kind (cpu/memory/network/sandbox_concurrency/unknown) + a limit_value (non-negative int) + a limit_unit (cores/bytes/bytes_per_sec/count/percent/unknown) + a budget_state (active/retired) + a .strict() source_provenance (disjoint resource_budget_declaration authority). The durable ALLOCATION, distinct from the shipped ResourceBudgetObservation (the Evidence pressure reading that feeds it — different entity, distinct export names). Fulfills the pre-reserved Evidence.subject_kind `resource_budget` with no Evidence schema change. No `audit_chain_link_hash`, no producer-mint field, no `evidence_refs`; absent from the ADR 0057 mint scope. An allocation is a FACT and a read-only policy INPUT to Ring 1, never policy content (inv. 1). Ring 0 does NOT cross-constrain resource_kind<->limit_unit (a recorded accept-and-trap routed to Ring 1). session_id FK existence, resource_kind<->limit_unit consistency, sandbox non-promotion (inv. 8), resource_budget_id opacity, supersession, and budget enforcement against ResourceBudgetObservation pressure are Ring 1 obligations.',
+  );
+
+export type ResourceBudget = z.infer<typeof resourceBudgetSchema>;
+export type ResourceBudgetResourceKind = z.infer<typeof resourceBudgetResourceKindSchema>;
+export type ResourceBudgetLimitUnit = z.infer<typeof resourceBudgetLimitUnitSchema>;
+export type ResourceBudgetState = z.infer<typeof resourceBudgetStateSchema>;
+export type ResourceBudgetSourceProvenance = z.infer<typeof resourceBudgetSourceProvenanceSchema>;

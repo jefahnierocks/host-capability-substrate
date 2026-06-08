@@ -563,6 +563,19 @@ export {
   resolvedToolStateSchema,
 } from './entities/resolved-tool.ts';
 export {
+  type ResourceBudget,
+  type ResourceBudgetLimitUnit,
+  type ResourceBudgetResourceKind,
+  type ResourceBudgetSourceProvenance,
+  type ResourceBudgetState,
+  resourceBudgetLimitUnitSchema,
+  resourceBudgetResourceKindSchema,
+  resourceBudgetSchema,
+  resourceBudgetSchemaVersionSchema,
+  resourceBudgetSourceProvenanceSchema,
+  resourceBudgetStateSchema,
+} from './entities/resource-budget.ts';
+export {
   type ResourceBudgetObservation,
   type ResourceBudgetObservationWindow,
   type ResourceBudgetPayload,

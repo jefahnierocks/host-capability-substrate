@@ -3,9 +3,9 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.30.0
+version: 1.31.0
 last_updated: 2026-06-08
-tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0, policy-rule, capability, command-shape, tool-provider, tool-installation, resolved-tool, artifact, lock]
+tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0, policy-rule, capability, command-shape, tool-provider, tool-installation, resolved-tool, artifact, lock, resource-budget]
 priority: high
 ---
 
@@ -1729,7 +1729,7 @@ Key fields:
 - `timeout_seconds` (`z.number().int().positive().max(86400)`) is a bounded
   positive timeout. The `86400` (24h) bound is a hard **ceiling**, not a default
   and not an authorization; the Ring 1 broker applies its own tighter
-  per-operation budget (cross-referencing the future `ResourceBudget` entity).
+  per-operation budget (cross-referencing the `ResourceBudget` entity, ADR 0072).
 
 The record is a `.strict()` envelope; its only `superRefine` is env-`name`
 uniqueness. Deprecated-verb render-refusal (inv. 11), `cwd` absolute-root
@@ -1997,6 +1997,49 @@ Key fields:
 mutual-exclusion enforcement (one `held` lock per `lock_kind`), acquire/release
 + holder-only release, `held_by_session_id` FK existence, holder + `lock_status`
 sandbox non-promotion (inv. 8), and supersession — are Ring 1 obligations.
+
+### `ResourceBudget`
+
+Source: `packages/schemas/src/entities/resource-budget.ts`
+
+A per-session resource allocation (ADR 0072 / D-070): a CPU / memory / network /
+sandbox-concurrency limit. The third and FINAL storage primitive — landing it
+closes the M1 22-entity Ring-0 set. A NON-MINTED Ring-0 entity and structural
+peer of the other storage primitives (no `audit_chain_link_hash`, no producer-mint
+field, no `evidence_refs`; absent from the ADR 0057 mint scope). It is the durable
+**allocation** (a limit), distinct from the shipped `ResourceBudgetObservation` —
+the Evidence **pressure reading** that "feeds the durable `ResourceBudget` entity
+rather than duplicating it." Different entity, distinct export names
+(`resourceBudgetSchema` vs `resourceBudgetObservationSchema`).
+
+Key fields:
+
+- `session_id` is a REQUIRED FK to the `Session` (ADR 0055) the budget is allocated
+  to ("per-session"). The `_id` suffix is correct (required, monomorphic, target exists).
+- `resource_kind` is `cpu` | `memory` | `network` | `sandbox_concurrency` |
+  `unknown` — the budgeted dimension; a descriptive FACT, never a verdict (inv. 1).
+  Per-dimension (one record per `session` × `resource`) keeps the entity uniform and
+  extensible; a new dimension widens via the registered §Procedure rule.
+- `limit_value` is a non-negative integer magnitude FACT in the unit named by
+  `limit_unit`.
+- `limit_unit` is `cores` | `bytes` | `bytes_per_sec` | `count` | `percent` |
+  `unknown` — made explicit because units are heterogeneous across dimensions.
+- `budget_state` is `active` | `retired` (the `_state` lifecycle-suffix convention,
+  peer of `resolution_state` / `installation_state` / ...). A re-allocation produces a
+  NEW `active` budget and retires the prior; `retired` is a valid historical record,
+  not a policy-denied state.
+- `source_provenance` is a `.strict()` declaration-site binding (disjoint
+  `resource_budget_declaration` authority + `observed_at`).
+
+`ResourceBudget` fulfills the pre-reserved `Evidence.subject_kind: 'resource_budget'`
+with NO `evidenceSubjectKindSchema` change and NO `Evidence.schema_version` bump.
+Ring 0 does NOT cross-constrain `resource_kind` ↔ `limit_unit` (a `cpu` budget with
+`limit_unit: bytes` is structurally ACCEPTED at Ring 0 — a recorded accept-and-trap,
+mirroring the `ResolvedTool` basis↔context non-cross-constraint). `resource_budget_id`
+is `entityIdSchema` and accepts a raw-shape id, so id-opacity — plus `session_id` FK
+existence, the `resource_kind`↔`limit_unit` consistency, sandbox non-promotion
+(inv. 8), supersession, and enforcement against `ResourceBudgetObservation` pressure
+— are Ring 1 obligations.
 
 ## Phase 1 Boundary Observation Envelope
 
@@ -2269,6 +2312,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.31.0 | 2026-06-08 | Landed the ADR 0072 / D-070 `ResourceBudget` schema PR — the non-minted Ring-0 THIRD and FINAL storage primitive, closing the M1 22-entity Ring-0 set (22/22). `resourceBudgetSchema` (`.strict()`): `resource_budget_id` + a REQUIRED `session_id` FK to `Session` (ADR 0055) + a `resource_kind` enum (cpu/memory/network/sandbox_concurrency/unknown) + `limit_value` (`z.number().int().min(0)`) + a `limit_unit` enum (cores/bytes/bytes_per_sec/count/percent/unknown) + a `budget_state` enum (active/retired) + a `.strict()` `source_provenance` (disjoint `resource_budget_declaration` authority). Reuses `entityIdSchema` + `isoDateTimeSchema`. The durable per-session ALLOCATION, distinct from the shipped `ResourceBudgetObservation` (the Evidence pressure reading that feeds it; distinct export names). Per-dimension (one record per `session` × `resource`). The lifecycle field is `budget_state` (the `_state` convention; renamed from the proposed `budget_status` for peer consistency). Fulfills the pre-reserved `Evidence.subject_kind: 'resource_budget'` with NO `evidenceSubjectKindSchema` change and NO `Evidence.schema_version` bump. Ring 0 does NOT cross-constrain `resource_kind` ↔ `limit_unit` (a recorded accept-and-trap routed to Ring 1, mirroring the ResolvedTool basis↔context non-cross-constraint); `resource_budget_id` accepts a raw-shape id (a recorded accept-and-trap; opacity is a Ring 1 obligation). NO policy-tier denylist (inv. 1). Flipped the stale "future `ResourceBudget` entity" forward-reference in the CommandShape `timeout_seconds` narrative. Regenerated `ResourceBudget.schema.json`; added schema tests. |
 | 1.30.0 | 2026-06-08 | Landed the ADR 0071 / D-069 `Lock` schema PR — the non-minted Ring-0 second storage primitive: a coarse mutex (e.g. package-manager global), the lighter cousin of the minted `Lease` (ADR 0052). `lockSchema` (`.strict()`): `lock_id` + a CLOSED `lock_kind` enum (package_manager_global/host_mutation_global/unknown) + a REQUIRED `held_by_session_id` FK to `Session` (ADR 0055; reuses `Lease.held_by_session_id`, same semantic) + a `lock_status` enum (held/released) + a `.strict()` `source_provenance` (disjoint `lock_declaration` authority). Reuses `entityIdSchema` + `isoDateTimeSchema`. NON-MINTED — no audit_chain_link_hash/producer/evidence_refs, no per-resource scope, no force_break_grant_id (carries none of Lease's minting/authorization machinery; cannot bypass a Lease). The lifecycle field is `lock_status`, NOT `lock_state`, to avoid the shipped `GitWorktreeObservation.payload.lock_state` same-name field. Fulfills the pre-reserved `Evidence.subject_kind: 'lock'` with NO `evidenceSubjectKindSchema` change and NO `Evidence.schema_version` bump. `lock_id` accepts a raw-shape id (a recorded accept-and-trap; opacity is a Ring 1 obligation). NO policy-tier denylist (inv. 1). Regenerated `Lock.schema.json`; added schema tests. |
 | 1.29.0 | 2026-06-08 | Landed the ADR 0070 / D-068 `Artifact` schema PR — the non-minted Ring-0 first storage-primitive entity: a DIGEST-ADDRESSED, IMMUTABLE descriptor of a run's output (diff / log chunk / exit code / signed summary). `artifactSchema` (`.strict()`): `artifact_id` + a REQUIRED `run_id` FK to `Run` (ADR 0053) + an `artifact_kind` enum (command_diff/log_chunk/exit_code/signed_summary/unknown) + `content_sha256` (`sha256DigestSchema` — the content ADDRESS, NOT the bytes) + `byte_size` (`z.number().int().min(0)`) + a `.strict()` `source_provenance` (disjoint `artifact_declaration` authority). Reuses `entityIdSchema` + `isoDateTimeSchema` + `sha256DigestSchema`. NO inline content, NO storage-location pointer, NO inline value, NO lifecycle state — charter discipline keeps Ring 0 free of runtime blobs (they live in Ring 1 runtime state) and secret-shaped values at rest (inv. 1/5); the sha256 digest IS the identity. IMMUTABLE (a re-run = a new digest = a new Artifact, so no active/retired state). Fulfills the pre-reserved `Evidence.subject_kind: 'artifact'` with NO `evidenceSubjectKindSchema` change and NO `Evidence.schema_version` bump. `artifact_id` accepts a raw-shape id (a recorded accept-and-trap; opacity is a Ring 1 obligation). NO policy-tier denylist (inv. 1). Regenerated `Artifact.schema.json`; added schema tests. |
 | 1.28.0 | 2026-06-08 | Landed the ADR 0069 / D-067 `ResolvedTool` schema PR — the non-minted Ring-0 authoritative resolution answer and TAIL of the tool-resolution chain `ToolProvider → ToolInstallation → ResolvedTool` (completing it at source). `resolvedToolSchema` (`.strict()`): `resolved_tool_id` + `tool_name` (the query, pinned to the `hostProfileOsVersionSchema` charset) + a REQUIRED `tool_installation_id` FK (winning install, ADR 0068) + a REQUIRED `execution_context_id` FK (ExecutionContext, ADR 0031; the resolving surface) + an OPTIONAL `workspace_id` FK (WorkspaceContext, ADR 0050; project scope) + a NEW `resolution_basis_kind` enum (path_order/workspace_pin/explicit_override/single_candidate/fallback/unknown) + `resolution_state` (active/retired) + a `.strict()` `source_provenance` (disjoint `resolved_tool_declaration` authority). Reuses `entityIdSchema` + `isoDateTimeSchema`. Core work: the FOUR-axis disambiguation — `manager_kind` (source) / `install_source_kind` (mechanism) / `install_surface_kind` (surface) / the new `resolution_basis_kind` (WHY this won). The basis enum is value-disjoint from `install_surface_kind` on the SUBSTANTIVE values (manager_shim/app_bundled dropped — those are surface values); the two share ONLY the universal `unknown` house sentinel. Fulfills the pre-reserved `Evidence.subject_kind: 'resolved_tool'` with NO `evidenceSubjectKindSchema` change and NO `Evidence.schema_version` bump. `resolved_tool_id` accepts a raw-shape id (a recorded accept-and-trap; opacity is a Ring 1 obligation). NO policy-tier denylist (inv. 1). Regenerated `ResolvedTool.schema.json`; added schema tests. |

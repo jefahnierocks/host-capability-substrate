@@ -68,6 +68,11 @@ done
 # (a recorded accept-and-trap routed to Ring 1, mirroring the storage-primitive peers); the entity
 # holds no secret value (a closed lock_kind/lock_status enum + a held_by_session_id FK ref), and
 # lock.test.ts uses only synthetic FK ids + a synthetic UUID for the accept-and-trap.
+# ADR 0072 likewise covers ResourceBudget: resource_budget_id is entityIdSchema and accepts a raw
+# machine-ish shape (a recorded accept-and-trap routed to Ring 1, mirroring the storage-primitive
+# peers); the entity holds no secret value (closed resource_kind/limit_unit/budget_state enums + a
+# numeric limit_value + a session_id FK ref), and resource-budget.test.ts uses only synthetic FK ids
+# + a synthetic UUID for the accept-and-trap.
 # (Phase 0a: conservative scan. Extend with gitleaks in no-live-secrets.sh.)
 if grep -rE '\b(sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|xoxb-[0-9]+-[A-Za-z0-9]+|AKIA[0-9A-Z]{16})\b' $scan_dirs 2>/dev/null; then
   echo "  ✗ likely resolved secret value found" >&2

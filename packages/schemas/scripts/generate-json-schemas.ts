@@ -53,6 +53,7 @@ import {
   repositoryIdentityReconciliationObservationSchema,
   resolvedToolSchema,
   resourceBudgetObservationSchema,
+  resourceBudgetSchema,
   restoreDrillReceiptSchema,
   rulesetObservationSchema,
   runnerHostObservationSchema,
@@ -431,6 +432,11 @@ const schemaEntries: SchemaEntry[] = [
     file: 'ResolvedTool.schema.json',
     title: 'ResolvedTool',
     schema: resolvedToolSchema,
+  },
+  {
+    file: 'ResourceBudget.schema.json',
+    title: 'ResourceBudget',
+    schema: resourceBudgetSchema,
   },
   {
     file: 'ResourceBudgetObservation.schema.json',

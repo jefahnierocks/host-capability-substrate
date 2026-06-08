@@ -1,7 +1,7 @@
 ---
 adr_number: 0072
 title: ResourceBudget Ring-0 entity
-status: proposed
+status: accepted
 version: v2
 date: 2026-06-08
 charter_version: 1.4.1
@@ -12,7 +12,7 @@ tags: [resource-budget, ring-0, non-minted, storage-primitive, observation-disam
 
 ## Status
 
-`proposed`
+`accepted`
 
 Drafted 2026-06-08 as the **last** M1 canonical Ring-0 entity (per PLAN.md
 §Current Focus order): the third "storage primitive" (`Artifact` + `Lock`
@@ -51,6 +51,26 @@ reject probe to the schema-PR test plan; flags flipping the stale ontology
 narrative) when the schema PR lands; and affirms the no-secret-slot scan note.
 Because round 1 returned zero blockers, no confirming round 2 was required
 (mechanical-tweaks-at-acceptance, ADR 0058 precedent).
+
+ADR 0072 is accepted 2026-06-08 as D-070. Round 1 returned zero blockers and v2
+folded every mechanical tweak (notably the `budget_status` → `budget_state` rename
+for `_state`-suffix peer consistency), so no confirming round 2 was required. It
+establishes the third and final M1 storage primitive: a non-minted, per-dimension
+per-session resource allocation — `resource_budget_id` + a required `session_id`
+FK + a `resource_kind` enum + a `limit_value` + a `limit_unit` enum + a
+`budget_state` (`active` | `retired`) + `source_provenance` — the durable
+ALLOCATION distinct from the shipped `ResourceBudgetObservation` (the Evidence
+pressure reading that feeds it), fulfilling the pre-reserved
+`Evidence.subject_kind: 'resource_budget'` with no `Evidence` schema change, and
+leaving the `resource_kind` ↔ `limit_unit` consistency as a Ring 1 obligation. The
+follow-on schema PR (`resource-budget.ts` + generated + tests + ontology/registry,
+incl. the `resourceBudget*` enum exports, the `resource_kind` ↔ `limit_unit`
+accept-and-trap, the `resource_budget_id` accept-and-trap, and the flip of the
+stale ontology `future ResourceBudget` CommandShape forward-reference) **closes the
+M1 22-entity Ring-0 set** at the source layer. The Ring 1 obligations (`session_id`
+FK existence, `resource_kind` ↔ `limit_unit` consistency, sandbox non-promotion per
+inv. 8, `resource_budget_id` opacity, supersession, and budget enforcement against
+`ResourceBudgetObservation` pressure) remain future work.
 
 ## Date
 

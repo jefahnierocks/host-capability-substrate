@@ -60,6 +60,10 @@ done
 # machine-ish shape (a recorded accept-and-trap routed to Ring 1, mirroring the chain peers); the
 # entity holds no secret value (typed FK refs + a bounded tool_name query), and
 # resolved-tool.test.ts uses only synthetic FK ids + a synthetic UUID for the accept-and-trap.
+# ADR 0070 likewise covers Artifact: artifact_id is entityIdSchema and accepts a raw machine-ish
+# shape (a recorded accept-and-trap routed to Ring 1, mirroring the chain peers); the entity holds
+# NO bytes/secret value (only content_sha256, a non-reversible digest, + a byte_size fact + FK refs),
+# and artifact.test.ts uses only a synthetic sha256 digest + FK ids + a synthetic UUID.
 # (Phase 0a: conservative scan. Extend with gitleaks in no-live-secrets.sh.)
 if grep -rE '\b(sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|xoxb-[0-9]+-[A-Za-z0-9]+|AKIA[0-9A-Z]{16})\b' $scan_dirs 2>/dev/null; then
   echo "  ✗ likely resolved secret value found" >&2

@@ -39,6 +39,10 @@ done
 # (charter line 98), so no resolved token may land in a committed fixture. The
 # command-shape.test.ts argv-secret-inlining trap builds its token-shaped elements by
 # runtime concatenation precisely so it documents that gap WITHOUT tripping this scan.
+# ADR 0065 extends this same backstop to SecretReference.reference_locator: the
+# permissive reference kinds (env_var_name / broker_handle / hcs_uri tails) likewise
+# ACCEPT a token-shaped locator at Ring 0, and secret-reference.test.ts builds its
+# token fixtures by runtime concatenation for the same reason.
 # (Phase 0a: conservative scan. Extend with gitleaks in no-live-secrets.sh.)
 if grep -rE '\b(sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|xoxb-[0-9]+-[A-Za-z0-9]+|AKIA[0-9A-Z]{16})\b' $scan_dirs 2>/dev/null; then
   echo "  ✗ likely resolved secret value found" >&2

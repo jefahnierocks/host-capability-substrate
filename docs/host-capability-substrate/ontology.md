@@ -3,7 +3,7 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.23.0
+version: 1.24.0
 last_updated: 2026-06-07
 tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0, policy-rule, capability, command-shape]
 priority: high
@@ -98,7 +98,7 @@ Run                  one execution of an approved operation through the broker
 Artifact             a run's structured output (diff, log chunks, exit code, signed summary)
 Lease                exclusive or shared resource lock
 Lock                 coarser mutex (e.g., "package-manager global")
-SecretReference      op:// URI, never the value
+SecretReference      reference to a secret (op:// / hcs:// / keychain / env-name / broker), never the value
 ResourceBudget       per-session CPU/memory/network/sandbox-concurrency allocation
 ```
 
@@ -1716,9 +1716,10 @@ Key fields:
 - `env` (`z.array(commandShapeEnvEntrySchema)`, may be empty) carries variable
   **names** plus a typed value-**source** reference, never resolved values
   (charter inv. 5). `commandShapeEnvValueSourceSchema` is a discriminated union
-  on `kind`: `secret_reference` (an opaque `secret_reference_ref` forward
-  reference to the unbuilt `SecretReference`; the broker resolves the value at
-  execution time) or `execution_context_inherited` (no value stored). No variant
+  on `kind`: `secret_reference` (an opaque `secret_reference_ref` forward FK to
+  the `SecretReference` entity (built by ADR 0065 / D-063); the broker resolves
+  the value at execution time) or `execution_context_inherited` (no value
+  stored). No variant
   carries an inline resolved value. An envelope `superRefine` requires env
   `name`s to be unique within the array.
 - `cwd` (`commandShapeCwdSchema`) is a working-directory path: optional leading
@@ -1736,6 +1737,43 @@ confinement, `SecretReference` FK closure + env value resolution,
 `operation_shape_ref` FK existence, the argv argument-class distinction
 (line 98), and lease / approval / dashboard gating are Ring 1 renderer / broker /
 gateway obligations, not Ring 0 schema checks.
+
+### `SecretReference`
+
+Source: `packages/schemas/src/entities/secret-reference.ts`
+
+Typed secret reference (ADR 0065 / D-063), closing `CommandShape`'s forward
+`secret_reference_ref` FK (ADR 0063). A NON-MINTED Ring-0 entity and structural
+peer of `PolicyRule` / `Capability` / `CommandShape`: no `audit_chain_link_hash`,
+no producer-mint field, no `evidence_refs`; absent from the ADR 0057 mint scope.
+
+Key fields:
+
+- `reference_kind` is a closed `lower_snake_case` enum: `op_uri`, `hcs_uri`,
+  `keychain_item`, `env_var_name`, `broker_handle`.
+- `reference_locator` is the opaque secret REFERENCE, validated per
+  `reference_kind` by the envelope `superRefine`, and NEVER a resolved value
+  (charter inv. 5). The STRUCTURED kinds (`op_uri` = `op://vault/item[/field]`,
+  `keychain_item` = `keychain://service/account`) reject a mis-shaped or
+  raw-value locator; the PERMISSIVE kinds (`env_var_name` name grammar,
+  `hcs_uri` / `broker_handle` opaque tails) accept a token-shaped locator that
+  satisfies the grammar — a recorded accept-and-trap gap (mirroring ADR 0063's
+  argv-secret-inlining), backstopped by `forbidden-string-scan` and the deferred
+  Ring 1 deep check. The schema embeds NO policy-tier denylist (charter inv. 1).
+- `credential_source_ref` is an OPTIONAL FK to a durable `CredentialSource`
+  (ADR 0018); the `_ref` suffix follows the optional/forward cross-record-FK
+  precedent, distinct from the kernel-set
+  `BoundaryObservation.credential_source_id`.
+- `source_provenance` is a `.strict()` declaration-site binding (disjoint
+  `authority` literal `secret_reference_declaration` + `observed_at`), lighter
+  than the registry-bound `PolicyRule` / `Capability` provenance because a
+  `SecretReference` is constructed per-use, not read from a hash-bound blob.
+
+`SecretReference` is the **secret-reference** slot, disjoint from
+`ProviderObjectReference` / `PublicClientId` / `PolicySelectorValue` / raw secret
+material (charter inv. 16 / line 98). Value resolution, FK existence, the deep
+reference-vs-secret check, and the `reference_locator`-vs-bound-`CredentialSource`
+resolution precedence are Ring 1 broker obligations.
 
 ## Phase 1 Boundary Observation Envelope
 
@@ -2008,6 +2046,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.24.0 | 2026-06-07 | Landed the ADR 0065 / D-063 `SecretReference` schema PR — the non-minted Ring-0 secret-reference entity closing `CommandShape`'s forward `secret_reference_ref` FK (ADR 0063). `secretReferenceSchema` (`.strict()`): `reference_kind` (op_uri / hcs_uri / keychain_item / env_var_name / broker_handle) + `reference_locator` (opaque reference, per-kind `superRefine`, NEVER a value, inv. 5) + optional nullable `credential_source_ref` FK to `CredentialSource` (ADR 0018) + a `.strict()` `source_provenance` (disjoint `secret_reference_declaration` authority + `observed_at`). Reuses `entityIdSchema` + `envVariableNameSchema`. The never-the-value guarantee is structural for the STRUCTURED kinds (op_uri/keychain_item) and a recorded accept-and-trap for the PERMISSIVE kinds (env_var_name/broker_handle/hcs_uri tails accept a token-shaped locator; backstop = forbidden-string-scan + Ring 1 deep check, mirroring ADR 0063). NO policy-tier denylist (inv. 1); disjoint from the four other typed argument classes (inv. 16). No CommandShape shape change (`secret_reference_ref` stays `entityIdSchema`; its `.describe()` now notes the built FK target). Regenerated `SecretReference.schema.json`; added schema tests. |
 | 1.23.0 | 2026-06-07 | Landed the ADR 0061 / D-059 Decision rule-attribution schema PR (additive nullable-optional; no `Decision.schema_version` bump). Adds `policy_rule_ref` (typed FK to `PolicyRule.policy_rule_id`, ADR 0060) and `resolved_policy_sha256` (the bound live-policy blob digest the rule was resolved against — the same value as the rule's `source_provenance.source_policy_sha256`, NOT the stale internal `snapshot_binding.source_policy_sha256` marker) to `decisionSchema`. A same-record `superRefine` enforces pair consistency on attributed-ness (present and non-null): exactly-one-attributed rejects with distinct issue paths (`resolved_policy_sha256` vs `policy_rule_ref`); both-attributed and every neither-attributed combination (absent/absent, null/null, mixed absent/null) accept. Ring 0 validates field format + pair-consistency only; population, mandatory-attribution-by-reason_kind, and the B-2 digest-vs-bound-snapshot trust check are Ring 1 mint/audit obligations. Closes ADR 0060's §Decision-attribution B-1 dependency. Regenerated `Decision.schema.json` (both fields nullable, optional, absent from `required`); added schema tests. |
 | 1.22.0 | 2026-06-07 | Landed the ADR 0059 / D-058 `AgentClient` canonical-hash amendment schema PR (no `schema_version` bump). `agentClientSchema` now documents the canonical field order, GENESIS handling, and length-prefix discipline on `audit_chain_link_hash` (`varint(byte_length) || field_bytes` shortest-form unsigned varint; `schema_version` and `audit_chain_link_hash` excluded from the concatenation; `'' for null` substitution; fixed seven-slot `evidenceRefSchema` evidence-ref encoding), and the entity description records service-path producer attribution (`kernel_agent_client_resolver`, not a record field). Regenerated `AgentClient.schema.json`; added generated-schema assertions to `agent-client.test.ts`. `AgentClient` joins `Decision`, `ApprovalGrant`, `Lease`, `Run`, `Principal`, and `Session` on the mint/audit-service audit-chain commitment list (seven-entity coverage). No field-set change; deterministic hash-vector + GENESIS-duplicate enforcement remain Ring 1 mint/audit obligations. |
 | 1.21.0 | 2026-06-07 | Added `CommandShape` (ADR 0063 / D-061) — the third and last entity in the `PolicyRule → Capability → CommandShape` chain; a NON-MINTED Ring 0 typed plan (`argv` + `env` + `cwd` + `timeout_seconds`) rendered from an `OperationShape` (`operation_shape_ref` provenance). Central boundary: a typed plan, NOT an execution authorization — no execution semantics, no execute lane (charter inv. 7). Structurally embodies inv. 2 (typed `argv` vector, no shell-string field) and inv. 5 (`env` names + value-source references via a `secret_reference` / `execution_context_inherited` discriminated union, no resolved values); envelope `superRefine` enforces env-name uniqueness only. NO `audit_chain_link_hash`, NO producer-mint field, NO `evidence_refs`, NO `operation_class` echo; absent from the ADR 0057 mint scope. Reconciled the §Entities one-liner (dropped the stale "execution lane" — no such v1 field; the lane is reachable via `operation_shape_ref → OperationShape.execution_context_id`, and a direct echo is a deferred additive amendment). Deferred Ring-1 obligations: deprecated-verb render-refusal (inv. 11), cwd absolute-root confinement, SecretReference FK closure + env value resolution, operation_shape_ref FK existence, and the argv argument-class distinction (charter line 98, recorded as a seeded accept-and-trap fixture + a `forbidden-string-scan.sh` committed-fixture backstop extended to CommandShape argv/env/cwd). |

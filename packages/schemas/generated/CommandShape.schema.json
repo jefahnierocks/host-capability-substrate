@@ -54,7 +54,7 @@
                     "type": "string",
                     "minLength": 1,
                     "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
-                    "description": "Forward reference to the (unbuilt) SecretReference entity; FK closure is a Ring 1 obligation (follows the `_ref` forward-reference precedent, not the resolvable `_id` suffix). An opaque reference id — NOT a secret value, NOT an `op://` URI, NOT a resolved token. The Ring 1 broker resolves the value at execution time."
+                    "description": "Typed FK to the SecretReference entity (built by ADR 0065 / D-063); follows the `_ref` optional/forward cross-record-FK precedent, not the resolvable `_id` suffix. FK existence verification remains a Ring 1 obligation. An opaque reference id — NOT a secret value, NOT an `op://` URI, NOT a resolved token. The Ring 1 broker resolves the value at execution time."
                   }
                 },
                 "required": [

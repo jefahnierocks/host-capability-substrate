@@ -49,6 +49,7 @@ import {
   remoteAgentNetworkPostureObservationSchema,
   remoteAgentSetupReceiptSchema,
   repositoryIdentityReconciliationObservationSchema,
+  resolvedToolSchema,
   resourceBudgetObservationSchema,
   restoreDrillReceiptSchema,
   rulesetObservationSchema,
@@ -413,6 +414,11 @@ const schemaEntries: SchemaEntry[] = [
     file: 'RemoteAgentNetworkPostureObservation.schema.json',
     title: 'RemoteAgentNetworkPostureObservation',
     schema: remoteAgentNetworkPostureObservationSchema,
+  },
+  {
+    file: 'ResolvedTool.schema.json',
+    title: 'ResolvedTool',
+    schema: resolvedToolSchema,
   },
   {
     file: 'ResourceBudgetObservation.schema.json',

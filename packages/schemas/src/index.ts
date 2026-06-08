@@ -530,6 +530,19 @@ export {
   remoteAgentSetupReceiptSchema,
 } from './entities/remote-agent-evidence.ts';
 export {
+  type ResolvedTool,
+  type ResolvedToolName,
+  type ResolvedToolResolutionBasisKind,
+  type ResolvedToolSourceProvenance,
+  type ResolvedToolState,
+  resolvedToolNameSchema,
+  resolvedToolResolutionBasisKindSchema,
+  resolvedToolSchema,
+  resolvedToolSchemaVersionSchema,
+  resolvedToolSourceProvenanceSchema,
+  resolvedToolStateSchema,
+} from './entities/resolved-tool.ts';
+export {
   type ResourceBudgetObservation,
   type ResourceBudgetObservationWindow,
   type ResourceBudgetPayload,

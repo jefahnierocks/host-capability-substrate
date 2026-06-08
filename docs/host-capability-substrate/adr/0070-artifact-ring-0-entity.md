@@ -1,7 +1,7 @@
 ---
 adr_number: 0070
 title: Artifact Ring-0 entity
-status: proposed
+status: accepted
 version: v2
 date: 2026-06-08
 charter_version: 1.4.1
@@ -12,7 +12,7 @@ tags: [artifact, ring-0, non-minted, storage-primitive, run-followup, content-ad
 
 ## Status
 
-`proposed`
+`accepted`
 
 Drafted 2026-06-08 as the next lower-coupling M1 entity (per PLAN.md §Current
 Focus order, after the tool-resolution chain): the first of the remaining
@@ -47,6 +47,21 @@ reject-list adds `value`/`payload`; the registry enum-mirror carries the
 `unknown`-sentinel + §Procedure-widening note). Because round 1 returned zero
 blockers, no confirming round 2 was required (mechanical-tweaks-at-acceptance,
 ADR 0058 precedent).
+
+ADR 0070 is accepted 2026-06-08 as D-068. Round 1 returned zero blockers and v2
+folded every mechanical tweak, so no confirming round 2 was required. It
+establishes the first storage-primitive entity: a non-minted, digest-addressed,
+IMMUTABLE descriptor of a run output — a required `run_id` FK + `artifact_kind` +
+`content_sha256` (the content address) + `byte_size` + `source_provenance`, with
+no inline bytes, no storage-location pointer, no inline value, and no lifecycle
+state (the `sha256` digest IS the identity; the bytes + storage location are Ring 1
+runtime state). Fulfills the pre-reserved `Evidence.subject_kind: 'artifact'` with
+no `Evidence` schema change. The follow-on schema PR (`artifact.ts` + generated +
+tests + ontology/registry, incl. the `artifact_id` accept-and-trap and the
+`.strict()` content/value/payload reject probes) and the Ring 1 obligations
+(`run_id` FK existence, digest verification + the `byte_size`↔digest
+cross-consistency, the canonical-encoding rule, sandbox-non-promotion per inv. 8,
+`artifact_id` opacity, retention/GC) remain future work.
 
 ## Date
 

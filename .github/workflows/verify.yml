@@ -53,4 +53,8 @@ jobs:
         run: npm ci
 
       - name: Run all quality gates (just verify)
+        env:
+          # Skip host-coupled direnv/mise/Codex probe fixtures — they inspect the
+          # dev workstation, not a clean runner. See scripts/ci/verify.sh.
+          HCS_SKIP_HOST_FIXTURES: "1"
         run: just verify

@@ -2,7 +2,7 @@
 adr_number: 0064
 title: Ring 1 mint/audit service interface contracts
 status: proposed
-version: v1
+version: v2
 date: 2026-06-07
 charter_version: 1.4.1
 tags: [ring-1, mint-api, audit-chain, audit-event, contracts, producer-attribution, adr-0057-followup]
@@ -25,7 +25,33 @@ into a stable typed contract surface that future Ring 1 services (broker,
 gateway, dashboard) and the future audit-events/storage ADR can depend
 on.
 
-Reviewer dispatch is deferred until the operator confirms this v1 scope.
+ADR 0064 v1 was dispatched to all five reviewers for round 1 on
+2026-06-07. All five returned `yes_with_mechanical_tweaks` with **zero
+blockers**: the contract layer stays Ring-1 design-only with no
+runtime/storage/endpoint/schema/policy leakage; the AgentClient mint-block
+lift was confirmed evidence-backed (ADR 0059 schema landed; `agent-client.ts`
+carries the canonical-hash text); the per-entity mint contract, producer
+paths, canonical-hash authorities, and Zod-defined-vs-registry-canonical
+reason-kind split all reconcile against the landed schemas and the registry
+allowlist; and the B-1/B-2 obligations are homed faithfully per ADR 0061.
+v2 absorbs every mechanical tweak: it restates the
+sandbox-observation / self-asserted / unpromoted / KnowledgeChunk
+transitive rejection on the bounded walk (security); pins `resolved_context`
+as service-path-constructed, never deserialized from a request body
+(security); ties the rejection-class examples to the registry taxonomy
+(security/ontology); aligns the B-2 wording to "the bound, verified snapshot
+digest" and states the B-1/B-2 fail-closed coupling so attribution is never
+recorded against an unverified digest (policy); reframes the ADR 0057
+relationship as completing its prose interface-contract layer rather than a
+discrete deferred amendment item (architect); guards the Decision row
+against a producer x reason-kind cartesian reading and marks its reason
+kinds a representative subset of the Decision-borne union
+(architect/ontology); adds the AgentClient non-operation-bearing fail-closed
+caveat and de-circularizes the seven-entity wording (ontology); marks
+WorkspaceContext as hash-bearing-but-not-in-the-seven (ontology); and
+corrects the dispatch-plan "trap" wording to "test obligation" (eval). No
+blocker required a re-review; v2 is presented for acceptance under the
+mechanical-tweaks-at-acceptance discipline (ADR 0058 precedent).
 
 ## Date
 
@@ -72,9 +98,9 @@ matching the ADR 0057 / ADR 0058 mint/audit review discipline:
   transitively, the rejection contract fails closed, and the audit-event
   attribution cannot be payload-asserted.
 - `hcs-eval-reviewer` -- verify the contract creates implementation-test
-  obligations (including the ADR 0061 B-2 intermediate-checkpoint trap)
-  without seeding synthetic traps or implying a runnable harness before
-  one exists.
+  obligations (including the ADR 0061 B-2 intermediate-checkpoint test
+  obligation) without seeding synthetic traps or implying a runnable
+  harness before one exists.
 
 ## Context
 
@@ -244,10 +270,13 @@ MintRequest
                                                against, where applicable)
 ```
 
-`resolved_producer` and `resolved_attribution` are kernel-resolved from
-the authenticated service path, not read from `candidate_payload`. A
-payload that self-asserts any kernel producer class or attribution field
-rejects (ADR 0057 §Producer allowlist enforcement).
+`resolved_context` is **constructed by the kernel-resolved, authenticated
+service path**, never deserialized from an agent- or producer-supplied
+request body: `resolved_producer`, `resolved_attribution`, `prior_link_ref`,
+and `bound_snapshot_ref` are all kernel-resolved, not read from
+`candidate_payload`. A payload that self-asserts any kernel producer class,
+attribution field, or snapshot reference rejects (ADR 0057 §Producer
+allowlist enforcement).
 
 A **mint result** is a discriminated outcome:
 
@@ -297,9 +326,12 @@ AuditEvent
                         rejection (mirrors registry §Audit-chain coverage
                         of rejections)
   rejection_class?    : the typed rejection-class discriminator on
-                        rejection (e.g. cross_context_target_mismatch,
-                        authority_class_promotion_attempt,
-                        producer_path_mismatch)
+                        rejection, drawn from the registry §Audit-chain
+                        coverage of rejections taxonomy (e.g.
+                        cross_context_target_mismatch,
+                        force_protected_combination,
+                        authority_class_promotion_attempt); a free-form
+                        string is not permitted
   decision_ref?       : typed FK -> the emitted Decision when MintRejected
                         carried one
   chain_link_meta     : the storage/audit metadata used as the
@@ -343,6 +375,11 @@ restated here as contract obligations:
 match the authenticated kernel-resolved service path (ADR 0057 / ADR 0058
 service-path matching).
 
+A rule-applying (gate) Decision whose attribution pair (B-1) is populated
+MUST fail closed if `resolved_policy_sha256` cannot be verified (B-2)
+against `bound_snapshot_ref` — absent or mismatched — so attribution is
+never recorded against an unverified or unbound policy digest.
+
 ## Per-entity mint contract
 
 The mint/audit service is the only accepted path for minting the
@@ -351,19 +388,21 @@ producer path, the canonical-hash authority (consumed, not redefined),
 the principal cross-record checks owned by the service (ADR 0057
 §Cross-record refinements — referenced, not restated in full), and the
 Zod-defined rejection reason kinds available today. WorkspaceContext is
-listed for completeness (typed-identity envelope, ADR 0050 hash order);
+listed for completeness — it carries an `audit_chain_link_hash` (ADR 0050
+hash order) but ADR 0057 deliberately keeps it OUT of the seven-entity
+audit-chain commitment list and does not restate its audit-chain behavior;
 ExecutionContext minting stays with the future host-state/resolver
 service (ADR 0057 §Service boundary).
 
 | Entity | Producer path | Canonical-hash authority | Principal mint-time cross-record checks (ADR 0057) | Zod-defined rejection reason_kinds available |
 |---|---|---|---|---|
-| Decision | `mint_api`, `kernel_broker`, `kernel_gateway` | ADR 0049 | Reject producer-supplied envelopes; set kernel-set fields; append-only immutability; cross-context substitution defense; D-037 producer-disjointness; **populate the ADR 0061 attribution pair for rule-applying decisions (B-1)**; **verify `resolved_policy_sha256` against the bound snapshot before a rule influences the Decision (B-2)** | `gate_*`, `operation_class_unregistered`, `audit_chain_corruption_detected`, `authority_chain_walk_depth_exceeded`, plus the ADR 0037 containment/axis reasons |
+| Decision | `mint_api`, `kernel_broker`, `kernel_gateway` | ADR 0049 | Reject producer-supplied envelopes; set kernel-set fields; append-only immutability; cross-context substitution defense; D-037 producer-disjointness; **populate the ADR 0061 attribution pair for rule-applying decisions (B-1)**; **verify `resolved_policy_sha256` against the bound, verified snapshot digest before a rule influences the Decision (B-2)** | Representative subset of the Decision-borne `decisionReasonKindSchema` union (all 18 Zod-defined values are Decision-borne): `gate_*`, `operation_class_unregistered`, `audit_chain_corruption_detected`, `authority_chain_walk_depth_exceeded` (producer-scoped to `mint_api` / `kernel_broker` per ADR 0058, NOT `kernel_gateway`), and the shared ADR 0037 containment/axis reasons (also the AgentClient-mint rejection reasons) |
 | ApprovalGrant | `mint_api`, `kernel_broker` | ADR 0051 v4 | Grant-kind clearing compatibility against the bound snapshot; single active grant per `minted_for_decision_id`; self-approval rejection (typed Principal FK, ADR 0054 canonicalization); revoke-wins; producer-disjointness; null/non-clearable handling | (grant-clearing reason kinds remain registry-canonical pending their own schema PR; fail-closed until Zod-lifted) |
 | Lease | `mint_api`, `kernel_broker` | ADR 0052 | Worktree-path canonicalization; active worktree-lease uniqueness; `Lease.execution_context_id == Session.execution_context_id`; sandbox-acquire rejection; holder-only release; force-break separation; 24h ceiling | `worktree_lease_held_by_other_session` (Zod-defined); remaining lease reasons registry-canonical, fail-closed until Zod-lifted |
 | Run | `mint_api`, `kernel_broker` | ADR 0053 | Authorizing Decision resolves to an `allow`; context-triple equality; one active Run per authorizing Decision; terminal-state mutation rejection; producer-disjointness | (run reason kinds registry-canonical pending their schema PR; fail-closed until Zod-lifted) |
 | Principal | `kernel_principal_resolver` | ADR 0054 | Binding-evidence verification per `principal_kind`; synthetic-identity rejection; inv. 8/18 chain-walk via producer-allowlist closure; surface-id canonicalization at mint | (Principal reason kinds registry-canonical; depth-overflow here is fail-closed audit-only per ADR 0058 — no `operation_shape_ref`) |
 | Session | `kernel_session_resolver` | ADR 0055 | FK liveness (`agent_client_id`, `principal_id`, `execution_context_id`); sandbox/self-asserted invocation-evidence rejection; transitive `derived_from` walk (≤ 64, cycle→`audit_chain_corruption_detected`); cross-context substitution rejection | (Session reason kinds registry-canonical; depth-overflow fail-closed audit-only per ADR 0058) |
-| AgentClient | `kernel_agent_client_resolver` | **ADR 0059** (canonical order + GENESIS + length-prefix; landed D-058) | Reject self-asserted agent-client axes and resolver evidence not grounded in observed launch/process/installed-binary/remote-cloud execution-context evidence; FK liveness when consumed | `agent_client_axis_self_asserted`, `containment_evidence_absent`, `containment_evidence_producer_supplied`, `containment_runtime_capability_exceeded` (Zod-defined) |
+| AgentClient | `kernel_agent_client_resolver` | **ADR 0059** (canonical order + GENESIS + length-prefix; landed D-058) | Reject self-asserted agent-client axes and resolver evidence not grounded in observed launch/process/installed-binary/remote-cloud execution-context evidence; FK liveness when consumed | `agent_client_axis_self_asserted`, `containment_evidence_absent`, `containment_evidence_producer_supplied`, `containment_runtime_capability_exceeded` (Zod-defined; but AgentClient mint is non-operation-bearing, so a rejection that cannot resolve a valid `operation_shape_ref` falls to the fail-closed audit-only branch, like Principal/Session) |
 | WorkspaceContext | `kernel_workspace_diagnose` | ADR 0050 | Repository/worktree verification; canonical path; one active per `(repository_id, canonical(worktree_path))`; one `execution_context_id` binding; atomic supersession | (WorkspaceContext reason kinds registry-canonical) |
 
 "Registry-canonical, fail-closed until Zod-lifted" means: the rejection
@@ -384,9 +423,9 @@ This ADR therefore **lifts the AgentClient mint-block** at the contract
 layer: the mint/audit service accepts AgentClient mint requests through
 `kernel_agent_client_resolver`, computes `audit_chain_link_hash` from the
 ADR 0059 canonical field order with GENESIS handling and length-prefix
-encoding, and adds AgentClient to the seven-entity audit-chain commitment
-list (Decision, ApprovalGrant, Lease, Run, Principal, Session,
-AgentClient). The lift does not re-scope ADR 0057; it consumes ADR 0057's
+encoding, and adds AgentClient as the seventh entity, joining the six
+ADR 0057 committed (Decision, ApprovalGrant, Lease, Run, Principal,
+Session). The lift does not re-scope ADR 0057; it consumes ADR 0057's
 forward `kernel_agent_client_resolver` reservation exactly as ADR 0057
 §Future amendments anticipated.
 
@@ -409,6 +448,13 @@ consumer can rely on them without reading every entity ADR:
 - Bound authority/`derived_from` walks to ≤ 64 records, separate from the
   storage-chain link computation; cycle → `audit_chain_corruption_detected`;
   depth overflow → the rejection contract above.
+- Reject minting if any record in the consumed authority/`derived_from`
+  graph — transitively, to the 64-record budget — carries
+  `authority: sandbox-observation` or `authority: self-asserted`, is
+  unpromoted for gate use where promotion is required, or is a KnowledgeChunk
+  reference (ADR 0057 §Sandbox-source rejection; charter inv. 8 and 18). This
+  applies anywhere in the consumed gate/promotion/mint/approval/lease/run/
+  session authority graph, not only direct evidence refs.
 - Atomic per-chain-root append and unique-genesis enforcement are
   **storage** obligations deferred to the audit-events/storage ADR (ADR
   0057 audit rule 7).
@@ -489,10 +535,11 @@ follow-on schema PR.
 | Failure class | Coverage posture |
 |---|---|
 | Producer/attribution payload self-assertion vs trusted service path | Implementation test obligation when the service lands; future trap candidate after an observed incident or fixture failure. |
+| Transitive sandbox / self-asserted / unpromoted / KnowledgeChunk authority at depth N | Implementation test obligation: a record at depth N in the consumed authority/`derived_from` graph of a Decision/Lease/Run/Session mint rejects even when the direct `evidence_refs` are clean (transitive, not first-hop only); security-load-bearing, no synthetic trap now. |
 | Mint result discrimination (accepted vs rejected-with-Decision vs rejected-audit-only) | Implementation test obligation; the rejection contract's fail-closed branch must assert no invented/borrowed reason kind. |
 | Audit-event attribution sourced from service path, never payload | Implementation test obligation; security-load-bearing. |
 | ADR 0061 B-2 digest verification | Implementation test obligation; the test MUST assert the loader rejects at the digest-verification checkpoint (an intermediate trajectory step, when `resolved_policy_sha256` != the bound, verified snapshot digest), not merely that the final Decision is rejected (per ADR 0061 §Follow-up regression coverage). |
-| ADR 0061 B-1 mandatory attribution by `reason_kind` / `outcome` | Implementation test obligation; the rule-applying decisions that MUST carry the attribution pair are a mint/audit enforcement rule, not Ring 0. |
+| ADR 0061 B-1 mandatory attribution by `reason_kind` / `outcome` | Implementation test obligation; the rule-applying decisions that MUST carry the attribution pair are a mint/audit enforcement rule, not Ring 0. Checkpoint: for a rule-applying decision the pair is populated at mint before the append AuditEvent is recorded; a rule-applying decision minted without the pair is rejected. |
 | AgentClient mint after block lift | Implementation test obligation: deterministic hash vectors per ADR 0059 (including present-empty vs absent `valid_until` / `parser_version` non-collision) and GENESIS/duplicate-genesis enforcement when the service and the audit-events/storage ADR land. |
 | Depth-overflow cycle-vs-budget split and fail-closed non-operation path | Implementation test obligation; reuses ADR 0057 / ADR 0058 coverage disposition; no synthetic trap at ADR acceptance. |
 
@@ -519,8 +566,9 @@ This ADR can move from `proposed` to `accepted` only after:
   audit-events/storage ADR (shape here; persistence/atomic-append/
   unique-genesis there).
 - The acceptance commit records a new `DECISIONS.md` row and states that
-  ADR 0064 closes ADR 0057's typed-contract follow-on and discharges ADR
-  0061's routed B-1 / B-2 open-items.
+  ADR 0064 completes ADR 0057's interface-contract layer (left as prose in
+  ADR 0057 §Service boundary; per-service re-derivation is what ADR 0057
+  Option B rejected) and discharges ADR 0061's routed B-1 / B-2 open-items.
 - `just verify` remains green.
 
 ## References

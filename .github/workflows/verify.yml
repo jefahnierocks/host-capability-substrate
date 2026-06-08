@@ -39,6 +39,16 @@ jobs:
       - name: Set up mise toolchain (.mise.toml — node 24, just, shellcheck, shfmt)
         uses: jdx/mise-action@v2
 
+      # The macOS runner's default /bin/bash is 3.2.57; HCS gate scripts use
+      # bash 4+ features (declare -A associative arrays, process substitution).
+      # Provision Homebrew bash 5.x and put it first on PATH so `just` recipes
+      # run under modern bash, matching the dev environment. No script changes.
+      - name: Provision modern bash (runner default is bash 3.2)
+        run: |
+          brew install bash
+          echo "$(brew --prefix)/bin" >> "$GITHUB_PATH"
+          bash --version | head -1
+
       - name: Install Node dependencies (npm ci)
         run: npm ci
 

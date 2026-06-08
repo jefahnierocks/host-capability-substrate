@@ -5,9 +5,62 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — PolicyRule→Capability→CommandShape chain COMPLETE; Ring-1 mint/audit DESIGN ADR is next
+## Current Focus — policy-registry chain CLOSED at source; CI wired; ready schema slices + Ring-1 mint/audit DESIGN ADR next
 
-**2026-05-30 update.** The policy-registry entity chain is **complete at the
+**2026-06-07 update.** The policy-registry entity chain is **closed at the
+source layer**: PolicyRule (ADR 0060 / D-057, schema PR #10), Capability
+(ADR 0062 / D-060, schema PR #13), and CommandShape (ADR 0063 / D-061, schema
+**PR #15 merged 2026-06-07**) are all on `main`. `main` is at `743b400b`;
+registry **v0.4.23**, ontology **v1.21.0**; ADRs span **0001–0063**; the M1
+source-schema baseline is **14 of 22**. ADR 0059 (AgentClient canonical-hash,
+D-058) and ADR 0061 (Decision rule-attribution, D-059) remain **accepted with
+schema PRs pending**.
+
+**Active next surface (in order):**
+
+1. **Foundation pass (this change).** GitHub Actions CI now runs `just verify`
+   on every PR and on `main` (`.github/workflows/verify.yml`, macos-latest) — the
+   ring-boundary, schema-drift, policy, and forbidden-string gates the Definition
+   of Done assumes are finally machine-enforced, not local-only (the local
+   `just verify` is also confounded by the CredentialSource sandbox quirk; a
+   clean runner is not). Plus README/PLAN currentness. Tracked follow-ups: Ubuntu
+   portability and action SHA-pinning.
+2. **Ready schema slices** (accepted, independent, FK targets merged): land
+   **AgentClient** (ADR 0059 / D-058 → 7th audit-chain mint entity) and the
+   **Decision rule-attribution** amendment (ADR 0061 / D-059, additive
+   nullable-optional `policy_rule_ref` + `resolved_policy_sha256`, no
+   `schema_version` bump).
+3. **Ring-1 mint/audit DESIGN ADR** per ADR 0057 — interfaces/schema/contracts
+   only, scoped to the six landed mint entities
+   (Decision/ApprovalGrant/Lease/Run/Principal/Session) plus AgentClient
+   (unblocked by ADR 0059). **No runtime/SQLite/launchd/persistence/
+   agent-callable mutation endpoints** — charter inv. 7; class-I work is
+   unmergeable until M4.
+4. **Remaining lower-coupling M1 entities** as independent ADR + schema slices —
+   **SecretReference first** (closes CommandShape's forward `secret_reference_ref`
+   FK), then HostProfile, ToolProvider, ToolInstallation, ResolvedTool, Artifact,
+   Lock, ResourceBudget.
+5. Q-013 credential-plane v1 schema is ready-now (optional; unblocks Q-014).
+
+**Operator-gated parallel decision.** The W-C **Rego reorientation** for the
+bright-line forbidden classifier (proposed D-063 / D-064 + likely ADR 0064) —
+scratch proposals at
+`docs/host-capability-substrate/research/local/2026-06-04-hcs-codex-orientation/`.
+Preserves canonical policy in `system-config`; no hook-owned enforcement; `opa`
+is not yet in the toolchain.
+
+**Low-risk fold-ins (Ring 3 docs).** W-B retire dead Codex profiles (D-062),
+W-D autonomy envelope, porting high-frequency charter invariants into
+`.agents/skills/` (cross-tool adherence under Codex too), and extending the
+tooling-surface matrix to model new cloud/local agent surfaces (Warp/Oz, Cursor,
+Devin Desktop, GitHub Agent HQ, Antigravity) as **observed authority surfaces
+only** — not adopted configs.
+
+The detail below records how the chain became unblocked; it is retained as
+provenance.
+
+**2026-05-30 update (superseded by the 2026-06-07 update above; retained as
+provenance).** The policy-registry entity chain is **complete at the
 ADR layer**: PolicyRule (ADR 0060 / D-057, schema PR #10 merged), Capability
 (ADR 0062 / D-060, schema PR #13 merged), and CommandShape (ADR 0063 / D-061,
 **acceptance PR #14 OPEN** — merges CommandShape's accepted ADR + the D-061 row;

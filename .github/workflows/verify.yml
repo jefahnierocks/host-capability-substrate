@@ -1,0 +1,46 @@
+# HCS quality-gate CI.
+#
+# Runs `just verify` — the full gate suite the Definition of Done already assumes
+# (lint/typecheck/test + ring boundary-check, schema-drift, policy-lint,
+# snapshot-binding, forbidden-string-scan, identity-scan, no-live-secrets,
+# no-runtime-state, shellcheck, and the regression fixtures). This wires the
+# enforcement that AGENTS.md / README ("enforced by CI from commit 1") describe.
+#
+# Runner = macos-latest on purpose: scripts/ci/verify.sh and its sub-scripts
+# assume macOS/bash (BSD find, system Ruby for snapshot-binding-check, etc.), and
+# the local-only CredentialSource sandbox false-positive does not occur on a
+# clean runner. Tracked follow-ups: (1) Ubuntu portability so the cheaper runner
+# can be used, (2) pin actions to commit SHAs (supply-chain hardening).
+name: verify
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Cancel superseded runs on the same ref (saves macOS minutes).
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+# Least privilege: the gates only read the tree.
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up mise toolchain (.mise.toml — node 24, just, shellcheck, shfmt)
+        uses: jdx/mise-action@v2
+
+      - name: Install Node dependencies (npm ci)
+        run: npm ci
+
+      - name: Run all quality gates (just verify)
+        run: just verify

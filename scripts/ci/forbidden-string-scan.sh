@@ -56,6 +56,10 @@ done
 # raw machine-ish shape (a recorded accept-and-trap routed to Ring 1, mirroring ToolProvider); its
 # install_path REUSES toolProvenanceCanonicalPathSchema (the same committed-fixture backstop posture)
 # and tool-installation.test.ts uses only synthetic anchored roots + non-secret version/tool_name.
+# ADR 0069 likewise covers ResolvedTool: resolved_tool_id is entityIdSchema and accepts a raw
+# machine-ish shape (a recorded accept-and-trap routed to Ring 1, mirroring the chain peers); the
+# entity holds no secret value (typed FK refs + a bounded tool_name query), and
+# resolved-tool.test.ts uses only synthetic FK ids + a synthetic UUID for the accept-and-trap.
 # (Phase 0a: conservative scan. Extend with gitleaks in no-live-secrets.sh.)
 if grep -rE '\b(sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|xoxb-[0-9]+-[A-Za-z0-9]+|AKIA[0-9A-Z]{16})\b' $scan_dirs 2>/dev/null; then
   echo "  ✗ likely resolved secret value found" >&2

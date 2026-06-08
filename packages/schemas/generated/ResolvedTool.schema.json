@@ -1,0 +1,98 @@
+{
+  "$id": "https://jefahnierocks.local/host-capability-substrate/schemas/ResolvedTool.schema.json",
+  "title": "ResolvedTool",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0",
+      "description": "ResolvedTool schema version (ADR 0069; non-minted Ring 0 entity; D-067). New entities start at 0.1.0."
+    },
+    "resolved_tool_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "Stable ResolvedTool id. SHOULD be opaque/derived — `entityIdSchema` accepts a raw machine-ish shape, which Ring 0 cannot reject (a Ring-0 denylist would violate inv. 1), so id-opacity is a Ring 1 producer obligation (recorded accept-and-trap, mirroring ToolInstallation/ToolProvider/HostProfile)."
+    },
+    "tool_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[A-Za-z0-9._+-]+$",
+      "description": "The resolution QUERY: the tool identifier asked for (e.g. `node`, `python3`, `ripgrep`). A bounded fact, never an identity or a sink: no whitespace, no `/`, no `:` (so no `://` / `op://`), no path/secret shape; bounded length. Pinned to the shipped `hostProfileOsVersionSchema` charset precedent (the same grammar `ToolInstallation.tool_name` uses)."
+    },
+    "tool_installation_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "REQUIRED FK to the winning `ToolInstallation` (ADR 0068). ResolvedTool points at the install; it does not duplicate the install version / install_path / install_surface_kind facts. FK existence is a Ring 1 obligation."
+    },
+    "execution_context_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "REQUIRED FK to the `ExecutionContext` (ADR 0031) that resolved the query — the runtime SURFACE (shell / sandbox / PATH). The primary context anchor (\"the surface that resolved it\"). FK existence is a Ring 1 obligation."
+    },
+    "workspace_id": {
+      "description": "OPTIONAL FK to the `WorkspaceContext` (ADR 0050); present only when the resolution was project-scoped (e.g. a project pin), absent for a bare-surface resolution. FK existence is a Ring 1 obligation.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "resolution_basis_kind": {
+      "type": "string",
+      "enum": [
+        "path_order",
+        "workspace_pin",
+        "explicit_override",
+        "single_candidate",
+        "fallback",
+        "unknown"
+      ],
+      "description": "The resolution BASIS (ADR 0069): WHY this install won the resolution — the resolution LOGIC. A FOURTH axis, distinct from `ToolProvider.manager_kind` (the SOURCE grain), ADR 0034 `ToolProvenance.install_source_kind` (the install-MECHANISM grain), and `ToolInstallation.install_surface_kind` (the authority-SURFACE / WHERE grain). `path_order` = first on PATH; `workspace_pin` = a project/workspace pin won (e.g. a mise `.tool-versions`); `explicit_override` = an explicit operator/config override; `single_candidate` = only one install existed; `fallback` = a default was chosen; `unknown` = unrecorded. The values are deliberately disjoint from the SUBSTANTIVE values of `install_surface_kind`; the two enums share ONLY the universal `unknown` house sentinel (present on all four axis enums), which is a shared-sentinel convention, NOT an axis overlap. A descriptive FACT that Ring 1 policy READS as input, never a trust verdict or policy content the entity carries (inv. 1). Widening via the registered §Procedure rule."
+    },
+    "resolution_state": {
+      "type": "string",
+      "enum": [
+        "active",
+        "retired"
+      ],
+      "description": "ResolvedTool lifecycle. A re-resolution (the context or candidate set changed) produces a NEW `active` ResolvedTool and retires the prior (a Ring 1 supersession obligation); `retired` is a valid historical record, NOT a policy-denied state."
+    },
+    "source_provenance": {
+      "type": "object",
+      "properties": {
+        "authority": {
+          "type": "string",
+          "const": "resolved_tool_declaration",
+          "description": "Declaration-site marker (a durable record, NOT an observation); deliberately DISJOINT from evidenceAuthoritySchema and conferring no authority by itself. Computing the resolution from host-authoritative inputs + non-sandbox authority (charter inv. 8) are Ring 1 producer obligations, not encoded here."
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "description": "RFC 3339 timestamp with an explicit UTC offset."
+        }
+      },
+      "required": [
+        "authority",
+        "observed_at"
+      ],
+      "additionalProperties": false,
+      "description": "Binds a ResolvedTool declaration to its declaration site. Carries no secret/sensitive material. Mirrors the ToolInstallation / ToolProvider / HostProfile non-minted provenance pattern."
+    }
+  },
+  "required": [
+    "schema_version",
+    "resolved_tool_id",
+    "tool_name",
+    "tool_installation_id",
+    "execution_context_id",
+    "resolution_basis_kind",
+    "resolution_state",
+    "source_provenance"
+  ],
+  "additionalProperties": false,
+  "description": "Ring 0 ResolvedTool entity from ADR 0069 (D-067). A NON-MINTED durable resolution-answer record (structural peer of ToolInstallation/ToolProvider/HostProfile) — the TAIL of the tool-resolution chain ToolProvider -> ToolInstallation -> ResolvedTool, the authoritative \"what tool X resolves to in this context\" answer. Anchored on a REQUIRED execution_context_id FK (the resolving surface) + an OPTIONAL workspace_id FK (project scope); points at the winning tool_installation_id FK; carries the resolution-basis axis resolution_basis_kind (WHY this won, value-disjoint from install_surface_kind on the substantive values, sharing only the universal unknown sentinel). Fulfills the pre-reserved Evidence.subject_kind `resolved_tool` with no Evidence schema change. No `audit_chain_link_hash`, no producer-mint field, no `evidence_refs`; absent from the ADR 0057 mint scope. A resolution answer is a FACT and a read-only policy INPUT to Ring 1, never policy content (inv. 1). Computing the resolution (non-sandbox per inv. 8), the three FK existences, resolved_tool_id opacity, basis-vs-context cross-consistency, and supersession are Ring 1 obligations."
+}

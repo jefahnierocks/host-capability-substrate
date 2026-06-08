@@ -6,10 +6,10 @@ HCS is infrastructure. It is the substrate on which every agent's actions compos
 
 ## Status
 
-Ring 0 schema landing is in progress. The source-schema baseline is 14 of 22
-canonical M1 entities — the PolicyRule → Capability → CommandShape policy-registry
-chain is now closed at the source layer (PRs #10 / #13 / #15) — and the HCS side
-of the Phase 2.5 policy-lint split is closed. Kernel, adapters, and dashboard code are still intentionally
+Milestone 1 (Ring 0 ontology) is complete: all 22 of 22 canonical Ring-0 entities
+are landed as Zod schemas + generated JSON Schema + `schema_version` + ontology and
+registry docs (closed by PR #45; the HCS side of the Phase 2.5 policy-lint split is
+also closed). Kernel, adapters, and dashboard code are still intentionally
 unimplemented until their policy, snapshot, audit, lease, and approval
 prerequisites are explicit. The HCS-local agent-facing workstation contract
 restatement reached usable documentation state on 2026-05-17; see
@@ -38,7 +38,7 @@ Read in order:
 The following sources live outside this repo and are consumed through explicit
 HCS boundaries:
 
-- Research plan — `docs/host-capability-substrate-research-plan.md` (v0.3.0+)
+- Research plan — `system-config/docs/host-capability-substrate-research-plan.md` (v0.3.0+; lives in `system-config`, not this repo)
 - Implementation charter — `docs/host-capability-substrate/implementation-charter.md` (v1.4.1+) — copy vendored here at `docs/host-capability-substrate/implementation-charter.md`
 - Boundary decision — in-repo pointer: `docs/host-capability-substrate/adr/0001-repo-boundary.md` (v1.1.0+; source decision lives in `system-config`)
 - Tooling surface matrix — `docs/host-capability-substrate/tooling-surface-matrix.md` (v1.0.0+) — copy vendored here
@@ -65,11 +65,11 @@ Subsequent minor updates acceptable. See `DECISIONS.md` D-054 (supersedes D-029)
 ## Quick start
 
 ```bash
-mise install       # Node LTS, shellcheck, shfmt, just
+mise install       # Node 24, shellcheck, shfmt, just
 just verify        # lint + typecheck + tests + all boundary checks
-just day1          # kickoff battery for the current Phase 0b soak
-just measure       # daily partition capture during the soak window
-just measure-brief # consolidated soak readout
+just day1          # kickoff measurement battery (soak harness)
+just measure       # daily partition capture
+just measure-brief # consolidated measurement readout
 ```
 
 ## Runtime layout (not in this repo)

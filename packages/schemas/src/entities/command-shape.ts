@@ -73,7 +73,7 @@ export const commandShapeSchema = z
       .positive()
       .max(86400)
       .describe(
-        'Bounded positive timeout in seconds. The 86400 (24h) bound is a hard CEILING, not a default and not an authorization; the Ring 1 broker is expected to apply its own tighter per-operation budget (cross-referencing the future ResourceBudget entity). A plan parameter, never an execution trigger.',
+        'Bounded positive timeout in seconds. The 86400 (24h) bound is a hard CEILING, not a default and not an authorization; the Ring 1 broker is expected to apply its own tighter per-operation budget (cross-referencing the ResourceBudget entity, ADR 0072). A plan parameter, never an execution trigger.',
       ),
   })
   .strict()

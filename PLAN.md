@@ -5,7 +5,63 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — policy-registry chain CLOSED at source; CI wired; ready schema slices + Ring-1 mint/audit DESIGN ADR next
+## Current Focus — Milestone 1 COMPLETE: the 22-entity Ring-0 ontology is landed at source (22/22)
+
+**2026-06-08 update.** **Milestone 1 (Ontology schemas, Ring 0) is met.** All 22
+canonical Ring-0 entities are landed as Zod schemas + generated JSON Schema +
+`schema_version` + ontology/registry docs, with the final entity —
+**ResourceBudget** (ADR 0072 / D-070, schema **PR #44 merged**) — closing the set.
+`main` is at `9bac387`; ontology **v1.31.0**, registry **v0.4.33**, charter
+**v1.4.1**; ADRs span **0001–0072** (0026 absent); decisions through **D-070**
+(next-free **D-071**).
+
+**The canonical 22 (all present at source):** HostProfile, WorkspaceContext,
+Principal, AgentClient, Session, ToolProvider, ToolInstallation, ResolvedTool,
+Capability, OperationShape, CommandShape, Evidence, ExecutionContext, PolicyRule,
+Decision, ApprovalGrant, Run, Artifact, Lease, Lock, SecretReference,
+ResourceBudget. (`EnvProvenance`, `CredentialSource`, `StartupPhase` remain Phase 1
+supplemental until a Q-011-guided ontology review promotes them.)
+
+**M1 acceptance verified (2026-06-08):**
+
+- 22/22 canonical entities as Zod schemas with `schema_version` ✓ (a 22-agent
+  per-entity coverage audit confirmed source + generated JSON Schema + tests +
+  ontology section + registry ledger row + index export for every entity).
+- `just generate-schemas --check` → "generated schemas are current" ✓
+- `just test schemas` → green (now 34 files / 415 tests after adding the
+  ExecutionContext dedicated suite) ✓
+- `just verify` green on fresh `main` ✓
+- Provenance base shape (`Evidence`) is reusable by every fact-returning entity ✓
+- This pass also closed the one real coverage gap the audit surfaced —
+  **ExecutionContext** was previously exercised only indirectly; it now has a
+  dedicated `packages/schemas/tests/execution-context.test.ts`. (The audit's
+  second flag — "no `Evidence` enum-mirror block" — is a false positive: the base
+  `Evidence` enums are governed in dedicated first-class registry sections
+  §Subject-kind grounding / §Authority discipline / §Redaction posture, which is
+  more thorough than a mirror block; adding one would duplicate them.)
+
+**Next surface (operator-gated milestone choice).** With Ring 0 complete, the two
+forward lanes are:
+
+1. **Milestone 2 — Policy snapshot + decision package** (the next milestone in
+   sequence): `tiers.yaml` validates against Zod entity schemas; `Decision` /
+   `ApprovalRequest` consume `BoundaryObservation` evidence refs with gate behavior
+   for `observation_state ∈ {stale, contradictory, unknown, inapplicable}`
+   (Q-007(d), the natural M2 entry point); YAML policy loader rejects
+   malformed/stale-schema-version files; the policy input shape is defined. **No
+   execution path.**
+2. **Deferred Ring-1 design slices** (gated; design/interface-only — charter inv. 7
+   keeps class-I work unmergeable until M4): the **ADR-0064 contract-Zod schema PR**
+   (typed `MintRequest` / `MintResult` + the `AuditEvent` envelope) and the
+   **audit-events / storage ADR** (persistence + atomic append + unique-genesis).
+   These were explicitly deferred at ADR 0064 acceptance pending the Ring-0 set.
+
+Q-013 credential-plane v1 schema remains ready-now (optional; unblocks Q-014).
+
+The prior Current Focus (policy-registry chain + CI wiring) is retained below as
+provenance.
+
+## Prior Focus — policy-registry chain CLOSED at source; CI wired; ready schema slices + Ring-1 mint/audit DESIGN ADR next (SUPERSEDED 2026-06-08)
 
 **2026-06-07 update.** The policy-registry entity chain is **closed at the
 source layer**: PolicyRule (ADR 0060 / D-057, schema PR #10), Capability

@@ -5,6 +5,7 @@ import { z } from 'zod';
 import {
   agentClientSchema,
   approvalGrantSchema,
+  artifactSchema,
   backupCredentialCustodyObservationSchema,
   backupReadinessObservationSchema,
   boundaryObservationSchema,
@@ -182,6 +183,11 @@ const schemaEntries: SchemaEntry[] = [
     file: 'ApprovalGrant.schema.json',
     title: 'ApprovalGrant',
     schema: approvalGrantSchema,
+  },
+  {
+    file: 'Artifact.schema.json',
+    title: 'Artifact',
+    schema: artifactSchema,
   },
   {
     file: 'BoundaryObservation.schema.json',

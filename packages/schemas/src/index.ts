@@ -39,6 +39,15 @@ export {
   approvalGrantWorktreeCleanAcknowledgmentScopeSchema,
 } from './entities/approval-grant.ts';
 export {
+  type Artifact,
+  type ArtifactKind,
+  type ArtifactSourceProvenance,
+  artifactKindSchema,
+  artifactSchema,
+  artifactSchemaVersionSchema,
+  artifactSourceProvenanceSchema,
+} from './entities/artifact.ts';
+export {
   type BackupCleanupDispositionKind,
   type BackupCredentialAuditabilityKind,
   type BackupCredentialCustodyObservation,

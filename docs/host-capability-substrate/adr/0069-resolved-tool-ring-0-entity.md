@@ -1,7 +1,7 @@
 ---
 adr_number: 0069
 title: ResolvedTool Ring-0 entity
-status: proposed
+status: accepted
 version: v2
 date: 2026-06-08
 charter_version: 1.4.1
@@ -12,7 +12,7 @@ tags: [resolved-tool, ring-0, non-minted, tool-resolution, tool-installation-fol
 
 ## Status
 
-`proposed`
+`accepted`
 
 Drafted 2026-06-08 as the LAST entity in the tool-resolution chain (per PLAN.md
 §Current Focus order, after `ToolInstallation`): the authoritative resolution
@@ -48,6 +48,23 @@ note that `workspace_pin`-carries-`workspace_id` vs `path_order`-omits-it is a
 descriptive FACT both accepted at Ring 0, cross-consistency a Ring 1 obligation).
 Because round 1 returned zero blockers, no confirming round 2 was required
 (mechanical-tweaks-at-acceptance, ADR 0058 precedent).
+
+ADR 0069 is accepted 2026-06-08 as D-067. Round 1 returned zero blockers and v2
+folded every mechanical tweak, so no confirming round 2 was required. It
+establishes the authoritative resolution answer as the TAIL of `ToolProvider →
+ToolInstallation → ResolvedTool`, completing the tool-resolution chain at the
+Ring-0 design layer: anchored on a required `execution_context_id` (+ optional
+`workspace_id`), pointing at the winning `tool_installation_id`, with the new
+`resolution_basis_kind` axis (WHY this install won) value-disjoint from
+`install_surface_kind` on the substantive values (sharing only the universal
+`unknown` sentinel), and fulfilling the pre-reserved `Evidence.subject_kind:
+'resolved_tool'` with no `Evidence` schema change. The follow-on schema PR
+(`resolved-tool.ts` + generated + tests + ontology/registry, including the
+both-direction enum coverage with the `unknown`-sentinel carve-out and the
+`resolved_tool_id` raw-shape accept-and-trap) and the Ring 1 tool-resolution
+obligations (the three FKs' existence, sandbox-non-promotion per inv. 8,
+`resolved_tool_id` opacity, basis↔context cross-consistency, supersession)
+remain future work.
 
 ## Date
 

@@ -47,17 +47,28 @@ run_group static-gates \
   no-live-secrets \
   no-runtime-state-in-repo \
   shellcheck-scan
-run_group fixtures \
-  redundancy-fixture \
-  trap-fixture \
-  shell-logger-fixture \
-  env-inspect-fixture \
-  provenance-snapshot-fixture \
-  direnv-mise-fixture \
-  direnv-mise-terminal-fixture \
-  direnv-mise-gui-probe-fixture \
-  codex-env-policy-probe-fixture \
-  codex-mcp-startup-probe-fixture
+# Portable measurement fixtures — validate committed golden fixtures; clean-runner safe.
+fixtures_recipes=(
+  redundancy-fixture
+  trap-fixture
+  shell-logger-fixture
+  env-inspect-fixture
+  provenance-snapshot-fixture
+)
+# Host-coupled probe fixtures inspect the dev workstation (direnv/mise trust
+# markers, Codex/Claude config) and are not meaningful on a clean CI runner.
+# CI sets HCS_SKIP_HOST_FIXTURES=1; locally the full sweep runs them.
+# TODO(follow-up): give these committed fixtures so they can run in CI too.
+if [ "${HCS_SKIP_HOST_FIXTURES:-0}" != "1" ]; then
+  fixtures_recipes+=(
+    direnv-mise-fixture
+    direnv-mise-terminal-fixture
+    direnv-mise-gui-probe-fixture
+    codex-env-policy-probe-fixture
+    codex-mcp-startup-probe-fixture
+  )
+fi
+run_group fixtures "${fixtures_recipes[@]}"
 
 fail=0
 failed_indexes=()

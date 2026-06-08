@@ -3,9 +3,9 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.29.0
+version: 1.30.0
 last_updated: 2026-06-08
-tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0, policy-rule, capability, command-shape, tool-provider, tool-installation, resolved-tool, artifact]
+tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0, policy-rule, capability, command-shape, tool-provider, tool-installation, resolved-tool, artifact, lock]
 priority: high
 ---
 
@@ -1965,6 +1965,39 @@ plus `run_id` FK existence, `content_sha256` digest verification + the
 `byte_size`↔digest cross-consistency, the canonical-encoding rule, sandbox
 non-promotion (inv. 8), and retention/GC — are Ring 1 obligations.
 
+### `Lock`
+
+Source: `packages/schemas/src/entities/lock.ts`
+
+A coarser mutex (ADR 0071 / D-069): e.g. the package-manager global lock. The
+second storage primitive, and the COARSE, lighter, NON-MINTED cousin of the
+MINTED `Lease` (ADR 0052) — it carries none of Lease's minting/authorization
+machinery (no `audit_chain_link_hash`, no producer-mint field, no `evidence_refs`,
+no per-resource scope, no `force_break_grant_id`; absent from the ADR 0057 mint
+scope), so it cannot stand in for or bypass a `Lease`.
+
+Key fields:
+
+- `lock_kind` is the CLOSED coarse-mutex class: `package_manager_global` |
+  `host_mutation_global` | `unknown` — a descriptive FACT, never a verdict (inv. 1).
+  Distinct from `Lease`'s per-resource scope (a coarse named mutex, not a specific
+  resource). Widens via the registered §Procedure rule.
+- `held_by_session_id` is a REQUIRED FK to the `Session` (ADR 0055) that holds the
+  lock; it reuses `Lease.held_by_session_id` (same semantic).
+- `lock_status` is `held` | `released`. Named `lock_status`, NOT `lock_state`, to
+  avoid the shipped `GitWorktreeObservation.payload.lock_state` same-name field (a
+  semantically different git-worktree posture). `released` is a valid historical
+  record, not a policy-denied state.
+- `source_provenance` is a `.strict()` declaration-site binding (disjoint
+  `lock_declaration` authority + `observed_at`).
+
+`Lock` fulfills the pre-reserved `Evidence.subject_kind: 'lock'` with NO
+`evidenceSubjectKindSchema` change and NO `Evidence.schema_version` bump.
+`lock_id` is `entityIdSchema` and accepts a raw-shape id, so id-opacity — plus
+mutual-exclusion enforcement (one `held` lock per `lock_kind`), acquire/release
++ holder-only release, `held_by_session_id` FK existence, holder + `lock_status`
+sandbox non-promotion (inv. 8), and supersession — are Ring 1 obligations.
+
 ## Phase 1 Boundary Observation Envelope
 
 ### `BoundaryObservation`
@@ -2236,6 +2269,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.30.0 | 2026-06-08 | Landed the ADR 0071 / D-069 `Lock` schema PR — the non-minted Ring-0 second storage primitive: a coarse mutex (e.g. package-manager global), the lighter cousin of the minted `Lease` (ADR 0052). `lockSchema` (`.strict()`): `lock_id` + a CLOSED `lock_kind` enum (package_manager_global/host_mutation_global/unknown) + a REQUIRED `held_by_session_id` FK to `Session` (ADR 0055; reuses `Lease.held_by_session_id`, same semantic) + a `lock_status` enum (held/released) + a `.strict()` `source_provenance` (disjoint `lock_declaration` authority). Reuses `entityIdSchema` + `isoDateTimeSchema`. NON-MINTED — no audit_chain_link_hash/producer/evidence_refs, no per-resource scope, no force_break_grant_id (carries none of Lease's minting/authorization machinery; cannot bypass a Lease). The lifecycle field is `lock_status`, NOT `lock_state`, to avoid the shipped `GitWorktreeObservation.payload.lock_state` same-name field. Fulfills the pre-reserved `Evidence.subject_kind: 'lock'` with NO `evidenceSubjectKindSchema` change and NO `Evidence.schema_version` bump. `lock_id` accepts a raw-shape id (a recorded accept-and-trap; opacity is a Ring 1 obligation). NO policy-tier denylist (inv. 1). Regenerated `Lock.schema.json`; added schema tests. |
 | 1.29.0 | 2026-06-08 | Landed the ADR 0070 / D-068 `Artifact` schema PR — the non-minted Ring-0 first storage-primitive entity: a DIGEST-ADDRESSED, IMMUTABLE descriptor of a run's output (diff / log chunk / exit code / signed summary). `artifactSchema` (`.strict()`): `artifact_id` + a REQUIRED `run_id` FK to `Run` (ADR 0053) + an `artifact_kind` enum (command_diff/log_chunk/exit_code/signed_summary/unknown) + `content_sha256` (`sha256DigestSchema` — the content ADDRESS, NOT the bytes) + `byte_size` (`z.number().int().min(0)`) + a `.strict()` `source_provenance` (disjoint `artifact_declaration` authority). Reuses `entityIdSchema` + `isoDateTimeSchema` + `sha256DigestSchema`. NO inline content, NO storage-location pointer, NO inline value, NO lifecycle state — charter discipline keeps Ring 0 free of runtime blobs (they live in Ring 1 runtime state) and secret-shaped values at rest (inv. 1/5); the sha256 digest IS the identity. IMMUTABLE (a re-run = a new digest = a new Artifact, so no active/retired state). Fulfills the pre-reserved `Evidence.subject_kind: 'artifact'` with NO `evidenceSubjectKindSchema` change and NO `Evidence.schema_version` bump. `artifact_id` accepts a raw-shape id (a recorded accept-and-trap; opacity is a Ring 1 obligation). NO policy-tier denylist (inv. 1). Regenerated `Artifact.schema.json`; added schema tests. |
 | 1.28.0 | 2026-06-08 | Landed the ADR 0069 / D-067 `ResolvedTool` schema PR — the non-minted Ring-0 authoritative resolution answer and TAIL of the tool-resolution chain `ToolProvider → ToolInstallation → ResolvedTool` (completing it at source). `resolvedToolSchema` (`.strict()`): `resolved_tool_id` + `tool_name` (the query, pinned to the `hostProfileOsVersionSchema` charset) + a REQUIRED `tool_installation_id` FK (winning install, ADR 0068) + a REQUIRED `execution_context_id` FK (ExecutionContext, ADR 0031; the resolving surface) + an OPTIONAL `workspace_id` FK (WorkspaceContext, ADR 0050; project scope) + a NEW `resolution_basis_kind` enum (path_order/workspace_pin/explicit_override/single_candidate/fallback/unknown) + `resolution_state` (active/retired) + a `.strict()` `source_provenance` (disjoint `resolved_tool_declaration` authority). Reuses `entityIdSchema` + `isoDateTimeSchema`. Core work: the FOUR-axis disambiguation — `manager_kind` (source) / `install_source_kind` (mechanism) / `install_surface_kind` (surface) / the new `resolution_basis_kind` (WHY this won). The basis enum is value-disjoint from `install_surface_kind` on the SUBSTANTIVE values (manager_shim/app_bundled dropped — those are surface values); the two share ONLY the universal `unknown` house sentinel. Fulfills the pre-reserved `Evidence.subject_kind: 'resolved_tool'` with NO `evidenceSubjectKindSchema` change and NO `Evidence.schema_version` bump. `resolved_tool_id` accepts a raw-shape id (a recorded accept-and-trap; opacity is a Ring 1 obligation). NO policy-tier denylist (inv. 1). Regenerated `ResolvedTool.schema.json`; added schema tests. |
 | 1.27.0 | 2026-06-08 | Landed the ADR 0068 / D-066 `ToolInstallation` schema PR — the non-minted Ring-0 durable per-install record and MIDDLE of the tool-resolution chain `ToolProvider → ToolInstallation → ResolvedTool`. `toolInstallationSchema` (`.strict()`): `tool_installation_id` + a REQUIRED `tool_provider_id` FK to `ToolProvider` (ADR 0067) + `tool_name` + `version` (both pinned to the `hostProfileOsVersionSchema` charset) + a NEW `install_surface_kind` enum (host_path/manager_shim/app_bundled/devcontainer/cloud_image/setup_script/unknown) + an OPTIONAL `install_path` (REUSES the ADR 0034 `toolProvenanceCanonicalPathSchema` — an install path IS a tool FILE path, the inverse of ADR 0067's bare-root case) + `installation_state` (active/retired) + a `.strict()` `source_provenance` (disjoint `tool_installation_declaration` authority). Reuses `entityIdSchema` + `isoDateTimeSchema` + `toolProvenanceCanonicalPathSchema`. Core work: the three-axis disambiguation — `manager_kind` (source) vs `install_source_kind` (mechanism) vs the new `install_surface_kind` (authority surface). Fulfills the pre-reserved `Evidence.subject_kind: 'tool_installation'` with NO `evidenceSubjectKindSchema` change and NO `Evidence.schema_version` bump. `tool_installation_id` accepts a raw-shape id (a recorded accept-and-trap; opacity is a Ring 1 obligation, mirroring `ToolProvider`/`HostProfile`). NO policy-tier denylist (inv. 1). Regenerated `ToolInstallation.schema.json`; added schema tests. |

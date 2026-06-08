@@ -380,6 +380,17 @@ export {
   leaseWorktreeScopeSchema,
 } from './entities/lease.ts';
 export {
+  type Lock,
+  type LockKind,
+  type LockSourceProvenance,
+  type LockStatus,
+  lockKindSchema,
+  lockSchema,
+  lockSchemaVersionSchema,
+  lockSourceProvenanceSchema,
+  lockStatusSchema,
+} from './entities/lock.ts';
+export {
   coordinationFactDeletionAuthorityRefSchema,
   type DeletionAuthorityFields,
   type DeletionAuthorityKind,

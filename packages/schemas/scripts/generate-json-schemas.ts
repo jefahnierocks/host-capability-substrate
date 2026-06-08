@@ -32,6 +32,7 @@ import {
   knowledgeChunkSchema,
   knowledgeSourceSchema,
   leaseSchema,
+  lockSchema,
   machineIdentityBindingObservationSchema,
   mcpCredentialAudienceObservationSchema,
   operationShapeSchema,
@@ -354,6 +355,11 @@ const schemaEntries: SchemaEntry[] = [
     file: 'Lease.schema.json',
     title: 'Lease',
     schema: leaseSchema,
+  },
+  {
+    file: 'Lock.schema.json',
+    title: 'Lock',
+    schema: lockSchema,
   },
   {
     file: 'OperationShape.schema.json',

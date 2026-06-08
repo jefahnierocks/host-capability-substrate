@@ -1,7 +1,7 @@
 ---
 adr_number: 0071
 title: Lock Ring-0 entity
-status: proposed
+status: accepted
 version: v2
 date: 2026-06-08
 charter_version: 1.4.1
@@ -12,7 +12,7 @@ tags: [lock, ring-0, non-minted, storage-primitive, coordination, lease-disambig
 
 ## Status
 
-`proposed`
+`accepted`
 
 Drafted 2026-06-08 as the next lower-coupling M1 entity (per PLAN.md §Current
 Focus order): the second "storage primitive" (`Artifact` landed; `Lock` here;
@@ -42,6 +42,22 @@ provenance `.describe()` clause, the inline six-required-field enumeration, and 
 registry `released`-value-overlap + lower_snake_case mirror notes. Because round 1
 returned zero blockers, no confirming round 2 was required
 (mechanical-tweaks-at-acceptance, ADR 0058 precedent).
+
+ADR 0071 is accepted 2026-06-08 as D-069. Round 1 returned zero blockers and v2
+folded every mechanical tweak, so no confirming round 2 was required. It
+establishes the second storage primitive: a non-minted coarse-mutex record —
+`lock_id` + a closed `lock_kind` enum + a required `held_by_session_id` FK + a
+`lock_status` (`held` | `released`) + `source_provenance` — the coarse, lighter,
+non-minted cousin of the minted `Lease` (ADR 0052), carrying none of Lease's
+minting/authorization machinery, with the lifecycle field named `lock_status` to
+avoid the shipped `GitWorktreeObservation.payload.lock_state` collision. Fulfills
+the pre-reserved `Evidence.subject_kind: 'lock'` with no `Evidence` schema change.
+The follow-on schema PR (`lock.ts` + generated + tests + ontology/registry, incl.
+the `lock_id` accept-and-trap and the `.strict()` `lock_state`/`scope`/`force_break_grant_id`
+reject probes) and the Ring 1 obligations (mutual-exclusion enforcement,
+acquire/release, holder-only release, `held_by_session_id` FK existence, holder +
+`lock_status` sandbox non-promotion per inv. 8, `lock_id` opacity, supersession)
+remain future work.
 
 ## Date
 

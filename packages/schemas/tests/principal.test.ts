@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { principalSchema } from '../src/index.ts';
 
@@ -24,6 +25,23 @@ const baseActiveHumanPrincipal = {
 } as const;
 
 describe('Principal schema (ADR 0054 / D-043)', () => {
+  it('lists the canonical required fields in the generated schema', () => {
+    const schema = JSON.parse(
+      readFileSync(new URL('../generated/Principal.schema.json', import.meta.url), 'utf8'),
+    ) as { required: string[] };
+    expect(schema.required).toEqual([
+      'schema_version',
+      'principal_id',
+      'principal_kind',
+      'principal_state',
+      'kernel_observed_at',
+      'valid_until',
+      'producer',
+      'audit_chain_link_hash',
+      'evidence_refs',
+    ]);
+  });
+
   it('validates an active human Principal', () => {
     const principal = principalSchema.parse(baseActiveHumanPrincipal);
     expect(principal.principal_kind).toBe('human');

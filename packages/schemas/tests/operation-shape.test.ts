@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { evidenceSchema, operationShapeSchema } from '../src/index.ts';
 
@@ -11,6 +12,40 @@ const evidenceRef = {
 } as const;
 
 describe('OperationShape schema', () => {
+  // OperationShape is a discriminated union (oneOf); it has no top-level `required`.
+  // Every leaf variant must list the same canonical required-field set.
+  it('every variant lists the same canonical required fields in the generated schema', () => {
+    const schema = JSON.parse(
+      readFileSync(new URL('../generated/OperationShape.schema.json', import.meta.url), 'utf8'),
+    ) as Record<string, unknown>;
+    const CANONICAL_REQUIRED = [
+      'schema_version',
+      'operation_shape_id',
+      'execution_context_id',
+      'evidence_refs',
+      'operation_class',
+      'mutation_scope',
+      'target_ref',
+      'deletion_authority_kind',
+      'deletion_authority_source_ref',
+    ];
+    const leaves: { required?: string[] }[] = [];
+    const walk = (node: Record<string, unknown>): void => {
+      if (Array.isArray(node.oneOf)) {
+        for (const branch of node.oneOf) walk(branch as Record<string, unknown>);
+      } else if (Array.isArray(node.anyOf)) {
+        for (const branch of node.anyOf) walk(branch as Record<string, unknown>);
+      } else {
+        leaves.push(node as { required?: string[] });
+      }
+    };
+    walk(schema);
+    expect(leaves.length).toBeGreaterThan(0);
+    for (const leaf of leaves) {
+      expect(leaf.required).toEqual(CANONICAL_REQUIRED);
+    }
+  });
+
   it('validates a destructive Git operation with typed deletion authority', () => {
     const operation = operationShapeSchema.parse({
       schema_version: '0.2.0',

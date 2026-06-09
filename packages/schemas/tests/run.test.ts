@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { runSchema } from '../src/index.ts';
 
@@ -33,6 +34,27 @@ const baseActiveOperationExecutionRun = {
 } as const;
 
 describe('Run schema (ADR 0053 / D-041)', () => {
+  it('lists the canonical required fields in the generated schema', () => {
+    const schema = JSON.parse(
+      readFileSync(new URL('../generated/Run.schema.json', import.meta.url), 'utf8'),
+    ) as { required: string[] };
+    expect(schema.required).toEqual([
+      'schema_version',
+      'run_id',
+      'run_kind',
+      'scope',
+      'invoker_session_id',
+      'invoker_agent_client_id',
+      'recorded_by',
+      'started_at',
+      'ended_at',
+      'execution_context_id',
+      'run_state',
+      'audit_chain_link_hash',
+      'evidence_refs',
+    ]);
+  });
+
   it('validates an active operation_execution run', () => {
     const run = runSchema.parse(baseActiveOperationExecutionRun);
     expect(run.run_kind).toBe('operation_execution');

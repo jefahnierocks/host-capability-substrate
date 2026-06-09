@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { capabilitySchema } from '../src/index.ts';
 
@@ -22,6 +23,20 @@ const baseCapability = {
 } as const;
 
 describe('Capability schema (ADR 0062 / D-060)', () => {
+  it('lists the canonical required fields in the generated schema', () => {
+    const schema = JSON.parse(
+      readFileSync(new URL('../generated/Capability.schema.json', import.meta.url), 'utf8'),
+    ) as { required: string[] };
+    expect(schema.required).toEqual([
+      'schema_version',
+      'capability_id',
+      'operation_name',
+      'operation_class',
+      'capability_state',
+      'source_provenance',
+    ]);
+  });
+
   it('validates a well-formed Capability', () => {
     const cap = capabilitySchema.parse(baseCapability);
     expect(cap.operation_name).toBe('service.activate');

@@ -175,6 +175,11 @@ Written against charter v1.3.2 and
   mirrors. Editorial only; no semantic change. Closes ADR 0039
   §Forward-looking observations Arch-N10 / Pol-N1 / Ont-N8 per
   the 2026-05-07 absorption audit.
+- **provenance fix (2026-06-08)**: repointed a stale pre-rename
+  sibling-ADR filename slug in §References (ADR 0004
+  `0004-session-ledger.md` → `0004-storage-sqlite-wal.md`) to the
+  current on-disk filename. ADR number, citation label, and
+  descriptive text unchanged; no decision or semantic change.
 
 ## Context
 
@@ -1266,7 +1271,7 @@ This ADR does not authorize:
 - Coordination-lessons brief:
   `docs/host-capability-substrate/research/external/2026-04-24-coordination-lessons.md`
 - ADR 0004:
-  `docs/host-capability-substrate/adr/0004-session-ledger.md`
+  `docs/host-capability-substrate/adr/0004-storage-sqlite-wal.md`
   (SQLite WAL session ledger; Layer 1 of the three-layer
   architecture)
 - ADR 0023:

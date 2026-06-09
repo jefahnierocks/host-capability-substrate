@@ -55,6 +55,12 @@ architect / ontology / security; folds 11 non-blocking items);
   (5) §Future amendments adds Layer 1 grounding rule
   extensibility principle (subject_kinds backed by derived/Layer-2
   content require Layer 1 grounding at introduction time).
+- **provenance fix (2026-06-08)**: repointed a stale pre-rename
+  sibling-ADR filename slug in §References (ADR 0029
+  `0029-q-008-b-c-broker-fsm-and-cross-tool-authority.md` →
+  `0029-q-008-b-anomalous-capture-blocking-thresholds.md`) to the
+  current on-disk filename. ADR number, citation label, and
+  descriptive text unchanged; no decision or semantic change.
 
 ## Charter version
 
@@ -1318,7 +1324,7 @@ This ADR does not authorize:
   producer allowlist extended here with
   `kernel_workspace_diagnose`).
 - ADR 0029:
-  `docs/host-capability-substrate/adr/0029-q-008-b-c-broker-fsm-and-cross-tool-authority.md`
+  `docs/host-capability-substrate/adr/0029-q-008-b-anomalous-capture-blocking-thresholds.md`
   (operation_class enumeration; closed-list fail-mode tightening
   rule; three-state matrix pattern).
 - ADR 0030:

@@ -119,6 +119,10 @@ no-live-secrets:
 no-runtime-state-in-repo:
 	@bash scripts/ci/no-runtime-state-in-repo.sh
 
+# Fail on broken intra-repo doc links + stale ADR-citation slugs
+doc-link-check:
+	@bash scripts/ci/doc-link-check.sh
+
 # Format-and-write (dev only)
 format-fix:
 	npx biome format --write .

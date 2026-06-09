@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { approvalGrantSchema } from '../src/index.ts';
 
@@ -33,6 +34,27 @@ const baseGateEvidenceAcknowledgmentGrant = {
 } as const;
 
 describe('ApprovalGrant schema (ADR 0051 v4 / D-039)', () => {
+  it('lists the canonical required fields in the generated schema', () => {
+    const schema = JSON.parse(
+      readFileSync(new URL('../generated/ApprovalGrant.schema.json', import.meta.url), 'utf8'),
+    ) as { required: string[] };
+    expect(schema.required).toEqual([
+      'schema_version',
+      'approval_grant_id',
+      'grant_kind',
+      'scope',
+      'minted_for_decision_id',
+      'grantor_principal_ref',
+      'granted_by',
+      'granted_at',
+      'valid_until',
+      'execution_context_id',
+      'grant_state',
+      'audit_chain_link_hash',
+      'evidence_refs',
+    ]);
+  });
+
   it('validates a gate_evidence_acknowledgment grant', () => {
     const grant = approvalGrantSchema.parse(baseGateEvidenceAcknowledgmentGrant);
     expect(grant.grant_kind).toBe('gate_evidence_acknowledgment');

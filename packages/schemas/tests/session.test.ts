@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { sessionSchema } from '../src/index.ts';
 
@@ -27,6 +28,26 @@ const baseActiveSession = {
 } as const;
 
 describe('Session schema (ADR 0055 / D-044)', () => {
+  it('lists the canonical required fields in the generated schema', () => {
+    const schema = JSON.parse(
+      readFileSync(new URL('../generated/Session.schema.json', import.meta.url), 'utf8'),
+    ) as { required: string[] };
+    expect(schema.required).toEqual([
+      'schema_version',
+      'session_id',
+      'session_kind',
+      'session_state',
+      'agent_client_id',
+      'principal_id',
+      'execution_context_id',
+      'started_at',
+      'ended_at',
+      'producer',
+      'audit_chain_link_hash',
+      'evidence_refs',
+    ]);
+  });
+
   it('validates an active agent_invocation session', () => {
     const session = sessionSchema.parse(baseActiveSession);
     expect(session.session_kind).toBe('agent_invocation');

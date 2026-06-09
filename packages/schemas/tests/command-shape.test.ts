@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { commandShapeSchema } from '../src/index.ts';
 
@@ -21,6 +22,21 @@ const baseCommandShape = {
 } as const;
 
 describe('CommandShape schema (ADR 0063 / D-061)', () => {
+  it('lists the canonical required fields in the generated schema', () => {
+    const schema = JSON.parse(
+      readFileSync(new URL('../generated/CommandShape.schema.json', import.meta.url), 'utf8'),
+    ) as { required: string[] };
+    expect(schema.required).toEqual([
+      'schema_version',
+      'command_shape_id',
+      'operation_shape_ref',
+      'argv',
+      'env',
+      'cwd',
+      'timeout_seconds',
+    ]);
+  });
+
   it('validates a well-formed CommandShape (argv >= 1, both value_source kinds, valid cwd + timeout)', () => {
     const plan = commandShapeSchema.parse(baseCommandShape);
     expect(plan.argv[0]).toBe('/usr/bin/systemctl');

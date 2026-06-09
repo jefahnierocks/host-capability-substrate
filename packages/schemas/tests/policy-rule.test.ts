@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { policyRuleSchema } from '../src/index.ts';
 
@@ -62,6 +63,26 @@ const baseForbiddenRule = {
 } as const;
 
 describe('PolicyRule schema (ADR 0060 / D-057)', () => {
+  it('lists the canonical required fields in the generated schema', () => {
+    const schema = JSON.parse(
+      readFileSync(new URL('../generated/PolicyRule.schema.json', import.meta.url), 'utf8'),
+    ) as { required: string[] };
+    expect(schema.required).toEqual([
+      'schema_version',
+      'policy_rule_id',
+      'operation_class',
+      'tier',
+      'classification_basis',
+      'requires_active_lease',
+      'requires_deletion_authority',
+      'requires_typed_provider_evidence',
+      'approval',
+      'valid_until_ceiling',
+      'valid_until_ceiling_source_ref',
+      'source_provenance',
+    ]);
+  });
+
   it('validates a write-project / worktree_mutation rule with approval required', () => {
     const rule = policyRuleSchema.parse(baseWorktreeRule);
     expect(rule.tier).toBe('write-project');

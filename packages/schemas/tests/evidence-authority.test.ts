@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { evidenceAuthoritySchema, evidenceSchema } from '../src/index.ts';
 
@@ -55,5 +56,98 @@ describe('evidenceAuthoritySchema self-asserted enum extension', () => {
     });
 
     expect(result.success).toBe(true);
+  });
+});
+
+describe('Evidence generated schema (anyOf branches)', () => {
+  // Evidence is an anyOf of 4 branches with no top-level `required`. Assert the
+  // shared 10-key core is present in every branch AND pin each branch's exact
+  // required set (the source_ref / execution_context_id / session_id / run_id
+  // discriminator deltas).
+  const schema = JSON.parse(
+    readFileSync(new URL('../generated/Evidence.schema.json', import.meta.url), 'utf8'),
+  ) as { anyOf: { required: string[] }[] };
+  const CORE = [
+    'schema_version',
+    'evidence_id',
+    'evidence_kind',
+    'subject_refs',
+    'source',
+    'observed_at',
+    'valid_until',
+    'authority',
+    'confidence',
+    'parser_version',
+  ];
+
+  it('exposes four branches each containing the shared required core', () => {
+    expect(schema.anyOf).toHaveLength(4);
+    for (const branch of schema.anyOf) {
+      for (const key of CORE) {
+        expect(branch.required).toContain(key);
+      }
+    }
+  });
+
+  it('pins each branch exact required set (discriminator deltas)', () => {
+    const sets = schema.anyOf.map((branch) => branch.required);
+    // base (direct) evidence
+    expect(sets).toContainEqual([
+      'schema_version',
+      'evidence_id',
+      'evidence_kind',
+      'subject_refs',
+      'source',
+      'observed_at',
+      'valid_until',
+      'authority',
+      'confidence',
+      'parser_version',
+    ]);
+    // + source_ref + execution_context_id
+    expect(sets).toContainEqual([
+      'schema_version',
+      'evidence_id',
+      'evidence_kind',
+      'subject_refs',
+      'source',
+      'source_ref',
+      'observed_at',
+      'valid_until',
+      'authority',
+      'confidence',
+      'parser_version',
+      'execution_context_id',
+    ]);
+    // + execution_context_id + session_id
+    expect(sets).toContainEqual([
+      'schema_version',
+      'evidence_id',
+      'evidence_kind',
+      'subject_refs',
+      'source',
+      'observed_at',
+      'valid_until',
+      'authority',
+      'confidence',
+      'parser_version',
+      'execution_context_id',
+      'session_id',
+    ]);
+    // + execution_context_id + run_id
+    expect(sets).toContainEqual([
+      'schema_version',
+      'evidence_id',
+      'evidence_kind',
+      'subject_refs',
+      'source',
+      'observed_at',
+      'valid_until',
+      'authority',
+      'confidence',
+      'parser_version',
+      'execution_context_id',
+      'run_id',
+    ]);
   });
 });

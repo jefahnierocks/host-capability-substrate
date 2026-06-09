@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { leaseSchema } from '../src/index.ts';
 
@@ -36,6 +37,29 @@ const baseActiveWorktreeLease = {
 } as const;
 
 describe('Lease schema (ADR 0052 / D-040)', () => {
+  it('lists the canonical required fields in the generated schema', () => {
+    const schema = JSON.parse(
+      readFileSync(new URL('../generated/Lease.schema.json', import.meta.url), 'utf8'),
+    ) as { required: string[] };
+    expect(schema.required).toEqual([
+      'schema_version',
+      'lease_id',
+      'lease_kind',
+      'scope',
+      'held_by_session_id',
+      'held_by_agent_client_id',
+      'acquired_by',
+      'acquired_at',
+      'valid_until',
+      'released_at',
+      'execution_context_id',
+      'lease_state',
+      'force_break_grant_id',
+      'audit_chain_link_hash',
+      'evidence_refs',
+    ]);
+  });
+
   it('validates an active worktree lease', () => {
     const lease = leaseSchema.parse(baseActiveWorktreeLease);
     expect(lease.lease_kind).toBe('worktree');

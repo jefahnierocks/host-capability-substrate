@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { workspaceContextSchema } from '../src/index.ts';
 
@@ -26,6 +27,25 @@ const baseWorkspaceContext = {
 } as const;
 
 describe('WorkspaceContext schema (ADR 0050 / D-038)', () => {
+  it('lists the canonical required fields in the generated schema', () => {
+    const schema = JSON.parse(
+      readFileSync(new URL('../generated/WorkspaceContext.schema.json', import.meta.url), 'utf8'),
+    ) as { required: string[] };
+    expect(schema.required).toEqual([
+      'schema_version',
+      'workspace_context_id',
+      'execution_context_id',
+      'repository_id',
+      'worktree_path',
+      'workspace_context_state',
+      'kernel_observed_at',
+      'valid_until',
+      'producer',
+      'audit_chain_link_hash',
+      'evidence_refs',
+    ]);
+  });
+
   it('validates an active record with the ADR 0050 worktree-binding fields', () => {
     const ctx = workspaceContextSchema.parse(baseWorkspaceContext);
 

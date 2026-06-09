@@ -3,8 +3,8 @@ title: Host Capability Substrate — Implementation Charter
 category: charter
 component: host_capability_substrate
 status: active
-version: 1.4.1
-last_updated: 2026-05-12
+version: 1.4.2
+last_updated: 2026-06-08
 tags: [substrate, kernel, adapters, ontology, policy, four-rings, non-import, skills, deployment-boundary, hooks]
 priority: critical
 ---
@@ -172,13 +172,13 @@ Do not amend the charter in the same PR as the change the amendment enables. Cha
 - Research plan: `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md` (v0.3.0+)
 - Boundary decision: [`adr/0001-repo-boundary.md`](./adr/0001-repo-boundary.md)
 - Tooling surface matrix: [`tooling-surface-matrix.md`](./tooling-surface-matrix.md) (v1.0.0+)
-- Target-repo templates: [`./templates/`](./templates/)
 - Existing governance precedents: `~/Organizations/jefahnierocks/system-config/policies/version-policy.md`, `~/Organizations/jefahnierocks/system-config/policies/opa/policy.rego`
 
 ## Change log
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.4.2 | 2026-06-08 | Doc-rot fix (post-M1 housekeeping): removed the broken `## References` bullet `Target-repo templates: [./templates/](./templates/)` — the `templates/` directory never existed (the link was added broken in the initial scaffold commit and points at a deliverable described nowhere as a charter artifact; the only related concept lives in the 2026-04-30 research synthesis docs). Non-semantic, References-only; no invariant, boundary-enforcement, or forbidden-pattern text changed, so no amendment ADR / reviewer cycle per §Change policy. Patch bump only. |
 | 1.4.1 | 2026-05-12 | Clarified hook-policy boundary after D-047: hook bodies must not contain forbidden-pattern literals, destructive-operation arrays, tier tables, or live policy copies. Current project hooks are thin measurement wrappers; future hard decisions come from Ring 1 RPC or an authorized generated/hash-bound policy cache sourced from system-config live policy. Invariant text unchanged. |
 | 1.4.0 | 2026-05-04 | Wave-1 of the v1.4.0 amendment cycle (per ADR 0039 v2 + 3 mechanical tweaks at acceptance): added invariants 18 (derived retrieval results are never decision authority — Q-003 / ADR 0019 v3 §`allowed_for_gate` discipline + §Sub-decision (e) + §Chain promotion rule) and 19 (boundary claims are freshness-bound and execution-context-bound — Q-007 / ADR 0034 v2 §Sub-decision (f) + §Authority discipline + §Cross-context binding rules per Ring 1 layer). Both invariants were operationalized as ADR-level posture during the Phase 1 synthesis-window (2026-05-04); this amendment promotes the rules to charter authority so Phase 2.1.4 (`QualityGate`) and Phase 2.2.3 (`BoundaryObservation` payload bundle) Zod refinements can encode the invariants per ADR 0038 §Phase 2.0 sequencing. Charter-and-bookkeeping-only scope: invariant text added; no new boundary-enforcement bullets or forbidden-pattern entries. Invariant text encodes both **charter-committed semantics** (binding now; schemas must conform when they land — closed `derived_from` membership on `DerivedSummary`, kernel-set execution-context binding fields on `BoundaryObservation` envelopes, payload-level freshness anchor inheritance, authority-floor-not-ceiling surface enumeration) and **posture commitments** (describing future operational behavior; operationally enforceable once Phase 2.1.4 / 2.2.3 schema PRs land — the typed grant authorizing `allowed_for_gate` transitions (entity name reserved per ADR 0019 v3); the typed-grant minting layer rejection behavior (layer-walk timing per ADR 0019 v3 §Chain promotion rule lines 659-662); the `self-asserted` authority class (registry-canonical pending `evidenceAuthoritySchema` enum extension PR); the envelope-level non-null `valid_until` field (Phase 2.2.3 encodes by tightening base `Evidence.valid_until`'s `nullable()` shape)). Wave-2 enforcement plumbing deferred to a follow-up charter-edit ADR if/when post-merge review on Phase 2.1.4 / 2.2.3 schema PRs surfaces gaps; the wave-2 cadence is **reactive** per ADR 0024's `f9e30d4` post-merge precedent, not pre-scheduled. |
 | 1.3.2 | 2026-05-02 | Wave-3 of the v1.3.0 amendment cycle (per ADR 0024): closed gaps identified by the post-merge `hcs-security-reviewer` on commit `f9e30d4`. Added 3 forbidden-pattern entries (cross-context evidence reuse, fabricated `BoundaryObservation`, `ExecutionContext` misclassification). Extended the v1.3.1 parent-context-inheritance forbidden pattern's surface list (added Warp, Zed external agent, Cursor, Windsurf, JetBrains AI Assistant, GitHub Copilot CLI, launchd `EnvironmentVariables`) and inheritance-dimension list (added egress, filesystem authority, `BoundaryObservation`). Tightened the rate-limit-as-retry-trigger forbidden pattern to cover agent-self-implemented backoff and to require a `Decision` record referencing the recorded observation by `evidence_id`. Invariant text unchanged. |

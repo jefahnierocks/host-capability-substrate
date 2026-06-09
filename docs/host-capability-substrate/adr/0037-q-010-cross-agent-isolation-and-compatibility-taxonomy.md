@@ -63,6 +63,14 @@ across architect / ontology; folds 9 mechanical tweaks);
   landing PR per policy NB-5). Zero policy blockers, zero
   security blockers in v1; the 5 v1 blockers were ontology /
   architect naming-discipline + cache-field-ambiguity items.
+- **provenance fix (2026-06-08)**: repointed two stale pre-rename
+  sibling-ADR filename slugs in §References (ADR 0015
+  `0015-external-control-plane-evidence-first.md` →
+  `0015-external-control-plane-automation.md`; ADR 0029
+  `0029-q-008-b-c-broker-fsm-and-cross-tool-authority.md` →
+  `0029-q-008-b-anomalous-capture-blocking-thresholds.md`) to the
+  current on-disk filenames. ADR numbers, citation labels, and
+  descriptive text unchanged; no decision or semantic change.
 
 ## Charter version
 
@@ -1169,7 +1177,7 @@ This ADR does not authorize:
   D-032 / ADR 0015 (external APIs as typed evidence-producing
   control planes).
 - ADR 0015:
-  `docs/host-capability-substrate/adr/0015-external-control-plane-evidence-first.md`
+  `docs/host-capability-substrate/adr/0015-external-control-plane-automation.md`
   (external-control-plane typed evidence pattern referenced
   by Sub-decision (c)).
 - ADR 0018:
@@ -1204,7 +1212,7 @@ This ADR does not authorize:
   `kernel_agent_client_resolver`; canonical_attribution_*
   field discipline).
 - ADR 0029:
-  `docs/host-capability-substrate/adr/0029-q-008-b-c-broker-fsm-and-cross-tool-authority.md`
+  `docs/host-capability-substrate/adr/0029-q-008-b-anomalous-capture-blocking-thresholds.md`
   (operation_class enumeration; closed-list fail-mode
   tightening rule; three-state matrix pattern).
 - ADR 0030:

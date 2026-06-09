@@ -12,7 +12,7 @@ canonical Ring-0 entities are landed as Zod schemas + generated JSON Schema +
 `schema_version` + ontology/registry docs, with the final entity —
 **ResourceBudget** (ADR 0072 / D-070, schema **PR #44 merged**) — closing the set.
 `main` is at `a734fae` (PR #45 merged); ontology **v1.31.1**, registry **v0.4.34**,
-charter **v1.4.1**; ADRs span **0001–0072** (0026 absent); decisions through
+charter **v1.4.2**; ADRs span **0001–0072** (0026 absent); decisions through
 **D-070** (next-free **D-071**).
 
 **The canonical 22 (all present at source):** HostProfile, WorkspaceContext,

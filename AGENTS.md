@@ -104,9 +104,9 @@ For implementation:
 
 ```bash
 just verify             # runs lint + typecheck + tests + boundary check
-just test schemas       # schema tests only
-just test kernel        # kernel tests only
-just test mcp           # MCP adapter tests
+just test schemas       # schema tests only — the only scoped target that exists today
+just test kernel        # future target — fails loudly until kernel tests land
+just test mcp           # future target — fails loudly until MCP adapter tests land
 just generate-schemas --check   # confirms JSON Schema matches Zod
 just policy-lint        # checks policy files are well-formed and schema-valid
 just boundary-check     # enforces charter §Package boundary enforcement

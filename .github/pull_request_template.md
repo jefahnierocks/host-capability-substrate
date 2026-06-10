@@ -35,8 +35,9 @@ just verify
 just test <package>
 ```
 
-<!-- State the outcome. If a scoped test target does not exist yet, name the
-command that actually ran. -->
+<!-- State the outcome. Scoped test targets exist only as listed in the
+justfile `test` recipe (`schemas` today); unknown targets fail loudly. If a
+scoped target does not exist yet, name the command that actually ran. -->
 
 ## Charter compliance
 

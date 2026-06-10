@@ -27,7 +27,7 @@ Use when a PR adds or amends a file under `docs/host-capability-substrate/adr/`,
 ## Checks
 
 - Does the decision respect the four-ring architecture?
-- Does the decision respect the 15 charter invariants?
+- Does the decision respect the charter's non-negotiable invariants (the full numbered set in the current charter — do not assume a count)?
 - Does the decision stay inside the substrate's owns list (not domain-server territory)?
 - Is the decision narrow enough to be implementable in one PR, or does it imply multiple PRs?
 - Does the ADR cite the charter version it was written against?

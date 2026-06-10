@@ -9,6 +9,9 @@ tags: [phase-0b, review, producer-critic, critique-response, semantic-redundancy
 priority: medium
 ---
 
+<!-- doc-pointer-check: provenance-below — dated phase artifact; cites the
+     authority versions current at review time. -->
+
 # HCS Phase 0b Self-Review
 
 Record of producer/critic discipline on the Phase 0b measurement surface, per research plan §22.5 / §22.11.

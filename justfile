@@ -123,6 +123,10 @@ no-runtime-state-in-repo:
 doc-link-check:
 	@bash scripts/ci/doc-link-check.sh
 
+# Fail on stale authority-doc version pointers (exact pins vs vX.Y.Z+ floors)
+doc-pointer-check:
+	@bash scripts/ci/doc-pointer-check.sh
+
 # Format-and-write (dev only)
 format-fix:
 	npx biome format --write .

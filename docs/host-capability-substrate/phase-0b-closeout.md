@@ -9,6 +9,9 @@ tags: [phase-0b, closeout, measurement, soak, traps, phase-1, semantic-redundanc
 priority: high
 ---
 
+<!-- doc-pointer-check: provenance-below — dated phase artifact; cites the
+     authority versions current at closeout time. -->
+
 # HCS Phase 0b Closeout
 
 Closeout for the compressed Phase 0b measurement soak.

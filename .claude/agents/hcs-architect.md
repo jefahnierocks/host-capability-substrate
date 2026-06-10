@@ -38,7 +38,7 @@ Return a structured review:
 1. **Blocking issues** (must fix before merge): charter invariant violations, missing six-question answers, ring-import violations, missing required-reviewer objections.
 2. **Non-blocking concerns**: stylistic, clarity, doc drift.
 3. **Suggested follow-ups**: regression traps to add, future ADRs to open, skill entries that may be warranted.
-4. **Charter compliance statement**: one sentence confirming the PR respects charter v1.1.0 (or naming the invariant it contravenes).
+4. **Charter compliance statement**: one sentence confirming the PR respects the implementation charter at its current frontmatter version (cite that version), or naming the invariant it contravenes.
 
 ## When drafting an ADR
 

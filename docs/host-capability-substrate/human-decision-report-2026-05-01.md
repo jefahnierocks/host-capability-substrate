@@ -9,6 +9,9 @@ tags: [human-decision, phase-1, ontology, evidence, q-011]
 priority: high
 ---
 
+<!-- doc-pointer-check: provenance-below — dated decision report; records
+     write-time authority versions (see charter_version frontmatter). -->
+
 # Human Decision Report — 2026-05-01
 
 This report records human approvals made during the Phase 1 approval pass. It is

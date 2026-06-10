@@ -72,9 +72,16 @@ typecheck:
 	@echo "→ typecheck"
 	@if [ -x node_modules/.bin/tsc ]; then node_modules/.bin/tsc --noEmit; else echo "  (tsc not installed yet — run 'npm install')"; fi
 
-# Unit tests. `just test schemas` limits Vitest to the schema package.
+# Unit tests. `just test` (no target) runs the full suite; `just test schemas`
+# limits Vitest to the schema package. No other scoped target exists yet —
+# unknown targets fail loudly instead of silently running the full suite.
+# Add a case below when a package gains its own test directory.
 test target="":
 	@echo "→ unit tests"
+	@case "{{target}}" in \
+		""|schemas) ;; \
+		*) echo "error: unknown test target '{{target}}' — the only scoped target today is 'schemas'; run 'just test' with no target for the full suite" >&2; exit 1 ;; \
+	esac
 	@if [ -x node_modules/.bin/vitest ]; then \
 		if [ "{{target}}" = "schemas" ]; then \
 			node_modules/.bin/vitest run packages/schemas/tests; \

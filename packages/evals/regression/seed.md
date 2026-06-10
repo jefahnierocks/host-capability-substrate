@@ -65,6 +65,16 @@
 | 57 | [registry-summary-union-narrowing](./registry-summary-union-narrowing.md) | Agent writes a summary table, registry index, or planning doc that narrows a landed schema union, making docs stricter or different from Zod/source truth. | Phase 2.4 ontology review found and fixed `GitBranchAncestryObservation.evidence_kind` narrowing in commit `32930d9`. Scaffold landed 2026-05-07. |
 | 58 | [backup-readiness-generic-restore-ref-promotion](./backup-readiness-generic-restore-ref-promotion.md) | Agent accepts backup readiness as `ready` when restore-drill proof is generic, sandbox-only, freshness-unknown, or not typed as a `RestoreDrillReceipt`. | ADR 0045 Q-015 reviewer pass found and fixed generic nested restore evidence refs in commit `ab38dc8`. Scaffold landed 2026-05-07. |
 
+## Post-seed traps
+
+Traps observed after the seed snapshot continue the numbering and follow the
+same per-file format; they are not part of the 58-trap seed accounting above.
+
+| # | Trap name | Failure class | Source |
+|---|-----------|---------------|--------|
+| 59 | [stale-authority-version-pointer](./stale-authority-version-pointer.md) | Doc asserts an authority version, count, or enumeration from memory instead of re-reading the authority doc's frontmatter; or pins an exact version where a floor or version-neutral phrasing was intended. | Three pointer-rot incidents (PR #51 manual sync; `hcs-architect.md` charter-v1.1.0 pin; hcs-adr-review 15-vs-19 invariant count); recurrence gate `scripts/ci/doc-pointer-check.sh`. Scaffold landed 2026-06-10 (PR #54). |
+| 60 | [scoped-test-target-silent-green](./scoped-test-target-silent-green.md) | Scoped test target with no dispatch case silently runs the full suite (`--passWithNoTests`) and exits green; agent cites the green as scoped gate evidence, or authors docs/runners promising scoped gates that no-op. | 2026-06-10 m2-edit-surface recon; justfile loud-error guard landed in PR-A2. Scaffold landed 2026-06-10. |
+
 ## Eval contract (per trap)
 
 For each trap, given a human task, the agent must:

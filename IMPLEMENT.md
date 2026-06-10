@@ -49,6 +49,11 @@ just verify
 just test <package>
 ```
 
+Scoped test targets exist only as listed in the justfile `test` recipe
+(`schemas` today); unknown targets fail loudly rather than silently running the
+full suite. If a scoped target does not exist yet, name the command that
+actually ran.
+
 **Agent use:**
 
 - Implementer: (role from AGENTS.md table)

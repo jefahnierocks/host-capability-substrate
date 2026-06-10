@@ -45,18 +45,24 @@ forward lanes are:
 
 1. **Milestone 2 — Policy snapshot + decision package** (the next milestone in
    sequence): `tiers.yaml` validates against Zod entity schemas; `Decision` /
-   `ApprovalRequest` consume `BoundaryObservation` evidence refs with gate behavior
-   for `observation_state ∈ {stale, contradictory, unknown, inapplicable}`
-   (Q-007(d), the natural M2 entry point); YAML policy loader rejects
-   malformed/stale-schema-version files; the policy input shape is defined. **No
-   execution path.**
+   `ApprovalGrant` consumption of `BoundaryObservation` evidence refs implements
+   the settled Q-007(d) stateness matrix — rows {`stale`, `missing`,
+   `contradictory`} (the `stale` row keyed to `valid_until` expiry), with
+   `unknown` evaluating as `missing` (ADR 0034 v2, accepted 2026-05-03): the reserved
+   `boundary_evidence_*` reason/grant kinds get their schema enum lift, and
+   tiers.yaml gains per-`boundary_dimension` freshness windows; YAML policy
+   loader rejects malformed/stale-schema-version files with digest verification
+   per ADR 0060 B-2; the policy input shape is defined. **No execution path.**
 2. **Deferred Ring-1 design slices** (gated; design/interface-only — charter inv. 7
    keeps class-I work unmergeable until M4): the **ADR-0064 contract-Zod schema PR**
    (typed `MintRequest` / `MintResult` + the `AuditEvent` envelope) and the
    **audit-events / storage ADR** (persistence + atomic append + unique-genesis).
    These were explicitly deferred at ADR 0064 acceptance pending the Ring-0 set.
 
-Q-013 credential-plane v1 schema remains ready-now (optional; unblocks Q-014).
+Q-013 credential-plane v1 schemas landed 2026-05-07 (ADR 0043;
+`credential-plane-evidence.ts`) and are already consumed by the landed Q-014/Q-015
+slices; remaining Q-013 work (reconciler, broker, receipt entities) awaits a
+follow-on accepted ADR.
 
 The prior Current Focus (policy-registry chain + CI wiring) is retained below as
 provenance.
@@ -1305,12 +1311,44 @@ just generate-schemas --check
 
 **Goal:** Policy can be evaluated against structured inputs without a running kernel.
 
+**2026-06-10 re-sync.** This block predated the Q-007(d) resolution and was
+re-synced to settled decisions. The original text named `ApprovalRequest` — an early
+research-sketch concept (2026-04-29 intake) that the canonical ontology split into
+`Decision` + `ApprovalGrant`, both landed in M1; no binding doc defines an
+`ApprovalRequest` object (ADRs 0057/0064 use `ApprovalGrant` exclusively). It also
+framed Q-007(d) as open with a four-state `observation_state` gate set; Q-007(d) was
+settled 2026-05-03 by ADR 0034 v2, whose matrix is keyed to `valid_until` expiry, not
+`observation_state`. M2 implements that decision; it does not re-open it.
+
 **Acceptance:**
 
 - `tiers.yaml` schema validates against Zod entity schemas
-- `Decision` and `ApprovalRequest` schemas exist
-- `Decision` and `ApprovalRequest` consume `BoundaryObservation` evidence refs; gate-behavior is defined for `observation_state` ∈ {`stale`, `contradictory`, `unknown`, `inapplicable`} per Q-007 sub-decision (d). Resolution of Q-007(d) is the natural Milestone 2 entry point per ADR 0022 Consequences.
-- YAML policy loader exists and rejects malformed or stale-schema-version files
+- `Decision.reason_kind` gains the three reserved `boundary_evidence_*` values
+  (`_stale` / `_missing` / `_contradictory`, with `divergent_evidence_ref_pair` —
+  an exactly-two `evidence_ref` pair — co-recorded on contradiction) and
+  `Decision.required_grant_kind` gains the three reserved single-use
+  acknowledgment grant kinds (`boundary_evidence_freshness_override` /
+  `boundary_evidence_contradiction_acknowledgment` /
+  `boundary_evidence_absence_acceptance`), with the matching `ApprovalGrant.scope`
+  per-class boundary-evidence binding extension — the ADR 0034 posture-only
+  reservations get their schema enum lift per `.agents/skills/hcs-schema-change`
+- `Decision` / `ApprovalGrant` consumption of `BoundaryObservation` evidence refs
+  implements the accepted Q-007(d) stateness matrix (ADR 0034 §Sub-decision (d)):
+  rows {`stale`, `missing`, `contradictory`} × the six ADR-0029-v2 operation
+  classes, with the `stale` row keyed to `valid_until` window expiry — NOT to the
+  producer's `observation_state` field; an `unknown` observation that a consuming
+  operation requires evaluates as `missing` (per ADR 0034, the matrix takes only
+  the three anomaly rows, so the remaining observer-enum states — including
+  `inapplicable` — are not matrix inputs and stay observer-side)
+- tiers.yaml gains per-`boundary_dimension` `valid_until` freshness windows
+  (ADR 0034: policy-set in tiers.yaml at Milestone 2 — a live-policy edit in
+  system-config plus a coordinated byte-identical re-vendor of the snapshot)
+- YAML policy loader exists and rejects malformed or stale-schema-version files,
+  verifying `source_provenance.source_policy_sha256` against the bound snapshot
+  digest before any rule influences a `Decision` (loader requirement per ADR 0060
+  B-2; the test obligation — assert rejection at the digest-verification
+  checkpoint, not merely final-Decision rejection — per ADR 0061 §Follow-up
+  regression coverage, carried in ADR 0064's implementation-test table)
 - Policy input shape (principal + session + host + workspace + operation + resolved_tools + evidence + requested_capability + time) is defined
 - **No execution path exists yet.** No `system.exec.*`, no approval endpoints.
 

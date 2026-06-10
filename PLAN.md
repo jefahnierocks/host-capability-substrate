@@ -67,6 +67,10 @@ follow-on accepted ADR.
 The prior Current Focus (policy-registry chain + CI wiring) is retained below as
 provenance.
 
+<!-- doc-pointer-check: provenance-below — dated prior-focus sections; historical
+     version pointers below this line are point-in-time and not checked. The
+     milestone definitions further down contain no version pointers. -->
+
 ## Prior Focus — policy-registry chain CLOSED at source; CI wired; ready schema slices + Ring-1 mint/audit DESIGN ADR next (SUPERSEDED 2026-06-08)
 
 **2026-06-07 update.** The policy-registry entity chain is **closed at the

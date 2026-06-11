@@ -70,7 +70,7 @@ This template is the structural antidote to "plausible but wrong CLI advice". If
 - **Evidence must cite a real source.** Training-data recall is not evidence; substrate `tool.resolve` / `tool.help` output is.
 - **Every section is present.** Missing sections say "not available: <reason>" — never omitted.
 - **Cache status is honest.** `stale` is valid; `miss` is valid; never paper over a miss.
-- **Policy tier is from substrate classification**, not agent memory.
+- **Policy tier is from substrate classification**, not model memory.
 - **If the resolved tool version is unknown, do not proceed.** Refuse with "evidence missing: tool version not resolved".
 
 ## References

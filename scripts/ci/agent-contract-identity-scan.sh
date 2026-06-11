@@ -8,29 +8,13 @@ cd "$repo_root"
 
 echo "→ agent-contract-identity-scan"
 
-paths=(
-  AGENTS.md
-  CLAUDE.md
-  README.md
-  IMPLEMENT.md
-  docs/github-org-setup.md
-  docs/host-capability-substrate/implementation-charter.md
-  docs/host-capability-substrate/usable-state-readout-2026-05-17.md
-  docs/host-capability-substrate/workstation-surface-contract.md
-  docs/host-capability-substrate/tooling-surface-matrix.md
-  policies/README.md
-  .agents/skills
-  .claude/agents
-  .claude/hooks
-  .claude/settings.json
-  .codex/agents
-  .codex/config.toml
-  .codex/hooks
-  .codex/hooks.json
-)
+# Surface list is shared with shared-state-naming-scan.sh — one list, two
+# gates, no drift.
+# shellcheck source=scripts/ci/lib/agent-facing-surfaces.sh
+source "$repo_root/scripts/ci/lib/agent-facing-surfaces.sh"
 
 files=()
-for path in "${paths[@]}"; do
+for path in "${agent_facing_paths[@]}"; do
   if [ -f "$path" ]; then
     files+=("$path")
   elif [ -d "$path" ]; then

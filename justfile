@@ -118,6 +118,10 @@ forbidden-string-scan:
 agent-contract-identity-scan:
 	@bash scripts/ci/agent-contract-identity-scan.sh
 
+# D-033 shared-state naming discipline on default agent-facing surfaces
+shared-state-naming-scan:
+	@bash scripts/ci/shared-state-naming-scan.sh
+
 # Secret scan
 no-live-secrets:
 	@bash scripts/ci/no-live-secrets.sh

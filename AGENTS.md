@@ -82,7 +82,7 @@ scripts/
 - GUI/app/IDE agents do not automatically inherit terminal shell env, direnv, or zsh startup state.
 - Never echo secret-shaped environment values; use existence-only, names-only, classified, or hashed inspection.
 - GitHub body-bearing operations (`gh pr create`, `gh issue create`, `gh pr comment`, `gh issue comment`, `gh pr edit`, `gh issue edit`) must use `--body-file <path>` or `--body-file -` with stdin for multi-line bodies. Inline `--body "..."` is reserved for single-line content. Per Q-008(e), 2026-05-02.
-- HCS shared state is typed evidence + coordination state + derived retrieval index. Never call it "memory," "agent memory," "shared memory," "LLM memory," "persistent memory," "long-term memory," or "context memory." Canonical names: "evidence and coordination store," "shared state," "knowledge index," "coordination fact," "derived summary." Per D-033 / ADR 0019 v3, 2026-05-07.
+- HCS shared state is typed evidence + coordination state + derived retrieval index. Never call it "memory," "agent memory," "shared memory," "LLM memory," "persistent memory," "long-term memory," or "context memory." Canonical names: "evidence and coordination store," "shared state," "knowledge index," "coordination fact," "derived summary." Per D-033 / ADR 0019 v3, 2026-05-07. CI-gated by `just shared-state-naming-scan` (the greppable alias subset; bare "memory" stays reviewer judgment). <!-- shared-state-naming-scan: quoted-rule -->
 
 ## Required workflow
 

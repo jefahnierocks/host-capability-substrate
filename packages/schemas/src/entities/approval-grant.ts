@@ -12,9 +12,12 @@ export const approvalGrantKindSchema = z
     'gate_evidence_acknowledgment',
     'worktree_clean_acknowledgment',
     'pr_absence_acknowledgment',
+    'boundary_evidence_freshness_override',
+    'boundary_evidence_contradiction_acknowledgment',
+    'boundary_evidence_absence_acceptance',
   ])
   .describe(
-    'ApprovalGrant grant_kind values from ADR 0051 v4. Closes the three registry §Decision.required_grant_kind reservations (ADR 0030 + ADR 0035). Re-used by Decision.required_grant_kind to prevent enum drift.',
+    'ApprovalGrant grant_kind values from ADR 0051 v4 plus the three ADR 0034 §Sub-decision (d) boundary-evidence acknowledgment kinds (M2 entry promotion; additive enum widening, no ApprovalGrant.schema_version bump). The original three close the registry §Decision.required_grant_kind reservations (ADR 0030 + ADR 0035); the boundary_evidence_* three pair one-to-one with the boundary_evidence_* Decision.reason_kind rejections and are single-use per operation_id at Ring 1 mint (ADR 0030 v2 / ADR 0031 v1 acknowledgment-grant precedent). Re-used by Decision.required_grant_kind to prevent enum drift.',
   );
 
 export const approvalGrantStateSchema = z
@@ -57,13 +60,51 @@ export const approvalGrantPrAbsenceAcknowledgmentScopeSchema = z
   .strict()
   .describe('ApprovalGrant scope branch for pr_absence_acknowledgment grants (ADR 0051 v4).');
 
+export const approvalGrantBoundaryEvidenceFreshnessOverrideScopeSchema = z
+  .object({
+    grant_kind: z.literal('boundary_evidence_freshness_override'),
+    boundary_observation_evidence_refs: z.array(qualityGateEvidenceRefSchema).min(1),
+    execution_context_id: entityIdSchema,
+  })
+  .strict()
+  .describe(
+    'ApprovalGrant scope branch for boundary_evidence_freshness_override grants (ADR 0034 §Sub-decision (d)): binds the specific stale BoundaryObservation evidence_refs being acknowledged plus the execution context whose boundary evidence is acknowledged. Scope-key disjointness preserved versus the worktree/destructive-git/merge/external-control-plane/runner per-class extensions. Scope-vs-envelope execution_context_id equality is a Ring 1 mint obligation.',
+  );
+
+export const approvalGrantBoundaryEvidenceContradictionAcknowledgmentScopeSchema = z
+  .object({
+    grant_kind: z.literal('boundary_evidence_contradiction_acknowledgment'),
+    boundary_observation_evidence_refs: z.array(qualityGateEvidenceRefSchema).min(2),
+    execution_context_id: entityIdSchema,
+  })
+  .strict()
+  .describe(
+    'ApprovalGrant scope branch for boundary_evidence_contradiction_acknowledgment grants (ADR 0034 §Sub-decision (d)): binds the diverging BoundaryObservation evidence_refs being acknowledged (minimum two — a contradiction needs at least the divergent pair) plus the execution context. Scope-key disjointness preserved versus the other per-class extensions; scope-vs-envelope execution_context_id equality is a Ring 1 mint obligation.',
+  );
+
+export const approvalGrantBoundaryEvidenceAbsenceAcceptanceScopeSchema = z
+  .object({
+    grant_kind: z.literal('boundary_evidence_absence_acceptance'),
+    boundary_observation_evidence_refs: z.array(qualityGateEvidenceRefSchema).min(1),
+    execution_context_id: entityIdSchema,
+  })
+  .strict()
+  .describe(
+    'ApprovalGrant scope branch for boundary_evidence_absence_acceptance grants (ADR 0034 §Sub-decision (d)): binds the related BoundaryObservation evidence_refs contextualizing the accepted absence (the observations that exist around the missing required dimension) plus the execution context. Scope-key disjointness preserved versus the other per-class extensions; scope-vs-envelope execution_context_id equality is a Ring 1 mint obligation.',
+  );
+
 export const approvalGrantScopeSchema = z
   .discriminatedUnion('grant_kind', [
     approvalGrantGateEvidenceAcknowledgmentScopeSchema,
     approvalGrantWorktreeCleanAcknowledgmentScopeSchema,
     approvalGrantPrAbsenceAcknowledgmentScopeSchema,
+    approvalGrantBoundaryEvidenceFreshnessOverrideScopeSchema,
+    approvalGrantBoundaryEvidenceContradictionAcknowledgmentScopeSchema,
+    approvalGrantBoundaryEvidenceAbsenceAcceptanceScopeSchema,
   ])
-  .describe('Polymorphic ApprovalGrant scope payload selected by grant_kind (ADR 0051 v4).');
+  .describe(
+    'Polymorphic ApprovalGrant scope payload selected by grant_kind (ADR 0051 v4; boundary_evidence_* branches added per ADR 0034 §Sub-decision (d) at M2 entry).',
+  );
 
 const retrievalArtifactIdPattern = /^(knowledge-chunk|derived-summary):/;
 
@@ -172,6 +213,18 @@ export const approvalGrantSchema = z
         'scope',
         'acknowledged_pr_absence_evidence_ref',
       ]);
+    } else if (
+      value.scope.grant_kind === 'boundary_evidence_freshness_override' ||
+      value.scope.grant_kind === 'boundary_evidence_contradiction_acknowledgment' ||
+      value.scope.grant_kind === 'boundary_evidence_absence_acceptance'
+    ) {
+      for (const [index, ref] of value.scope.boundary_observation_evidence_refs.entries()) {
+        chainWalkRefineEvidenceRef(ref, ctx, [
+          'scope',
+          'boundary_observation_evidence_refs',
+          index,
+        ]);
+      }
     }
   })
   .describe(

@@ -641,3 +641,277 @@ describe('Decision rule-attribution (ADR 0061 / D-059)', () => {
     }
   });
 });
+
+describe('Decision boundary_evidence_* promotion (ADR 0034 §Sub-decision (d) / M2 entry)', () => {
+  const divergentPair = [
+    { ...baseChainAwareEvidenceRef, evidence_id: 'evidence:boundary:obs-a' },
+    { ...baseChainAwareEvidenceRef, evidence_id: 'evidence:boundary:obs-b' },
+  ];
+
+  const boundaryDecision = (overrides: Record<string, unknown> = {}) => ({
+    ...baseDenyDecision,
+    reason_kind: 'boundary_evidence_stale',
+    ...overrides,
+  });
+
+  it('accepts boundary_evidence_stale as a deny rejection with a null grant path', () => {
+    const decision = decisionSchema.parse(boundaryDecision());
+    expect(decision.reason_kind).toBe('boundary_evidence_stale');
+    expect(decision.outcome).toBe('deny');
+  });
+
+  it('accepts boundary_evidence_missing as a deny rejection', () => {
+    const decision = decisionSchema.parse(
+      boundaryDecision({ reason_kind: 'boundary_evidence_missing' }),
+    );
+    expect(decision.reason_kind).toBe('boundary_evidence_missing');
+  });
+
+  it('accepts boundary_evidence_contradictory with the divergent pair co-recorded', () => {
+    const decision = decisionSchema.parse(
+      boundaryDecision({
+        reason_kind: 'boundary_evidence_contradictory',
+        divergent_evidence_ref_pair: divergentPair,
+      }),
+    );
+    expect(decision.divergent_evidence_ref_pair).toHaveLength(2);
+  });
+
+  it('rejects every boundary_evidence_* kind with a non-deny outcome (this-invocation rejects)', () => {
+    for (const kind of [
+      'boundary_evidence_stale',
+      'boundary_evidence_missing',
+      'boundary_evidence_contradictory',
+    ]) {
+      expect(
+        decisionSchema.safeParse(
+          boundaryDecision({
+            reason_kind: kind,
+            outcome: 'informational',
+            ...(kind === 'boundary_evidence_contradictory'
+              ? { divergent_evidence_ref_pair: divergentPair }
+              : {}),
+          }),
+        ).success,
+      ).toBe(false);
+    }
+  });
+
+  it('accepts each matching single-use acknowledgment grant pairing', () => {
+    expect(
+      decisionSchema.safeParse(
+        boundaryDecision({ required_grant_kind: 'boundary_evidence_freshness_override' }),
+      ).success,
+    ).toBe(true);
+    expect(
+      decisionSchema.safeParse(
+        boundaryDecision({
+          reason_kind: 'boundary_evidence_missing',
+          required_grant_kind: 'boundary_evidence_absence_acceptance',
+        }),
+      ).success,
+    ).toBe(true);
+    expect(
+      decisionSchema.safeParse(
+        boundaryDecision({
+          reason_kind: 'boundary_evidence_contradictory',
+          required_grant_kind: 'boundary_evidence_contradiction_acknowledgment',
+          divergent_evidence_ref_pair: divergentPair,
+        }),
+      ).success,
+    ).toBe(true);
+  });
+
+  it('rejects a mismatched acknowledgment grant pairing (ADR 0034 kind pairing)', () => {
+    expect(
+      decisionSchema.safeParse(
+        boundaryDecision({ required_grant_kind: 'boundary_evidence_contradiction_acknowledgment' }),
+      ).success,
+    ).toBe(false);
+    expect(
+      decisionSchema.safeParse(
+        boundaryDecision({ required_grant_kind: 'gate_evidence_acknowledgment' }),
+      ).success,
+    ).toBe(false);
+  });
+
+  it('rejects boundary_evidence_contradictory without divergent_evidence_ref_pair (absent and null)', () => {
+    expect(
+      decisionSchema.safeParse(boundaryDecision({ reason_kind: 'boundary_evidence_contradictory' }))
+        .success,
+    ).toBe(false);
+    expect(
+      decisionSchema.safeParse(
+        boundaryDecision({
+          reason_kind: 'boundary_evidence_contradictory',
+          divergent_evidence_ref_pair: null,
+        }),
+      ).success,
+    ).toBe(false);
+  });
+
+  it('rejects divergent_evidence_ref_pair cardinality other than exactly two', () => {
+    expect(
+      decisionSchema.safeParse(
+        boundaryDecision({
+          reason_kind: 'boundary_evidence_contradictory',
+          divergent_evidence_ref_pair: [divergentPair[0]],
+        }),
+      ).success,
+    ).toBe(false);
+    expect(
+      decisionSchema.safeParse(
+        boundaryDecision({
+          reason_kind: 'boundary_evidence_contradictory',
+          divergent_evidence_ref_pair: [...divergentPair, divergentPair[0]],
+        }),
+      ).success,
+    ).toBe(false);
+  });
+
+  it('rejects divergent_evidence_ref_pair on a non-contradictory reason_kind', () => {
+    expect(
+      decisionSchema.safeParse(boundaryDecision({ divergent_evidence_ref_pair: divergentPair }))
+        .success,
+    ).toBe(false);
+    expect(
+      decisionSchema.safeParse({
+        ...baseDenyDecision,
+        divergent_evidence_ref_pair: divergentPair,
+      }).success,
+    ).toBe(false);
+  });
+
+  it('applies chain-walk authority rejection to divergent pair entries (charter inv. 8)', () => {
+    expect(
+      decisionSchema.safeParse(
+        boundaryDecision({
+          reason_kind: 'boundary_evidence_contradictory',
+          divergent_evidence_ref_pair: [
+            divergentPair[0],
+            { ...divergentPair[1], authority: 'sandbox-observation' },
+          ],
+        }),
+      ).success,
+    ).toBe(false);
+  });
+
+  it('includes the three boundary_evidence_* kinds in the generated Decision JSON Schema', () => {
+    expect(generatedDecisionReasonKindEnum()).toEqual(
+      expect.arrayContaining([
+        'boundary_evidence_stale',
+        'boundary_evidence_missing',
+        'boundary_evidence_contradictory',
+      ]),
+    );
+  });
+
+  it('lists divergent_evidence_ref_pair as a nullable, optional property absent from required (generated schema)', () => {
+    const schema = readGeneratedDecisionSchema();
+    expect(asArray(schema.required)).not.toContain('divergent_evidence_ref_pair');
+    const properties = asRecord(schema.properties);
+    const branches = asArray(asRecord(properties.divergent_evidence_ref_pair).anyOf).map((branch) =>
+      asRecord(branch),
+    );
+    expect(branches.some((branch) => branch.type === 'null')).toBe(true);
+  });
+
+  it('rejects every off-diagonal reason↔grant pairing cell', () => {
+    const offDiagonal: ReadonlyArray<[string, string]> = [
+      ['boundary_evidence_stale', 'boundary_evidence_absence_acceptance'],
+      ['boundary_evidence_missing', 'boundary_evidence_freshness_override'],
+      ['boundary_evidence_missing', 'boundary_evidence_contradiction_acknowledgment'],
+    ];
+    for (const [reasonKind, grantKind] of offDiagonal) {
+      expect(
+        decisionSchema.safeParse(
+          boundaryDecision({ reason_kind: reasonKind, required_grant_kind: grantKind }),
+        ).success,
+      ).toBe(false);
+    }
+  });
+
+  it('rejects boundary_evidence_contradictory with the correct grant but a missing pair (refinements are independent)', () => {
+    expect(
+      decisionSchema.safeParse(
+        boundaryDecision({
+          reason_kind: 'boundary_evidence_contradictory',
+          required_grant_kind: 'boundary_evidence_contradiction_acknowledgment',
+        }),
+      ).success,
+    ).toBe(false);
+  });
+
+  it('accepts a boundary grant kind on a non-boundary clearable reason at Ring 0 (reason↔grant match for non-boundary kinds is a Ring 1 mint obligation, not a Ring 0 guarantee)', () => {
+    expect(
+      decisionSchema.safeParse({
+        ...baseDenyDecision,
+        reason_kind: 'gate_denied',
+        required_grant_kind: 'boundary_evidence_freshness_override',
+      }).success,
+    ).toBe(true);
+  });
+
+  it('accepts two identical refs in the divergent pair at Ring 0 (entry distinctness is a Ring 1 mint obligation)', () => {
+    expect(
+      decisionSchema.safeParse(
+        boundaryDecision({
+          reason_kind: 'boundary_evidence_contradictory',
+          divergent_evidence_ref_pair: [divergentPair[0], divergentPair[0]],
+        }),
+      ).success,
+    ).toBe(true);
+  });
+
+  it('applies self-asserted authority rejection to divergent pair entries', () => {
+    expect(
+      decisionSchema.safeParse(
+        boundaryDecision({
+          reason_kind: 'boundary_evidence_contradictory',
+          divergent_evidence_ref_pair: [
+            divergentPair[0],
+            { ...divergentPair[1], authority: 'self-asserted' },
+          ],
+        }),
+      ).success,
+    ).toBe(false);
+  });
+
+  it('rejects the divergent pair when BOTH entries carry sandbox authority (no index-0-only check)', () => {
+    expect(
+      decisionSchema.safeParse(
+        boundaryDecision({
+          reason_kind: 'boundary_evidence_contradictory',
+          divergent_evidence_ref_pair: [
+            { ...divergentPair[0], authority: 'sandbox-observation' },
+            { ...divergentPair[1], authority: 'sandbox-observation' },
+          ],
+        }),
+      ).success,
+    ).toBe(false);
+  });
+
+  it('rejects an unpromoted derived_summary chain ref inside a divergent pair entry (ADR 0019 v3 chain-promotion rule)', () => {
+    expect(
+      decisionSchema.safeParse(
+        boundaryDecision({
+          reason_kind: 'boundary_evidence_contradictory',
+          divergent_evidence_ref_pair: [
+            divergentPair[0],
+            {
+              ...divergentPair[1],
+              evidence_chain_refs: [
+                {
+                  record_kind: 'derived_summary',
+                  record_id: 'derived-summary:hcs:unpromoted',
+                  authority: 'derived',
+                  allowed_for_gate: false,
+                },
+              ],
+            },
+          ],
+        }),
+      ).success,
+    ).toBe(false);
+  });
+});

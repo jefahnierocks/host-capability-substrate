@@ -3,8 +3,8 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.31.1
-last_updated: 2026-06-08
+version: 1.32.0
+last_updated: 2026-06-11
 tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0, policy-rule, capability, command-shape, tool-provider, tool-installation, resolved-tool, artifact, lock, resource-budget]
 priority: high
 ---
@@ -1187,12 +1187,17 @@ Key fields:
   refined at the schema layer: `deny`-only `reason_kind` values reject when
   paired with `informational`, and the v1 enum has no `allow`-compatible value
   (future ADRs may add allow-compatible reason_kinds via the §Procedure rule).
-- `reason_kind` is a closed Zod enum of 18 values from ADR 0049 plus ADRs
-  0056 and 0058. ADR 0056 promotes `operation_class_unregistered` and
+- `reason_kind` is a closed Zod enum of 21 values from ADR 0049 plus ADRs
+  0056, 0058, and 0034. ADR 0056 promotes `operation_class_unregistered` and
   `audit_chain_corruption_detected`; ADR 0058 promotes
-  `authority_chain_walk_depth_exceeded`. These are additive enum widenings
-  without bumping `Decision.schema_version`; all three promoted values are
-  deny-only.
+  `authority_chain_walk_depth_exceeded`; the M2-entry promotion lifts the
+  three ADR 0034 §Sub-decision (d) reservations `boundary_evidence_stale`,
+  `boundary_evidence_missing`, and `boundary_evidence_contradictory`
+  (stateness keyed to `valid_until` expiry; a required-but-`unknown`
+  observation evaluates as missing; all three are this-invocation rejects —
+  none promotes the operation to forbidden tier per ADR 0029 v2). These are
+  additive enum widenings without bumping `Decision.schema_version`; all six
+  promoted values are deny-only.
 - `reason_text` is bounded to 1–256 characters; `reason_text_redaction_mode`
   uses `decisionRedactionModeSchema` (which excludes `'none'`). Resolved-
   secret substring scrubbing runs at Ring 1 mint per registry §Redaction
@@ -1202,7 +1207,27 @@ Key fields:
   `operation_class_unregistered` and
   `authority_chain_walk_depth_exceeded`, ADRs 0056 and 0058 make the denials
   non-clearable: `required_grant_kind` must be `null`, and any non-null grant
-  kind rejects.
+  kind rejects. The three `boundary_evidence_*` rejections are clearable only
+  by their matching single-use acknowledgment grant (stale ↔
+  `boundary_evidence_freshness_override`; missing ↔
+  `boundary_evidence_absence_acceptance`; contradictory ↔
+  `boundary_evidence_contradiction_acknowledgment`) — a same-record
+  refinement rejects any other non-null grant kind; single-use-per-
+  operation_id consumption is a Ring 1 mint obligation (ADR 0034).
+- `divergent_evidence_ref_pair` is an additive nullable-optional array of
+  **exactly two** chain-aware evidence refs (ADR 0034 §Sub-decision (d)
+  audit-chain attribution rule, M2-entry promotion): required (present and
+  non-null) when `reason_kind` is `boundary_evidence_contradictory` — naming
+  the two diverging `BoundaryObservation` records so audit consumers can
+  trace which observation contradicted which without joining the underlying
+  records — and rejected for every other reason_kind. Entries carry the same
+  chain-walk rejection discipline as `evidence_refs` (charter inv. 8 +
+  inv. 18). No `Decision.schema_version` bump (ADR 0061 precedent). The
+  exactly-two cardinality here is deliberately DIFFERENT from the
+  contradiction grant scope's minimum-two floor: the Decision co-record is
+  the ADR's "exactly two" audit-attribution pair, while the grant
+  acknowledges all diverging observations (which an n-way divergence can
+  exceed) — do not harmonize the two.
 - `operation_shape_ref` is required for every Decision, including
   `operation_class_unregistered` and
   `authority_chain_walk_depth_exceeded`; there is no nullable or sentinel
@@ -1285,16 +1310,28 @@ Decision entity re-imports for `required_grant_kind`.
 
 Key fields:
 
-- `grant_kind` is a closed Zod enum: `gate_evidence_acknowledgment`,
-  `worktree_clean_acknowledgment`, `pr_absence_acknowledgment`. Future
-  grant_kinds (e.g., a class-I cleanup acknowledgment) follow the registered
-  §Procedure rule.
+- `grant_kind` is a closed Zod enum of six values: `gate_evidence_acknowledgment`,
+  `worktree_clean_acknowledgment`, `pr_absence_acknowledgment` (ADR 0051 v4),
+  plus the three ADR 0034 §Sub-decision (d) boundary-evidence acknowledgment
+  kinds promoted at M2 entry — `boundary_evidence_freshness_override`,
+  `boundary_evidence_contradiction_acknowledgment`,
+  `boundary_evidence_absence_acceptance` (additive enum widening, no
+  `ApprovalGrant.schema_version` bump; single-use per operation_id at Ring 1
+  mint per the ADR 0030 v2 / 0031 v1 acknowledgment-grant precedent). Future
+  grant_kinds follow the registered §Procedure rule.
 - `scope` is a discriminated union on `grant_kind` carrying the typed
   acknowledged-evidence refs each branch requires:
   `acknowledged_evidence_refs[]` (gate), `acknowledged_dirty_state_evidence_ref`
   (worktree clean), or `acknowledged_pr_absence_evidence_ref` (pr absence).
   `pr_absence_acknowledgment.branch_ref` is constrained to git-ref grammar
-  via `gitBranchRefSchema`.
+  via `gitBranchRefSchema`. The three boundary-evidence branches each bind
+  `boundary_observation_evidence_refs[]` (the stale / diverging / related
+  observations being acknowledged; minimum two for the contradiction branch —
+  a contradiction needs at least the divergent pair) plus an
+  `execution_context_id` (scope-vs-envelope equality is a Ring 1 mint
+  obligation). Scope-key disjointness is preserved versus the
+  worktree/destructive-git/merge/external-control-plane/runner per-class
+  extensions (ADR 0034).
 - `minted_for_decision_id` is non-null at v1; pre-emptive grants are deferred
   to the future `kernel_dashboard` producer ADR as a coordinated change-set.
 - `granted_by` is one of `mint_api`, `kernel_broker`. `kernel_gateway` is
@@ -1303,7 +1340,9 @@ Key fields:
 - `grant_state` is `active | consumed | expired | revoked`; lifecycle
   transitions produce NEW ApprovalGrant records via supersession.
 - The envelope-level superRefine walks `evidence_refs` AND every
-  scope-payload acknowledged_* ref unconditionally per charter inv. 18.
+  scope-payload ref — the acknowledged_* refs of the original three branches
+  and the `boundary_observation_evidence_refs[]` of the three boundary
+  branches — unconditionally per charter inv. 18.
 - Same-record refinement enforces `valid_until > granted_at` and
   envelope `grant_kind == scope.grant_kind`.
 
@@ -2312,6 +2351,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.32.0 | 2026-06-11 | M2-entry promotion of the ADR 0034 §Sub-decision (d) posture-only reservations (the first Milestone 2 schema PR; PLAN §M2 acceptance criterion 2). `Decision.reason_kind` gains the three `boundary_evidence_*` rejection kinds (`_stale` / `_missing` / `_contradictory`; deny-only this-invocation rejects keyed to `valid_until` stateness, `unknown` evaluating as missing; additive enum widening, 18 → 21 Zod-defined, no `Decision.schema_version` bump). `Decision` gains the additive nullable-optional `divergent_evidence_ref_pair` (exactly two chain-aware evidence refs; required iff `boundary_evidence_contradictory`, rejected otherwise; entries chain-walk-refined per charter inv. 8/18; ADR 0061 nullable-optional precedent — no version-literal bump). A same-record refinement enforces the ADR 0034 reason↔grant kind pairing (each `boundary_evidence_*` rejection clearable only by its matching acknowledgment grant or `null`). `ApprovalGrant.grant_kind` gains the three single-use acknowledgment kinds (`boundary_evidence_freshness_override` / `boundary_evidence_contradiction_acknowledgment` / `boundary_evidence_absence_acceptance`; 3 → 6; no `ApprovalGrant.schema_version` bump), each with a new `.strict()` scope branch binding `boundary_observation_evidence_refs[]` (min 2 on the contradiction branch) + `execution_context_id` (scope-vs-envelope equality, single-use-per-operation_id consumption, and stateness-matrix evaluation are Ring 1 obligations); the envelope superRefine walks the new branches' refs. Regenerated `Decision.schema.json` + `ApprovalGrant.schema.json`; 21 new tests. Registry companion v0.4.35. |
 | 1.31.1 | 2026-06-08 | Post-M1 housekeeping (docs-only): flipped two stale "future" forward-references in LIVE entity sections now that their targets are landed — `Session.principal_id` in the `Principal` section (landed ADR 0055) and `ToolInstallation` in the `ToolProvider` Ring-1-obligations clause (landed ADR 0068). Also flipped the byte-identical stale "future `ResourceBudget`" / "future `ToolInstallation`" `.describe()` strings in the `command-shape.ts` / `tool-provider.ts` Zod sources (describe-only; regenerated `CommandShape.schema.json` + `ToolProvider.schema.json`; no shape/`schema_version` change). No entity, enum, field, or version-literal change. |
 | 1.31.0 | 2026-06-08 | Landed the ADR 0072 / D-070 `ResourceBudget` schema PR — the non-minted Ring-0 THIRD and FINAL storage primitive, closing the M1 22-entity Ring-0 set (22/22). `resourceBudgetSchema` (`.strict()`): `resource_budget_id` + a REQUIRED `session_id` FK to `Session` (ADR 0055) + a `resource_kind` enum (cpu/memory/network/sandbox_concurrency/unknown) + `limit_value` (`z.number().int().min(0)`) + a `limit_unit` enum (cores/bytes/bytes_per_sec/count/percent/unknown) + a `budget_state` enum (active/retired) + a `.strict()` `source_provenance` (disjoint `resource_budget_declaration` authority). Reuses `entityIdSchema` + `isoDateTimeSchema`. The durable per-session ALLOCATION, distinct from the shipped `ResourceBudgetObservation` (the Evidence pressure reading that feeds it; distinct export names). Per-dimension (one record per `session` × `resource`). The lifecycle field is `budget_state` (the `_state` convention; renamed from the proposed `budget_status` for peer consistency). Fulfills the pre-reserved `Evidence.subject_kind: 'resource_budget'` with NO `evidenceSubjectKindSchema` change and NO `Evidence.schema_version` bump. Ring 0 does NOT cross-constrain `resource_kind` ↔ `limit_unit` (a recorded accept-and-trap routed to Ring 1, mirroring the ResolvedTool basis↔context non-cross-constraint); `resource_budget_id` accepts a raw-shape id (a recorded accept-and-trap; opacity is a Ring 1 obligation). NO policy-tier denylist (inv. 1). Flipped the stale "future `ResourceBudget` entity" forward-reference in the CommandShape `timeout_seconds` narrative. Regenerated `ResourceBudget.schema.json`; added schema tests. |
 | 1.30.0 | 2026-06-08 | Landed the ADR 0071 / D-069 `Lock` schema PR — the non-minted Ring-0 second storage primitive: a coarse mutex (e.g. package-manager global), the lighter cousin of the minted `Lease` (ADR 0052). `lockSchema` (`.strict()`): `lock_id` + a CLOSED `lock_kind` enum (package_manager_global/host_mutation_global/unknown) + a REQUIRED `held_by_session_id` FK to `Session` (ADR 0055; reuses `Lease.held_by_session_id`, same semantic) + a `lock_status` enum (held/released) + a `.strict()` `source_provenance` (disjoint `lock_declaration` authority). Reuses `entityIdSchema` + `isoDateTimeSchema`. NON-MINTED — no audit_chain_link_hash/producer/evidence_refs, no per-resource scope, no force_break_grant_id (carries none of Lease's minting/authorization machinery; cannot bypass a Lease). The lifecycle field is `lock_status`, NOT `lock_state`, to avoid the shipped `GitWorktreeObservation.payload.lock_state` same-name field. Fulfills the pre-reserved `Evidence.subject_kind: 'lock'` with NO `evidenceSubjectKindSchema` change and NO `Evidence.schema_version` bump. `lock_id` accepts a raw-shape id (a recorded accept-and-trap; opacity is a Ring 1 obligation). NO policy-tier denylist (inv. 1). Regenerated `Lock.schema.json`; added schema tests. |

@@ -88,9 +88,12 @@
               "enum": [
                 "gate_evidence_acknowledgment",
                 "worktree_clean_acknowledgment",
-                "pr_absence_acknowledgment"
+                "pr_absence_acknowledgment",
+                "boundary_evidence_freshness_override",
+                "boundary_evidence_contradiction_acknowledgment",
+                "boundary_evidence_absence_acceptance"
               ],
-              "description": "ApprovalGrant grant_kind values from ADR 0051 v4. Closes the three registry §Decision.required_grant_kind reservations (ADR 0030 + ADR 0035). Re-used by Decision.required_grant_kind to prevent enum drift."
+              "description": "ApprovalGrant grant_kind values from ADR 0051 v4 plus the three ADR 0034 §Sub-decision (d) boundary-evidence acknowledgment kinds (M2 entry promotion; additive enum widening, no ApprovalGrant.schema_version bump). The original three close the registry §Decision.required_grant_kind reservations (ADR 0030 + ADR 0035); the boundary_evidence_* three pair one-to-one with the boundary_evidence_* Decision.reason_kind rejections and are single-use per operation_id at Ring 1 mint (ADR 0030 v2 / ADR 0031 v1 acknowledgment-grant precedent). Re-used by Decision.required_grant_kind to prevent enum drift."
             },
             "allowed_grant_kinds": {
               "minItems": 1,
@@ -100,9 +103,12 @@
                 "enum": [
                   "gate_evidence_acknowledgment",
                   "worktree_clean_acknowledgment",
-                  "pr_absence_acknowledgment"
+                  "pr_absence_acknowledgment",
+                  "boundary_evidence_freshness_override",
+                  "boundary_evidence_contradiction_acknowledgment",
+                  "boundary_evidence_absence_acceptance"
                 ],
-                "description": "ApprovalGrant grant_kind values from ADR 0051 v4. Closes the three registry §Decision.required_grant_kind reservations (ADR 0030 + ADR 0035). Re-used by Decision.required_grant_kind to prevent enum drift."
+                "description": "ApprovalGrant grant_kind values from ADR 0051 v4 plus the three ADR 0034 §Sub-decision (d) boundary-evidence acknowledgment kinds (M2 entry promotion; additive enum widening, no ApprovalGrant.schema_version bump). The original three close the registry §Decision.required_grant_kind reservations (ADR 0030 + ADR 0035); the boundary_evidence_* three pair one-to-one with the boundary_evidence_* Decision.reason_kind rejections and are single-use per operation_id at Ring 1 mint (ADR 0030 v2 / ADR 0031 v1 acknowledgment-grant precedent). Re-used by Decision.required_grant_kind to prevent enum drift."
               }
             },
             "producer_allowlist": {

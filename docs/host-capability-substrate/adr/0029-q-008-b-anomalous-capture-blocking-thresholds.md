@@ -62,6 +62,11 @@ Written against charter v1.3.2 and
   remains posture-only; canonical numeric thresholds and per-cell
   refinements land in `tiers.yaml` once HCS Milestone 2 ships. No
   mechanical text tweaks were applied at acceptance.
+- **provenance fix (2026-06-10)**: repointed the stale early
+  `ApprovalRequest` reference in §Out of scope to `ApprovalGrant`
+  schema extensions, matching the post-M1 `Decision` / `ApprovalGrant`
+  split recorded in `PLAN.md` and `ontology.md`. ADR status, matrix,
+  and decision semantics unchanged; no new authorization behavior.
 
 ## Context
 
@@ -569,8 +574,8 @@ This ADR does not authorize:
 - Canonical policy YAML at
   `system-config/policies/host-capability-substrate/`. The matrix is
   posture; the policy entries are system-config work, gated on HCS
-  Milestone 2 (`tiers.yaml` schema + `Decision`/`ApprovalRequest`
-  schemas).
+  Milestone 2 (`tiers.yaml` schema + `Decision`/`ApprovalGrant`
+  schema extensions).
 - Schema source for `Decision` or `ApprovalGrant` extensions
   (`reason_kind` enum, `required_grant_kind` enum,
   `ApprovalGrant.scope` shape). Schema implementation lands per

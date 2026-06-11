@@ -26,6 +26,17 @@ that ADR 0023 and Q-011 had already cleared.
 Written against charter v1.2.0. Charter v1.3.0 (ADR 0021) does not change this
 ADR's posture; invariants 16 and 17 are compatible.
 
+## Revision history
+
+- **provenance fix (2026-06-10)**: repointed §Downstream consumers from
+  its pre-ADR-0034 open-question wording to the accepted Q-007(d)
+  framing: `Decision` / `ApprovalGrant` consume `BoundaryObservation`
+  evidence refs through ADR 0034 v2's stale / missing / contradictory
+  matrix, with stale keyed to `valid_until` expiry and required
+  `unknown` evidence evaluating as missing. ADR status, envelope shape,
+  and observer-side `observation_state` vocabulary unchanged; no
+  decision or semantic change.
+
 ## Context
 
 Q-007 exists because Phase 1 research found that host boundaries are loose and
@@ -268,10 +279,12 @@ Expected to fit inside the envelope unless review proves otherwise:
 
 Downstream consumers:
 
-- Define how `Decision` / `ApprovalGrant` consume `BoundaryObservation`
-  `evidence_refs` when `observation_state` is `stale`, `contradictory`, or
-  `unknown`. This is Q-007's remaining gate-behavior question and the natural
-  Milestone 2 approval entry point.
+- ADR 0034 v2 settles how `Decision` / `ApprovalGrant` consume
+  `BoundaryObservation` evidence refs for gate behavior: the matrix rows are
+  stale, missing, and contradictory boundary evidence; stale is keyed to
+  `valid_until` expiry, and a required `unknown` observation evaluates as
+  missing for the consuming operation. Milestone 2 implements the
+  schema/policy extensions; this ADR's envelope shape remains unchanged.
 - Q-010 must be re-read against this envelope before drafting `AgentClient`
   containment schema. If Q-010 resolves containment outside the envelope, this
   ADR needs amendment.

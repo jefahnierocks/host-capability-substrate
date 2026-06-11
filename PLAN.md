@@ -1471,7 +1471,7 @@ just measure-brief # consolidate partitions into the metrics diff
 - Ring 0 (schemas) ships first. Every other ring builds on it.
 - Ring 1 (kernel) ships before any adapter. Never the reverse.
 - Dashboard view contracts land with Ring 1 services — kernel output must be dashboard-renderable from day 1.
-- Execute lane (mutations) is blocked at CI until Milestone M4-Month-4 of the full roadmap in research plan §6 Phase 4.
+- Execute lane (mutations) is blocked until Milestone M4-Month-4 of the full roadmap in research plan §6 Phase 4 (charter invariant 7) — enforced by operator review, not a CI gate; no CI check reads change class today.
 
 ## Out of scope for initial build (explicit)
 

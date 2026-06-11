@@ -44,6 +44,7 @@ run_group static-gates \
   snapshot-binding-check \
   forbidden-string-scan \
   agent-contract-identity-scan \
+  shared-state-naming-scan \
   no-live-secrets \
   no-runtime-state-in-repo \
   doc-link-check \

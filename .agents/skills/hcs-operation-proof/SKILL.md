@@ -67,7 +67,7 @@ Use any time an agent produces a command suggestion or operation proposal that a
 - **Proposed invocation is argv, not a shell string.** Shell strings require explicit risk-elevated justification (see `system.exec.unsafe_shell_proposal.v1`, denied by default).
 - **Evidence must cite a real source.** "My training data" is not evidence; the substrate's `tool.resolve`/`tool.help` output is.
 - **Cache status is honest.** `stale` is a valid answer; so is `miss`. Never paper over a cache miss.
-- **Policy tier is from substrate classification**, not agent memory.
+- **Policy tier is from substrate classification**, not model memory.
 - **If the resolved tool version is unknown, do not proceed.** Refuse the proposal with "evidence missing: tool version not resolved".
 
 ## Output

@@ -48,6 +48,10 @@ A PR with schema changes must receive objections from:
 
 Escalate each via the appropriate subagent before requesting human review.
 
+Every reviewer re-verifies every cited path:line against the file state under
+review before returning a verdict — do not carry file/line claims from an
+earlier read or recollection.
+
 ## Output
 
 The committed change, containing in a single diff:

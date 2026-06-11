@@ -161,3 +161,7 @@ Implementation roles (human-directed; not subagents):
 ## Update policy
 
 Update `AGENTS.md` after repeated agent mistakes; do not stuff it upfront. Keep it practical. When a class of mistake surfaces twice, add a rule and record the trap in the regression corpus.
+
+## Hub interop header
+
+When posture/phase/peers/visibility change, update `project.yaml` (hub interop header; contract: `/Users/verlyn13/Repos/verlyn13/meta-inventory/docs/decisions/0002-project-intelligence-spec.md` §D3). It is a derived lookup header consumed by the meta-inventory hub — `PLAN.md` §Current Focus remains the status of record; never treat `project.yaml` as a competing status authority, and never present HCS as employment, client work, or a commercial product.

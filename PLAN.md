@@ -11,9 +11,12 @@ Research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/hos
 canonical Ring-0 entities are landed as Zod schemas + generated JSON Schema +
 `schema_version` + ontology/registry docs, with the final entity —
 **ResourceBudget** (ADR 0072 / D-070, schema **PR #44 merged**) — closing the set.
-`main` is at `a734fae` (PR #45 merged); ontology **v1.31.1**, registry **v0.4.34**,
-charter **v1.4.2**; ADRs span **0001–0072** (0026 absent); decisions through
-**D-070** (next-free **D-071**).
+Ontology **v1.31.1**, registry **v0.4.34**, charter **v1.5.0**; ADRs span
+**0001–0073** (0026 absent); decisions through **D-073** (next-free **D-074**).
+The 2026-06-11 remediation/queue arc (PRs #52–#64) landed the doc-honesty
+fixes, the doc-pointer and shared-state-naming gates, the D-071/D-072 Fable 5
+re-baseline + settings pin, and the accepted ADR 0073 charter amendment; the
+operator selected **Milestone 2** as the next lane.
 
 **The canonical 22 (all present at source):** HostProfile, WorkspaceContext,
 Principal, AgentClient, Session, ToolProvider, ToolInstallation, ResolvedTool,

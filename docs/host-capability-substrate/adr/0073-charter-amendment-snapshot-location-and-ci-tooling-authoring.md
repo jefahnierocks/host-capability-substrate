@@ -1,7 +1,7 @@
 ---
 adr_number: 0073
 title: "Charter amendment: recognize the generated policy snapshot location and add enforcement-tooling authoring requirements"
-status: proposed
+status: accepted
 date: 2026-06-11
 charter_version: 1.4.2
 tags: [charter-amendment, policy-snapshot, ci-tooling, authoring-rules, change-class]
@@ -11,7 +11,7 @@ tags: [charter-amendment, policy-snapshot, ci-tooling, authoring-rules, change-c
 
 ## Status
 
-`proposed`
+`accepted`
 
 ## Date
 
@@ -267,3 +267,10 @@ this ADR PR):**
   must stay textually identical. Added the suggested regression coverage and
   the stale in-file `snapshot_binding` provenance note (authoritative
   binding is external per D-051).
+- 2026-06-11 (accepted): Operator merged the proposal (PR #62, `e378a3e`)
+  and directed proceed; status flipped `proposed` → `accepted` with the
+  D-073 ledger row. The §Change-policy reviewer requirement was satisfied
+  pre-acceptance: confirming round 2 returned accept-ready from
+  hcs-policy-reviewer, hcs-security-reviewer, and hcs-architect
+  (confirms_round1_fixes = true, zero blocking). Carries forward: the
+  charter-only v1.5.0 PR and the four eval-lane regression traps.

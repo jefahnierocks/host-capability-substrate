@@ -6,7 +6,7 @@ You are helping build a host operations substrate. Favor boundary clarity over s
 
 ## Tool baseline
 
-Early-phase HCS work runs on Claude Code CLI `2.1.172` (observed; ≥ `2.1.120` floor per charter inv. 12) with Fable 5 (`claude-fable-5`, 1M context) as the operator-selected main-session model. The `opus` short-name in `.claude/settings.json` still resolves to Opus 4.8 (`claude-opus-4-8`); it applies on session restart and pins the reviewer subagents — a split posture recorded in D-071, with the pin choice left to a separate operator decision. Claude app build identifiers are tracked separately from CLI semver. Re-baselined 2026-06-11 in `DECISIONS.md` D-071 (supersedes D-054; observations dated 2026-06-10), triggered by the Opus 4.8→Fable 5 main-session model change; charter inv. 12 floor and named-4.7 text are unchanged (separate charter-amendment ADR). Subsequent minor updates acceptable.
+Early-phase HCS work runs on Claude Code CLI `2.1.172` (observed; ≥ `2.1.120` floor per charter inv. 12) with Fable 5 (`claude-fable-5`, 1M context) as the main-session model — `claude-fable-5[1m]` pinned in `.claude/settings.json` per D-072. The reviewer subagents keep `model: opus` (Opus 4.8, `claude-opus-4-8`). Claude app build identifiers are tracked separately from CLI semver. Re-baselined 2026-06-11 in `DECISIONS.md` D-071 (supersedes D-054; observations dated 2026-06-10), triggered by the Opus 4.8→Fable 5 main-session model change; the pin choice D-071 left open was resolved by D-072; charter inv. 12 floor and named-4.7 text are unchanged (separate charter-amendment ADR). Subsequent minor updates acceptable.
 
 ## When asked to implement
 
@@ -62,7 +62,7 @@ Harness-level enforcement (Claude Code settings) is layered with substrate-level
 
 ## Subagent table
 
-Six project-scoped subagents in `.claude/agents/`, all on the `opus` alias (currently Opus 4.8 per D-071, which records the alias's divergence from the Fable 5 main session), no Bash in any tool list:
+Six project-scoped subagents in `.claude/agents/`, all on the `opus` alias (currently Opus 4.8 per D-072 — reviewers deliberately stay on Opus while the main session runs Fable 5), no Bash in any tool list:
 
 | Subagent | Tools | Role |
 |----------|-------|------|

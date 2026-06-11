@@ -20,9 +20,12 @@
       "enum": [
         "gate_evidence_acknowledgment",
         "worktree_clean_acknowledgment",
-        "pr_absence_acknowledgment"
+        "pr_absence_acknowledgment",
+        "boundary_evidence_freshness_override",
+        "boundary_evidence_contradiction_acknowledgment",
+        "boundary_evidence_absence_acceptance"
       ],
-      "description": "ApprovalGrant grant_kind values from ADR 0051 v4. Closes the three registry §Decision.required_grant_kind reservations (ADR 0030 + ADR 0035). Re-used by Decision.required_grant_kind to prevent enum drift."
+      "description": "ApprovalGrant grant_kind values from ADR 0051 v4 plus the three ADR 0034 §Sub-decision (d) boundary-evidence acknowledgment kinds (M2 entry promotion; additive enum widening, no ApprovalGrant.schema_version bump). The original three close the registry §Decision.required_grant_kind reservations (ADR 0030 + ADR 0035); the boundary_evidence_* three pair one-to-one with the boundary_evidence_* Decision.reason_kind rejections and are single-use per operation_id at Ring 1 mint (ADR 0030 v2 / ADR 0031 v1 acknowledgment-grant precedent). Re-used by Decision.required_grant_kind to prevent enum drift."
     },
     "scope": {
       "oneOf": [
@@ -524,9 +527,510 @@
           ],
           "additionalProperties": false,
           "description": "ApprovalGrant scope branch for pr_absence_acknowledgment grants (ADR 0051 v4)."
+        },
+        {
+          "type": "object",
+          "properties": {
+            "grant_kind": {
+              "type": "string",
+              "const": "boundary_evidence_freshness_override"
+            },
+            "boundary_observation_evidence_refs": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "evidence_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "description": "Reference to an Evidence record or fixture."
+                  },
+                  "source": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Human-readable source name or artifact path."
+                  },
+                  "observed_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                    "description": "RFC 3339 timestamp with an explicit UTC offset."
+                  },
+                  "valid_until": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                        "description": "RFC 3339 timestamp with an explicit UTC offset."
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "authority": {
+                    "type": "string",
+                    "enum": [
+                      "project-local",
+                      "workspace-local",
+                      "user-global",
+                      "system",
+                      "derived",
+                      "sandbox-observation",
+                      "host-observation",
+                      "vendor-doc",
+                      "installed-runtime",
+                      "human-observed",
+                      "self-asserted"
+                    ],
+                    "description": "Authority plane for a fact or observation. `self-asserted` is the lowest class — producer claims with no observation behind them — and cannot be promoted to any higher class per charter inv. 8 / inv. 18 chain-walk rejection."
+                  },
+                  "parser_version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "authoritative",
+                      "high",
+                      "best-effort",
+                      "stale",
+                      "unknown"
+                    ],
+                    "description": "Confidence assigned to an observation by the producer."
+                  },
+                  "evidence_chain_refs": {
+                    "default": [],
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "record_kind": {
+                          "type": "string",
+                          "enum": [
+                            "evidence",
+                            "boundary_observation",
+                            "coordination_fact",
+                            "derived_summary",
+                            "knowledge_chunk",
+                            "quality_gate"
+                          ],
+                          "description": "Record kind in a QualityGate evidence-chain preview."
+                        },
+                        "record_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                          "description": "Stable local entity identifier. It is not a secret value."
+                        },
+                        "authority": {
+                          "type": "string",
+                          "enum": [
+                            "project-local",
+                            "workspace-local",
+                            "user-global",
+                            "system",
+                            "derived",
+                            "sandbox-observation",
+                            "host-observation",
+                            "vendor-doc",
+                            "installed-runtime",
+                            "human-observed",
+                            "self-asserted"
+                          ],
+                          "description": "Authority plane for a fact or observation. `self-asserted` is the lowest class — producer claims with no observation behind them — and cannot be promoted to any higher class per charter inv. 8 / inv. 18 chain-walk rejection."
+                        },
+                        "allowed_for_gate": {
+                          "type": "boolean"
+                        },
+                        "gate_state": {
+                          "type": "string",
+                          "enum": [
+                            "provisional",
+                            "proven",
+                            "expired",
+                            "denied"
+                          ],
+                          "description": "QualityGate lifecycle state from ADR 0035."
+                        }
+                      },
+                      "required": [
+                        "record_kind",
+                        "record_id",
+                        "authority"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Typed evidence-chain preview used for QualityGate invariant checks."
+                    }
+                  }
+                },
+                "required": [
+                  "evidence_id",
+                  "source",
+                  "observed_at",
+                  "authority",
+                  "confidence",
+                  "evidence_chain_refs"
+                ],
+                "additionalProperties": false,
+                "description": "QualityGate evidence reference with typed transitive-chain preview."
+              }
+            },
+            "execution_context_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            }
+          },
+          "required": [
+            "grant_kind",
+            "boundary_observation_evidence_refs",
+            "execution_context_id"
+          ],
+          "additionalProperties": false,
+          "description": "ApprovalGrant scope branch for boundary_evidence_freshness_override grants (ADR 0034 §Sub-decision (d)): binds the specific stale BoundaryObservation evidence_refs being acknowledged plus the execution context whose boundary evidence is acknowledged. Scope-key disjointness preserved versus the worktree/destructive-git/merge/external-control-plane/runner per-class extensions. Scope-vs-envelope execution_context_id equality is a Ring 1 mint obligation."
+        },
+        {
+          "type": "object",
+          "properties": {
+            "grant_kind": {
+              "type": "string",
+              "const": "boundary_evidence_contradiction_acknowledgment"
+            },
+            "boundary_observation_evidence_refs": {
+              "minItems": 2,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "evidence_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "description": "Reference to an Evidence record or fixture."
+                  },
+                  "source": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Human-readable source name or artifact path."
+                  },
+                  "observed_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                    "description": "RFC 3339 timestamp with an explicit UTC offset."
+                  },
+                  "valid_until": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                        "description": "RFC 3339 timestamp with an explicit UTC offset."
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "authority": {
+                    "type": "string",
+                    "enum": [
+                      "project-local",
+                      "workspace-local",
+                      "user-global",
+                      "system",
+                      "derived",
+                      "sandbox-observation",
+                      "host-observation",
+                      "vendor-doc",
+                      "installed-runtime",
+                      "human-observed",
+                      "self-asserted"
+                    ],
+                    "description": "Authority plane for a fact or observation. `self-asserted` is the lowest class — producer claims with no observation behind them — and cannot be promoted to any higher class per charter inv. 8 / inv. 18 chain-walk rejection."
+                  },
+                  "parser_version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "authoritative",
+                      "high",
+                      "best-effort",
+                      "stale",
+                      "unknown"
+                    ],
+                    "description": "Confidence assigned to an observation by the producer."
+                  },
+                  "evidence_chain_refs": {
+                    "default": [],
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "record_kind": {
+                          "type": "string",
+                          "enum": [
+                            "evidence",
+                            "boundary_observation",
+                            "coordination_fact",
+                            "derived_summary",
+                            "knowledge_chunk",
+                            "quality_gate"
+                          ],
+                          "description": "Record kind in a QualityGate evidence-chain preview."
+                        },
+                        "record_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                          "description": "Stable local entity identifier. It is not a secret value."
+                        },
+                        "authority": {
+                          "type": "string",
+                          "enum": [
+                            "project-local",
+                            "workspace-local",
+                            "user-global",
+                            "system",
+                            "derived",
+                            "sandbox-observation",
+                            "host-observation",
+                            "vendor-doc",
+                            "installed-runtime",
+                            "human-observed",
+                            "self-asserted"
+                          ],
+                          "description": "Authority plane for a fact or observation. `self-asserted` is the lowest class — producer claims with no observation behind them — and cannot be promoted to any higher class per charter inv. 8 / inv. 18 chain-walk rejection."
+                        },
+                        "allowed_for_gate": {
+                          "type": "boolean"
+                        },
+                        "gate_state": {
+                          "type": "string",
+                          "enum": [
+                            "provisional",
+                            "proven",
+                            "expired",
+                            "denied"
+                          ],
+                          "description": "QualityGate lifecycle state from ADR 0035."
+                        }
+                      },
+                      "required": [
+                        "record_kind",
+                        "record_id",
+                        "authority"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Typed evidence-chain preview used for QualityGate invariant checks."
+                    }
+                  }
+                },
+                "required": [
+                  "evidence_id",
+                  "source",
+                  "observed_at",
+                  "authority",
+                  "confidence",
+                  "evidence_chain_refs"
+                ],
+                "additionalProperties": false,
+                "description": "QualityGate evidence reference with typed transitive-chain preview."
+              }
+            },
+            "execution_context_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            }
+          },
+          "required": [
+            "grant_kind",
+            "boundary_observation_evidence_refs",
+            "execution_context_id"
+          ],
+          "additionalProperties": false,
+          "description": "ApprovalGrant scope branch for boundary_evidence_contradiction_acknowledgment grants (ADR 0034 §Sub-decision (d)): binds the diverging BoundaryObservation evidence_refs being acknowledged (minimum two — a contradiction needs at least the divergent pair) plus the execution context. Scope-key disjointness preserved versus the other per-class extensions; scope-vs-envelope execution_context_id equality is a Ring 1 mint obligation."
+        },
+        {
+          "type": "object",
+          "properties": {
+            "grant_kind": {
+              "type": "string",
+              "const": "boundary_evidence_absence_acceptance"
+            },
+            "boundary_observation_evidence_refs": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "evidence_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "description": "Reference to an Evidence record or fixture."
+                  },
+                  "source": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Human-readable source name or artifact path."
+                  },
+                  "observed_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                    "description": "RFC 3339 timestamp with an explicit UTC offset."
+                  },
+                  "valid_until": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                        "description": "RFC 3339 timestamp with an explicit UTC offset."
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "authority": {
+                    "type": "string",
+                    "enum": [
+                      "project-local",
+                      "workspace-local",
+                      "user-global",
+                      "system",
+                      "derived",
+                      "sandbox-observation",
+                      "host-observation",
+                      "vendor-doc",
+                      "installed-runtime",
+                      "human-observed",
+                      "self-asserted"
+                    ],
+                    "description": "Authority plane for a fact or observation. `self-asserted` is the lowest class — producer claims with no observation behind them — and cannot be promoted to any higher class per charter inv. 8 / inv. 18 chain-walk rejection."
+                  },
+                  "parser_version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "authoritative",
+                      "high",
+                      "best-effort",
+                      "stale",
+                      "unknown"
+                    ],
+                    "description": "Confidence assigned to an observation by the producer."
+                  },
+                  "evidence_chain_refs": {
+                    "default": [],
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "record_kind": {
+                          "type": "string",
+                          "enum": [
+                            "evidence",
+                            "boundary_observation",
+                            "coordination_fact",
+                            "derived_summary",
+                            "knowledge_chunk",
+                            "quality_gate"
+                          ],
+                          "description": "Record kind in a QualityGate evidence-chain preview."
+                        },
+                        "record_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                          "description": "Stable local entity identifier. It is not a secret value."
+                        },
+                        "authority": {
+                          "type": "string",
+                          "enum": [
+                            "project-local",
+                            "workspace-local",
+                            "user-global",
+                            "system",
+                            "derived",
+                            "sandbox-observation",
+                            "host-observation",
+                            "vendor-doc",
+                            "installed-runtime",
+                            "human-observed",
+                            "self-asserted"
+                          ],
+                          "description": "Authority plane for a fact or observation. `self-asserted` is the lowest class — producer claims with no observation behind them — and cannot be promoted to any higher class per charter inv. 8 / inv. 18 chain-walk rejection."
+                        },
+                        "allowed_for_gate": {
+                          "type": "boolean"
+                        },
+                        "gate_state": {
+                          "type": "string",
+                          "enum": [
+                            "provisional",
+                            "proven",
+                            "expired",
+                            "denied"
+                          ],
+                          "description": "QualityGate lifecycle state from ADR 0035."
+                        }
+                      },
+                      "required": [
+                        "record_kind",
+                        "record_id",
+                        "authority"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Typed evidence-chain preview used for QualityGate invariant checks."
+                    }
+                  }
+                },
+                "required": [
+                  "evidence_id",
+                  "source",
+                  "observed_at",
+                  "authority",
+                  "confidence",
+                  "evidence_chain_refs"
+                ],
+                "additionalProperties": false,
+                "description": "QualityGate evidence reference with typed transitive-chain preview."
+              }
+            },
+            "execution_context_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "description": "Stable local entity identifier. It is not a secret value."
+            }
+          },
+          "required": [
+            "grant_kind",
+            "boundary_observation_evidence_refs",
+            "execution_context_id"
+          ],
+          "additionalProperties": false,
+          "description": "ApprovalGrant scope branch for boundary_evidence_absence_acceptance grants (ADR 0034 §Sub-decision (d)): binds the related BoundaryObservation evidence_refs contextualizing the accepted absence (the observations that exist around the missing required dimension) plus the execution context. Scope-key disjointness preserved versus the other per-class extensions; scope-vs-envelope execution_context_id equality is a Ring 1 mint obligation."
         }
       ],
-      "description": "Polymorphic ApprovalGrant scope payload selected by grant_kind (ADR 0051 v4)."
+      "description": "Polymorphic ApprovalGrant scope payload selected by grant_kind (ADR 0051 v4; boundary_evidence_* branches added per ADR 0034 §Sub-decision (d) at M2 entry)."
     },
     "minted_for_decision_id": {
       "type": "string",

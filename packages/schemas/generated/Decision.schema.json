@@ -7,7 +7,7 @@
     "schema_version": {
       "type": "string",
       "const": "0.1.0",
-      "description": "Decision schema version (ADR 0049; M1 foundational entity #1; D-037). ADRs 0056 and 0058 add Decision.reason_kind values by additive enum widening without bumping this literal. ADR 0061 / D-059 adds the additive nullable-optional attribution pair policy_rule_ref + resolved_policy_sha256 — an additive nullable-optional field extension (a distinct change class from additive enum widening) that likewise does not bump this literal."
+      "description": "Decision schema version (ADR 0049; M1 foundational entity #1; D-037). ADRs 0056 and 0058 add Decision.reason_kind values by additive enum widening without bumping this literal. ADR 0061 / D-059 adds the additive nullable-optional attribution pair policy_rule_ref + resolved_policy_sha256 — an additive nullable-optional field extension (a distinct change class from additive enum widening) that likewise does not bump this literal. The M2 entry promotion lifts the three ADR 0034 §Sub-decision (d) boundary_evidence_* reason kinds (additive enum widening) and adds the additive nullable-optional divergent_evidence_ref_pair contradiction co-record — neither bumps this literal."
     },
     "decision_id": {
       "type": "string",
@@ -50,9 +50,12 @@
         "containment_evidence_producer_supplied",
         "containment_runtime_capability_exceeded",
         "audit_chain_corruption_detected",
-        "authority_chain_walk_depth_exceeded"
+        "authority_chain_walk_depth_exceeded",
+        "boundary_evidence_stale",
+        "boundary_evidence_missing",
+        "boundary_evidence_contradictory"
       ],
-      "description": "Zod-defined Decision.reason_kind union (ADR 0049 v1 plus ADR 0056 and ADR 0058 additive promotions; 18 values). Remaining reservations stay registry-canonical-pending per the registered §Procedure rule."
+      "description": "Zod-defined Decision.reason_kind union (ADR 0049 v1 plus ADR 0056, ADR 0058, and ADR 0034 §Sub-decision (d) M2-entry additive promotions; 21 values). The three boundary_evidence_* kinds are this-invocation rejects keyed to BoundaryObservation stateness (stale = valid_until window expired at re-check; missing = a required boundary_dimension evidence_ref absent from the consuming chain, with unknown evaluating as missing; contradictory = linked observations diverging on structural facts, co-recording divergent_evidence_ref_pair). None promotes the operation to forbidden tier (ADR 0029 v2 block-vs-forbidden framing). Remaining reservations stay registry-canonical-pending per the registered §Procedure rule."
     },
     "reason_text": {
       "type": "string",
@@ -254,7 +257,10 @@
           "enum": [
             "gate_evidence_acknowledgment",
             "worktree_clean_acknowledgment",
-            "pr_absence_acknowledgment"
+            "pr_absence_acknowledgment",
+            "boundary_evidence_freshness_override",
+            "boundary_evidence_contradiction_acknowledgment",
+            "boundary_evidence_absence_acceptance"
           ],
           "description": "Decision.required_grant_kind alias for the canonical approvalGrantKindSchema. Shared source prevents enum drift between Decision and ApprovalGrant (ADR 0049 + ADR 0051 v4 cross-reference commitment)."
         },
@@ -284,6 +290,160 @@
           "type": "string",
           "pattern": "^sha256:[a-f0-9]{64}$",
           "description": "SHA-256 digest with algorithm prefix. It is not reversible secret material."
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "divergent_evidence_ref_pair": {
+      "description": "ADR 0034 §Sub-decision (d) audit-chain attribution rule (M2 entry promotion): exactly two evidence_ref entries naming the diverging BoundaryObservation records, so audit consumers can trace which observation contradicted which without joining the underlying records. Required (present and non-null) when reason_kind is boundary_evidence_contradictory; must be absent/null for every other reason_kind. Additive nullable-optional — no Decision.schema_version bump (ADR 0061 precedent). Entries carry the same chain-walk rejection discipline as evidence_refs (charter inv. 8 + inv. 18).",
+      "anyOf": [
+        {
+          "minItems": 2,
+          "maxItems": 2,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "evidence_id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                "description": "Reference to an Evidence record or fixture."
+              },
+              "source": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Human-readable source name or artifact path."
+              },
+              "observed_at": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                "description": "RFC 3339 timestamp with an explicit UTC offset."
+              },
+              "valid_until": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+                    "description": "RFC 3339 timestamp with an explicit UTC offset."
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "authority": {
+                "type": "string",
+                "enum": [
+                  "project-local",
+                  "workspace-local",
+                  "user-global",
+                  "system",
+                  "derived",
+                  "sandbox-observation",
+                  "host-observation",
+                  "vendor-doc",
+                  "installed-runtime",
+                  "human-observed",
+                  "self-asserted"
+                ],
+                "description": "Authority plane for a fact or observation. `self-asserted` is the lowest class — producer claims with no observation behind them — and cannot be promoted to any higher class per charter inv. 8 / inv. 18 chain-walk rejection."
+              },
+              "parser_version": {
+                "type": "string",
+                "minLength": 1
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "authoritative",
+                  "high",
+                  "best-effort",
+                  "stale",
+                  "unknown"
+                ],
+                "description": "Confidence assigned to an observation by the producer."
+              },
+              "evidence_chain_refs": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "record_kind": {
+                      "type": "string",
+                      "enum": [
+                        "evidence",
+                        "boundary_observation",
+                        "coordination_fact",
+                        "derived_summary",
+                        "knowledge_chunk",
+                        "quality_gate"
+                      ],
+                      "description": "Record kind in a QualityGate evidence-chain preview."
+                    },
+                    "record_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "description": "Stable local entity identifier. It is not a secret value."
+                    },
+                    "authority": {
+                      "type": "string",
+                      "enum": [
+                        "project-local",
+                        "workspace-local",
+                        "user-global",
+                        "system",
+                        "derived",
+                        "sandbox-observation",
+                        "host-observation",
+                        "vendor-doc",
+                        "installed-runtime",
+                        "human-observed",
+                        "self-asserted"
+                      ],
+                      "description": "Authority plane for a fact or observation. `self-asserted` is the lowest class — producer claims with no observation behind them — and cannot be promoted to any higher class per charter inv. 8 / inv. 18 chain-walk rejection."
+                    },
+                    "allowed_for_gate": {
+                      "type": "boolean"
+                    },
+                    "gate_state": {
+                      "type": "string",
+                      "enum": [
+                        "provisional",
+                        "proven",
+                        "expired",
+                        "denied"
+                      ],
+                      "description": "QualityGate lifecycle state from ADR 0035."
+                    }
+                  },
+                  "required": [
+                    "record_kind",
+                    "record_id",
+                    "authority"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Typed evidence-chain preview used for QualityGate invariant checks."
+                }
+              }
+            },
+            "required": [
+              "evidence_id",
+              "source",
+              "observed_at",
+              "authority",
+              "confidence",
+              "evidence_chain_refs"
+            ],
+            "additionalProperties": false,
+            "description": "QualityGate evidence reference with typed transitive-chain preview."
+          }
         },
         {
           "type": "null"

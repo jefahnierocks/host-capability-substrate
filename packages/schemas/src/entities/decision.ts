@@ -7,7 +7,7 @@ import { qualityGateEvidenceRefSchema } from './quality-gate.ts';
 export const decisionSchemaVersionSchema = z
   .literal('0.1.0')
   .describe(
-    'Decision schema version (ADR 0049; M1 foundational entity #1; D-037). ADRs 0056 and 0058 add Decision.reason_kind values by additive enum widening without bumping this literal. ADR 0061 / D-059 adds the additive nullable-optional attribution pair policy_rule_ref + resolved_policy_sha256 — an additive nullable-optional field extension (a distinct change class from additive enum widening) that likewise does not bump this literal.',
+    'Decision schema version (ADR 0049; M1 foundational entity #1; D-037). ADRs 0056 and 0058 add Decision.reason_kind values by additive enum widening without bumping this literal. ADR 0061 / D-059 adds the additive nullable-optional attribution pair policy_rule_ref + resolved_policy_sha256 — an additive nullable-optional field extension (a distinct change class from additive enum widening) that likewise does not bump this literal. The M2 entry promotion lifts the three ADR 0034 §Sub-decision (d) boundary_evidence_* reason kinds (additive enum widening) and adds the additive nullable-optional divergent_evidence_ref_pair contradiction co-record — neither bumps this literal.',
   );
 
 export const decisionOutcomeSchema = z
@@ -36,9 +36,12 @@ export const decisionReasonKindSchema = z
     'containment_runtime_capability_exceeded',
     'audit_chain_corruption_detected',
     'authority_chain_walk_depth_exceeded',
+    'boundary_evidence_stale',
+    'boundary_evidence_missing',
+    'boundary_evidence_contradictory',
   ])
   .describe(
-    'Zod-defined Decision.reason_kind union (ADR 0049 v1 plus ADR 0056 and ADR 0058 additive promotions; 18 values). Remaining reservations stay registry-canonical-pending per the registered §Procedure rule.',
+    'Zod-defined Decision.reason_kind union (ADR 0049 v1 plus ADR 0056, ADR 0058, and ADR 0034 §Sub-decision (d) M2-entry additive promotions; 21 values). The three boundary_evidence_* kinds are this-invocation rejects keyed to BoundaryObservation stateness (stale = valid_until window expired at re-check; missing = a required boundary_dimension evidence_ref absent from the consuming chain, with unknown evaluating as missing; contradictory = linked observations diverging on structural facts, co-recording divergent_evidence_ref_pair). None promotes the operation to forbidden tier (ADR 0029 v2 block-vs-forbidden framing). Remaining reservations stay registry-canonical-pending per the registered §Procedure rule.',
   );
 
 export const decisionRequiredGrantKindSchema = approvalGrantKindSchema.describe(
@@ -82,6 +85,21 @@ const decisionReasonKindCompatibleOutcomes: Record<
   containment_runtime_capability_exceeded: ['deny'],
   audit_chain_corruption_detected: ['deny'],
   authority_chain_walk_depth_exceeded: ['deny'],
+  boundary_evidence_stale: ['deny'],
+  boundary_evidence_missing: ['deny'],
+  boundary_evidence_contradictory: ['deny'],
+};
+
+// ADR 0034 §Sub-decision (d): each boundary_evidence_* rejection is clearable
+// only by its matching single-use acknowledgment grant kind. Ring 0 enforces
+// the kind pairing (null stays valid — not every rejection offers a grant
+// path); single-use-per-operation_id consumption is a Ring 1 mint obligation.
+const boundaryEvidenceGrantPairing: Partial<
+  Record<DecisionReasonKindLiteral, z.infer<typeof decisionRequiredGrantKindSchema>>
+> = {
+  boundary_evidence_stale: 'boundary_evidence_freshness_override',
+  boundary_evidence_missing: 'boundary_evidence_absence_acceptance',
+  boundary_evidence_contradictory: 'boundary_evidence_contradiction_acknowledgment',
 };
 
 const retrievalArtifactIdPattern = /^(knowledge-chunk|derived-summary):/;
@@ -89,14 +107,14 @@ const retrievalArtifactIdPattern = /^(knowledge-chunk|derived-summary):/;
 function chainWalkRefineDecisionEvidenceRef(
   ref: z.infer<typeof qualityGateEvidenceRefSchema>,
   ctx: z.RefinementCtx,
-  index: number,
+  path: ReadonlyArray<string | number>,
 ): void {
   if (retrievalArtifactIdPattern.test(ref.evidence_id)) {
     ctx.addIssue({
       code: 'custom',
       message:
         'Decision evidence_refs must not cite KnowledgeChunk or DerivedSummary records directly (charter inv. 18).',
-      path: ['evidence_refs', index],
+      path: [...path],
     });
   }
   if (ref.authority === 'sandbox-observation' || ref.authority === 'self-asserted') {
@@ -104,7 +122,7 @@ function chainWalkRefineDecisionEvidenceRef(
       code: 'custom',
       message:
         'Decision evidence_refs cannot carry sandbox-observation or self-asserted authority (charter inv. 8 + inv. 18).',
-      path: ['evidence_refs', index, 'authority'],
+      path: [...path, 'authority'],
     });
   }
   for (const [chainIndex, chainRef] of ref.evidence_chain_refs.entries()) {
@@ -113,7 +131,7 @@ function chainWalkRefineDecisionEvidenceRef(
         code: 'custom',
         message:
           'Decision evidence-chain refs must not cite KnowledgeChunk records (charter inv. 18).',
-        path: ['evidence_refs', index, 'evidence_chain_refs', chainIndex, 'record_kind'],
+        path: [...path, 'evidence_chain_refs', chainIndex, 'record_kind'],
       });
     }
     if (chainRef.authority === 'sandbox-observation' || chainRef.authority === 'self-asserted') {
@@ -121,7 +139,7 @@ function chainWalkRefineDecisionEvidenceRef(
         code: 'custom',
         message:
           'Decision evidence-chain refs cannot carry sandbox-observation or self-asserted authority.',
-        path: ['evidence_refs', index, 'evidence_chain_refs', chainIndex, 'authority'],
+        path: [...path, 'evidence_chain_refs', chainIndex, 'authority'],
       });
     }
     if (
@@ -133,7 +151,7 @@ function chainWalkRefineDecisionEvidenceRef(
         code: 'custom',
         message:
           'Decision evidence-chain refs cannot cite unpromoted coordination_fact or derived_summary records (ADR 0019 v3 chain-promotion rule).',
-        path: ['evidence_refs', index, 'evidence_chain_refs', chainIndex, 'allowed_for_gate'],
+        path: [...path, 'evidence_chain_refs', chainIndex, 'allowed_for_gate'],
       });
     }
   }
@@ -166,6 +184,14 @@ export const decisionSchema = z
       .optional()
       .describe(
         'ADR 0061 / D-059: the live-policy BLOB digest the referenced PolicyRule was resolved against — the value snapshot-binding-check recomputes over the vendored snapshot, equal to the source_provenance.source_policy_sha256 of the referenced rule (ADR 0060), and explicitly NOT the live policy stale internal snapshot_binding.source_policy_sha256 marker. Ring 0 validates format only (sha256: + 64 lowercase hex); the digest-vs-bound-snapshot trust check (B-2) is a Ring 1 loader obligation. Additive nullable-optional — absent/null when no rule applies; pair-consistent with policy_rule_ref on attributed-ness.',
+      ),
+    divergent_evidence_ref_pair: z
+      .array(qualityGateEvidenceRefSchema)
+      .length(2)
+      .nullable()
+      .optional()
+      .describe(
+        'ADR 0034 §Sub-decision (d) audit-chain attribution rule (M2 entry promotion): exactly two evidence_ref entries naming the diverging BoundaryObservation records, so audit consumers can trace which observation contradicted which without joining the underlying records. Required (present and non-null) when reason_kind is boundary_evidence_contradictory; must be absent/null for every other reason_kind. Additive nullable-optional — no Decision.schema_version bump (ADR 0061 precedent). Entries carry the same chain-walk rejection discipline as evidence_refs (charter inv. 8 + inv. 18).',
       ),
   })
   .strict()
@@ -212,7 +238,44 @@ export const decisionSchema = z
     }
 
     for (const [index, ref] of value.evidence_refs.entries()) {
-      chainWalkRefineDecisionEvidenceRef(ref, ctx, index);
+      chainWalkRefineDecisionEvidenceRef(ref, ctx, ['evidence_refs', index]);
+    }
+
+    const pairedGrantKind = boundaryEvidenceGrantPairing[value.reason_kind];
+    if (
+      pairedGrantKind !== undefined &&
+      value.required_grant_kind !== null &&
+      value.required_grant_kind !== pairedGrantKind
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        message: `reason_kind '${value.reason_kind}' is clearable only by its matching single-use acknowledgment grant '${pairedGrantKind}' or null (ADR 0034 §Sub-decision (d) pairing); got '${value.required_grant_kind}'.`,
+        path: ['required_grant_kind'],
+      });
+    }
+
+    const divergentPairPresent =
+      value.divergent_evidence_ref_pair !== undefined && value.divergent_evidence_ref_pair !== null;
+    if (value.reason_kind === 'boundary_evidence_contradictory' && !divergentPairPresent) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          'boundary_evidence_contradictory must co-record divergent_evidence_ref_pair (exactly two evidence_ref entries naming the diverging observations) per ADR 0034 §Sub-decision (d) audit-chain attribution rule.',
+        path: ['divergent_evidence_ref_pair'],
+      });
+    }
+    if (value.reason_kind !== 'boundary_evidence_contradictory' && divergentPairPresent) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          'divergent_evidence_ref_pair is reserved for boundary_evidence_contradictory rejections; it must be absent/null for every other reason_kind.',
+        path: ['divergent_evidence_ref_pair'],
+      });
+    }
+    if (divergentPairPresent && value.divergent_evidence_ref_pair) {
+      for (const [index, ref] of value.divergent_evidence_ref_pair.entries()) {
+        chainWalkRefineDecisionEvidenceRef(ref, ctx, ['divergent_evidence_ref_pair', index]);
+      }
     }
 
     const ruleAttributed = value.policy_rule_ref !== undefined && value.policy_rule_ref !== null;

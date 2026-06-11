@@ -3,8 +3,8 @@ title: HCS Ontology Registry
 category: reference
 component: host_capability_substrate
 status: partial
-version: 0.4.34
-last_updated: 2026-06-08
+version: 0.4.35
+last_updated: 2026-06-11
 tags: [ontology, registry, registry-consolidation, phase-2-4, phase-2-7, boundary-observation, evidence, operation-shape, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, ci-runner, remote-agent, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, naming-discipline, authority-discipline, cross-context-binding, audit-integrity, enum-value-casing, q-011, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0, workflow-sequencing-step-1, workflow-sequencing-step-3, self-approval-rejection-rule, policy-rule, capability, command-shape, tool-provider, tool-installation, resolved-tool, artifact, lock, resource-budget]
 priority: high
 ---
@@ -927,9 +927,9 @@ work can cite one stable registry index.
 | `ExecutionContext` | `0.2.0` | Phase 2.2.1 containment-cache refactor | Cache is kernel-set and points to typed containment evidence. |
 | `OperationShape` | `0.2.0` | Phase 2.2.2 deletion-authority extension | Source-vs-ledger version drift closed 2026-05-09 by introducing `operationShapeSchemaVersionSchema = z.literal('0.2.0')` in source (was previously sharing the generic `schemaVersionSchema = z.literal('0.1.0')` from `common.ts`); ADR 0036 is the existing authority. ADR 0047 cleanup_plan addition treated as additive enum widening per schema-change skill, no further bump. No mutation/execute behavior is authorized by this registry record. |
 | `AgentClient` | `0.1.0` | ADR 0037 Phase 2.1.1 introduction; ADR 0059 / D-058 canonical-hash amendment (non-version-bumping) | `schema_version` uses the common `schemaVersionSchema = z.literal('0.1.0')`. ADR 0059 commits the canonical field order, GENESIS handling, and length-prefix discipline for `audit_chain_link_hash` on the existing AgentClient envelope WITHOUT a `schema_version` bump — the amendment adds source `.describe()` text + generated-schema assertions only, with no field-set change. `AgentClient` joins the mint/audit-service audit-chain commitment list with Decision, ApprovalGrant, Lease, Run, Principal, and Session (seven-entity coverage). Producer attribution stays service-path authority via `kernel_agent_client_resolver`; it is NOT an AgentClient record field and is excluded from the canonical concatenation. Deterministic hash-vector tests + GENESIS / duplicate-genesis enforcement are Ring 1 mint/audit obligations. |
-| `Decision` | `0.1.0` | ADR 0049 / D-037 foundational-entity introduction; ADR 0056 / D-046 and ADR 0058 / D-053 additive reason-kind promotions | `decisionSchemaVersionSchema = z.literal('0.1.0')`. Landed at commit `7fb7e05` with Step 1 foundational train. ADR 0056 adds `operation_class_unregistered` + `audit_chain_corruption_detected` to `decisionReasonKindSchema`; ADR 0058 adds `authority_chain_walk_depth_exceeded`. Both slices are additive enum widening with no version bump. ADR 0061 / D-059 adds the additive nullable-optional attribution pair `policy_rule_ref` + `resolved_policy_sha256` — a distinct change class from additive enum widening, also with no version bump; closes ADR 0060's §Decision-attribution B-1 dependency. |
+| `Decision` | `0.1.0` | ADR 0049 / D-037 foundational-entity introduction; ADR 0056 / D-046, ADR 0058 / D-053, and ADR 0034 M2-entry additive reason-kind promotions | `decisionSchemaVersionSchema = z.literal('0.1.0')`. Landed at commit `7fb7e05` with Step 1 foundational train. ADR 0056 adds `operation_class_unregistered` + `audit_chain_corruption_detected` to `decisionReasonKindSchema`; ADR 0058 adds `authority_chain_walk_depth_exceeded`. Both slices are additive enum widening with no version bump. ADR 0061 / D-059 adds the additive nullable-optional attribution pair `policy_rule_ref` + `resolved_policy_sha256` — a distinct change class from additive enum widening, also with no version bump; closes ADR 0060's §Decision-attribution B-1 dependency. The ADR 0034 M2-entry promotion (registry v0.4.35) adds the three `boundary_evidence_*` reason kinds (additive widening) plus the additive nullable-optional `divergent_evidence_ref_pair` contradiction co-record and the reason↔grant pairing refinement — no version bump (same two precedent change classes). |
 | `WorkspaceContext` | `0.1.0` | ADR 0050 / D-038 foundational-entity introduction | `workspaceContextSchemaVersionSchema = z.literal('0.1.0')`. Landed at commit `7fb7e05`. |
-| `ApprovalGrant` | `0.1.0` | ADR 0051 v4 / D-039 foundational-entity introduction | `approvalGrantSchemaVersionSchema = z.literal('0.1.0')`. Landed at commit `7fb7e05`. ADR 0054 typed-FK closure for `grantor_principal_ref` does NOT bump (FK shape unchanged at `entityIdSchema`). |
+| `ApprovalGrant` | `0.1.0` | ADR 0051 v4 / D-039 foundational-entity introduction; ADR 0034 M2-entry additive grant-kind promotion | `approvalGrantSchemaVersionSchema = z.literal('0.1.0')`. Landed at commit `7fb7e05`. ADR 0054 typed-FK closure for `grantor_principal_ref` does NOT bump (FK shape unchanged at `entityIdSchema`). The ADR 0034 M2-entry promotion (registry v0.4.35) adds the three `boundary_evidence_*` acknowledgment grant kinds with their `.strict()` scope branches (additive enum widening + additive union branches) — no version bump. |
 | `Lease` | `0.1.0` | ADR 0052 / D-040 foundational-entity introduction | `leaseSchemaVersionSchema = z.literal('0.1.0')`. Landed at commit `7fb7e05`. |
 | `Run` | `0.1.0` | ADR 0053 / D-041 foundational-entity introduction | `runSchemaVersionSchema = z.literal('0.1.0')`. Landed at commit `7fb7e05`. |
 | `Principal` | `0.1.0` | ADR 0054 / D-043 foundational-entity introduction (post-Step-1-source-landing) | `principalSchemaVersionSchema = z.literal('0.1.0')`. Closes ApprovalGrant.grantor_principal_ref + Session.principal_id (landed, ADR 0055) + ADR 0025 requesting_principal_id + ADR 0036 verifier-identity typed FK targets. Cf-category-strip canonicalization recipe structurally closes ADR 0051 v4 MT-Sec-2 zero-width-character evasion. |
@@ -2618,12 +2618,15 @@ mint_api | kernel_broker | kernel_gateway
 `kernel_gateway` is NEW from ADR 0049 (gateway re-derive emits Decisions
 without minting Grants/Leases/Runs).
 
-#### `Decision.reason_kind` status table (after ADRs 0049–0058)
+#### `Decision.reason_kind` status table (after ADRs 0049–0058 + the ADR 0034 M2-entry promotion)
 
-18 Zod-defined values from ADRs 0049, 0056, and 0058 + 20 registry-canonical
-reservations from ADRs 0051 v4 (5 remaining), 0052 (6), 0053 (5), and
-0055 (4); 38 total. Future schema PRs Zod-lift the remaining reservations
-alongside the Ring 1 service or schema that consumes each.
+21 Zod-defined values from ADRs 0049, 0056, 0058, and the ADR 0034
+§Sub-decision (d) M2-entry promotion + 20 registry-canonical reservations
+from ADRs 0051 v4 (5 remaining), 0052 (6), 0053 (5), and 0055 (4); 41 total.
+(The three ADR 0034 reservations were posture-only in the ADR text and
+predate this table's 0049+ consolidation; the M2-entry schema PR lifts them
+directly to Zod-defined.) Future schema PRs Zod-lift the remaining
+reservations alongside the Ring 1 service or schema that consumes each.
 
 | Value | Source ADR | State | Outcome compatibility |
 |---|---|---|---|
@@ -2665,6 +2668,9 @@ alongside the Ring 1 service or schema that consumes each.
 | `session_principal_unresolvable` | 0055 | registry-canonical | deny-only |
 | `session_execution_context_unresolvable` | 0055 | registry-canonical | deny-only |
 | `session_started_at_after_ended_at` | 0055 | registry-canonical | deny-only |
+| `boundary_evidence_stale` | 0034 (M2-entry promotion) | Zod-defined | deny-only |
+| `boundary_evidence_missing` | 0034 (M2-entry promotion) | Zod-defined | deny-only |
+| `boundary_evidence_contradictory` | 0034 (M2-entry promotion) | Zod-defined | deny-only |
 
 ADR 0056 makes `operation_class_unregistered` non-clearable:
 `required_grant_kind` must be `null`, and any non-null grant kind rejects.
@@ -2679,6 +2685,19 @@ emit it; `kernel_gateway` is excluded despite the general
 bounded-walk semantics. Typed Decision emission also requires a valid
 `operation_shape_ref`; non-operation mint overflows and pure chain-validation
 overflows remain on the audit rejection path without typed Decision emission.
+
+The three `boundary_evidence_*` kinds (ADR 0034 §Sub-decision (d), M2-entry
+promotion) are pairing-constrained rather than non-clearable: a same-record
+refinement rejects any non-null `required_grant_kind` other than the matching
+single-use acknowledgment grant (stale ↔ `boundary_evidence_freshness_override`;
+missing ↔ `boundary_evidence_absence_acceptance`; contradictory ↔
+`boundary_evidence_contradiction_acknowledgment`). `boundary_evidence_contradictory`
+additionally co-records `divergent_evidence_ref_pair` (exactly two chain-aware
+evidence refs naming the diverging observations; required iff contradictory,
+rejected otherwise; entries chain-walk-refined). Stateness-matrix evaluation
+(the {stale, missing, contradictory} × six-operation-class matrix keyed to
+`valid_until` expiry, with `unknown` evaluating as missing) and
+single-use-per-operation_id grant consumption are Ring 1 obligations.
 
 #### Procedure for adding a new `Decision.reason_kind` value (ADR 0049)
 
@@ -2708,21 +2727,32 @@ overflows remain on the audit rejection path without typed Decision emission.
   the Layer 1 mint API checks for `Lease` acquire equality per ADR 0031 v1
   Mechanical Tweak #8 / Security-C.
 
-#### `ApprovalGrant.grant_kind` enum mirror (ADR 0051 v4)
+#### `ApprovalGrant.grant_kind` enum mirror (ADR 0051 v4 + the ADR 0034 M2-entry promotion)
 
 ```
-gate_evidence_acknowledgment | worktree_clean_acknowledgment | pr_absence_acknowledgment
+gate_evidence_acknowledgment | worktree_clean_acknowledgment | pr_absence_acknowledgment | boundary_evidence_freshness_override | boundary_evidence_contradiction_acknowledgment | boundary_evidence_absence_acceptance
 ```
 
-Closes all three registry §Decision.required_grant_kind reservations from
-ADRs 0030 + 0035. The `approvalGrantKindSchema` Zod source is re-used by
-`Decision.required_grant_kind` (single source of truth; no enum drift).
+The first three close the registry §Decision.required_grant_kind reservations
+from ADRs 0030 + 0035; the three `boundary_evidence_*` kinds lift the ADR 0034
+§Sub-decision (d) posture-only reservations at M2 entry (additive widening, no
+`ApprovalGrant.schema_version` bump; single-use per operation_id at Ring 1
+mint per the ADR 0030 v2 / 0031 v1 acknowledgment-grant precedent; each scope
+branch binds `boundary_observation_evidence_refs[]` — min 2 on the
+contradiction branch — plus `execution_context_id`, with scope-vs-envelope
+equality a Ring 1 obligation and scope-key disjointness preserved versus the
+other per-class extensions). The `approvalGrantKindSchema` Zod source is
+re-used by `Decision.required_grant_kind` (single source of truth; no enum
+drift).
 
 | grant_kind | operation_class_scope (documentation) | Source ADR |
 |---|---|---|
 | `gate_evidence_acknowledgment` | union of `qualityGateOperationClassSchema` values | 0035 |
 | `worktree_clean_acknowledgment` | `destructive_git` | 0030 |
 | `pr_absence_acknowledgment` | `destructive_git` | 0030 |
+| `boundary_evidence_freshness_override` | the stale × approval_required cells of the ADR 0034 §Sub-decision (d) matrix | 0034 |
+| `boundary_evidence_contradiction_acknowledgment` | the contradictory × approval_required cells of the ADR 0034 §Sub-decision (d) matrix | 0034 |
+| `boundary_evidence_absence_acceptance` | the missing × approval_required cells of the ADR 0034 §Sub-decision (d) matrix | 0034 |
 
 `operation_class_scope` is reviewer-discretion documentation; the structural
 defense for forbidden-tier non-escalability (charter inv. 6) lives upstream at
@@ -3951,6 +3981,7 @@ Changes to this registry follow the schema-change workflow at
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.4.35 | 2026-06-11 | M2-entry promotion of the ADR 0034 §Sub-decision (d) posture-only reservations (companion to ontology v1.32.0; the first Milestone 2 schema PR). §Decision.reason_kind status table: the three `boundary_evidence_*` rows land as Zod-defined deny-only (table header now reads 21 Zod-defined + 20 registry-canonical = 41 total; the 0034 reservations predate the table's 0049+ consolidation and lift directly). NEW pairing-constraint note: each `boundary_evidence_*` rejection is clearable only by its matching single-use acknowledgment grant or `null` (same-record refinement); `boundary_evidence_contradictory` co-records `divergent_evidence_ref_pair` (exactly-two chain-aware refs, required-iff-contradictory, chain-walk-refined); stateness-matrix evaluation and single-use-per-operation_id consumption stay Ring 1. §ApprovalGrant.grant_kind enum mirror: 3 → 6 (the three boundary acknowledgment kinds + per-kind matrix-cell `operation_class_scope` rows); each new scope branch binds `boundary_observation_evidence_refs[]` (min 2 on contradiction) + `execution_context_id` with scope-vs-envelope equality at Ring 1 and scope-key disjointness preserved. Registered per §Procedure for adding reason_kind (steps 1–4) and grant_kind (steps 1–7) values: source ADR 0034 cited; outcome compatibility deny-only; no forbidden-tier clearing path (OperationShape.operation_class enum closure unchanged); single-use semantics declared; typed scope shapes committed with envelope superRefine walks; all-four-lens dispatch on the schema PR. No `Decision`/`ApprovalGrant` schema_version bumps (additive widening + nullable-optional precedent). |
 | 0.4.34 | 2026-06-08 | Post-M1 housekeeping (docs-only): in the §Current-schema-version ledger, flipped two stale "future" forward-references whose targets are now landed — `Session.principal_id` in the `Principal` row (landed ADR 0055) and `ToolInstallation` in the `ToolProvider` row (landed ADR 0068). Fixed the §References ADR 0051 pointer slug (`0051-approvalgrant-…` → `0051-approval-grant-…`, matching the on-disk filename). No ledger-version, enum-mirror, or producer-allowlist change. (Companion to ontology v1.31.1; change-log rows are historical and were left untouched.) |
 | 0.4.33 | 2026-06-08 | Recorded the ADR 0072 / D-070 `ResourceBudget` schema PR — the non-minted Ring-0 THIRD and FINAL storage primitive, closing the M1 22-entity Ring-0 set (22/22). Change-set: NEW §Current-schema-version-ledger row (`ResourceBudget @ '0.1.0'`, non-minted); NEW §Schema-enum-mirrors `ResourceBudget` subsection (resource_kind / limit_unit / budget_state) recording the allocation-not-pressure-reading distinction from the shipped `ResourceBudgetObservation`, the `resource_kind`↔`limit_unit` non-cross-constraint accept-and-trap, the `unknown` house-sentinel + §Procedure widening, and the `budget_state` `_state`-convention choice; NEW §References row for ADR 0072. `resourceBudgetSchema` (.strict()): resource_budget_id + a REQUIRED session_id FK to Session (ADR 0055) + a resource_kind enum (cpu/memory/network/sandbox_concurrency/unknown) + limit_value (z.number().int().min(0)) + a limit_unit enum (cores/bytes/bytes_per_sec/count/percent/unknown) + a budget_state enum (active/retired) + .strict() source_provenance (disjoint `resource_budget_declaration` authority). Reuses `entityIdSchema` + `isoDateTimeSchema`. The durable per-session ALLOCATION, distinct from the shipped ResourceBudgetObservation pressure reading (distinct export names). Per-dimension (one record per session × resource). The lifecycle field is `budget_state` (renamed from the proposed `budget_status` for `_state`-suffix peer consistency). Fulfills the pre-reserved `Evidence.subject_kind: 'resource_budget'` with NO `evidenceSubjectKindSchema` change and NO `Evidence.schema_version` bump. resource_budget_id-opaque (entityIdSchema accepts a raw-shape id — recorded accept-and-trap, mirroring the storage-primitive peers), session_id FK existence, the resource_kind↔limit_unit consistency (NOT cross-constrained at Ring 0 — recorded accept-and-trap, mirroring the ResolvedTool basis↔context non-cross-constraint), sandbox non-promotion (inv. 8), supersession, and enforcement against ResourceBudgetObservation pressure are Ring 1 obligations. NO policy-tier denylist (inv. 1). Regenerated ResourceBudget.schema.json; added resource-budget.test.ts. |
 | 0.4.32 | 2026-06-08 | Recorded the ADR 0071 / D-069 `Lock` schema PR — the non-minted Ring-0 second storage primitive: a coarse mutex (e.g. package-manager global), the lighter cousin of the minted `Lease` (ADR 0052). Change-set: NEW §Current-schema-version-ledger row (`Lock @ '0.1.0'`, non-minted); NEW §Schema-enum-mirrors `Lock` subsection (lock_kind / lock_status) recording the Lock-vs-Lease distinction, the `lock_status`-not-`lock_state` collision avoidance (shipped `GitWorktreeObservation.payload.lock_state`, a semantically different vocab), the `released`-value-overlap-with-Lease.lease_state harmlessness note, and the lower_snake_case assertion; NEW §References row for ADR 0071. `lockSchema` (.strict()): lock_id + a CLOSED lock_kind enum (package_manager_global/host_mutation_global/unknown) + a REQUIRED held_by_session_id FK to Session (ADR 0055; reuses Lease's FK name, same semantic) + a lock_status enum (held/released) + .strict() source_provenance (disjoint `lock_declaration` authority). Reuses `entityIdSchema` + `isoDateTimeSchema`. NON-MINTED — no audit_chain_link_hash/producer/evidence_refs, no per-resource scope, no force_break_grant_id (carries none of Lease's minting/authorization machinery; cannot bypass a Lease). Fulfills the pre-reserved `Evidence.subject_kind: 'lock'` with NO `evidenceSubjectKindSchema` change and NO `Evidence.schema_version` bump. lock_id-opaque (entityIdSchema accepts a raw-shape id — recorded accept-and-trap), mutual-exclusion enforcement, acquire/release + holder-only release, held_by_session_id FK existence, holder + lock_status sandbox non-promotion (inv. 8), and supersession are Ring 1 obligations. NO policy-tier denylist (inv. 1). Regenerated Lock.schema.json; added lock.test.ts (incl. the no-Lease-bypass scope/force_break_grant_id + lock_state reject probes). |

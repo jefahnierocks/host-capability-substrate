@@ -96,6 +96,7 @@ F: dashboard read path
 G: hook integration
 H: eval/regression
 I: mutation/approval/execution — blocked until approval grants + audit + dashboard + leases all exist
+J: enforcement tooling — scripts/ci/**, .github/workflows/**, the justfile, or scripts/ci/verify.sh gate wiring
 ```
 
 Class I is unmergeable until Milestone M4-Month-4 per the research plan
@@ -124,7 +125,7 @@ Update `AGENTS.md` only after repeated mistakes. Add traps to the regression cor
 
 ## Required subagent reviews
 
-Per charter v1.4.2:
+Per charter v1.5.0:
 
 - PR touches any `packages/schemas/` file or `docs/host-capability-substrate/ontology.md` → `hcs-ontology-reviewer` objections required
 - PR touches `system-config/policies/host-capability-substrate/` (via workspace) or any file that classifies operations → `hcs-policy-reviewer` objections required
@@ -132,3 +133,4 @@ Per charter v1.4.2:
 - PR touches `.claude/hooks/`, `.codex/hooks/`, `.codex/hooks.json`, or adapter hook documentation → `hcs-hook-integrator` objections required
 - PR touches `.claude/agents/**` or `.codex/agents/**` → `hcs-architect` objections required; add `hcs-security-reviewer` when permissions, hook posture, or secret-handling instructions change
 - PR adds or edits ADRs → `hcs-architect` review required
+- PR changes enforcement tooling (class J) — `scripts/ci/**`, `.github/workflows/**`, the `justfile`, or `scripts/ci/verify.sh` gate wiring — → `hcs-architect` objections required. Add `hcs-security-reviewer` when the change touches any invariant-enforcing gate: the secret-defense gates (`no-live-secrets`, `forbidden-string-scan` — which also carries the audit-write-exposure, universal-shell, and hook-thinness stanzas), `no-runtime-state-in-repo`, `snapshot-binding-check` (the integrity gate backing the generated-snapshot location exception), sandbox or permission-adjacent gates, or hook installation. This mandate composes with — and never displaces — the existing required-review rules: files that classify operations (for example `policy-lint.sh` and `snapshot-binding-check`) still require `hcs-policy-reviewer` objections, and changes engaging schema enums or ontology still require `hcs-ontology-reviewer` objections. *(v1.5.0; ADR 0073)*

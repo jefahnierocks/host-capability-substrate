@@ -23,6 +23,7 @@ Use when a PR adds or amends a file under `docs/host-capability-substrate/adr/`,
 6. Check the "Consequences" section lists both accepts and rejects, and notes any future-amendment paths.
 7. Check the "References" section cites at least the charter, the research plan, and any applicable external docs (MCP spec, Claude Code docs, Codex docs, etc.).
 8. Confirm the ADR's status is appropriate (`proposed`, `accepted`, `superseded`) and that the date is ISO-8601.
+9. Smoke-test citations: re-verify every cited path:line against the file state under review before returning a verdict — do not carry file/line claims from an earlier read or recollection.
 
 ## Checks
 

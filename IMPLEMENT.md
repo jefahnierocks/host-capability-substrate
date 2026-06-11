@@ -98,7 +98,10 @@ H: eval/regression
 I: mutation/approval/execution — blocked until approval grants + audit + dashboard + leases all exist
 ```
 
-Class I is CI-enforced as unmergeable until Milestone M4-Month-4 per the research plan.
+Class I is unmergeable until Milestone M4-Month-4 per the research plan
+(charter invariant 7). Enforcement today is operator review plus the per-PR
+checklist — no CI gate checks change class yet; whether to build one is an
+open operator decision.
 
 ## Weekly review (≤30 minutes)
 

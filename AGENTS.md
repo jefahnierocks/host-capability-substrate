@@ -3,13 +3,13 @@
 
 ## Tool baseline (binding during early phases)
 
-Current observed baseline (re-recorded 2026-05-28 in `DECISIONS.md` D-054, superseding D-029; triggered by the Opus 4.7→4.8 model change). Public CLI semver and app-build identifiers are separate authority facts (D-029).
+Current observed baseline (observed 2026-06-10, re-recorded 2026-06-11 in `DECISIONS.md` D-071, superseding D-054; triggered by the Opus 4.8→Fable 5 main-session model change). Public CLI semver and app-build identifiers are separate authority facts (D-029).
 
-- **Claude Code CLI:** `2.1.156` observed; model posture Opus 4.8 (`claude-opus-4-8`, 1M context; `opus` short-name in settings). Floor remains ≥ `2.1.120` (charter inv. 12). Claude macOS app build tracked separately.
-- **Codex CLI:** verify via `codex --version` (not re-observed in this packet); GPT-5.5/GPT-5.4-compatible HCS profiles. Floor remains ≥ `0.125.0` (charter inv. 12). Codex macOS app `26.519.81530 (3178)` / Workspace dependencies `26.521.10419` tracked separately as app-build facts.
-- **Host OS:** macOS Tahoe `26.5`.
+- **Claude Code CLI:** `2.1.172` observed; main-session model posture Fable 5 (`claude-fable-5`, 1M context; operator-selected session default). The `opus` short-name pinned by `.claude/settings.json` still resolves to Opus 4.8 (`claude-opus-4-8`) — it applies on session restart and pins the six reviewer subagents; that split posture is recorded in D-071, and moving either pin is a separate operator decision. Floor remains ≥ `2.1.120` (charter inv. 12). Claude macOS app build tracked separately.
+- **Codex CLI:** verify via `codex --version` (not re-observed in this packet); GPT-5.5/GPT-5.4-compatible HCS profiles. Floor remains ≥ `0.125.0` (charter inv. 12). Codex macOS app `26.519.81530 (3178)` / Workspace dependencies `26.521.10419` tracked separately as app-build facts (D-054 values, not re-observed).
+- **Host OS:** macOS Tahoe `26.5.1`.
 
-Subsequent minor updates acceptable without re-baselining. Re-baseline after material version changes; see `DECISIONS.md` D-054 (supersedes D-029). Charter invariant 12 still names Opus 4.7 and the ≥ `2.1.120` / ≥ `0.125.0` floors; amending that invariant text is a separate charter-amendment ADR.
+Subsequent minor updates acceptable without re-baselining. Re-baseline after material version changes; see `DECISIONS.md` D-071 (supersedes D-054). Charter invariant 12 still names Opus 4.7 and the ≥ `2.1.120` / ≥ `0.125.0` floors; amending that invariant text is a separate charter-amendment ADR.
 
 ## Source of truth
 
@@ -142,7 +142,7 @@ project-scoped reviewer definitions are mirrored for Claude Code and Codex in
 | `hcs-hook-integrator` | Read, Grep, Glob, Edit | .claude/hooks/, .codex/hooks/, .codex/hooks.json, adapter hook docs | Wires hooks without owning policy |
 | `hcs-eval-reviewer` | Read, Grep, Glob, Edit | packages/evals/, packages/fixtures/ | Regression trap quality |
 
-Claude Code subagents pin `model: opus` (the alias; currently Opus 4.8 per D-054); Codex reviewer definitions inherit
+Claude Code subagents pin `model: opus` (the alias; currently Opus 4.8 per D-071, which records the alias's divergence from the Fable 5 main session); Codex reviewer definitions inherit
 the active Codex model/profile. No reviewer subagent has Bash in its tool list —
 reviewers catch drift, not execute commands. Implementation work happens in the
 main session with explicit permission.

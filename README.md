@@ -57,10 +57,10 @@ No lower ring may import from a higher ring. Enforced by CI from commit 1.
 
 ## Tool baseline (early phases)
 
-- **Claude Code CLI** ≥ `2.1.120` with Opus 4.8 (per `DECISIONS.md` D-054); Claude macOS app build tracked separately
+- **Claude Code CLI** ≥ `2.1.120` with Fable 5 as the main-session model (per `DECISIONS.md` D-071; the `opus` settings alias still pins the reviewer subagents to Opus 4.8); Claude macOS app build tracked separately
 - **Codex CLI** ≥ `0.125.0` with GPT-5.5/GPT-5.4-compatible HCS profiles; Codex macOS app build tracked separately
 
-Subsequent minor updates acceptable. See `DECISIONS.md` D-054 (supersedes D-029) for the current baseline and the public-semver/app-build split.
+Subsequent minor updates acceptable. See `DECISIONS.md` D-071 (supersedes D-054) for the current baseline and the public-semver/app-build split.
 
 ## Quick start
 

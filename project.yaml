@@ -1,0 +1,27 @@
+# Hub interop header for the meta-inventory project-spec (contract: ADR 0002 §D3
+# in meta-inventory, docs/decisions/0002-project-intelligence-spec.md; enum
+# registry: docs/ontology/dimensions.yaml there). Standardizes the lookup only —
+# HCS status authority remains PLAN.md §Current Focus (authority.status_of_record).
+# Maintenance rule: AGENTS.md §Hub interop header.
+spec_version: 0.1
+project:
+  id: host-capability-substrate
+  display_name: Host Capability Substrate (HCS)
+  owner_entity: jefahnierocks
+role: canonical
+peers: []
+status:
+  posture: working-prototype
+  local_phase: "Milestone 1 complete — Ring-0 ontology landed 22/22 (ADRs through
+    0073); Milestone 2 (policy snapshot + decision package) open, first schema
+    slice landed; kernel/adapters/dashboard intentionally unbuilt"
+  as_of: 2026-06-11
+authority:
+  status_of_record: PLAN.md
+presentation:
+  visibility: public-available
+  public_alias: null
+  link_policy: link-ok
+  # Standing framing constraint (operator-stated): HCS is personal host
+  # infrastructure exploration — never present it as employment, client work,
+  # or a commercial product.

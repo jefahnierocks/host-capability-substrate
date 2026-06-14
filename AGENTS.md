@@ -78,6 +78,7 @@ scripts/
 - No runtime state in the repo — it lives under `~/Library/Application Support/host-capability-substrate/` and `~/Library/Logs/host-capability-substrate/`.
 - Live policy is canonical in `system-config/policies/host-capability-substrate/`, not in this repo.
 - Gitignore state is not deletion authority; `.logs/`, runtime state, audit state, materialized facts, and policy caches can be load-bearing.
+- Operator handoffs go to `.handoffs/` as `*.handoff.md`: a record-class, load-bearing-but-untracked surface — a `.logs/` sibling governed by inv. 13, **not** inv-10 runtime state, and not deletable on gitignore grounds. Gitignored (structurally un-committable) but durable. Durable operator-facing briefs go here; throwaways use `$TMPDIR`. End every brief by echoing its host-resolved absolute path plus a zsh-ready `bat <path>` / `open <path>`. An operator brief is record-class, not an `Artifact` (an `Artifact` needs a `Run`'s authorizing `Decision` an interactive session never produces; minting one would fabricate provenance). Per ADR 0074.
 - Runtime-config claims require installed-runtime/config-spec evidence; do not write boolean-like strings for strict JSON booleans.
 - GUI/app/IDE agents do not automatically inherit terminal shell env, direnv, or zsh startup state.
 - Never echo secret-shaped environment values; use existence-only, names-only, classified, or hashed inspection.

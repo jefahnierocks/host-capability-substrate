@@ -51,6 +51,14 @@ Return objections before fixes. Blocking issues first, non-blocking second.
 - HCS workstation-surface authority, local work roles, Cloudflare identity
   transition, and MCP OAuth baseline are restated in
   `docs/host-capability-substrate/workstation-surface-contract.md`.
+- Operator handoffs (session handoffs, briefs, denial explainers) go to
+  `.handoffs/` as `*.handoff.md`, never `$TMPDIR` — see `AGENTS.md` §Hard
+  boundaries and ADR 0074. `.handoffs/` is deliberately **not** in the
+  `.claude/settings.json` `Edit()` allowlist, so a write prompts once under
+  `defaultMode: ask`; that one-beat approval is intended for a durable
+  operator-facing artifact, not friction to remove. End every handoff by
+  echoing its host-resolved absolute path and a ready-to-run `bat <path>` /
+  `open <path>`.
 
 ## Settings posture
 

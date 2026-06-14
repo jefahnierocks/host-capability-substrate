@@ -42,6 +42,12 @@ __pycache__/
 # Phase-0 hook logs (local only; not committed)
 .logs/
 
+# Operator handoffs — record-class, load-bearing-but-untracked (inv-13; ADR 0074).
+# Un-committable here, but NOT deletable on gitignore grounds; a .logs/ sibling,
+# not inv-10 runtime state. The *.handoff.md suffix is CI-clean by construction.
+.handoffs/
+*.handoff.md
+
 # OS
 .DS_Store
 *.log

@@ -67,6 +67,17 @@ Q-013 credential-plane v1 schemas landed 2026-05-07 (ADR 0043;
 slices; remaining Q-013 work (reconciler, broker, receipt entities) awaits a
 follow-on accepted ADR.
 
+**Tracked substrate item (not milestone-blocking) — permission-posture as a
+queryable fact.** A repo can tighten harness gate-1 (HCS's `defaultMode: ask` +
+path-scoped `Edit()` allowlist in `.claude/settings.json`), but there is no
+machine-readable signal an incoming agent — or an unsituated general assistant
+reading `AGENTS.md` — can consult to learn "this repo tightened gate-1, so any
+'no settings change needed' claim is false here" *before* proposing config. The
+`zsh`-only opt-out is already a queryable fact; the gate-1 posture is not.
+Encoding it (a future-ADR candidate) would pre-empt that class of unsituated
+overclaim at the source. Surfaced by ADR 0074; deliberately deferred so it
+cannot block the handoff convention.
+
 The prior Current Focus (policy-registry chain + CI wiring) is retained below as
 provenance.
 

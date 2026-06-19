@@ -13,9 +13,10 @@ peers: []
 status:
   posture: working-prototype
   local_phase: "Milestone 1 complete — Ring-0 ontology landed 22/22 (ADRs through
-    0073); Milestone 2 (policy snapshot + decision package) open, first schema
-    slice landed; kernel/adapters/dashboard intentionally unbuilt"
-  as_of: 2026-06-11
+    0075; decisions through D-076); Milestone 2 (policy snapshot + decision
+    package) open, first schema slice landed; kernel/adapters/dashboard
+    intentionally unbuilt"
+  as_of: 2026-06-15
 authority:
   status_of_record: PLAN.md
 presentation:

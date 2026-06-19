@@ -12,11 +12,13 @@ canonical Ring-0 entities are landed as Zod schemas + generated JSON Schema +
 `schema_version` + ontology/registry docs, with the final entity —
 **ResourceBudget** (ADR 0072 / D-070, schema **PR #44 merged**) — closing the set.
 Ontology **v1.32.0**, registry **v0.4.35**, charter **v1.5.0**; ADRs span
-**0001–0073** (0026 absent); decisions through **D-073** (next-free **D-074**).
-The 2026-06-11 remediation/queue arc (PRs #52–#64) landed the doc-honesty
-fixes, the doc-pointer and shared-state-naming gates, the D-071/D-072 Fable 5
-re-baseline + settings pin, and the accepted ADR 0073 charter amendment; the
-operator selected **Milestone 2** as the next lane.
+**0001–0075** (0026 absent); decisions accepted through **D-076**. **D-074**
+remains RESERVED pending the ADR 0074 accept-flip (0074 merged via #68 but still
+`proposed`); D-075/D-076 landed ahead of it. The 2026-06-11 remediation/queue
+arc (PRs #52–#64) landed the doc-honesty fixes, the doc-pointer and
+shared-state-naming gates, the D-071/D-072 Fable 5 re-baseline + settings pin,
+and the accepted ADR 0073 charter amendment; the operator selected
+**Milestone 2** as the next lane.
 
 **The canonical 22 (all present at source):** HostProfile, WorkspaceContext,
 Principal, AgentClient, Session, ToolProvider, ToolInstallation, ResolvedTool,
@@ -47,12 +49,13 @@ supplemental until a Q-011-guided ontology review promotes them.)
 forward lanes are:
 
 1. **Milestone 2 — Policy snapshot + decision package** (the next milestone in
-   sequence): `tiers.yaml` validates against Zod entity schemas; `Decision` /
+   sequence): the ADR 0034 `boundary_evidence_*` reason/grant enum lift is
+   **DONE** (PR #66 / commit `446503b`, registry **v0.4.35**). Remaining M2
+   work: `tiers.yaml` validates against Zod entity schemas; `Decision` /
    `ApprovalGrant` consumption of `BoundaryObservation` evidence refs implements
    the settled Q-007(d) stateness matrix — rows {`stale`, `missing`,
    `contradictory`} (the `stale` row keyed to `valid_until` expiry), with
-   `unknown` evaluating as `missing` (ADR 0034 v2, accepted 2026-05-03): the reserved
-   `boundary_evidence_*` reason/grant kinds get their schema enum lift, and
+   `unknown` evaluating as `missing` (ADR 0034 v2, accepted 2026-05-03);
    tiers.yaml gains per-`boundary_dimension` freshness windows; YAML policy
    loader rejects malformed/stale-schema-version files with digest verification
    per ADR 0060 B-2; the policy input shape is defined. **No execution path.**

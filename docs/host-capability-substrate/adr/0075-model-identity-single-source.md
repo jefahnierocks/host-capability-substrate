@@ -1,7 +1,7 @@
 ---
 adr_number: 0075
 title: "Single-source the model/tool identity; pin aliases, not exact strings; de-name the model from charter inv. 12"
-status: proposed
+status: accepted
 date: 2026-06-15
 charter_version: 1.5.0
 tags: [tool-baseline, model-identity, charter-amendment, inv-12, inv-14, single-source, alias-pinning, eval-corpus, churn-resilience]
@@ -11,7 +11,7 @@ tags: [tool-baseline, model-identity, charter-amendment, inv-12, inv-14, single-
 
 ## Status
 
-`proposed`
+`accepted`
 
 ## Date
 
@@ -364,3 +364,11 @@ subsumes.
   (`confirms_round1_fixes: true`); architect and policy `changes-needed` on these
   factual/citation points only — the drafted inv-12 text, alias-pinning,
   single-source design, and Facet-4 reframe were each confirmed sound.
+- 2026-06-15 (accepted): Operator merged the proposal (PR #70, `95ba45c`) and
+  directed proceed; status flipped `proposed` → `accepted` with the D-076 ledger
+  row. The §Change-policy reviewer requirement was satisfied pre-acceptance
+  (`hcs-policy-reviewer` confirm + `hcs-security-reviewer` approve +
+  `hcs-eval-reviewer` confirm; the architect residuals were folded across three
+  rounds). Design-only acceptance — no charter/settings/prose/eval byte change.
+  Carries forward: the charter-only inv-12 amendment PR, the single-source
+  implementing PR(s), and the eval-lane work.

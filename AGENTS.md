@@ -166,3 +166,7 @@ Update `AGENTS.md` after repeated agent mistakes; do not stuff it upfront. Keep 
 ## Hub interop header
 
 When posture/phase/peers/visibility change, update `project.yaml` (hub interop header; contract: `/Users/verlyn13/Repos/verlyn13/meta-inventory/docs/decisions/0002-project-intelligence-spec.md` §D3). It is a derived lookup header consumed by the meta-inventory hub — `PLAN.md` §Current Focus remains the status of record; never treat `project.yaml` as a competing status authority, and never present HCS as employment, client work, or a commercial product.
+
+## Ecosystem awareness — agentic-coding-lab
+
+`agentic-coding-lab` (Plane A, the `~/ai` LLM stack) is a future consumer of HCS's approval/audit lane. Its command-allowlist checker (`harness/sandbox/command_checker.py`) is a deliberate placeholder whose module docstring already documents a defer-to-HCS seam: when HCS's approval/audit lane ships, the lab intends to route eval commands through `OperationShape → CommandShape` + approval grants instead of the local checker. No live wiring today (the planes are orthogonal) — this is a future-consumer note so the approval/audit shape accounts for a waiting client.

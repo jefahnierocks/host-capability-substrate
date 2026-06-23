@@ -11,7 +11,7 @@ Research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/hos
 canonical Ring-0 entities are landed as Zod schemas + generated JSON Schema +
 `schema_version` + ontology/registry docs, with the final entity —
 **ResourceBudget** (ADR 0072 / D-070, schema **PR #44 merged**) — closing the set.
-Ontology **v1.32.0**, registry **v0.4.35**, charter **v1.5.0**; ADRs span
+Ontology **v1.32.0**, registry **v0.4.35**, charter **v1.6.0**; ADRs span
 **0001–0075** (0026 absent); decisions accepted through **D-076**. **D-074**
 remains RESERVED pending the ADR 0074 accept-flip (0074 merged via #68 but still
 `proposed`); D-075/D-076 landed ahead of it. The 2026-06-11 remediation/queue

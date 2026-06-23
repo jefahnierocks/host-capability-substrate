@@ -36,6 +36,7 @@ require 'yaml'
 
 OPERATION_SHAPE_SCHEMA = 'packages/schemas/generated/OperationShape.schema.json'
 DECISION_SCHEMA = 'packages/schemas/generated/Decision.schema.json'
+POLICY_RULE_SCHEMA = 'packages/schemas/generated/PolicyRule.schema.json'
 
 @failed = false
 
@@ -93,11 +94,13 @@ end
 snapshot_dir = ARGV.fetch(0)
 operation_shape_schema = JSON.parse(File.read(OPERATION_SHAPE_SCHEMA))
 decision_schema = JSON.parse(File.read(DECISION_SCHEMA))
+policy_rule_schema = JSON.parse(File.read(POLICY_RULE_SCHEMA))
 
 operation_classes = collect_property_values(operation_shape_schema, 'operation_class').to_set
 decision_reason_kinds = collect_property_values(decision_schema, 'reason_kind').to_set
 operation_shape_versions = collect_property_values(operation_shape_schema, 'schema_version').to_set
 decision_versions = collect_property_values(decision_schema, 'schema_version').to_set
+policy_rule_versions = collect_property_values(policy_rule_schema, 'schema_version').to_set
 
 Dir.glob(File.join(snapshot_dir, '**', '*.{yaml,yml}')).sort.each do |path|
   rel = relative_path(path)
@@ -120,6 +123,7 @@ Dir.glob(File.join(snapshot_dir, '**', '*.{yaml,yml}')).sort.each do |path|
   if mapping?(schema_refs)
     expected_operation_version = operation_shape_versions.to_a.fetch(0)
     expected_decision_version = decision_versions.to_a.fetch(0)
+    expected_policy_rule_version = policy_rule_versions.to_a.fetch(0)
 
     if schema_refs['operation_shape_schema_version'] != expected_operation_version
       lint_error(
@@ -132,6 +136,13 @@ Dir.glob(File.join(snapshot_dir, '**', '*.{yaml,yml}')).sort.each do |path|
       lint_error(
         rel,
         "schema_refs.decision_schema_version must be #{expected_decision_version.inspect}",
+      )
+    end
+
+    if schema_refs['policy_rule_schema_version'] != expected_policy_rule_version
+      lint_error(
+        rel,
+        "schema_refs.policy_rule_schema_version must be #{expected_policy_rule_version.inspect}",
       )
     end
   else
@@ -159,5 +170,14 @@ end
 
 exit(@failed ? 1 : 0)
 RUBY
+
+while IFS= read -r path; do
+  rel="${path#./}"
+  ruby -ryaml -rjson -e 'puts JSON.generate(YAML.safe_load(File.read(ARGV.fetch(0)), permitted_classes: [], aliases: false))' "$path" |
+    node --experimental-strip-types scripts/ci/policy-rule-zod-check.ts \
+      "$path" \
+      "policies/generated-snapshot/snapshot-binding.json" \
+      "$rel"
+done < <(find "$snapshot_dir" -type f \( -name "*.yaml" -o -name "*.yml" \) | sort)
 
 echo "  ✓ generated policy snapshot compatibility OK"

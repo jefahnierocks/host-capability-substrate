@@ -12,9 +12,16 @@ canonical Ring-0 entities are landed as Zod schemas + generated JSON Schema +
 `schema_version` + ontology/registry docs, with the final entity —
 **ResourceBudget** (ADR 0072 / D-070, schema **PR #44 merged**) — closing the set.
 Ontology **v1.33.0**, registry **v0.4.36**, charter **v1.6.0**; ADRs span
-**0001–0077** (0026 absent); decisions accepted through **D-080** (next-free
-**D-081**, no reserved gap after the ADR 0074 / D-074 accept-flip). ADR 0074 /
+**0001–0078** (0026 absent); decisions accepted through **D-081** (next-free
+**D-082**, no reserved gap after the ADR 0074 / D-074 accept-flip). ADR 0074 /
 D-074 is accepted and closes the operator-handoff record-class ledger thread.
+ADR 0078 / D-081 (AgentClient + Session model-attribution amendment) is accepted
+design-only — it resolves the canonical-hash attribution-vs-identity fork ADR
+0076 deferred by adding `Session.model_ref` + `AgentClient.model_ref` as
+additive nullable-optional `Model` FKs excluded from each minted entity's
+`audit_chain_link_hash` (no `schema_version` bump; identity-in-the-hash
+rejected), completing the four-locus model-attribution ladder; the schema PR
+follows.
 ADR 0077 / D-080 (audit-events store — SQLite-WAL, atomic per-chain-root append,
 unique-genesis) is accepted design-only, discharging ADR 0057 audit rule 7 and
 homing ADR 0064's deferred persistence; the Ring-1 implementation is M4-gated.

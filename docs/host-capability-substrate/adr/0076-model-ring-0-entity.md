@@ -304,7 +304,9 @@ land — never bulk-rewritten now, per ADR 0075's "classify, don't rewrite.")
 - Minting (`Model` is a fact, not an audit-chain identity; absent from ADR 0057 scope).
 - `AgentClient.model_ref` in this slice — the canonical-hash fork (attribution-vs-identity)
   is deliberately deferred per operator direction; model attribution is delivered via
-  `Decision` / `Run` instead.
+  `Decision` / `Run` instead. (The fork was subsequently resolved by **ADR 0078 / D-081**,
+  accepted 2026-06-23: `AgentClient.model_ref` + `Session.model_ref` attribution-alongside,
+  identity-in-the-hash rejected.)
 - Rich model-card attributes (modalities, knowledge cutoff, pricing, released/retracted
   dates) — no current consumer; pricing would couple to `ResourceBudget`. Deferred.
 - Any live-policy / tier field on `Model` (a model is a fact Ring 1 reads, inv. 1); any
@@ -323,6 +325,9 @@ land — never bulk-rewritten now, per ADR 0075's "classify, don't rewrite.")
   `Session.model_ref` — their own ADR; it cites this ADR's `Decision`/`Run`
   canonical-hash-**exclusion** as the precedent for an additive model FK on a minted
   entity (the attribution-alongside option), against the in-the-hash identity option.
+  **Resolved by ADR 0078 / D-081** (accepted 2026-06-23): both FKs added
+  attribution-alongside (excluded from each minted entity's canonical hash, no
+  `schema_version` bump); identity-in-the-hash rejected.
 - An `AliasResolution` sibling and the eval results-ledger (`trap × model × date ×
   verdict`, keyed by `model_id`) when the eval harness lands (ADR 0075 deferral).
 - The de-versioning CI boundary scan.
@@ -353,7 +358,10 @@ not the subject.
 
 **Cons:** reopens the ADR 0059 canonical-hash debate (attribution vs identity-in-the-hash)
 as a *gating* fork; the operator deferred it. Model and client are distinct grains (one
-client product spans model swaps). Deferred to its own ADR.
+client product spans model swaps). Deferred to its own ADR — now **ADR 0078 / D-081**,
+which took the attribution-alongside path (the model link excluded from the AgentClient
+canonical hash) and rejected identity-in-the-hash for exactly the distinct-grains reason
+stated here.
 
 ## Out of scope
 
@@ -505,4 +513,9 @@ break) and are strong trap candidates once the `Model` schema lands.
   flipped `proposed` → `accepted` with the **D-077** ledger row. The architect's confirming
   round-2 precision nit was folded (ADR 0061 was silent on `policy_rule_ref`'s hash
   disposition; this ADR makes the `Decision`/`Run` model-FK exclusion explicit).
+- 2026-06-23 (forward-link annotation, no decision change): the §Rejects, §Future
+  amendments, and Option-D forward references to the deferred `AgentClient.model_ref` /
+  `Session.model_ref` fork now cross-link **ADR 0078 / D-081**, which resolved that fork
+  (attribution-alongside; identity-in-the-hash rejected). Added during the ADR 0078
+  accept-flip per the doc-keeper forward-pointer-currency check.
   Design-only acceptance — no schema/code byte change.

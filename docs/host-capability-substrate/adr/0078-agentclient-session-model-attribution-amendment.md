@@ -1,7 +1,7 @@
 ---
 adr_number: 0078
 title: AgentClient + Session model-attribution amendment
-status: proposed
+status: accepted
 version: v2
 date: 2026-06-23
 charter_version: 1.6.0
@@ -12,7 +12,7 @@ tags: [agent-client, session, ring-0, model, audit-attribution, schema-extension
 
 ## Status
 
-`proposed`
+`accepted`
 
 Drafted 2026-06-23 as the deferred follow-on that ADR 0076 (Model Ring-0
 entity, D-077) named in its §Future amendments: "`AgentClient.model_ref`
@@ -72,6 +72,18 @@ field-list assertions that must update, and a superRefine-independence case).
 No tweak touched a design decision, so no confirming round 2 was required; v2
 is presented for acceptance under the mechanical-tweaks-at-acceptance
 discipline (ADR 0058 precedent).
+
+ADR 0078 is accepted 2026-06-23 as **D-081**. Round 1 returned zero blockers
+and v2 folded every mechanical tweak, so no confirming round 2 was required.
+Human approval = operator merged the propose PR #84 (`16b7d09`) and directed
+proceed. Design-only acceptance: no Zod / generated-JSON-Schema / test /
+ontology / registry byte change. The follow-up schema PR is sequenced after
+acceptance per `.agents/skills/hcs-schema-change`, on a tree where the `Model`
+entity (ADR 0076 schema PR #78) already exists, and bumps the registry from
+v0.4.36 with no `schema_version` bump on `Session` or `AgentClient`. It
+resolves the model-attribution fork ADR 0076 deferred for both
+`AgentClient.model_ref` and `Session.model_ref` (attribution-alongside;
+identity-in-the-hash rejected).
 
 ## Date
 

@@ -296,11 +296,12 @@ handed to the eval/hook lanes.
 This ADR amends invariant 12. On acceptance: `hcs-policy-reviewer` +
 `hcs-security-reviewer` objections (filed and addressed), human approval, a charter
 version bump, and the charter edit in its own charter-only PR (the D-073
-precedent). The accept-flip adds ledger row **D-076** (D-074 is reserved for the
-pending accept-flip of ADR 0074 — the merged-but-still-`proposed` handoff/
-record-class ADR; D-075 is the merged re-baseline that surfaced this ADR). It should also close the
-long-deferred inv-12 named-model tracking item (D-054/D-071 lineage), which Facet 3
-subsumes.
+precedent). The accept-flip adds ledger row **D-076** (at this ADR's acceptance
+time, D-074 was reserved for the ADR 0074 handoff/record-class accept-flip; D-075
+was the merged re-baseline that surfaced this ADR). ADR 0074 is now accepted as
+**D-074** (2026-06-23), closing that reserved gap. This accept-flip should also
+close the long-deferred inv-12 named-model tracking item (D-054/D-071 lineage),
+which Facet 3 subsumes.
 
 ## References
 
@@ -312,10 +313,11 @@ subsumes.
   that surfaced this), D-071/D-072 (the Fable re-baseline + exact pin), D-054, D-029
   (CLI-semver vs app-build split); D-076 added on acceptance
 - Related ADRs: 0073 (charter-amendment precedent: amend ADR → charter-only PR),
-  0074 (*Operator handoffs are a record-class surface* — the merged-but-`proposed`
-  handoff ADR; its "Tracked separately" section logged the permission-posture
-  `PLAN.md` backlog item, a *related* single-source/queryability instance — 0074 is
-  not itself a single-source ADR)
+  0074 (*Operator handoffs are a record-class surface* — now accepted as D-074;
+  at this ADR's acceptance time it had not yet been accept-flipped; its "Tracked
+  separately" section logged the permission-posture `PLAN.md` backlog item, a
+  *related* single-source/queryability instance — 0074 is not itself a
+  single-source ADR)
 - Eval field authority: `.agents/skills/hcs-regression-trap/SKILL.md` (the
   `model_coverage` = run-scope definition); `packages/evals/regression/seed.md`
   (Cadence line — the one live-baseline restatement in the corpus)
@@ -348,8 +350,9 @@ subsumes.
   "resolved" overclaim. Folded security wording: named the alias-resolution
   fails-open trust assumption (2a) and moved the inv-14 verify-first caveat next to
   the alias claim (2d); added the calibration-sentence + durable-anchor Facet-1
-  implementation notes (2b/2c). Fixed numbering (accept-flip → D-076; D-074 reserved
-  for the pending ADR 0074 accept-flip).
+  implementation notes (2b/2c). Fixed numbering (accept-flip → D-076; D-074 was
+  reserved at the time for the ADR 0074 accept-flip; closed by D-074 on
+  2026-06-23).
 - 2026-06-15 (v3): Folded the confirming round-2 review. Corrected the drift count
   to **85 occurrences across 46 files** (the v2 "91/47" was computed before the
   rebase settled D-075's merged row, which itself carries `Opus 4.7` references;

@@ -30,6 +30,15 @@ provenance:
   hcs_source_repo: jefahnierocks/host-capability-substrate
   hcs_source_commit: 83b24eb
   hcs_source_refreshed_at: "2026-05-18"
+  tracking_decision: frozen_snapshot
+  hcs_main_head_observed_commit: 95ba45c
+  hcs_main_head_observed_at: "2026-06-19"
+  note: >
+    This policy binds the frozen HCS snapshot at 83b24eb from
+    2026-05-18. It does not auto-track HCS main HEAD. At reconciliation
+    time, remote HCS main was observed at 95ba45c; the ADR-0075
+    acceptance commit 0bd3b6a remained on docs/accept-adr-0075 and was
+    not used as a source pin.
   system_config_source_repo: jefahnierocks/system-config
   source_candidate_ref: "system-config:63309b3:docs/host-capability-substrate/tiers.yaml.v0.2.0-skeleton.yaml"
   accepted_human_decisions_at: "2026-05-12"
@@ -50,7 +59,7 @@ schema_refs:
   run_schema_version: "0.1.0"
   principal_schema_version: "0.1.0"
   session_schema_version: "0.1.0"
-  policy_rule_schema_version: null
+  policy_rule_schema_version: "0.1.0"
 
 evidence_refs:
   source_adr_refs:

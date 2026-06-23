@@ -12,16 +12,19 @@ canonical Ring-0 entities are landed as Zod schemas + generated JSON Schema +
 `schema_version` + ontology/registry docs, with the final entity —
 **ResourceBudget** (ADR 0072 / D-070, schema **PR #44 merged**) — closing the set.
 Ontology **v1.33.0**, registry **v0.4.36**, charter **v1.6.0**; ADRs span
-**0001–0076** (0026 absent); decisions accepted through **D-077** (next-free
-**D-078**, no reserved gap after the ADR 0074 / D-074 accept-flip). ADR 0074 /
+**0001–0076** (0026 absent); decisions accepted through **D-078** (next-free
+**D-079**, no reserved gap after the ADR 0074 / D-074 accept-flip). ADR 0074 /
 D-074 is accepted and closes the operator-handoff record-class ledger thread.
 The ADR 0076 / D-077 `Model` schema landed as the **23rd Ring-0 entity** (first
 post-M1) via PR #78 — model identity/spec/lifecycle as a non-minted typed object
 completing ADR 0075; `Evidence` bumped to `0.11.0` for the new `model` subject
-kind. The 2026-06-11 remediation/queue arc (PRs #52–#64) landed the doc-honesty
-fixes, the doc-pointer and shared-state-naming gates, the D-071/D-072 Fable 5
-re-baseline + settings pin, and the accepted ADR 0073 charter amendment; the
-operator selected **Milestone 2** as the next lane.
+kind. D-078 activates the PolicyRule live-policy schema ref (`null` → `"0.1.0"`)
+in system-config and re-vendors the byte-identical HCS generated snapshot bound
+to system-config commit `426843252e80` / digest `sha256:ebc23f90...`. The
+2026-06-11 remediation/queue arc (PRs #52–#64) landed the doc-honesty fixes, the
+doc-pointer and shared-state-naming gates, the D-071/D-072 Fable 5 re-baseline +
+settings pin, and the accepted ADR 0073 charter amendment; the operator selected
+**Milestone 2** as the next lane.
 
 **The canonical 22 (all present at source):** HostProfile, WorkspaceContext,
 Principal, AgentClient, Session, ToolProvider, ToolInstallation, ResolvedTool,
@@ -53,8 +56,10 @@ forward lanes are:
 
 1. **Milestone 2 — Policy snapshot + decision package** (the next milestone in
    sequence): the ADR 0034 `boundary_evidence_*` reason/grant enum lift is
-   **DONE** (PR #66 / commit `446503b`). Remaining M2
-   work: `tiers.yaml` validates against Zod entity schemas; `Decision` /
+   **DONE** (PR #66 / commit `446503b`), and the ADR 0060 PolicyRule live-policy
+   schema-ref activation + HCS byte-identical snapshot re-vendor is **DONE**
+   (D-078; system-config `426843252e80`; bound digest `sha256:ebc23f90...`).
+   Remaining M2 work: `Decision` /
    `ApprovalGrant` consumption of `BoundaryObservation` evidence refs implements
    the settled Q-007(d) stateness matrix — rows {`stale`, `missing`,
    `contradictory`} (the `stale` row keyed to `valid_until` expiry), with
@@ -1346,7 +1351,11 @@ settled 2026-05-03 by ADR 0034 v2, whose matrix is keyed to `valid_until` expiry
 
 **Acceptance:**
 
-- `tiers.yaml` schema validates against Zod entity schemas
+- `tiers.yaml` schema validates against Zod entity schemas. **PolicyRule slice
+  done 2026-06-23 (D-078):** live policy `policy_rule_schema_version` is `"0.1.0"`,
+  the HCS snapshot is byte-identical to system-config commit `426843252e80`, and
+  `just policy-lint` projects all eight `operation_class_defaults` entries through
+  `policyRuleSchema`.
 - `Decision.reason_kind` gains the three reserved `boundary_evidence_*` values
   (`_stale` / `_missing` / `_contradictory`, with `divergent_evidence_ref_pair` —
   an exactly-two `evidence_ref` pair — co-recorded on contradiction) and

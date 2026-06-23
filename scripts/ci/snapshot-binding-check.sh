@@ -47,6 +47,10 @@ SCHEMA_VERSION_SOURCES = {
     'packages/schemas/src/entities/session.ts',
     'sessionSchemaVersionSchema',
   ],
+  'policy_rule_schema_version' => [
+    'packages/schemas/src/entities/policy-rule.ts',
+    'policyRuleSchemaVersionSchema',
+  ],
 }.freeze
 
 @failed = false

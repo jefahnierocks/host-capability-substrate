@@ -73,6 +73,12 @@ done
 # peers); the entity holds no secret value (closed resource_kind/limit_unit/budget_state enums + a
 # numeric limit_value + a session_id FK ref), and resource-budget.test.ts uses only synthetic FK ids
 # + a synthetic UUID for the accept-and-trap.
+# ADR 0076 likewise covers Model: model_id + supersedes_model_id are entityIdSchema and accept a raw
+# machine-ish shape (a recorded accept-and-trap routed to Ring 1, mirroring the storage-primitive
+# peers); the entity holds no secret value (closed vendor/runtime_family/pin_form/model_state +
+# modelSourceAuthority enums + bounded tokens on /^[A-Za-z0-9._+-]+$/ barring :// and op:// shapes +
+# a positive-int context_window + FK refs), and model.test.ts uses only synthetic ids + asserts the
+# bounded tokens reject op:// / path shapes.
 # (Phase 0a: conservative scan. Extend with gitleaks in no-live-secrets.sh.)
 if grep -rE '\b(sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|xoxb-[0-9]+-[A-Za-z0-9]+|AKIA[0-9A-Z]{16})\b' $scan_dirs 2>/dev/null; then
   echo "  ✗ likely resolved secret value found" >&2

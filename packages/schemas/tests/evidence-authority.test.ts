@@ -15,7 +15,7 @@ describe('evidenceAuthoritySchema self-asserted enum extension', () => {
 
   it('parses an Evidence record with authority self-asserted via the non-sandbox branch', () => {
     const evidence = evidenceSchema.parse({
-      schema_version: '0.10.0',
+      schema_version: '0.11.0',
       evidence_id: 'evidence:agent-self-claim:permission-mode',
       evidence_kind: 'observation',
       subject_refs: [
@@ -38,7 +38,7 @@ describe('evidenceAuthoritySchema self-asserted enum extension', () => {
 
   it('does not require execution_context_id for self-asserted Evidence (unlike sandbox-observation)', () => {
     const result = evidenceSchema.safeParse({
-      schema_version: '0.10.0',
+      schema_version: '0.11.0',
       evidence_id: 'evidence:self-asserted-without-context',
       evidence_kind: 'observation',
       subject_refs: [

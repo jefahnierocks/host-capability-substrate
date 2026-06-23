@@ -193,6 +193,12 @@ export const decisionSchema = z
       .describe(
         'ADR 0034 §Sub-decision (d) audit-chain attribution rule (M2 entry promotion): exactly two evidence_ref entries naming the diverging BoundaryObservation records, so audit consumers can trace which observation contradicted which without joining the underlying records. Required (present and non-null) when reason_kind is boundary_evidence_contradictory; must be absent/null for every other reason_kind. Additive nullable-optional — no Decision.schema_version bump (ADR 0061 precedent). Entries carry the same chain-walk rejection discipline as evidence_refs (charter inv. 8 + inv. 18).',
       ),
+    model_ref: entityIdSchema
+      .nullable()
+      .optional()
+      .describe(
+        'ADR 0076 / D-077: typed ATTRIBUTION FK to the Model (ADR 0076) that produced this decision — "which model decided this." In the additive-nullable-optional, no-Decision.schema_version-bump change class of policy_rule_ref (ADR 0061). EXCLUDED from the audit_chain_link_hash canonical concatenation (attribution-field posture, like AgentClient excludes producer; existing chains stay valid) — the exact canonical-encoding is committed by the mint/audit implementation. Model attribution is PRODUCER-ASSERTED (no paired digest, unlike policy_rule_ref<->resolved_policy_sha256); binding model_ref to a `subject_kind: model` Evidence record is a Ring 1 trust obligation. FK existence is a Ring 1 obligation.',
+      ),
   })
   .strict()
   .superRefine((value, ctx) => {

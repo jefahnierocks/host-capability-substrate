@@ -11,9 +11,12 @@ Research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/hos
 canonical Ring-0 entities are landed as Zod schemas + generated JSON Schema +
 `schema_version` + ontology/registry docs, with the final entity —
 **ResourceBudget** (ADR 0072 / D-070, schema **PR #44 merged**) — closing the set.
-Ontology **v1.32.0**, registry **v0.4.35**, charter **v1.6.0**; ADRs span
+Ontology **v1.33.0**, registry **v0.4.36**, charter **v1.6.0**; ADRs span
 **0001–0076** (0026 absent); decisions accepted through **D-077** (next-free
-**D-078**). **D-074** remains RESERVED pending the ADR 0074 accept-flip (0074
+**D-078**). The ADR 0076 / D-077 `Model` schema landed as the **23rd Ring-0
+entity** (first post-M1) — model identity/spec/lifecycle as a non-minted typed
+object completing ADR 0075; `Evidence` bumped to `0.11.0` for the new `model`
+subject kind. **D-074** remains RESERVED pending the ADR 0074 accept-flip (0074
 merged via #68 but still `proposed`); D-075/D-076/D-077 landed ahead of it.
 ADR 0076 (Model Ring-0 entity / D-077, accepted 2026-06-23) types model
 identity/spec/lifecycle as a non-minted Ring-0 object — the spec-driven completion
@@ -53,7 +56,7 @@ forward lanes are:
 
 1. **Milestone 2 — Policy snapshot + decision package** (the next milestone in
    sequence): the ADR 0034 `boundary_evidence_*` reason/grant enum lift is
-   **DONE** (PR #66 / commit `446503b`, registry **v0.4.35**). Remaining M2
+   **DONE** (PR #66 / commit `446503b`). Remaining M2
    work: `tiers.yaml` validates against Zod entity schemas; `Decision` /
    `ApprovalGrant` consumption of `BoundaryObservation` evidence refs implements
    the settled Q-007(d) stateness matrix — rows {`stale`, `missing`,

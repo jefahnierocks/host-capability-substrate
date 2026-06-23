@@ -394,6 +394,23 @@ export {
   lockStatusSchema,
 } from './entities/lock.ts';
 export {
+  type Model,
+  type ModelPinForm,
+  type ModelRuntimeFamily,
+  type ModelSourceAuthority,
+  type ModelSourceProvenance,
+  type ModelState,
+  type ModelVendor,
+  modelPinFormSchema,
+  modelRuntimeFamilySchema,
+  modelSchema,
+  modelSchemaVersionSchema,
+  modelSourceAuthoritySchema,
+  modelSourceProvenanceSchema,
+  modelStateSchema,
+  modelVendorSchema,
+} from './entities/model.ts';
+export {
   coordinationFactDeletionAuthorityRefSchema,
   type DeletionAuthorityFields,
   type DeletionAuthorityKind,

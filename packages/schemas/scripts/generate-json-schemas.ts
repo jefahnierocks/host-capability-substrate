@@ -35,6 +35,7 @@ import {
   lockSchema,
   machineIdentityBindingObservationSchema,
   mcpCredentialAudienceObservationSchema,
+  modelSchema,
   operationShapeSchema,
   policyPlanReceiptSchema,
   policyRuleSchema,
@@ -361,6 +362,11 @@ const schemaEntries: SchemaEntry[] = [
     file: 'Lock.schema.json',
     title: 'Lock',
     schema: lockSchema,
+  },
+  {
+    file: 'Model.schema.json',
+    title: 'Model',
+    schema: modelSchema,
   },
   {
     file: 'OperationShape.schema.json',

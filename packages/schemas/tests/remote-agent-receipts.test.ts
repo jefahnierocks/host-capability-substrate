@@ -31,7 +31,7 @@ const vendorEvidenceRef = {
 } as const;
 
 const baseRemoteAgentEvidence = {
-  schema_version: '0.10.0',
+  schema_version: '0.11.0',
   source: 'remote-agent-fixture',
   observed_at: observedAt,
   valid_until: validUntil,

@@ -369,7 +369,7 @@ describe('Knowledge and coordination schemas', () => {
 
   it('keeps knowledge and coordination entities as Evidence subject kinds with current Evidence schema', () => {
     const evidence = evidenceSchema.parse({
-      schema_version: '0.10.0',
+      schema_version: '0.11.0',
       evidence_id: 'evidence:knowledge-coordination-subjects',
       evidence_kind: 'observation',
       subject_refs: [

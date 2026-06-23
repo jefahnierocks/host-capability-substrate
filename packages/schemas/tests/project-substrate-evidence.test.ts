@@ -30,7 +30,7 @@ const deletionAuthorityEvidenceRef = {
 } as const;
 
 const contractValidation = {
-  schema_version: '0.10.0',
+  schema_version: '0.11.0',
   evidence_id: 'evidence:project-substrate-contract-validation:hcs',
   evidence_kind: 'receipt',
   subject_refs: [
@@ -117,7 +117,7 @@ describe('ADR 0044 Q-014 project-substrate evidence subtypes', () => {
 
   it('validates ProjectSubstrateAdmissionObservation without creating gate authority', () => {
     const admission = projectSubstrateAdmissionObservationSchema.parse({
-      schema_version: '0.10.0',
+      schema_version: '0.11.0',
       evidence_id: 'evidence:project-substrate-admission:hcs',
       evidence_kind: 'observation',
       subject_refs: [
@@ -190,7 +190,7 @@ describe('ADR 0044 Q-014 project-substrate evidence subtypes', () => {
 
   it('validates teardown receipts only with deletion-authority evidence', () => {
     const plan = projectTeardownPlanReceiptSchema.parse({
-      schema_version: '0.10.0',
+      schema_version: '0.11.0',
       evidence_id: 'evidence:project-teardown-plan:hcs',
       evidence_kind: 'receipt',
       subject_refs: [
@@ -263,7 +263,7 @@ describe('ADR 0044 Q-014 project-substrate evidence subtypes', () => {
 
   it('validates ProjectTeardownCompletionReceipt without readiness promotion fields', () => {
     const completion = projectTeardownCompletionReceiptSchema.parse({
-      schema_version: '0.10.0',
+      schema_version: '0.11.0',
       evidence_id: 'evidence:project-teardown-completion:hcs',
       evidence_kind: 'receipt',
       subject_refs: [
@@ -318,7 +318,7 @@ describe('ADR 0044 Q-014 project-substrate evidence subtypes', () => {
   it('does not add receipt-envelope subject kinds to base Evidence', () => {
     expect(
       evidenceSchema.safeParse({
-        schema_version: '0.10.0',
+        schema_version: '0.11.0',
         evidence_id: 'evidence:bad-project-substrate-subject',
         evidence_kind: 'receipt',
         subject_refs: [

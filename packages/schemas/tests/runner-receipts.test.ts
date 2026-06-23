@@ -57,7 +57,7 @@ const digest = `sha256:${'a'.repeat(64)}`;
 describe('ADR 0032 Q-005 runner/check evidence subtypes', () => {
   it('validates RunnerHostObservation as a direct Evidence subtype', () => {
     const obs = runnerHostObservationSchema.parse({
-      schema_version: '0.10.0',
+      schema_version: '0.11.0',
       evidence_id: 'evidence:runner-host:fixture-runner-1',
       evidence_kind: 'observation',
       subject_refs: [
@@ -94,7 +94,7 @@ describe('ADR 0032 Q-005 runner/check evidence subtypes', () => {
   it('rejects RunnerHostObservation subject refs that omit the runner host id', () => {
     expect(
       runnerHostObservationSchema.safeParse({
-        schema_version: '0.10.0',
+        schema_version: '0.11.0',
         evidence_id: 'evidence:runner-host:mismatch',
         evidence_kind: 'observation',
         subject_refs: [
@@ -126,7 +126,7 @@ describe('ADR 0032 Q-005 runner/check evidence subtypes', () => {
 
   it('preserves the Evidence sandbox-observation trace rule on RunnerHostObservation', () => {
     const sandboxObs = runnerHostObservationSchema.parse({
-      schema_version: '0.10.0',
+      schema_version: '0.11.0',
       evidence_id: 'evidence:runner-host:sandbox',
       evidence_kind: 'observation',
       subject_refs: [
@@ -168,7 +168,7 @@ describe('ADR 0032 Q-005 runner/check evidence subtypes', () => {
   it('validates RunnerIsolationObservation as a typed BoundaryObservation branch', () => {
     const obs = runnerIsolationObservationSchema.parse({
       schema_version: '0.5.0',
-      evidence_schema_version: '0.10.0',
+      evidence_schema_version: '0.11.0',
       ...boundaryEvidenceBase,
       payload_schema_version: 'runner-isolation:v1',
       boundary_observation_id: 'bo:runner-isolation:fixture-runner-1',
@@ -193,7 +193,7 @@ describe('ADR 0032 Q-005 runner/check evidence subtypes', () => {
     expect(
       runnerIsolationObservationSchema.safeParse({
         schema_version: '0.5.0',
-        evidence_schema_version: '0.10.0',
+        evidence_schema_version: '0.11.0',
         ...boundaryEvidenceBase,
         boundary_observation_id: 'bo:runner-isolation:bad',
         execution_context_id: 'ctx:runner:bad',
@@ -211,7 +211,7 @@ describe('ADR 0032 Q-005 runner/check evidence subtypes', () => {
     expect(
       boundaryObservationSchema.safeParse({
         schema_version: '0.5.0',
-        evidence_schema_version: '0.10.0',
+        evidence_schema_version: '0.11.0',
         ...boundaryEvidenceBase,
         boundary_observation_id: 'bo:runner-isolation:aggregate-bad',
         execution_context_id: 'ctx:runner:aggregate-bad',
@@ -227,7 +227,7 @@ describe('ADR 0032 Q-005 runner/check evidence subtypes', () => {
 
   it('validates WorkflowRunReceipt with runner-host evidence linkage', () => {
     const receipt = workflowRunReceiptSchema.parse({
-      schema_version: '0.10.0',
+      schema_version: '0.11.0',
       evidence_id: 'evidence:workflow-run:hcs:123',
       evidence_kind: 'receipt',
       subject_refs: [
@@ -262,7 +262,7 @@ describe('ADR 0032 Q-005 runner/check evidence subtypes', () => {
   it('rejects WorkflowRunReceipt timestamps that invert run order', () => {
     expect(
       workflowRunReceiptSchema.safeParse({
-        schema_version: '0.10.0',
+        schema_version: '0.11.0',
         evidence_id: 'evidence:workflow-run:hcs:bad-time',
         evidence_kind: 'receipt',
         subject_refs: [
@@ -295,7 +295,7 @@ describe('ADR 0032 Q-005 runner/check evidence subtypes', () => {
 
   it('validates CleanRoomSmokeReceipt against runner isolation evidence', () => {
     const receipt = cleanRoomSmokeReceiptSchema.parse({
-      schema_version: '0.10.0',
+      schema_version: '0.11.0',
       evidence_id: 'evidence:clean-room-smoke:hcs:123',
       evidence_kind: 'receipt',
       subject_refs: [
@@ -328,7 +328,7 @@ describe('ADR 0032 Q-005 runner/check evidence subtypes', () => {
 
   it('validates ResourceBudgetObservation pressure windows', () => {
     const obs = resourceBudgetObservationSchema.parse({
-      schema_version: '0.10.0',
+      schema_version: '0.11.0',
       evidence_id: 'evidence:resource-budget:fixture-runner-1:window',
       evidence_kind: 'observation',
       subject_refs: [
@@ -364,7 +364,7 @@ describe('ADR 0032 Q-005 runner/check evidence subtypes', () => {
   it('rejects ResourceBudgetObservation pressure outside percentage bounds', () => {
     expect(
       resourceBudgetObservationSchema.safeParse({
-        schema_version: '0.10.0',
+        schema_version: '0.11.0',
         evidence_id: 'evidence:resource-budget:fixture-runner-1:bad',
         evidence_kind: 'observation',
         subject_refs: [
@@ -398,7 +398,7 @@ describe('ADR 0032 Q-005 runner/check evidence subtypes', () => {
 
   it('validates PolicyPlanReceipt with redacted-plan hash and tool provenance refs', () => {
     const receipt = policyPlanReceiptSchema.parse({
-      schema_version: '0.10.0',
+      schema_version: '0.11.0',
       evidence_id: 'evidence:policy-plan:fixture-policy:hash',
       evidence_kind: 'receipt',
       subject_refs: [
@@ -435,7 +435,7 @@ describe('ADR 0032 Q-005 runner/check evidence subtypes', () => {
   it('rejects PolicyPlanReceipt records with no redaction floor', () => {
     expect(
       policyPlanReceiptSchema.safeParse({
-        schema_version: '0.10.0',
+        schema_version: '0.11.0',
         evidence_id: 'evidence:policy-plan:redaction-none',
         evidence_kind: 'receipt',
         subject_refs: [
@@ -468,7 +468,7 @@ describe('ADR 0032 Q-005 runner/check evidence subtypes', () => {
   it('rejects raw plan content on PolicyPlanReceipt payloads', () => {
     expect(
       policyPlanReceiptSchema.safeParse({
-        schema_version: '0.10.0',
+        schema_version: '0.11.0',
         evidence_id: 'evidence:policy-plan:raw-content',
         evidence_kind: 'receipt',
         subject_refs: [
@@ -510,7 +510,7 @@ describe('ADR 0032 Q-005 runner/check evidence subtypes', () => {
     ] as const) {
       expect(
         evidenceSchema.parse({
-          schema_version: '0.10.0',
+          schema_version: '0.11.0',
           evidence_id: `evidence:subject-kind:${subjectKind}`,
           evidence_kind: 'observation',
           subject_refs: [

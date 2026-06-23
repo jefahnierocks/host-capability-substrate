@@ -1,7 +1,7 @@
 ---
 adr_number: 0076
 title: "Model Ring-0 entity — model identity/spec/lifecycle as a typed object (completes ADR 0075)"
-status: proposed
+status: accepted
 version: v2
 date: 2026-06-23
 charter_version: 1.6.0
@@ -12,7 +12,15 @@ tags: [model, ring-0, non-minted, model-identity, model-card, taxonomy, lifecycl
 
 ## Status
 
-`proposed`
+`accepted`
+
+Accepted 2026-06-23 as **D-077**. Human approval = the operator merged the propose PR
+#76 and directed proceed. Round-1 five-lens review returned zero charter violations;
+the three blockers were folded into v2 (minted-entity FK canonical-hash exclusion;
+`Evidence.schema_version` `0.10.0 → 0.11.0`; `decision_ref` → `decision_ledger_row`),
+and the confirming round 2 (architect + ontology) returned both `confirm`. Design-only
+acceptance — no Zod / generated JSON Schema / test / ontology / registry / live-policy
+byte change; the schema PR follows per `.agents/skills/hcs-schema-change`.
 
 Design-only. This ADR does **not** land Zod source, generated JSON Schema, tests,
 ontology/registry edits, live policy, generated snapshots, system-config, or Ring 1
@@ -493,3 +501,8 @@ break) and are strong trap candidates once the `Model` schema lands.
   mapping + the first multi-value declaration-site authority noted; the eval
   `model_coverage`-not-yet-de-versioned clarification; the regression table marked a
   deferred seed sketch.
+- 2026-06-23 (accepted): Operator merged the propose PR #76 and directed proceed; status
+  flipped `proposed` → `accepted` with the **D-077** ledger row. The architect's confirming
+  round-2 precision nit was folded (ADR 0061 was silent on `policy_rule_ref`'s hash
+  disposition; this ADR makes the `Decision`/`Run` model-FK exclusion explicit).
+  Design-only acceptance — no schema/code byte change.

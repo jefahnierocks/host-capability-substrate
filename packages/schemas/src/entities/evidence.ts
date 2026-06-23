@@ -7,9 +7,9 @@ import {
 } from '../common.ts';
 
 export const evidenceSchemaVersionSchema = z
-  .literal('0.10.0')
+  .literal('0.11.0')
   .describe(
-    'Evidence schema version after the `evidenceAuthoritySchema` `self-asserted` enum extension closing ADR 0039 §Forward-looking observations #5 (Arch-N12 / Pol-N2 / Sec-N-v2-2). Charter v1.4.0 inv. 18 chain-walk rejection now references a schema-operational authority class.',
+    'Evidence schema version. 0.11.0 (ADR 0076 / D-077) adds the `model` subject kind to evidenceSubjectKindSchema — a genuinely-new subject-kind value bumps the literal (per the subject-kind widening history; pre-reserved-value fulfillments do not bump). 0.10.0 added the `evidenceAuthoritySchema` `self-asserted` enum extension closing ADR 0039 §Forward-looking observations #5 (Arch-N12 / Pol-N2 / Sec-N-v2-2); charter v1.4.0 inv. 18 chain-walk rejection references a schema-operational authority class.',
   );
 
 export const evidenceKindSchema = z
@@ -76,6 +76,7 @@ export const evidenceSubjectKindSchema = z
     'policy_plan',
     'filesystem_path',
     'process',
+    'model',
     'unknown',
   ])
   .describe('Kind of subject the evidence is about.');

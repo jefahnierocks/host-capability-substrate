@@ -41,7 +41,7 @@ const credentialEvidenceRef = {
 } as const;
 
 const baseEvidence = {
-  schema_version: '0.10.0',
+  schema_version: '0.11.0',
   source: 'source-control-fixture',
   observed_at: observedAt,
   valid_until: validUntil,
@@ -129,7 +129,7 @@ describe('ADR 0027/0030/0033 Q-006 source-control evidence subtypes', () => {
   it('validates BranchProtectionObservation as a typed BoundaryObservation branch', () => {
     const obs = branchProtectionObservationSchema.parse({
       schema_version: '0.5.0',
-      evidence_schema_version: '0.10.0',
+      evidence_schema_version: '0.11.0',
       source: 'source-control-boundary-fixture',
       observed_at: observedAt,
       valid_until: validUntil,
@@ -675,7 +675,7 @@ describe('ADR 0027/0030/0033 Q-006 source-control evidence subtypes', () => {
     ] as const) {
       expect(
         evidenceSchema.parse({
-          schema_version: '0.10.0',
+          schema_version: '0.11.0',
           evidence_id: `evidence:subject-kind:${subjectKind}`,
           evidence_kind: 'observation',
           subject_refs: [

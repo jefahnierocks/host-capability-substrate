@@ -915,3 +915,39 @@ describe('Decision boundary_evidence_* promotion (ADR 0034 §Sub-decision (d) / 
     ).toBe(false);
   });
 });
+
+describe('Decision.model_ref (ADR 0076 / D-077 — additive nullable-optional attribution FK)', () => {
+  it('accepts model_ref absent (the base decision)', () => {
+    const d = decisionSchema.parse(baseDenyDecision);
+    expect(d.model_ref).toBeUndefined();
+  });
+
+  it('accepts model_ref as an explicit null (unattributed)', () => {
+    const d = decisionSchema.parse({ ...baseDenyDecision, model_ref: null });
+    expect(d.model_ref).toBeNull();
+  });
+
+  it('accepts model_ref as a synthetic Model FK id', () => {
+    const d = decisionSchema.parse({ ...baseDenyDecision, model_ref: 'model:hcs:claude-opus' });
+    expect(d.model_ref).toBe('model:hcs:claude-opus');
+  });
+
+  it('does NOT add model_ref to the generated required set (additive nullable-optional)', () => {
+    const schema = readGeneratedDecisionSchema();
+    expect(asArray(schema.required)).not.toContain('model_ref');
+    // the field IS present in the generated schema (additive), just not required
+    expect(asRecord(asRecord(schema.properties).model_ref)).not.toEqual({});
+  });
+
+  it('model_ref is attribution metadata only — it does not enter the outcome/grant superRefine', () => {
+    // present model_ref does not change a valid deny Decision
+    expect(
+      decisionSchema.safeParse({ ...baseDenyDecision, model_ref: 'model:hcs:x' }).success,
+    ).toBe(true);
+    // an incompatible outcome still rejects regardless of model_ref presence
+    expect(
+      decisionSchema.safeParse({ ...baseDenyDecision, outcome: 'allow', model_ref: 'model:hcs:x' })
+        .success,
+    ).toBe(false);
+  });
+});

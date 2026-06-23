@@ -135,7 +135,7 @@ const threatModelSourceRef = {
 } as const;
 
 const readinessObservation = {
-  schema_version: '0.10.0',
+  schema_version: '0.11.0',
   evidence_id: 'evidence:backup-readiness:hcs',
   evidence_kind: 'observation',
   subject_refs: [
@@ -327,7 +327,7 @@ describe('ADR 0045 Q-015 backup-readiness evidence subtypes', () => {
 
   it('validates RestoreDrillReceipt with typed restored-environment refs', () => {
     const receipt = restoreDrillReceiptSchema.parse({
-      schema_version: '0.10.0',
+      schema_version: '0.11.0',
       evidence_id: 'evidence:restore-drill:hcs',
       evidence_kind: 'receipt',
       subject_refs: [
@@ -432,7 +432,7 @@ describe('ADR 0045 Q-015 backup-readiness evidence subtypes', () => {
 
   it('keeps backup credential custody reference-only', () => {
     const custody = backupCredentialCustodyObservationSchema.parse({
-      schema_version: '0.10.0',
+      schema_version: '0.11.0',
       evidence_id: 'evidence:backup-credential-custody:hcs',
       evidence_kind: 'observation',
       subject_refs: [
@@ -528,7 +528,7 @@ describe('ADR 0045 Q-015 backup-readiness evidence subtypes', () => {
 
   it('validates project-substrate backup requirements without creating gate authority', () => {
     const requirement = projectSubstrateBackupRequirementObservationSchema.parse({
-      schema_version: '0.10.0',
+      schema_version: '0.11.0',
       evidence_id: 'evidence:project-backup-requirement:hcs',
       evidence_kind: 'observation',
       subject_refs: [

@@ -3,9 +3,9 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.32.0
-last_updated: 2026-06-11
-tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0, policy-rule, capability, command-shape, tool-provider, tool-installation, resolved-tool, artifact, lock, resource-budget]
+version: 1.33.0
+last_updated: 2026-06-23
+tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0, policy-rule, capability, command-shape, tool-provider, tool-installation, resolved-tool, artifact, lock, resource-budget, model, model-as-object]
 priority: high
 ---
 
@@ -100,6 +100,7 @@ Lease                exclusive or shared resource lock
 Lock                 coarser mutex (e.g., "package-manager global")
 SecretReference      reference to a secret (op:// / hcs:// / keychain / env-name / broker), never the value
 ResourceBudget       per-session CPU/memory/network/sandbox-concurrency allocation
+Model                a served LLM/agent model: identity, spec, lifecycle (ADR 0076)
 ```
 
 `EnvProvenance`, `CredentialSource`, and `StartupPhase` remain Phase 1
@@ -2080,6 +2081,61 @@ existence, the `resource_kind`↔`limit_unit` consistency, sandbox non-promotion
 (inv. 8), supersession, and enforcement against `ResourceBudgetObservation` pressure
 — are Ring 1 obligations.
 
+### `Model`
+
+Source: `packages/schemas/src/entities/model.ts`
+
+A first-class typed record of a served LLM/agent **model** (ADR 0076 / D-077) — the
+first post-M1 Ring-0 entity (the 23rd). A NON-MINTED Ring-0 entity and structural peer
+of `HostProfile` / `ResourceBudget` (no `audit_chain_link_hash`, no producer-mint field,
+no `evidence_refs`; absent from the ADR 0057 mint scope). It **completes ADR 0075** —
+which single-sourced the model *string* in prose — by making the model an **object**; it
+MIRRORS, never competes with, the `AGENTS.md` §Tool baseline + `DECISIONS.md`
+re-baseline-row authority of record (via the `decision_ledger_row` anchor). A model is a
+host/vendor FACT and a read-only policy INPUT to Ring 1, never policy content (inv. 1).
+
+Key fields:
+
+- `model_id` is `entityIdSchema` (opaque/derived; id-opacity is a Ring 1 obligation —
+  the HostProfile accept-and-trap).
+- `vendor` (`anthropic` | `openai` | `google` | `unknown`) and `runtime_family`
+  (`claude` | `codex` | `gemini_adk` | `unknown`) are the durable taxonomy axes the
+  de-versioning rule (ADR 0075) names everywhere outside the single source.
+  `runtime_family` carries `gemini_adk` (an eval-scope runtime) even though Gemini is not
+  yet an `AgentClient.product_family` surface — the two enums diverge by design.
+- `tier` is the OPTIONAL model capability RUNG (`opus` / `sonnet` / `haiku` / ...) — a
+  bounded token, vocabulary-disjoint from the policy tiers (inv. 1).
+- `pin_form` (`alias` | `exact_id` | `profile_handle`) + `pin_value` + the OPTIONAL
+  `resolved_model_name` type the Fable lesson: an `alias` survives retraction; an
+  `exact_id` fails closed and is the rationale-bearing inv-12 exception; a `profile_handle`
+  is the Codex mechanism. A `pin_value`↔`resolved_model_name` divergence is the typed
+  surface for a silent vendor rollover.
+- `context_window` is the OPTIONAL positive-integer token count — the `[1m]` suffix typed
+  as DATA (the only model-card attribute at v1; modalities/cutoff/pricing deferred).
+- `model_state` (`announced` | `active` | `deprecated` | `retracted` | `superseded`) is
+  the `_state` lifecycle convention extended with `retracted` (the Fable case) and
+  `superseded`; a retraction is ONE typed transition. The historical states are NOT
+  policy-denied (a retracted-model guard is Ring 1, inv. 1). An OPTIONAL
+  `supersedes_model_id` self-FK reproduces the re-baseline chain as queryable history.
+- `decision_ledger_row` is the OPTIONAL `DECISIONS.md` re-baseline-row id (e.g. `D-075`) —
+  the typed anchor to the authority of record. NOT a `Decision` FK (so deliberately not a
+  `_ref`).
+- `source_provenance` is a `.strict()` declaration-site binding with a MULTI-VALUE
+  `authority` (`vendor_published` | `observed_runtime` | `operator_attested`) — the inv-14
+  split; HCS's first non-minted entity with a multi-value declaration-site authority,
+  disjoint from `evidenceAuthoritySchema`.
+
+A model fact is observed via the NEW `Evidence.subject_kind: 'model'` (which bumps
+`Evidence.schema_version` `0.10.0 → 0.11.0` — a genuinely-new subject kind). Two additive
+nullable-optional attribution FKs land alongside: `Decision.model_ref` and
+`Run.invoker_model_ref` ("which model produced this") — no `Decision` / `Run`
+`schema_version` bump, and EXCLUDED from each minted entity's `audit_chain_link_hash`
+canonical concatenation (the AgentClient-excludes-`producer` posture; producer-asserted,
+Ring-1-bound). `model_id` / `supersedes_model_id` opacity + FK existence, sandbox
+non-promotion (inv. 8), the `pin_form: exact_id ⇒ decision_ledger_row` rule (accepted at
+Ring 0), the retracted-model guard + inv-12 floor-rejection, and the
+`pin_value → resolved_model_name` resolver are Ring 1 obligations.
+
 ## Phase 1 Boundary Observation Envelope
 
 ### `BoundaryObservation`
@@ -2351,6 +2407,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.33.0 | 2026-06-23 | ADR 0076 / D-077 `Model` Ring-0 entity — the first post-M1 Ring-0 entity (the 23rd): the spec-driven model-as-object that COMPLETES ADR 0075 (which single-sourced the model STRING in prose) by typing model identity/spec/lifecycle. NEW `### Model` entity section + §Entities one-liner. A NON-MINTED Ring-0 peer of HostProfile/ResourceBudget: `model_id` + `vendor` (anthropic/openai/google/unknown) + `runtime_family` (claude/codex/gemini_adk/unknown) + OPTIONAL `tier` token + `pin_form` (alias/exact_id/profile_handle) + `pin_value` token + OPTIONAL `resolved_model_name` token + OPTIONAL `context_window` (positive int — the `[1m]` suffix as DATA) + `model_state` (announced/active/deprecated/retracted/superseded) + OPTIONAL `supersedes_model_id` self-FK + OPTIONAL `decision_ledger_row` token (a DECISIONS.md row id, NOT a Decision FK) + `.strict()` `source_provenance` with a MULTI-VALUE `modelSourceAuthoritySchema` (vendor_published/observed_runtime/operator_attested — HCS's first multi-value non-minted declaration-site authority, the inv-14 split). COMPLETES ADR 0075: MIRRORS, never competes with, the AGENTS.md §Tool baseline + DECISIONS.md re-baseline-row authority of record (the `decision_ledger_row` anchor); the de-versioning rule becomes a typed invariant. Cross-entity additive changes: `evidenceSubjectKindSchema += 'model'` — bumping `Evidence.schema_version` 0.10.0→0.11.0 (a genuinely-new subject kind, unlike the pre-reserved-value storage primitives); `Decision.model_ref` + `Run.invoker_model_ref` (additive nullable-optional attribution FKs, no Decision/Run schema_version bump, EXCLUDED from each minted entity's `audit_chain_link_hash` canonical concatenation). model_id/supersedes_model_id-opaque, FK existence, sandbox non-promotion (inv. 8), the `pin_form:exact_id ⇒ decision_ledger_row` rule (accept-and-trap at Ring 0), the retracted-model guard + inv-12 floor-rejection, and the `pin_value → resolved_model_name` resolver are Ring 1 obligations. NO policy-tier denylist (`tier` is the model capability rung, vocabulary-disjoint from policy tiers — inv. 1). Regenerated Model.schema.json + Evidence/Decision/Run JSON Schema; added model.test.ts; bumped the base-Evidence schema_version fixtures across the existing suite 0.10.0→0.11.0. Registry companion v0.4.36. |
 | 1.32.0 | 2026-06-11 | M2-entry promotion of the ADR 0034 §Sub-decision (d) posture-only reservations (the first Milestone 2 schema PR; PLAN §M2 acceptance criterion 2). `Decision.reason_kind` gains the three `boundary_evidence_*` rejection kinds (`_stale` / `_missing` / `_contradictory`; deny-only this-invocation rejects keyed to `valid_until` stateness, `unknown` evaluating as missing; additive enum widening, 18 → 21 Zod-defined, no `Decision.schema_version` bump). `Decision` gains the additive nullable-optional `divergent_evidence_ref_pair` (exactly two chain-aware evidence refs; required iff `boundary_evidence_contradictory`, rejected otherwise; entries chain-walk-refined per charter inv. 8/18; ADR 0061 nullable-optional precedent — no version-literal bump). A same-record refinement enforces the ADR 0034 reason↔grant kind pairing (each `boundary_evidence_*` rejection clearable only by its matching acknowledgment grant or `null`). `ApprovalGrant.grant_kind` gains the three single-use acknowledgment kinds (`boundary_evidence_freshness_override` / `boundary_evidence_contradiction_acknowledgment` / `boundary_evidence_absence_acceptance`; 3 → 6; no `ApprovalGrant.schema_version` bump), each with a new `.strict()` scope branch binding `boundary_observation_evidence_refs[]` (min 2 on the contradiction branch) + `execution_context_id` (scope-vs-envelope equality, single-use-per-operation_id consumption, and stateness-matrix evaluation are Ring 1 obligations); the envelope superRefine walks the new branches' refs. Regenerated `Decision.schema.json` + `ApprovalGrant.schema.json`; 21 new tests. Registry companion v0.4.35. |
 | 1.31.1 | 2026-06-08 | Post-M1 housekeeping (docs-only): flipped two stale "future" forward-references in LIVE entity sections now that their targets are landed — `Session.principal_id` in the `Principal` section (landed ADR 0055) and `ToolInstallation` in the `ToolProvider` Ring-1-obligations clause (landed ADR 0068). Also flipped the byte-identical stale "future `ResourceBudget`" / "future `ToolInstallation`" `.describe()` strings in the `command-shape.ts` / `tool-provider.ts` Zod sources (describe-only; regenerated `CommandShape.schema.json` + `ToolProvider.schema.json`; no shape/`schema_version` change). No entity, enum, field, or version-literal change. |
 | 1.31.0 | 2026-06-08 | Landed the ADR 0072 / D-070 `ResourceBudget` schema PR — the non-minted Ring-0 THIRD and FINAL storage primitive, closing the M1 22-entity Ring-0 set (22/22). `resourceBudgetSchema` (`.strict()`): `resource_budget_id` + a REQUIRED `session_id` FK to `Session` (ADR 0055) + a `resource_kind` enum (cpu/memory/network/sandbox_concurrency/unknown) + `limit_value` (`z.number().int().min(0)`) + a `limit_unit` enum (cores/bytes/bytes_per_sec/count/percent/unknown) + a `budget_state` enum (active/retired) + a `.strict()` `source_provenance` (disjoint `resource_budget_declaration` authority). Reuses `entityIdSchema` + `isoDateTimeSchema`. The durable per-session ALLOCATION, distinct from the shipped `ResourceBudgetObservation` (the Evidence pressure reading that feeds it; distinct export names). Per-dimension (one record per `session` × `resource`). The lifecycle field is `budget_state` (the `_state` convention; renamed from the proposed `budget_status` for peer consistency). Fulfills the pre-reserved `Evidence.subject_kind: 'resource_budget'` with NO `evidenceSubjectKindSchema` change and NO `Evidence.schema_version` bump. Ring 0 does NOT cross-constrain `resource_kind` ↔ `limit_unit` (a recorded accept-and-trap routed to Ring 1, mirroring the ResolvedTool basis↔context non-cross-constraint); `resource_budget_id` accepts a raw-shape id (a recorded accept-and-trap; opacity is a Ring 1 obligation). NO policy-tier denylist (inv. 1). Flipped the stale "future `ResourceBudget` entity" forward-reference in the CommandShape `timeout_seconds` narrative. Regenerated `ResourceBudget.schema.json`; added schema tests. |

@@ -420,7 +420,7 @@ describe('OperationShape schema', () => {
 
   it('keeps operation_shape as an Evidence subject kind with current Evidence schema', () => {
     const evidence = evidenceSchema.parse({
-      schema_version: '0.10.0',
+      schema_version: '0.11.0',
       evidence_id: 'evidence:operation-shape:delete-branch',
       evidence_kind: 'observation',
       subject_refs: [

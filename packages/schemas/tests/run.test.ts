@@ -235,3 +235,32 @@ describe('Run schema (ADR 0053 / D-041)', () => {
     ).toBe(false);
   });
 });
+
+describe('Run.invoker_model_ref (ADR 0076 / D-077 — additive nullable-optional attribution FK)', () => {
+  it('accepts invoker_model_ref absent (the base run)', () => {
+    const r = runSchema.parse(baseActiveOperationExecutionRun);
+    expect(r.invoker_model_ref).toBeUndefined();
+  });
+
+  it('accepts invoker_model_ref as an explicit null (unattributed)', () => {
+    const r = runSchema.parse({ ...baseActiveOperationExecutionRun, invoker_model_ref: null });
+    expect(r.invoker_model_ref).toBeNull();
+  });
+
+  it('accepts invoker_model_ref as a synthetic Model FK id', () => {
+    const r = runSchema.parse({
+      ...baseActiveOperationExecutionRun,
+      invoker_model_ref: 'model:hcs:claude-opus',
+    });
+    expect(r.invoker_model_ref).toBe('model:hcs:claude-opus');
+  });
+
+  it('does NOT add invoker_model_ref to the generated required set (additive nullable-optional)', () => {
+    const schema = JSON.parse(
+      readFileSync(new URL('../generated/Run.schema.json', import.meta.url), 'utf8'),
+    ) as { required: string[]; properties: Record<string, unknown> };
+    expect(schema.required).not.toContain('invoker_model_ref');
+    // the field IS present in the generated schema (additive), just not required
+    expect(schema.properties.invoker_model_ref).toBeDefined();
+  });
+});

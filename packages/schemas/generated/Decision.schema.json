@@ -449,6 +449,20 @@
           "type": "null"
         }
       ]
+    },
+    "model_ref": {
+      "description": "ADR 0076 / D-077: typed ATTRIBUTION FK to the Model (ADR 0076) that produced this decision — \"which model decided this.\" In the additive-nullable-optional, no-Decision.schema_version-bump change class of policy_rule_ref (ADR 0061). EXCLUDED from the audit_chain_link_hash canonical concatenation (attribution-field posture, like AgentClient excludes producer; existing chains stay valid) — the exact canonical-encoding is committed by the mint/audit implementation. Model attribution is PRODUCER-ASSERTED (no paired digest, unlike policy_rule_ref<->resolved_policy_sha256); binding model_ref to a `subject_kind: model` Evidence record is a Ring 1 trust obligation. FK existence is a Ring 1 obligation.",
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        {
+          "type": "null"
+        }
+      ]
     }
   },
   "required": [

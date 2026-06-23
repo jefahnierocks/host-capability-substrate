@@ -103,6 +103,12 @@ export const runSchema = z
     scope: runScopeSchema,
     invoker_session_id: entityIdSchema,
     invoker_agent_client_id: entityIdSchema,
+    invoker_model_ref: entityIdSchema
+      .nullable()
+      .optional()
+      .describe(
+        'ADR 0076 / D-077: typed ATTRIBUTION FK to the Model (ADR 0076) that authored this run — "which model produced this." Additive nullable-optional `entityIdSchema`; no Run.schema_version bump (the ADR 0061 additive-nullable-FK change class is entity-independent). EXCLUDED from the audit_chain_link_hash canonical concatenation (like Decision.model_ref; existing chains stay valid) — exact canonical-encoding committed by the mint/audit implementation. Producer-asserted; FK existence + binding to a `subject_kind: model` Evidence record are Ring 1 obligations.',
+      ),
     recorded_by: runProducerSchema,
     started_at: isoDateTimeSchema,
     ended_at: isoDateTimeSchema.nullable(),

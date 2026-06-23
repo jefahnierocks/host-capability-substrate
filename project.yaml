@@ -13,10 +13,11 @@ peers: []
 status:
   posture: working-prototype
   local_phase: "Milestone 1 complete — Ring-0 ontology landed 22/22 (ADRs through
-    0076; decisions through D-078, with D-074 accepted/closed); Milestone 2
+    0076; decisions through D-079, with D-074 accepted/closed); Milestone 2
     (policy snapshot + decision package) open, with PolicyRule live-policy
-    schema-ref activation + byte-identical HCS snapshot re-vendor complete
-    (system-config 426843252e80) and first post-M1 schema slice landed via ADR
+    schema-ref activation (system-config 426843252e80) and per-boundary-dimension
+    freshness windows (system-config 551419064422) byte-identically re-vendored
+    into the HCS generated snapshot; first post-M1 schema slice landed via ADR
     0076 / PR #78 — the model-as-object typed lane; kernel/adapters/dashboard
     intentionally unbuilt"
   as_of: 2026-06-23

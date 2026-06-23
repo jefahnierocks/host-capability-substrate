@@ -3,8 +3,8 @@ title: HCS Tooling Surface Matrix
 category: reference
 component: host_capability_substrate
 status: active
-version: 1.5.3
-last_updated: 2026-05-17
+version: 1.5.4
+last_updated: 2026-06-22
 tags: [tooling, ide, claude-code, codex, cursor, warp, windsurf, vscode, iterm2, mcp, skills, integration, isolation]
 priority: high
 ---
@@ -17,11 +17,11 @@ Boundary decision: [`adr/0001-repo-boundary.md`](./adr/0001-repo-boundary.md). C
 
 ## Tool baseline (binding during early phases)
 
-- **Claude Code CLI:** `2.1.120` minimum; Opus 4.7 model (`opus` short name in settings). Claude macOS app build identifiers are tracked separately.
-- **Codex CLI:** `0.125.0` minimum; GPT-5.5/GPT-5.4-compatible HCS profiles. Codex macOS app build identifiers are tracked separately.
+- **Claude Code CLI:** `2.1.120` minimum; `opus` alias in settings. Claude macOS app build identifiers are tracked separately.
+- **Codex CLI:** `0.125.0` minimum; HCS-compatible model profiles. Codex macOS app build identifiers are tracked separately.
 - **Subsequent minor updates:** acceptable without re-baselining
 
-Re-evaluate after material version changes per D-029 and charter invariant 14.
+The model/profile names are recorded once in `AGENTS.md` §Tool baseline (the statement charter invariant 12 binds, per ADR 0075 / D-076); this matrix points there rather than naming the model — a reference doc, not a second authority. Re-evaluate after material version changes per D-029 and charter invariant 14.
 
 ## Reading this matrix
 
@@ -244,7 +244,7 @@ When adding X to the repo, route by type:
 - **Putting policy tier data in Cursor rules or AGENTS.md** — these are pointers; the live tier file is in system-config.
 - **Adding `.copilot/` stubs speculatively** — only add when Copilot is actually part of HCS workflow.
 - **Scoping HCS subagents to `~/.claude/agents/`** — project-scope keeps them invisible outside HCS work.
-- **Using `sonnet` or `haiku` models during early-phase HCS work** — early-phase baseline is Opus 4.7 for Claude, GPT-5.5/GPT-5.4-compatible HCS profiles for Codex.
+- **Using `sonnet` or `haiku` models during early-phase HCS work** — the early-phase baseline is the `opus` alias for Claude and the HCS-compatible profiles for Codex; the resolved model/profile names live in `AGENTS.md` §Tool baseline.
 - **Using WARP.md or .cursor/rules/ for policy enforcement** — those surfaces can't enforce; Claude Code settings + HCS gateway enforce.
 
 ## References
@@ -270,6 +270,7 @@ When adding X to the repo, route by type:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.5.4 | 2026-06-22 | ADR 0075 / D-076 Facet 1 (single-source the model identity): de-named the model/profile in §Tool baseline (`Opus 4.7` → `opus` alias; GPT-5.5/5.4 profiles → "HCS-compatible model profiles") and the `sonnet`/`haiku` anti-pattern row, repointing both to `AGENTS.md` §Tool baseline as the single source charter invariant 12 binds. The matrix is a reference doc, not a second baseline authority. Floors (`2.1.120`/`0.125.0`) unchanged. |
 | 1.5.3 | 2026-05-18 | Added the usable-state readout as a status surface for the HCS-local workstation-contract restatement slice. |
 | 1.5.2 | 2026-05-17 | Added the HCS workstation surface contract as a canonical cross-tool surface and removed stale external-inheritance wording from the matrix header. |
 | 1.5.1 | 2026-05-12 | Clarified D-048 policy-lint placement: system-config owns live-policy activation lint; HCS owns generated-snapshot source-binding and schema-compatibility lint only. |

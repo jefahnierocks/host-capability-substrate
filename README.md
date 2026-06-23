@@ -57,10 +57,9 @@ No lower ring may import from a higher ring. Enforced by CI from commit 1.
 
 ## Tool baseline (early phases)
 
-- **Claude Code CLI** ≥ `2.1.120` with Opus 4.8 as the main-session model (the `.claude/settings.json` `model` key is the resilient `opus` alias, reverted per `DECISIONS.md` D-075 after Fable 5 was retracted; reviewer subagents also pin `opus`); Claude macOS app build tracked separately
-- **Codex CLI** ≥ `0.125.0` with GPT-5.5/GPT-5.4-compatible HCS profiles; Codex macOS app build tracked separately
+- **Claude Code CLI** ≥ `2.1.120`; **Codex CLI** ≥ `0.125.0` — the binding floors (charter invariant 12)
 
-Subsequent minor updates acceptable. See `DECISIONS.md` D-075 (supersedes D-071/D-072) for the current baseline and the public-semver/app-build split.
+The current model/CLI baseline, the `opus` alias-pinning rule, and the public-CLI-semver/app-build split are recorded once in the **single source** — see `AGENTS.md` §Tool baseline, anchored to its `DECISIONS.md` re-baseline row. This README does not restate the model name, observed CLI version, or re-baseline `D-0NN`. Subsequent minor updates acceptable; re-baseline after material version changes.
 
 ## Quick start
 

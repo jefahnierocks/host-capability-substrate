@@ -6,7 +6,7 @@ You are helping build a host operations substrate. Favor boundary clarity over s
 
 ## Tool baseline
 
-Early-phase HCS work runs on Claude Code CLI `2.1.177` (observed; ≥ `2.1.120` floor per charter inv. 12) with Opus 4.8 as the main-session model — the `.claude/settings.json` `model` key is the resilient `opus` alias (resolves to the latest Opus), reverted from D-072's exact `claude-fable-5[1m]` pin after Anthropic retracted Fable 5 (D-075). The reviewer subagents also pin `model: opus`, so main and reviewers are now uniform Opus. Claude app build identifiers are tracked separately from CLI semver. Re-baseline history: D-071/D-072 (2026-06-11) moved the main session to Fable 5; D-075 (2026-06-15) reverted to Opus after the retraction. Charter inv. 12 floor and named-4.7 text are unchanged; the structural ADR (0075) proposes de-naming the model from the invariant. Subsequent minor updates acceptable.
+The observed CLI/model baseline, the `opus` alias-pinning rule, the reviewer-calibration note, and the re-baseline history live in the **single-source statement** — see `AGENTS.md` §Tool baseline (the section charter invariant 12 binds, per ADR 0075 / D-076). This file does not restate the model name, observed CLI version, or re-baseline `D-0NN`: a baseline change edits `AGENTS.md` §Tool baseline plus a new `DECISIONS.md` row, not this file. The binding floors are Claude Code CLI ≥ `2.1.120` and Codex CLI ≥ `0.125.0` (charter inv. 12), and main + reviewer subagents both pin the resilient `opus` alias, not an exact model string.
 
 ## When asked to implement
 
@@ -70,7 +70,7 @@ Harness-level enforcement (Claude Code settings) is layered with substrate-level
 
 ## Subagent table
 
-Six project-scoped subagents in `.claude/agents/`, all on the `opus` alias (currently Opus 4.8 — the main-session pin reverted to the same `opus` alias per D-075, so main and reviewers are now uniform Opus), no Bash in any tool list:
+Six project-scoped subagents in `.claude/agents/`, all on the `opus` alias — the same alias the main session pins, so main and reviewers run uniform (the resolved model is recorded once in `AGENTS.md` §Tool baseline); no Bash in any tool list:
 
 | Subagent | Tools | Role |
 |----------|-------|------|

@@ -13,14 +13,16 @@ peers: []
 status:
   posture: working-prototype
   local_phase: "Milestone 1 complete — Ring-0 ontology landed 22/22 (ADRs through
-    0077; decisions through D-080, with D-074 accepted/closed); Milestone 2
+    0078; decisions through D-081, with D-074 accepted/closed); Milestone 2
     (policy snapshot + decision package) open, with PolicyRule live-policy
     schema-ref activation (system-config 426843252e80) and per-boundary-dimension
     freshness windows (system-config 551419064422) byte-identically re-vendored
     into the HCS generated snapshot; first post-M1 schema slice landed via ADR
-    0076 / PR #78 — the model-as-object typed lane; the Ring-1 design lane opened
-    with ADR 0077 / D-080 (audit-events store, design-only, M4-gated impl);
-    kernel/adapters/dashboard intentionally unbuilt"
+    0076 / PR #78 — the model-as-object typed lane, extended by ADR 0078 / D-081
+    (AgentClient + Session model-attribution amendment, design-only, schema PR
+    pending); the Ring-1 design lane opened with ADR 0077 / D-080 (audit-events
+    store, design-only, M4-gated impl); kernel/adapters/dashboard intentionally
+    unbuilt"
   as_of: 2026-06-23
 authority:
   status_of_record: PLAN.md

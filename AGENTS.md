@@ -5,10 +5,12 @@
 
 **This section is the single-source baseline statement** that charter invariant 12 binds (per ADR 0075 / D-076): the dated authority of record is its `DECISIONS.md` re-baseline row — currently **D-075** — and `CLAUDE.md`, `README.md`, and `tooling-surface-matrix.md` point here instead of restating the model name or observed CLI version. A baseline change edits this section plus a new `DECISIONS.md` row; the `opus` alias pin needs no edit.
 
+**Identifiers, not version numbers.** The governing pins are durable: Claude's `opus` alias, Codex's HCS profiles (`hcs-*`), and the CLI semver floors — the running model is resolved/observed at runtime (`claude --version`, `codex --version`), per inv. 14. A specific model *version number* (e.g. `Opus 4.8`, `GPT-5.5`) appears **only here**, and only as a dated observation behind those pins. Every other surface — reviewer definitions, eval scoring/coverage lists, role tables, anti-patterns — names the **runtime/family** (Claude · Codex · Gemini/ADK), never a version. That keeps the next model rollover a one-line edit here, not a repo-wide sweep. (This baseline observes the two host-session runtimes — Claude and Codex; Gemini/ADK appears only as an eval run-scope family, never as a host baseline.)
+
 Current observed baseline (re-recorded 2026-06-15 in `DECISIONS.md` D-075, superseding D-071/D-072; triggered by Anthropic's retraction of Fable 5 and revert to Opus, per charter inv. 12's re-baseline-after-material-version-changes clause). Public CLI semver and app-build identifiers are separate authority facts (D-029).
 
 - **Claude Code CLI:** `2.1.177` observed; main-session model Opus 4.8 via the resilient `opus` alias the `.claude/settings.json` `model` key now holds (it resolves to the latest Opus). Reverted from D-072's exact `claude-fable-5[1m]` pin after that exact string was retracted (D-075); the alias absorbs retraction/rename without a re-pin. The six reviewer subagents also pin `model: opus`, so the D-071/D-072 main/reviewer split has converged back to uniform Opus. Floor remains ≥ `2.1.120` (charter inv. 12). Claude macOS app build tracked separately. (inv. 14 note: installed-CLI `--help` still advertises a `fable` alias — client help lags server-side retraction; observed runtime governs.)
-- **Codex CLI:** verify via `codex --version` (not re-observed in this packet); GPT-5.5/GPT-5.4-compatible HCS profiles. Floor remains ≥ `0.125.0` (charter inv. 12). Codex macOS app `26.519.81530 (3178)` / Workspace dependencies `26.521.10419` tracked separately as app-build facts (D-054 values, not re-observed).
+- **Codex CLI:** verify via `codex --version`; the model runs under the HCS profiles (`hcs-*`) and is resolved at runtime — current observed **GPT-5.5** (operator-confirmed 2026-06-22; within D-075's GPT-5.5/5.4-compatible baseline). Floor remains ≥ `0.125.0` (charter inv. 12). Codex macOS app `26.519.81530 (3178)` / Workspace dependencies `26.521.10419` tracked separately as app-build facts (D-054 values, not re-observed).
 - **Host OS:** macOS Tahoe `26.5.1`.
 
 Subsequent minor updates acceptable without re-baselining. Re-baseline after material version changes; the new row supersedes this one and becomes the dated authority of record (see `DECISIONS.md` D-075, superseding D-071/D-072). Charter invariant 12 — amended in charter **v1.6.0** (ADR 0075 / D-076) — no longer names a model: it binds *this* statement as the single-source baseline record, keeps the ≥ `2.1.120` / ≥ `0.125.0` floors as a hard gate, and requires **alias** pinning (an exact model string is a rationale-bearing exception; an unrecorded, sub-floor, or model-memory baseline is a violation).
@@ -154,12 +156,12 @@ Implementation roles (human-directed; not subagents):
 
 | Role | Tool | Output |
 |------|------|--------|
-| Schema engineer | Codex GPT-5.4 (profile: hcs-implement) | Zod + JSON Schema + fixtures |
-| Kernel implementer | Codex GPT-5.4 (profile: hcs-implement) | service code + tests |
-| Adapter implementer | Codex or Claude Code Opus | MCP/CLI/hook wrappers |
-| Dashboard implementer | Codex or Claude Code Opus | read-only views |
-| Policy drafter | Claude Code Opus | `tiers.yaml` (to system-config), rationale |
-| Doc keeper | Claude Code Opus | DECISIONS, ADRs, changelog |
+| Schema engineer | Codex (profile: `hcs-implement`) | Zod + JSON Schema + fixtures |
+| Kernel implementer | Codex (profile: `hcs-implement`) | service code + tests |
+| Adapter implementer | Codex or Claude Code | MCP/CLI/hook wrappers |
+| Dashboard implementer | Codex or Claude Code | read-only views |
+| Policy drafter | Claude Code | `tiers.yaml` (to system-config), rationale |
+| Doc keeper | Claude Code | DECISIONS, ADRs, changelog |
 
 ## Update policy
 

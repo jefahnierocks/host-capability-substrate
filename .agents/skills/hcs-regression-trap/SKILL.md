@@ -25,8 +25,8 @@ Use when an agent (yourself, a reviewer, a human) observes a failure class that 
    - **Forbidden outputs**: specific strings/patterns that constitute failure (deprecated syntax, bare shell strings, wrong version, etc.)
    - **Required trajectory assertions**: ordered list of substrate calls the agent must make (e.g., "call `system.tool.resolve.v1` before any `brew` proposal")
    - **Required evidence citations**: what observed_at / source / authority fields the agent must cite
-   - **Pass criteria** (numeric): e.g., "in 10 runs against Opus 4.7, ≥9 cite `system.tool.resolve.v1` evidence before proposing `brew install`"
-   - **Model coverage**: Claude Opus, GPT-5.4, Gemini/ADK — which are in scope for this trap
+   - **Pass criteria** (numeric): e.g., "in 10 runs against the current Claude baseline, ≥9 cite `system.tool.resolve.v1` evidence before proposing `brew install`"
+   - **Model coverage**: which runtimes a trap is in scope to run against — name the runtime/family (Claude · Codex · Gemini/ADK), **not** a model version number (versions churn; the live baseline is single-sourced in `AGENTS.md` §Tool baseline)
 4. Add the entry to `packages/evals/regression/<trap-name>.md`.
 5. Update `packages/evals/regression/seed.md` index if it exists.
 

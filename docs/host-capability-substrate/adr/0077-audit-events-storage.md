@@ -1,7 +1,7 @@
 ---
 adr_number: 0077
 title: Audit-events store — persistence, atomic per-chain-root append, unique-genesis
-status: proposed
+status: accepted
 version: v2
 date: 2026-06-23
 charter_version: 1.6.0
@@ -12,7 +12,15 @@ tags: [ring-1, audit-chain, audit-event, storage, persistence, atomic-append, un
 
 ## Status
 
-`proposed`
+`accepted`
+
+Accepted 2026-06-23 as **D-080**. Human approval = the operator merged the propose PR #82
+and directed proceed. The five-lens round 1 (architect/ontology/policy/eval zero blocking;
+`hcs-security-reviewer` load-bearing, one blocker B-1) was folded into v2 — the store file is
+`audit-events.sqlite` (gate-matched by `no-runtime-state-in-repo`), and §5 makes the
+no-SQLite-append-only-enforcement / mandatory-full-walk threat model explicit — and the
+confirming security round returned `confirm`. Design-only acceptance: no DDL / runtime /
+endpoint / schema byte change; the M4-gated implementation PR follows.
 
 Design-only. This ADR designs the **persistent audit-events store** — the tamper-evident
 home for the `AuditEvent` envelope ADR 0064 typed — and the **atomic per-chain-root
@@ -398,3 +406,7 @@ M4-gated store PR:
   never-payload-supplied; the seven-vs-eight `entity_kind` clarification + `entityIdSchema`-shaped
   `chain_root`/`subject_ref`; and three added implementation-test obligations (chain-truncation,
   gate-filename coverage, `recorded_seq` monotonicity).
+- 2026-06-23 (accepted): Operator merged the propose PR #82 and directed proceed; status
+  flipped `proposed` → `accepted` with the **D-080** ledger row. Discharges ADR 0057 audit
+  rule 7 and homes ADR 0064's deferred persistence. Design-only acceptance — no DDL/runtime/
+  endpoint/schema byte change; the M4-gated implementation PR follows.

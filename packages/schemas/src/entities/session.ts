@@ -42,6 +42,12 @@ export const sessionSchema = z
     producer: sessionProducerSchema,
     audit_chain_link_hash: sha256DigestSchema,
     evidence_refs: z.array(evidenceRefSchema).min(1),
+    model_ref: entityIdSchema
+      .nullable()
+      .optional()
+      .describe(
+        'ADR 0078 / D-081: typed ATTRIBUTION FK to the Model (ADR 0076) that ran this session — "which model ran this session." Additive nullable-optional `entityIdSchema`; no Session.schema_version bump (the ADR 0061 additive-nullable-FK change class is entity-independent). EXCLUDED from the audit_chain_link_hash canonical concatenation (attribution-field posture, like Decision.model_ref / Run.invoker_model_ref; existing chains stay valid) — Session carries no inline canonical-order describe (the order is deferred to the mint/audit implementation per ADR 0055), so the exclusion is recorded here on the field. Producer-asserted; FK existence + binding to a `subject_kind: model` Evidence record are Ring 1 obligations. Attribution metadata only — does not enter the session_state ↔ ended_at superRefine.',
+      ),
   })
   .strict()
   .superRefine((value, ctx) => {

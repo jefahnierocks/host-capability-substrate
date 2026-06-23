@@ -158,6 +158,20 @@
         "additionalProperties": false,
         "description": "Lightweight reference or embedded provenance preview for an Evidence record. Not a substitute for the full Evidence entity."
       }
+    },
+    "model_ref": {
+      "description": "ADR 0078 / D-081: typed ATTRIBUTION FK to the Model (ADR 0076) that ran this session — \"which model ran this session.\" Additive nullable-optional `entityIdSchema`; no Session.schema_version bump (the ADR 0061 additive-nullable-FK change class is entity-independent). EXCLUDED from the audit_chain_link_hash canonical concatenation (attribution-field posture, like Decision.model_ref / Run.invoker_model_ref; existing chains stay valid) — Session carries no inline canonical-order describe (the order is deferred to the mint/audit implementation per ADR 0055), so the exclusion is recorded here on the field. Producer-asserted; FK existence + binding to a `subject_kind: model` Evidence record are Ring 1 obligations. Attribution metadata only — does not enter the session_state ↔ ended_at superRefine.",
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "description": "Stable local entity identifier. It is not a secret value."
+        },
+        {
+          "type": "null"
+        }
+      ]
     }
   },
   "required": [

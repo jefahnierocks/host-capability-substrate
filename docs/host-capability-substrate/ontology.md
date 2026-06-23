@@ -3,7 +3,7 @@ title: HCS Ontology
 category: reference
 component: host_capability_substrate
 status: partial
-version: 1.33.0
+version: 1.34.0
 last_updated: 2026-06-23
 tags: [ontology, entities, schemas, evidence, operation-shape, execution-context, agent-client, verification-command-spec, knowledge-source, knowledge-chunk, coordination-fact, derived-summary, quality-gate, isolation, github, version-control, boundary-observation, ci-runner, credential-plane, machine-identity, project-substrate, teardown, backup-readiness, restore-drill, authority-discipline, self-asserted, cleanup-plan, decision, workspace-context, approval-grant, lease, run, principal, session, foundational-ring-0, policy-rule, capability, command-shape, tool-provider, tool-installation, resolved-tool, artifact, lock, resource-budget, model, model-as-object]
 priority: high
@@ -142,6 +142,17 @@ Key fields:
 - `kernel_observed_at`, `valid_until`, `audit_chain_link_hash`, and
   `evidence_refs` bind the record to observed runtime, freshness, audit-chain
   continuity, and provenance.
+- `model_ref` (ADR 0078 / D-081) is an additive nullable-optional attribution
+  FK to `Model` (ADR 0076): the model the client was configured to invoke by
+  default at `kernel_observed_at` — the resolved default-model pin. It is
+  single-valued **per observation** (a configured-model re-pin is a new
+  observation, distinguished by its hashed `kernel_observed_at`, not a new
+  client identity), **excluded** from the `audit_chain_link_hash` canonical
+  concatenation (attribution-field posture, like `Decision.model_ref` /
+  `Run.invoker_model_ref` — not identity-in-the-hash), and non-version-bumping
+  (`AgentClient.schema_version` stays `0.1.0`). Producer-asserted; FK existence,
+  the pin→`Model` resolution, and binding to a `subject_kind: 'model'` Evidence
+  record are Ring 1 obligations.
 
 `AgentClient` does not add policy tiers, adapter behavior, broker behavior, or
 runtime execution endpoints. Gate behavior such as narrower-wins composition
@@ -1568,6 +1579,19 @@ Key fields:
 - `audit_chain_link_hash` carries the per-record chain link with
   length-prefix discipline (retroactive posture rule per ADR 0051 v4
   now extended to ADRs 0049-0055).
+- `model_ref` (ADR 0078 / D-081) is an additive nullable-optional
+  attribution FK to `Model` (ADR 0076): "which model ran this
+  session." A session runs one model for its lifetime, so the single
+  FK is faithful, and it ties together the per-invocation attribution
+  already on the `Decision`s and `Run`s the session owns. **Excluded**
+  from the `audit_chain_link_hash` canonical concatenation (attribution
+  posture like `Decision.model_ref` / `Run.invoker_model_ref`; Session
+  carries no inline canonical-order describe, so the exclusion is
+  recorded on the field) and non-version-bumping
+  (`Session.schema_version` stays `0.1.0`). Producer-asserted; FK
+  existence + `subject_kind: 'model'` Evidence binding are Ring 1
+  obligations; it does not enter the `session_state ↔ ended_at`
+  superRefine.
 
 **Self-approval rejection typed-FK consummation (ADR 0051 v4 + ADR
 0054 §Self-approval rejection rule)**: the consuming-session
@@ -2407,6 +2431,7 @@ Every `Evidence` record:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.34.0 | 2026-06-23 | Landed the ADR 0078 / D-081 `AgentClient` + `Session` model-attribution schema PR — adds `model_ref` to the two remaining minted entities ADR 0076 deferred, resolving the canonical-hash attribution-vs-identity fork **attribution-alongside**. Both `Session.model_ref` ("which model ran this session") and `AgentClient.model_ref` ("the model this client was configured to invoke by default at `kernel_observed_at`") are additive nullable-optional `entityIdSchema` FKs to `Model` (ADR 0076), **EXCLUDED** from each minted entity's `audit_chain_link_hash` canonical concatenation (attribution-field posture, like `Decision.model_ref` / `Run.invoker_model_ref`; identity-in-the-hash REJECTED — would reopen ADR 0059 + fragment client identity per model swap), with **no `schema_version` bump** on either entity (both stay `0.1.0`). The `AgentClient` `audit_chain_link_hash` `.describe()` gains one sentence recording `model_ref`'s exclusion (keeping its closed exclusion enumeration complete; the canonical-order drift guard now filters `model_ref` alongside `schema_version`/`audit_chain_link_hash`); `Session` records the exclusion on the `model_ref` field describe (it carries no inline canonical-order describe). Producer-asserted; FK existence, the `AgentClient` pin→`Model` resolution, and `subject_kind: 'model'` Evidence binding are Ring 1 obligations. Completes the four-locus model-attribution ladder (`Decision`/`Run`/`Session`/`AgentClient`). Regenerated `AgentClient.schema.json` + `Session.schema.json`; added `model_ref` test blocks to `agent-client.test.ts` (+ field-set-lock and drift-guard updates) and `session.test.ts`. Registry companion v0.4.37. |
 | 1.33.0 | 2026-06-23 | ADR 0076 / D-077 `Model` Ring-0 entity — the first post-M1 Ring-0 entity (the 23rd): the spec-driven model-as-object that COMPLETES ADR 0075 (which single-sourced the model STRING in prose) by typing model identity/spec/lifecycle. NEW `### Model` entity section + §Entities one-liner. A NON-MINTED Ring-0 peer of HostProfile/ResourceBudget: `model_id` + `vendor` (anthropic/openai/google/unknown) + `runtime_family` (claude/codex/gemini_adk/unknown) + OPTIONAL `tier` token + `pin_form` (alias/exact_id/profile_handle) + `pin_value` token + OPTIONAL `resolved_model_name` token + OPTIONAL `context_window` (positive int — the `[1m]` suffix as DATA) + `model_state` (announced/active/deprecated/retracted/superseded) + OPTIONAL `supersedes_model_id` self-FK + OPTIONAL `decision_ledger_row` token (a DECISIONS.md row id, NOT a Decision FK) + `.strict()` `source_provenance` with a MULTI-VALUE `modelSourceAuthoritySchema` (vendor_published/observed_runtime/operator_attested — HCS's first multi-value non-minted declaration-site authority, the inv-14 split). COMPLETES ADR 0075: MIRRORS, never competes with, the AGENTS.md §Tool baseline + DECISIONS.md re-baseline-row authority of record (the `decision_ledger_row` anchor); the de-versioning rule becomes a typed invariant. Cross-entity additive changes: `evidenceSubjectKindSchema += 'model'` — bumping `Evidence.schema_version` 0.10.0→0.11.0 (a genuinely-new subject kind, unlike the pre-reserved-value storage primitives); `Decision.model_ref` + `Run.invoker_model_ref` (additive nullable-optional attribution FKs, no Decision/Run schema_version bump, EXCLUDED from each minted entity's `audit_chain_link_hash` canonical concatenation). model_id/supersedes_model_id-opaque, FK existence, sandbox non-promotion (inv. 8), the `pin_form:exact_id ⇒ decision_ledger_row` rule (accept-and-trap at Ring 0), the retracted-model guard + inv-12 floor-rejection, and the `pin_value → resolved_model_name` resolver are Ring 1 obligations. NO policy-tier denylist (`tier` is the model capability rung, vocabulary-disjoint from policy tiers — inv. 1). Regenerated Model.schema.json + Evidence/Decision/Run JSON Schema; added model.test.ts; bumped the base-Evidence schema_version fixtures across the existing suite 0.10.0→0.11.0. Registry companion v0.4.36. |
 | 1.32.0 | 2026-06-11 | M2-entry promotion of the ADR 0034 §Sub-decision (d) posture-only reservations (the first Milestone 2 schema PR; PLAN §M2 acceptance criterion 2). `Decision.reason_kind` gains the three `boundary_evidence_*` rejection kinds (`_stale` / `_missing` / `_contradictory`; deny-only this-invocation rejects keyed to `valid_until` stateness, `unknown` evaluating as missing; additive enum widening, 18 → 21 Zod-defined, no `Decision.schema_version` bump). `Decision` gains the additive nullable-optional `divergent_evidence_ref_pair` (exactly two chain-aware evidence refs; required iff `boundary_evidence_contradictory`, rejected otherwise; entries chain-walk-refined per charter inv. 8/18; ADR 0061 nullable-optional precedent — no version-literal bump). A same-record refinement enforces the ADR 0034 reason↔grant kind pairing (each `boundary_evidence_*` rejection clearable only by its matching acknowledgment grant or `null`). `ApprovalGrant.grant_kind` gains the three single-use acknowledgment kinds (`boundary_evidence_freshness_override` / `boundary_evidence_contradiction_acknowledgment` / `boundary_evidence_absence_acceptance`; 3 → 6; no `ApprovalGrant.schema_version` bump), each with a new `.strict()` scope branch binding `boundary_observation_evidence_refs[]` (min 2 on the contradiction branch) + `execution_context_id` (scope-vs-envelope equality, single-use-per-operation_id consumption, and stateness-matrix evaluation are Ring 1 obligations); the envelope superRefine walks the new branches' refs. Regenerated `Decision.schema.json` + `ApprovalGrant.schema.json`; 21 new tests. Registry companion v0.4.35. |
 | 1.31.1 | 2026-06-08 | Post-M1 housekeeping (docs-only): flipped two stale "future" forward-references in LIVE entity sections now that their targets are landed — `Session.principal_id` in the `Principal` section (landed ADR 0055) and `ToolInstallation` in the `ToolProvider` Ring-1-obligations clause (landed ADR 0068). Also flipped the byte-identical stale "future `ResourceBudget`" / "future `ToolInstallation`" `.describe()` strings in the `command-shape.ts` / `tool-provider.ts` Zod sources (describe-only; regenerated `CommandShape.schema.json` + `ToolProvider.schema.json`; no shape/`schema_version` change). No entity, enum, field, or version-literal change. |

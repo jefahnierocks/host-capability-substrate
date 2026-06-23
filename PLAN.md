@@ -12,9 +12,12 @@ canonical Ring-0 entities are landed as Zod schemas + generated JSON Schema +
 `schema_version` + ontology/registry docs, with the final entity —
 **ResourceBudget** (ADR 0072 / D-070, schema **PR #44 merged**) — closing the set.
 Ontology **v1.33.0**, registry **v0.4.36**, charter **v1.6.0**; ADRs span
-**0001–0076** (0026 absent); decisions accepted through **D-079** (next-free
-**D-080**, no reserved gap after the ADR 0074 / D-074 accept-flip). ADR 0074 /
+**0001–0077** (0026 absent); decisions accepted through **D-080** (next-free
+**D-081**, no reserved gap after the ADR 0074 / D-074 accept-flip). ADR 0074 /
 D-074 is accepted and closes the operator-handoff record-class ledger thread.
+ADR 0077 / D-080 (audit-events store — SQLite-WAL, atomic per-chain-root append,
+unique-genesis) is accepted design-only, discharging ADR 0057 audit rule 7 and
+homing ADR 0064's deferred persistence; the Ring-1 implementation is M4-gated.
 The ADR 0076 / D-077 `Model` schema landed as the **23rd Ring-0 entity** (first
 post-M1) via PR #78 — model identity/spec/lifecycle as a non-minted typed object
 completing ADR 0075; `Evidence` bumped to `0.11.0` for the new `model` subject

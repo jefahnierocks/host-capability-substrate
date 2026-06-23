@@ -1,7 +1,7 @@
 ---
 adr_number: 0074
 title: "Operator handoffs are a record-class surface (`.handoffs/`), not an Artifact"
-status: proposed
+status: accepted
 date: 2026-06-14
 charter_version: 1.5.0
 tags: [handoff, record-class, artifact, inv-13, inv-10, gitignore, scratch, storage-primitive]
@@ -11,7 +11,15 @@ tags: [handoff, record-class, artifact, inv-13, inv-10, gitignore, scratch, stor
 
 ## Status
 
-`proposed`
+`accepted`
+
+Accepted 2026-06-23 as **D-074**. Human approval = the operator merged the
+proposal PR #68 (`7127593`) and later directed the accept-flip after the ADR
+0076 / D-077 Model schema lane landed. This acceptance is docs/ledger only:
+`AGENTS.md`, `CLAUDE.md`, and `.gitignore` already carry the adopted handoff
+convention. Re-checked against current charter v1.6.0; v1.6.0 amended invariant
+12 only, so the v1.5.0 invariant 10/13/17 citations this ADR depends on remain
+valid.
 
 ## Date
 
@@ -266,3 +274,5 @@ broker exists; no schema or storage-pointer change lands here.
   list; the inv-10/inv-13 distinction matches how `.logs/` is treated). Folded
   two non-blocking wording tweaks (ADR 0011 citation precision; "applies" vs
   "operationalizes").
+- 2026-06-23: Accepted as D-074. Ledger/status flip only; no schema, policy,
+  runtime-state, sandbox allowlist, or CI-gate change.

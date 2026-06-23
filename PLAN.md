@@ -12,9 +12,12 @@ canonical Ring-0 entities are landed as Zod schemas + generated JSON Schema +
 `schema_version` + ontology/registry docs, with the final entity —
 **ResourceBudget** (ADR 0072 / D-070, schema **PR #44 merged**) — closing the set.
 Ontology **v1.32.0**, registry **v0.4.35**, charter **v1.6.0**; ADRs span
-**0001–0075** (0026 absent); decisions accepted through **D-076**. **D-074**
-remains RESERVED pending the ADR 0074 accept-flip (0074 merged via #68 but still
-`proposed`); D-075/D-076 landed ahead of it. The 2026-06-11 remediation/queue
+**0001–0076** (0026 absent); decisions accepted through **D-077** (next-free
+**D-078**). **D-074** remains RESERVED pending the ADR 0074 accept-flip (0074
+merged via #68 but still `proposed`); D-075/D-076/D-077 landed ahead of it.
+ADR 0076 (Model Ring-0 entity / D-077, accepted 2026-06-23) types model
+identity/spec/lifecycle as a non-minted Ring-0 object — the spec-driven completion
+of ADR 0075; its schema PR (the 23rd Ring-0 entity, first post-M1) is the next slice. The 2026-06-11 remediation/queue
 arc (PRs #52–#64) landed the doc-honesty fixes, the doc-pointer and
 shared-state-naming gates, the D-071/D-072 Fable 5 re-baseline + settings pin,
 and the accepted ADR 0073 charter amendment; the operator selected

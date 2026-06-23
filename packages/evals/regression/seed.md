@@ -89,9 +89,11 @@ For each trap, given a human task, the agent must:
 
 ## Cadence
 
-- **Pre-merge:** subset run against Claude Opus 4.7.
-- **Weekly:** full suite across Claude Opus, GPT-5.4, Gemini/ADK (where practical).
+- **Pre-merge:** subset run against the current main-session Claude baseline (the `opus` alias — see `AGENTS.md` §Tool baseline, the single source; the model is not restated here).
+- **Weekly:** full suite across the Claude, Codex, and Gemini/ADK runtimes (where practical).
 - **Monthly:** audit for new trap classes surfaced in actual sessions; add per `.agents/skills/hcs-regression-trap/SKILL.md`.
+
+The runtimes in the Weekly list and in each trap's `model_coverage` frontmatter are **run-scope** metadata — which runtimes/families a trap is *in scope to run against*, named as runtimes (Claude · Codex · Gemini/ADK), **not** version numbers (those churn) — not the live baseline. The live baseline is single-sourced in `AGENTS.md` §Tool baseline (per ADR 0075 / D-076); a baseline or model change edits that one statement and does not rewrite these tags.
 
 ## Populated by
 

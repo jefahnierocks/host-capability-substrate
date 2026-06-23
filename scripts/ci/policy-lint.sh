@@ -37,6 +37,7 @@ require 'yaml'
 OPERATION_SHAPE_SCHEMA = 'packages/schemas/generated/OperationShape.schema.json'
 DECISION_SCHEMA = 'packages/schemas/generated/Decision.schema.json'
 POLICY_RULE_SCHEMA = 'packages/schemas/generated/PolicyRule.schema.json'
+BOUNDARY_OBSERVATION_SCHEMA = 'packages/schemas/generated/BoundaryObservation.schema.json'
 
 @failed = false
 
@@ -91,16 +92,75 @@ def relative_path(path)
   path.sub(%r{\A\./}, '')
 end
 
+def duration_seconds(value)
+  return nil unless value.is_a?(String)
+
+  match = value.match(/\AP(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?\z/)
+  return nil unless match
+
+  days, hours, minutes, seconds = match.captures.map { |capture| capture&.to_i || 0 }
+  total = (days * 24 * 60 * 60) + (hours * 60 * 60) + (minutes * 60) + seconds
+  total.positive? ? total : nil
+end
+
+def validate_boundary_dimension_freshness(path, policy, boundary_dimensions)
+  freshness = policy['boundary_dimension_freshness_windows']
+  unless mapping?(freshness)
+    lint_error(path, 'missing required boundary_dimension_freshness_windows mapping')
+    return
+  end
+
+  lint_error(path, 'boundary_dimension_freshness_windows.schema_ref must be set') unless present?(freshness['schema_ref'])
+  unless present?(freshness['policy_source_ref'])
+    lint_error(path, 'boundary_dimension_freshness_windows.policy_source_ref must be set')
+  end
+  unless duration_seconds(freshness['default_window'])
+    lint_error(path, 'boundary_dimension_freshness_windows.default_window must be a positive ISO-8601 day/hour/minute/second duration')
+  end
+  unless present?(freshness['default_window_source_ref'])
+    lint_error(path, 'boundary_dimension_freshness_windows.default_window_source_ref must be set')
+  end
+
+  windows = freshness['windows']
+  unless mapping?(windows)
+    lint_error(path, 'boundary_dimension_freshness_windows.windows must be a mapping')
+    return
+  end
+
+  snapshot_dimensions = windows.keys.to_set
+  missing = (boundary_dimensions - snapshot_dimensions).to_a.sort
+  extra = (snapshot_dimensions - boundary_dimensions).to_a.sort
+
+  lint_error(path, "boundary_dimension_freshness_windows.windows missing #{missing.join(', ')}") unless missing.empty?
+  lint_error(path, "boundary_dimension_freshness_windows.windows has unknown #{extra.join(', ')}") unless extra.empty?
+
+  windows.sort.each do |dimension, entry|
+    unless mapping?(entry)
+      lint_error(path, "boundary_dimension_freshness_windows.windows.#{dimension} must be a mapping")
+      next
+    end
+
+    unless duration_seconds(entry['valid_until_window'])
+      lint_error(path, "boundary_dimension_freshness_windows.windows.#{dimension}.valid_until_window must be a positive ISO-8601 day/hour/minute/second duration")
+    end
+    unless present?(entry['source_ref'])
+      lint_error(path, "boundary_dimension_freshness_windows.windows.#{dimension}.source_ref must be set")
+    end
+  end
+end
+
 snapshot_dir = ARGV.fetch(0)
 operation_shape_schema = JSON.parse(File.read(OPERATION_SHAPE_SCHEMA))
 decision_schema = JSON.parse(File.read(DECISION_SCHEMA))
 policy_rule_schema = JSON.parse(File.read(POLICY_RULE_SCHEMA))
+boundary_observation_schema = JSON.parse(File.read(BOUNDARY_OBSERVATION_SCHEMA))
 
 operation_classes = collect_property_values(operation_shape_schema, 'operation_class').to_set
 decision_reason_kinds = collect_property_values(decision_schema, 'reason_kind').to_set
 operation_shape_versions = collect_property_values(operation_shape_schema, 'schema_version').to_set
 decision_versions = collect_property_values(decision_schema, 'schema_version').to_set
 policy_rule_versions = collect_property_values(policy_rule_schema, 'schema_version').to_set
+boundary_dimensions = collect_property_values(boundary_observation_schema, 'boundary_dimension').to_set
 
 Dir.glob(File.join(snapshot_dir, '**', '*.{yaml,yml}')).sort.each do |path|
   rel = relative_path(path)
@@ -166,6 +226,8 @@ Dir.glob(File.join(snapshot_dir, '**', '*.{yaml,yml}')).sort.each do |path|
 
     lint_error(rel, "reason_kind #{reason_kind.inspect} is not in generated Decision schema")
   end
+
+  validate_boundary_dimension_freshness(rel, policy, boundary_dimensions)
 end
 
 exit(@failed ? 1 : 0)

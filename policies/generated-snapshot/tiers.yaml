@@ -144,6 +144,76 @@ valid_until_defaults:
   worktree_lease_ceiling: "PT24H"
   worktree_lease_ceiling_source_ref: "hcs:docs/host-capability-substrate/adr/0031-q-008-d-worktree-ownership-composition.md"
 
+boundary_dimension_freshness_windows:
+  schema_ref: "hcs:packages/schemas/src/entities/boundary-observation.ts#boundaryDimensionSchema"
+  policy_source_ref: "hcs:docs/host-capability-substrate/adr/0034-q-007-b-f-boundary-evidence-composition-quality-gate-posture.md#sub-decision-d-boundary-evidence-stateness-matrix"
+  default_window: "PT24H"
+  default_window_source_ref: policy_boundary_dimension_default_until_dimension_specific_adr_lands
+  windows:
+    bundle_identity:
+      valid_until_window: "PT168H"
+      source_ref: "hcs:docs/host-capability-substrate/ontology-registry.md#bundle_identity"
+    branch_protection:
+      valid_until_window: "PT1H"
+      source_ref: "hcs:docs/host-capability-substrate/ontology-registry.md#branch_protection"
+    check_source:
+      valid_until_window: "PT24H"
+      source_ref: "hcs:docs/host-capability-substrate/ontology-registry.md#check_source"
+    containment_class:
+      valid_until_window: "PT24H"
+      source_ref: "hcs:docs/host-capability-substrate/adr/0037-q-010-cross-agent-isolation-and-compatibility-taxonomy.md#sub-decision-e-re-baseline-trigger-e2"
+    credential_routing:
+      valid_until_window: "PT24H"
+      source_ref: "hcs:docs/host-capability-substrate/ontology-registry.md#credential_routing"
+    egress_observed:
+      valid_until_window: "PT1H"
+      source_ref: "hcs:docs/host-capability-substrate/ontology-registry.md#egress_observed"
+    egress_policy:
+      valid_until_window: "PT24H"
+      source_ref: "hcs:docs/host-capability-substrate/ontology-registry.md#egress_policy"
+    filesystem_authority:
+      valid_until_window: "PT24H"
+      source_ref: "hcs:docs/host-capability-substrate/ontology-registry.md#filesystem_authority"
+    filesystem_inheritance:
+      valid_until_window: "PT24H"
+      source_ref: "hcs:docs/host-capability-substrate/ontology-registry.md#filesystem_inheritance"
+    filesystem_protected_paths:
+      valid_until_window: "PT168H"
+      source_ref: "hcs:docs/host-capability-substrate/ontology-registry.md#filesystem_protected_paths"
+    launch_context:
+      valid_until_window: "PT24H"
+      source_ref: "hcs:docs/host-capability-substrate/ontology-registry.md#launch_context"
+    mcp_authorization:
+      valid_until_window: "PT1H"
+      source_ref: "hcs:docs/host-capability-substrate/ontology-registry.md#mcp_authorization"
+    mcp_canonical_authority:
+      valid_until_window: "PT24H"
+      source_ref: "hcs:docs/host-capability-substrate/ontology-registry.md#mcp_canonical_authority"
+    origin_access_validation:
+      valid_until_window: "PT1H"
+      source_ref: "hcs:docs/host-capability-substrate/ontology-registry.md#origin_access_validation"
+    path_coverage:
+      valid_until_window: "PT24H"
+      source_ref: "hcs:docs/host-capability-substrate/ontology-registry.md#path_coverage"
+    project_admission_authority:
+      valid_until_window: "PT168H"
+      source_ref: "hcs:docs/host-capability-substrate/ontology-registry.md#project_admission_authority"
+    runner_isolation:
+      valid_until_window: "PT24H"
+      source_ref: "hcs:docs/host-capability-substrate/ontology-registry.md#runner_isolation"
+    sandbox:
+      valid_until_window: "PT24H"
+      source_ref: "hcs:docs/host-capability-substrate/ontology-registry.md#sandbox"
+    tcc:
+      valid_until_window: "PT24H"
+      source_ref: "hcs:docs/host-capability-substrate/ontology-registry.md#tcc"
+    volume_authority:
+      valid_until_window: "PT24H"
+      source_ref: "hcs:docs/host-capability-substrate/ontology-registry.md#volume_authority"
+    worktree_ownership:
+      valid_until_window: "PT1H"
+      source_ref: "hcs:docs/host-capability-substrate/ontology-registry.md#worktree_ownership"
+
 tiers:
   read-safe:
     status: active

@@ -211,3 +211,55 @@ describe('Session schema (ADR 0055 / D-044)', () => {
     ).toBe(false);
   });
 });
+
+describe('Session.model_ref (ADR 0078 / D-081 — additive nullable-optional attribution FK)', () => {
+  it('accepts model_ref absent (the base session)', () => {
+    expect(sessionSchema.parse(baseActiveSession).model_ref).toBeUndefined();
+  });
+
+  it('accepts model_ref as an explicit null (unattributed)', () => {
+    expect(sessionSchema.parse({ ...baseActiveSession, model_ref: null }).model_ref).toBeNull();
+  });
+
+  it('accepts model_ref as a synthetic Model FK id', () => {
+    expect(
+      sessionSchema.parse({ ...baseActiveSession, model_ref: 'model:hcs:claude-opus' }).model_ref,
+    ).toBe('model:hcs:claude-opus');
+  });
+
+  it('does NOT add model_ref to the generated required set (additive nullable-optional)', () => {
+    const schema = JSON.parse(
+      readFileSync(new URL('../generated/Session.schema.json', import.meta.url), 'utf8'),
+    ) as {
+      required: string[];
+      properties: Record<string, { anyOf?: { type?: string }[]; description?: string }>;
+    };
+    expect(schema.required).not.toContain('model_ref');
+    const branches = schema.properties.model_ref?.anyOf ?? [];
+    expect(branches.some((branch) => branch.type === 'null')).toBe(true);
+  });
+
+  it('records the audit_chain_link_hash exclusion on the model_ref field describe (Session has no inline canonical-order describe)', () => {
+    const schema = JSON.parse(
+      readFileSync(new URL('../generated/Session.schema.json', import.meta.url), 'utf8'),
+    ) as { properties: Record<string, { description?: string }> };
+    expect(schema.properties.model_ref?.description ?? '').toContain(
+      'EXCLUDED from the audit_chain_link_hash',
+    );
+  });
+
+  it('model_ref is attribution metadata only — it does not enter the session_state ↔ ended_at superRefine', () => {
+    // present model_ref does not change a valid active session
+    expect(
+      sessionSchema.safeParse({ ...baseActiveSession, model_ref: 'model:hcs:x' }).success,
+    ).toBe(true);
+    // an invalid state ↔ ended_at correlation still rejects regardless of model_ref presence
+    expect(
+      sessionSchema.safeParse({
+        ...baseActiveSession,
+        ended_at: '2026-05-11T01:00:00Z',
+        model_ref: 'model:hcs:x',
+      }).success,
+    ).toBe(false);
+  });
+});

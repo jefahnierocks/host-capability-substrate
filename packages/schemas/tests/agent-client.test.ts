@@ -179,6 +179,7 @@ describe('AgentClient canonical-hash amendment (ADR 0059 / D-058)', () => {
       'valid_until',
       'audit_chain_link_hash',
       'evidence_refs',
+      'model_ref',
     ]);
     expect(fields).not.toContain('prior_audit_chain_link_hash');
     expect(fields).not.toContain('producer');
@@ -186,7 +187,10 @@ describe('AgentClient canonical-hash amendment (ADR 0059 / D-058)', () => {
 
   it('keeps the documented canonical order in sync with the live AgentClient field shape (drift guard)', () => {
     const recordHashInputs = Object.keys(agentClientSchema.shape).filter(
-      (key) => key !== 'schema_version' && key !== 'audit_chain_link_hash',
+      // model_ref is an ADR 0078 / D-081 attribution field EXCLUDED from the hash —
+      // exclude it here alongside schema_version + audit_chain_link_hash so a future
+      // field add/reorder that is NOT excluded desyncs the derived order from the describe.
+      (key) => key !== 'schema_version' && key !== 'audit_chain_link_hash' && key !== 'model_ref',
     );
     const derivedCanonical = [
       ...recordHashInputs.map((key) =>
@@ -203,5 +207,62 @@ describe('AgentClient canonical-hash amendment (ADR 0059 / D-058)', () => {
     const desc =
       readGeneratedAgentClientSchema().properties.audit_chain_link_hash?.description ?? '';
     expect(desc).toContain(derivedCanonical);
+  });
+
+  it('keeps model_ref out of the canonical concatenation slot list while documenting its exclusion', () => {
+    // The hashed-slot list itself must never name model_ref...
+    expect(canonicalConcatenation).not.toContain('model_ref');
+    // ...but the describe's exclusion enumeration must say model_ref is excluded
+    // (so the closed exclusion set stays complete — ADR 0078 / D-081).
+    const desc =
+      readGeneratedAgentClientSchema().properties.audit_chain_link_hash?.description ?? '';
+    expect(desc).toContain('model_ref is likewise excluded');
+  });
+});
+
+describe('AgentClient.model_ref (ADR 0078 / D-081 — additive nullable-optional attribution FK)', () => {
+  const baseClient = {
+    schema_version: '0.1.0',
+    agent_client_id: 'agent-client:claude-code:2.1.177',
+    product_family: 'claude_code',
+    surface: 'claude_code_cli',
+    app_build: '2.1.177',
+    dep_bundle_version: 'node24.0.0',
+    permission_mode: 'default',
+    containment_mechanism: 'terminal_no_isolation_capable',
+    agent_client_state: 'active',
+    kernel_observed_at: '2026-06-23T00:00:00Z',
+    valid_until: null,
+    audit_chain_link_hash:
+      'sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+    evidence_refs: [evidenceRef],
+  } as const;
+
+  it('accepts model_ref absent (the base client)', () => {
+    expect(agentClientSchema.parse(baseClient).model_ref).toBeUndefined();
+  });
+
+  it('accepts model_ref as an explicit null (unattributed)', () => {
+    expect(agentClientSchema.parse({ ...baseClient, model_ref: null }).model_ref).toBeNull();
+  });
+
+  it('accepts model_ref as a synthetic Model FK id (the configured-pin attribution)', () => {
+    expect(
+      agentClientSchema.parse({ ...baseClient, model_ref: 'model:hcs:opus-alias' }).model_ref,
+    ).toBe('model:hcs:opus-alias');
+  });
+
+  it('does NOT add model_ref to the generated required set (additive nullable-optional)', () => {
+    const schema = readGeneratedAgentClientSchema() as unknown as {
+      required: string[];
+      properties: Record<string, { anyOf?: { type?: string }[] }>;
+    };
+    expect(schema.required).not.toContain('model_ref');
+    const branches = schema.properties.model_ref?.anyOf ?? [];
+    expect(branches.some((branch) => branch.type === 'null')).toBe(true);
+  });
+
+  it('keeps schema_version at 0.1.0 — the model_ref addition is non-version-bumping', () => {
+    expect(readGeneratedAgentClientSchema().properties.schema_version?.const).toBe('0.1.0');
   });
 });

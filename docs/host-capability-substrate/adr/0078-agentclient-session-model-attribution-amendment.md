@@ -401,16 +401,20 @@ This ADR explicitly does not authorize:
    set; independence — no pair-consistency refinement; `model_ref` does not
    enter the entity superRefine — e.g. a present `model_ref` does not change a
    valid/invalid Session `state ↔ ended_at` outcome), mirroring the
-   `Decision.model_ref` block (`decision.test.ts` ~919-953). Two existing
-   exhaustive field-list assertions **must** update or the PR fails on
-   unrelated tests: the `Session` `required`-set pin (`session.test.ts`
-   ~31-49) and the `AgentClient` envelope-field-set `.toEqual([...])`
-   (`agent-client.test.ts` ~166-185). The `agentClientSchema.shape`-derived
-   canonical-order drift guard (`agent-client.test.ts` ~187-206) must add
-   `model_ref` to its excluded set (so an Option-B refactor that folds
-   `model_ref` into the concatenation desyncs and fails), plus a positive
-   assertion that the generated `audit_chain_link_hash.description` does
-   **not** contain `model_ref`.
+   `Decision.model_ref` block (`decision.test.ts` ~919-953). The `AgentClient`
+   envelope-field-set `.toEqual([...])` (`agent-client.test.ts` ~166-185) must
+   gain `model_ref` or the PR fails on that exhaustive assertion; the `Session`
+   `required`-set pin (`session.test.ts` ~31-49) does **not** change
+   (`model_ref` is optional, so it never enters `required`). The
+   `agentClientSchema.shape`-derived canonical-order drift guard
+   (`agent-client.test.ts` ~187-206) must add `model_ref` to its excluded set
+   (so an Option-B refactor that folds `model_ref` into the concatenation
+   desyncs and fails). Because step 2 appends the exclusion sentence to the
+   `audit_chain_link_hash` describe (to keep its closed exclusion enumeration
+   complete), that describe DOES name `model_ref` in the exclusion clause — so
+   the guard is a coupled pair: assert the canonical-concatenation **slot
+   list** (`canonicalConcatenation`) lacks `model_ref`, and the describe's
+   exclusion clause names it (`'model_ref is likewise excluded'`).
 5. Ontology section + registry ledger rows updated for both entities; registry
    version bumped from v0.4.36.
 
@@ -421,8 +425,10 @@ This ADR explicitly does not authorize:
   than prose: (a) the `agentClientSchema.shape`-derived canonical-order drift
   guard (`agent-client.test.ts` ~187-206) excludes `model_ref`, so any future
   refactor that folds it into the concatenation desyncs and fails; (b) the
-  generated `AgentClient.audit_chain_link_hash.description` does not contain
-  `model_ref`. Plus a computed-vector case: two AgentClient fixtures identical
+  canonical-concatenation **slot list** (`canonicalConcatenation`) does not
+  contain `model_ref` while the describe's exclusion clause names it as
+  excluded — the link sits beside the hashed slots, never inside them. Plus a
+  computed-vector case: two AgentClient fixtures identical
   in all twelve hashed slots (same `kernel_observed_at`) differing only in
   `model_ref` hash **equal**; the same two differing also in
   `kernel_observed_at` hash **unequal** (a real re-pin is chain-distinguishable).
@@ -488,3 +494,13 @@ This ADR explicitly does not authorize:
   must update, superRefine-independence). Presented for acceptance under the
   mechanical-tweaks-at-acceptance discipline (no confirming round 2; no tweak
   altered a design decision).
+- 2026-06-23 (schema-PR correction, no decision change): during the schema PR's
+  four-lens review the `hcs-eval-reviewer` flagged that §Implementation plan
+  step 4 and §Follow-up (b) read "assert the describe does **not** contain
+  `model_ref`," which contradicts step 2's requirement to **append** the
+  exclusion sentence to the `AgentClient` `audit_chain_link_hash` describe (so
+  the describe necessarily names `model_ref` in its exclusion clause). Both
+  spots are corrected to the coupled assertion the PR actually ships: the
+  canonical-concatenation **slot list** lacks `model_ref`, while the describe's
+  exclusion clause names it. The stale "Session `required`-set must update"
+  claim is also corrected (an optional field never enters `required`).

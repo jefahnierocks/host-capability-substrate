@@ -16,7 +16,7 @@ The observed CLI/model baseline, the `opus` alias-pinning rule, the reviewer-cal
 - Never add convenience shell execution.
 - Never move policy into hooks or adapters.
 - When uncertain about a CLI behavior, add a fixture/evidence path rather than guessing.
-- Honor the implementation charter at `docs/host-capability-substrate/implementation-charter.md` (v1.3.0+).
+- Honor the implementation charter at `docs/host-capability-substrate/implementation-charter.md` (current v1.6.0).
 
 ## When reviewing
 
@@ -85,7 +85,7 @@ Six project-scoped subagents in `.claude/agents/`, all on the `opus` alias — t
 
 Research plan (system-config): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md` (v0.3.0+).
 
-Charter: `docs/host-capability-substrate/implementation-charter.md` (v1.3.0+).
+Charter: `docs/host-capability-substrate/implementation-charter.md` (current v1.6.0).
 Workstation surface contract: `docs/host-capability-substrate/workstation-surface-contract.md`.
 Tooling surface matrix: `docs/host-capability-substrate/tooling-surface-matrix.md`.
 Boundary decision: see `docs/host-capability-substrate/adr/0001-repo-boundary.md` in this repo (source decision lives in system-config).

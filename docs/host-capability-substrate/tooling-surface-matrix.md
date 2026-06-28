@@ -3,8 +3,8 @@ title: HCS Tooling Surface Matrix
 category: reference
 component: host_capability_substrate
 status: active
-version: 1.5.4
-last_updated: 2026-06-22
+version: 1.5.5
+last_updated: 2026-06-28
 tags: [tooling, ide, claude-code, codex, cursor, warp, windsurf, vscode, iterm2, mcp, skills, integration, isolation]
 priority: high
 ---
@@ -74,7 +74,7 @@ or host-authoritative runtime facts until reconciled through typed evidence.
 | `docs/host-capability-substrate/ontology.md` | repo | project | canonical (human-facing) | no | no | no | no | no | hcs-ontology-reviewer + human | stub | populated in Phase 1 Thread D | stable |
 | `system-config/policies/host-capability-substrate/` | system-config repo | project (governance) | **canonical** (live policy) | yes (via substrate) | no | no | no | **yes (runtime policy data)** | human; reviewed by hcs-policy-reviewer subagent | schema + seed tiers.yaml; owns live-policy activation lint | populated incrementally | expanded with write-tier rules |
 | `policies/generated-snapshot/` in HCS repo | repo | test fixture | generated | no | no | no | no | no (fixture only; HCS lint checks source binding + schema compatibility) | CI | empty with README | snapshot present for tests | snapshot current |
-| `packages/schemas/` | repo | project | **canonical** (ontology) | no | no | no | no | no | hcs-ontology-reviewer | empty .gitkeep | 20 entities populated | stable + versioned |
+| `packages/schemas/` | repo | project | **canonical** (ontology) | no | no | no | no | no | hcs-ontology-reviewer | empty .gitkeep | 22 canonical M1 entities populated; post-M1 Model entity and model-attribution FK slices are versioned source | stable + versioned |
 
 ### Claude Code surfaces
 
@@ -252,7 +252,7 @@ When adding X to the repo, route by type:
 ### Internal
 
 - [`adr/0001-repo-boundary.md`](./adr/0001-repo-boundary.md)
-- [`implementation-charter.md`](./implementation-charter.md) (v1.2.0+)
+- [`implementation-charter.md`](./implementation-charter.md) (current v1.6.0)
 - `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`
 - `~/Organizations/jefahnierocks/system-config/docs/mcp-config.md`
 - `~/Organizations/jefahnierocks/system-config/docs/project-conventions.md`
@@ -270,6 +270,7 @@ When adding X to the repo, route by type:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.5.5 | 2026-06-28 | Currentness pass for agent discoverability: refreshed the `packages/schemas/` surface row from the stale "20 entities populated" posture to the actual 22 canonical M1 entities plus post-M1 Model/model-attribution schema slices, and repointed the internal charter reference to current v1.6.0. No tool-baseline, policy, hook, adapter, or runtime posture change. |
 | 1.5.4 | 2026-06-22 | ADR 0075 / D-076 Facet 1 (single-source the model identity): de-named the model/profile in §Tool baseline (`Opus 4.7` → `opus` alias; GPT-5.5/5.4 profiles → "HCS-compatible model profiles") and the `sonnet`/`haiku` anti-pattern row, repointing both to `AGENTS.md` §Tool baseline as the single source charter invariant 12 binds. The matrix is a reference doc, not a second baseline authority. Floors (`2.1.120`/`0.125.0`) unchanged. |
 | 1.5.3 | 2026-05-18 | Added the usable-state readout as a status surface for the HCS-local workstation-contract restatement slice. |
 | 1.5.2 | 2026-05-17 | Added the HCS workstation surface contract as a canonical cross-tool surface and removed stale external-inheritance wording from the matrix header. |

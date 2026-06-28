@@ -19,7 +19,7 @@ Subsequent minor updates acceptable without re-baselining. Re-baseline after mat
 
 Read these before editing:
 
-1. `docs/host-capability-substrate/implementation-charter.md` — binding rules, four rings, non-negotiable invariants (v1.3.0+)
+1. `docs/host-capability-substrate/implementation-charter.md` — binding rules, four rings, non-negotiable invariants (current v1.6.0)
 2. `docs/host-capability-substrate/workstation-surface-contract.md` — HCS-local workstation authority surfaces, roles, Cloudflare identity transition, MCP OAuth baseline, and cross-project interfaces
 3. `docs/host-capability-substrate/ontology.md` — entity schemas
 4. `docs/host-capability-substrate/tooling-surface-matrix.md` — where each config file belongs and what it can enforce

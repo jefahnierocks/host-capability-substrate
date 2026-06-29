@@ -3,8 +3,8 @@ title: HCS Tooling Surface Matrix
 category: reference
 component: host_capability_substrate
 status: active
-version: 1.5.5
-last_updated: 2026-06-28
+version: 1.5.6
+last_updated: 2026-06-29
 tags: [tooling, ide, claude-code, codex, cursor, warp, windsurf, vscode, iterm2, mcp, skills, integration, isolation]
 priority: high
 ---
@@ -70,6 +70,7 @@ or host-authoritative runtime facts until reconciled through typed evidence.
 | `PLAN.md` | repo root | project | canonical (milestones) | no | no | no | no | no | human owns | milestones 0–6 | updated per milestone | updated per milestone |
 | `IMPLEMENT.md` | repo root | project | canonical (workflow rules) | no | no | no | no | no | human owns | rules + change classes | unchanged | unchanged |
 | `DECISIONS.md` | repo root | project | canonical (decision ledger) | no | no | no | no | no | human owns | seeded with D-001–D-016 | grows per ADR | grows per ADR |
+| `.github/workflows/verify.yml` | repo | project | canonical (CI gate) | yes (GitHub status check; not branch-required today) | yes | no | no | no live policy; invokes repo gates only | human owns; class-J review rules apply | runs `just verify` on PRs, `main`, and manual dispatch using `macos-latest`; `HCS_SKIP_HOST_FIXTURES=1` in CI | unchanged; promote to required check only through GitHub ruleset change | unchanged |
 | `docs/host-capability-substrate/implementation-charter.md` | repo / system-config | project | **canonical** (binding rule) | no (behavioral) | no | no | no | **yes (invariants)** | human owns; PRs via hcs-architect | v1.1.0 lifted from system-config | unchanged unless amended | unchanged unless amended |
 | `docs/host-capability-substrate/ontology.md` | repo | project | canonical (human-facing) | no | no | no | no | no | hcs-ontology-reviewer + human | stub | populated in Phase 1 Thread D | stable |
 | `system-config/policies/host-capability-substrate/` | system-config repo | project (governance) | **canonical** (live policy) | yes (via substrate) | no | no | no | **yes (runtime policy data)** | human; reviewed by hcs-policy-reviewer subagent | schema + seed tiers.yaml; owns live-policy activation lint | populated incrementally | expanded with write-tier rules |
@@ -216,6 +217,7 @@ Codex app local envs       worktree bootstrap/actions — not startup auth
 WARP.md                    absent at Phase 0a
 .windsurf/                 absent (no project scope)
 .copilot/                  absent at Phase 0a
+.github/workflows/verify.yml  CI status check for `just verify` — present; not branch-required
 system-config policies     LIVE AUTHORITY for runtime policy — canonical
 ~/Library/Application Support/host-capability-substrate/   runtime state — not in repo
 ~/Library/Logs/host-capability-substrate/                  logs — not in repo
@@ -270,6 +272,7 @@ When adding X to the repo, route by type:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.5.6 | 2026-06-29 | Housekeeping currentness pass: added `.github/workflows/verify.yml` as the CI gate surface, distinguishing the existing `verify` status check from branch-required ruleset authority. No policy, hook, adapter, runtime, or tool-baseline change. |
 | 1.5.5 | 2026-06-28 | Currentness pass for agent discoverability: refreshed the `packages/schemas/` surface row from the stale "20 entities populated" posture to the actual 22 canonical M1 entities plus post-M1 Model/model-attribution schema slices, and repointed the internal charter reference to current v1.6.0. No tool-baseline, policy, hook, adapter, or runtime posture change. |
 | 1.5.4 | 2026-06-22 | ADR 0075 / D-076 Facet 1 (single-source the model identity): de-named the model/profile in §Tool baseline (`Opus 4.7` → `opus` alias; GPT-5.5/5.4 profiles → "HCS-compatible model profiles") and the `sonnet`/`haiku` anti-pattern row, repointing both to `AGENTS.md` §Tool baseline as the single source charter invariant 12 binds. The matrix is a reference doc, not a second baseline authority. Floors (`2.1.120`/`0.125.0`) unchanged. |
 | 1.5.3 | 2026-05-18 | Added the usable-state readout as a status surface for the HCS-local workstation-contract restatement slice. |

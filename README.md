@@ -19,7 +19,9 @@ adapters, and dashboard code are still intentionally unimplemented until their
 policy, snapshot, audit, lease, and approval prerequisites are explicit. The
 HCS-local agent-facing workstation contract restatement reached usable
 documentation state on 2026-05-17; see
-`docs/host-capability-substrate/usable-state-readout-2026-05-17.md`.
+`docs/host-capability-substrate/usable-state-readout-2026-05-17.md`. The current
+post-merge housekeeping readout is
+`docs/host-capability-substrate/housekeeping-readout-2026-06-29.md`.
 
 ## Local Contract
 
@@ -33,11 +35,12 @@ Read in order:
 2. `CLAUDE.md` — imports `AGENTS.md` + Claude-specific notes
 3. `docs/host-capability-substrate/workstation-surface-contract.md` — workstation authority surfaces, local roles, Cloudflare identity transition, MCP OAuth baseline, and cross-project interfaces
 4. `docs/host-capability-substrate/usable-state-readout-2026-05-17.md` — dated restatement status and non-authorization boundaries
-5. `docs/host-capability-substrate/implementation-charter.md` — binding invariants
-6. `PLAN.md` — current milestone and acceptance criteria
-7. `IMPLEMENT.md` — per-PR workflow rules
-8. `DECISIONS.md` — human-readable decision ledger
-9. `docs/github-org-setup.md` — GitHub org / branch ruleset / CODEOWNERS recipe
+5. `docs/host-capability-substrate/housekeeping-readout-2026-06-29.md` — current post-merge status, lessons, and workflow-prep queue
+6. `docs/host-capability-substrate/implementation-charter.md` — binding invariants
+7. `PLAN.md` — current milestone and acceptance criteria
+8. `IMPLEMENT.md` — per-PR workflow rules
+9. `DECISIONS.md` — human-readable decision ledger
+10. `docs/github-org-setup.md` — GitHub org / branch ruleset / CODEOWNERS recipe
 
 ## External Inputs
 
@@ -47,7 +50,7 @@ HCS boundaries:
 - Research plan — `system-config/docs/host-capability-substrate-research-plan.md` (v0.3.0+; lives in `system-config`, not this repo)
 - Implementation charter — `docs/host-capability-substrate/implementation-charter.md` (current v1.6.0) — copy vendored here at `docs/host-capability-substrate/implementation-charter.md`
 - Boundary decision — in-repo pointer: `docs/host-capability-substrate/adr/0001-repo-boundary.md` (v1.1.0+; source decision lives in `system-config`)
-- Tooling surface matrix — `docs/host-capability-substrate/tooling-surface-matrix.md` (current v1.5.5) — copy vendored here
+- Tooling surface matrix — `docs/host-capability-substrate/tooling-surface-matrix.md` (current v1.5.6) — copy vendored here
 - Live runtime policy — `~/Organizations/jefahnierocks/system-config/policies/host-capability-substrate/` (**canonical; not in this repo**)
 
 Per charter invariant 10: this repo contains source, schemas, test fixtures, docs, and ADRs. Live policy, runtime state, audit archives, and tokens live outside the repo.

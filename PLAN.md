@@ -39,6 +39,19 @@ doc-pointer and shared-state-naming gates, the D-071/D-072 Fable 5 re-baseline +
 settings pin, and the accepted ADR 0073 charter amendment; the operator selected
 **Milestone 2** as the next lane.
 
+**2026-06-29 housekeeping update.** Post-merge state has been re-verified:
+local `main` and `origin/main` both resolve to
+`ca09aafbe62f56d88a7f190b6f7dccf328bab855` (PR #86 merge commit), the remote
+`feat/adr-0078-model-ref-schema` branch is absent after prune, and the latest
+GitHub Actions `verify` run on `main` succeeded. The current housekeeping
+readout is
+`docs/host-capability-substrate/housekeeping-readout-2026-06-29.md`. This does
+not change the milestone: M2 remains the next lane, and the first prepared
+workflow should be the `Decision` / `ApprovalGrant` boundary-evidence
+consumption slice, followed by the policy-loader stale-schema/digest rejection
+gate. No Ring-1 runtime, execution path, dashboard, adapter, live-policy
+authoring, or meta-inventory edit is authorized by this status refresh.
+
 **The canonical 22 (all present at source):** HostProfile, WorkspaceContext,
 Principal, AgentClient, Session, ToolProvider, ToolInstallation, ResolvedTool,
 Capability, OperationShape, CommandShape, Evidence, ExecutionContext, PolicyRule,

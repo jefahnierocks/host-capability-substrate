@@ -21,8 +21,10 @@ status:
     0076 / PR #78 — the model-as-object typed lane; ADR 0078 / D-081 now extends
     AgentClient + Session with model_ref attribution FKs in the schema tree; the
     Ring-1 design lane opened with ADR 0077 / D-080 (audit-events store,
-    design-only, M4-gated impl); kernel/adapters/dashboard intentionally unbuilt"
-  as_of: "2026-06-28"
+    design-only, M4-gated impl); 2026-06-29 housekeeping re-verified local and
+    remote main at the PR #86 merge commit with the latest verify workflow
+    green; kernel/adapters/dashboard intentionally unbuilt"
+  as_of: "2026-06-29"
 authority:
   status_of_record: PLAN.md
 presentation:

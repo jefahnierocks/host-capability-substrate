@@ -3,8 +3,8 @@ title: GitHub Org Configuration
 category: reference
 component: github_org
 status: active
-version: 1.0.0
-last_updated: 2026-05-08
+version: 1.0.1
+last_updated: 2026-06-29
 tags: [github, org, ruleset, branch-protection, codeowners, teams]
 priority: high
 ---
@@ -46,9 +46,24 @@ can override the rules when needed for emergencies).
 
 Ruleset id: `16161078`, active on `~DEFAULT_BRANCH`.
 
-No required PR review or required status checks today — single-developer
-direct-push workflow is preserved. Add either when the contributor set
-or workflow demands it.
+No required PR review or branch-required status checks today - single-developer
+direct-push workflow is preserved. The `verify` GitHub Actions workflow exists
+and publishes a status check, but the branch ruleset does not yet require it.
+Add required checks or reviews when the contributor set or workflow demands it.
+
+## GitHub Actions
+
+`.github/workflows/verify.yml` runs `just verify` on pull requests, pushes to
+`main`, and manual `workflow_dispatch` runs. It uses `macos-latest`,
+`jdx/mise-action`, `npm ci`, and `HCS_SKIP_HOST_FIXTURES=1` for the host-coupled
+fixtures that are local-workstation probes rather than clean-runner tests.
+
+Latest observed `main` run during the 2026-06-29 housekeeping pass:
+`verify` succeeded for
+`ca09aafbe62f56d88a7f190b6f7dccf328bab855` (run `28328992025`).
+
+This workflow is CI evidence. It is not branch-protection authority until a
+ruleset required-status-check rule is added.
 
 ## CODEOWNERS
 
@@ -107,16 +122,13 @@ by checking it in.
 
 ## When to extend
 
-Add a required-status-check rule once `just verify` (or its CI
-equivalent) runs in Actions and is worth blocking pushes on. The
-quality-gate stack named in the source boundary decision §10
-(`format`, `typecheck`, unit tests, schema generation/drift, boundary
+Add a required-status-check rule when the existing `verify` workflow is worth
+blocking pushes on. The quality-gate stack named in the source boundary decision
+Section 10 (`format`, `typecheck`, unit tests, schema generation/drift, boundary
 import, policy lint, forbidden-string scan, agent contract identity scan,
-gitleaks, no-runtime-state-in-repo, hook dry-run, AGENTS/CLAUDE pointer)
-all run via `just verify` today;
-once an Actions workflow ships them as a status check, this is the
-place to document promoting it to required status. Currently HCS has
-no `.github/workflows/`; the gates run locally only.
+gitleaks, no-runtime-state-in-repo, hook dry-run, AGENTS/CLAUDE pointer) all run
+via `just verify` today. This file is the place to document promoting the
+existing `verify` status check to a branch-required check.
 
 Add required PR reviews once a second contributor exists.
 

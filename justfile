@@ -37,6 +37,10 @@ env-inspect-fixture:
 provenance-snapshot-fixture:
 	@bash scripts/dev/run-provenance-snapshot-fixture.sh
 
+# M2 policy snapshot loader stale-schema/digest rejection fixtures
+policy-loader-rejection-fixture:
+	@bash scripts/dev/run-policy-loader-rejection-fixtures.sh
+
 # P09 non-mutating direnv/mise marker baseline fixture
 direnv-mise-fixture:
 	@bash scripts/dev/run-direnv-mise-fixture.sh

@@ -65,6 +65,10 @@ function kebab(value: string): string {
   return value.replaceAll('_', '-');
 }
 
+function normalizeSha256(value: string): string {
+  return value.startsWith('sha256:') ? value.slice('sha256:'.length) : value;
+}
+
 const policy = record(JSON.parse(readFileSync(0, 'utf8')), 'policy');
 const binding = record(JSON.parse(readFileSync(bindingPath, 'utf8')), 'snapshot binding');
 const schemaRefs = record(policy.schema_refs, 'schema_refs');
@@ -73,6 +77,15 @@ const provenance = record(policy.provenance, 'provenance');
 const snapshotDigest = `sha256:${createHash('sha256')
   .update(readFileSync(snapshotPath))
   .digest('hex')}`;
+const bindingDigest = stringValue(
+  binding.source_policy_sha256,
+  'snapshot_binding.source_policy_sha256',
+);
+if (normalizeSha256(bindingDigest) !== normalizeSha256(snapshotDigest)) {
+  fail(
+    `snapshot_binding.source_policy_sha256 must match snapshot digest ${snapshotDigest}, found ${bindingDigest}`,
+  );
+}
 const sourcePolicyPath = stringValue(
   binding.source_policy_path,
   'snapshot_binding.source_policy_path',

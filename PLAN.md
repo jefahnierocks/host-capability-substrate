@@ -40,16 +40,17 @@ settings pin, and the accepted ADR 0073 charter amendment; the operator selected
 **Milestone 2** as the next lane.
 
 **2026-06-30 system-config relay/currentness update.** Post-merge state has
-been re-verified: local `main` and `origin/main` both resolve to
-`616dbbdbd863feb4e3b0f2fa2be7b5331ac33fc0` (PR #87 housekeeping merge commit),
-the worktree is clean, and `just verify` passed locally (`node-tools`,
-`static-gates`, `fixtures`). The current housekeeping readout remains
+been re-verified through PR #88: local `main` and `origin/main` both resolved to
+`a9de32e8ccaff37ddb23b853b2ed7d5e8b705fd8` after the PR #88 merge catch-up
+and branch cleanup. `just verify` passed locally (`node-tools`, `static-gates`,
+`fixtures`). The current housekeeping readout remains
 `docs/host-capability-substrate/housekeeping-readout-2026-06-29.md`, now with a
 2026-06-30 relay addendum. This does not change the milestone: M2 remains the
 next lane. The first prepared workflow should be the `Decision` /
-`ApprovalGrant` boundary-evidence consumption slice, followed by the
-policy-loader stale-schema/digest rejection gate. The system-config relay also
-adds Infisical CLI as a managed workstation tool baseline for HCS to consume as
+`ApprovalGrant` boundary-evidence consumption slice; the policy-loader
+stale-schema/digest rejection gate is a class-J CI-fixture slice over HCS's
+generated-snapshot compatibility checks. The system-config relay also adds
+Infisical CLI as a managed workstation tool baseline for HCS to consume as
 tool-resolution / command-help / `SecretReference` evidence only, not as a
 secret authority, value broker, live-policy source, or provider-management
 surface. No Ring-1 runtime, execution path, dashboard, adapter, live-policy
@@ -1417,7 +1418,11 @@ settled 2026-05-03 by ADR 0034 v2, whose matrix is keyed to `valid_until` expiry
   digest before any rule influences a `Decision` (loader requirement per ADR 0060
   B-2; the test obligation — assert rejection at the digest-verification
   checkpoint, not merely final-Decision rejection — per ADR 0061 §Follow-up
-  regression coverage, carried in ADR 0064's implementation-test table)
+  regression coverage, carried in ADR 0064's implementation-test table).
+  **2026-06-30 class-J gate fixture:** HCS-side generated-snapshot checks now
+  exercise stale schema refs, missing schema refs, and binding digest mismatch
+  with temp snapshots via `just policy-loader-rejection-fixture`; live policy
+  authoring remains in system-config.
 - Policy input shape (principal + session + host + workspace + operation + resolved_tools + evidence + requested_capability + time) is defined
 - **No execution path exists yet.** No `system.exec.*`, no approval endpoints.
 

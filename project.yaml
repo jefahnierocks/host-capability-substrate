@@ -18,14 +18,16 @@ status:
     schema-ref activation (system-config 426843252e80) and per-boundary-dimension
     freshness windows (system-config 551419064422) byte-identically re-vendored
     into the HCS generated snapshot; first post-M1 schema slice landed via ADR
-    0076 / PR #78 — the model-as-object typed lane; ADR 0078 / D-081 now extends
+    0076 / PR #78 - the model-as-object typed lane; ADR 0078 / D-081 now extends
     AgentClient + Session with model_ref attribution FKs in the schema tree; the
     Ring-1 design lane opened with ADR 0077 / D-080 (audit-events store,
     design-only, M4-gated impl); 2026-06-30 relay/currentness pass re-verified
-    local and remote main at PR #87 commit 616dbbd with `just verify` green and
-    incorporated Infisical CLI as a system-config-managed workstation tool
-    consumed by HCS only as tool-resolution / command-help / SecretReference
-    evidence; kernel/adapters/dashboard intentionally unbuilt"
+    local and remote main through PR #88 merge commit a9de32e with `just verify`
+    green and incorporated Infisical CLI as a system-config-managed workstation
+    tool consumed by HCS only as tool-resolution / command-help /
+    SecretReference evidence; current class-J work is limited to policy-loader
+    rejection fixtures over HCS generated-snapshot checks; kernel/adapters/
+    dashboard intentionally unbuilt"
   as_of: "2026-06-30"
 authority:
   status_of_record: PLAN.md

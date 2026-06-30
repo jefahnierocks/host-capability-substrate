@@ -3,7 +3,7 @@ title: HCS Housekeeping Readout
 category: status
 component: host_capability_substrate
 status: active
-version: 0.2.0
+version: 0.2.1
 last_updated: 2026-06-30
 tags: [housekeeping, status, agent-contract, workflow-prep, validation]
 priority: high
@@ -18,10 +18,11 @@ meta-inventory edits, or execution-path implementation.
 
 ## 2026-06-30 Relay Addendum
 
-The system-config relay re-confirmed HCS at
-`616dbbdbd863feb4e3b0f2fa2be7b5331ac33fc0` on clean `main`, with `just verify`
-passing (`node-tools`, `static-gates`, `fixtures`). This supersedes the PR #86
-commit as the current head proof without changing the milestone queue.
+The system-config relay re-confirmed HCS at the prior relay proof
+`616dbbdbd863feb4e3b0f2fa2be7b5331ac33fc0` on clean `main`, with
+`just verify` passing (`node-tools`, `static-gates`, `fixtures`). That
+superseded the PR #86 commit at relay time without changing the milestone
+queue.
 
 Infisical CLI is now a system-config-managed workstation tool baseline. HCS may
 consume it as tool-resolution, command-help, and `SecretReference` evidence. HCS
@@ -31,13 +32,18 @@ guardrails to preserve for future tool-resolution fixtures: validate installed
 help output, do not use `--project-slug`, do not use `--format shell`, and
 prefer `dotenv-export` when a shell needs sourceable exports.
 
+After PR #88 merged, local `main` was fast-forwarded to
+`a9de32e8ccaff37ddb23b853b2ed7d5e8b705fd8`, `origin/main` matched it, the
+remote PR branch was absent after prune, and the local branch was deleted only
+after tree equality was confirmed.
+
 ## Reverified State
 
 - Repo state: `main` and `origin/main` resolve to
-  `616dbbdbd863feb4e3b0f2fa2be7b5331ac33fc0`, the PR #87 housekeeping merge
-  commit.
-- Branch cleanup: remote `feat/adr-0078-model-ref-schema` is absent after
-  prune; the stale local branch was deleted after tree equality was confirmed.
+  `a9de32e8ccaff37ddb23b853b2ed7d5e8b705fd8`, the PR #88 relay-currentness
+  merge commit.
+- Branch cleanup: remote `codex/hcs-infisical-relay-currentness` was absent
+  after prune; the local branch was deleted after tree equality was confirmed.
 - Validation: local `just verify` passed on 2026-06-30 (`node-tools`,
   `static-gates`, `fixtures`). The latest known GitHub Actions `verify` run on
   `main` at the earlier PR #86 merge commit succeeded; treat remote check
@@ -66,10 +72,12 @@ prefer `dotenv-export` when a shell needs sourceable exports.
    `Decision`, `ApprovalGrant`, and `BoundaryObservation` schemas/tests. Target
    class is expected to be schema/docs/tests unless the read-only pass finds an
    ADR gap. No execution path.
-2. **Policy loader stale-schema and digest rejection gate.** Inspect
-   `policy-lint`, `snapshot-binding-check`, generated snapshot binding, and
-   policy fixtures. Keep live policy authority in `system-config`; HCS owns only
-   snapshot compatibility and binding checks.
+2. **Policy loader stale-schema and digest rejection gate.** Class-J fixture
+   slice: exercise `policy-lint`, `snapshot-binding-check`, and generated
+   snapshot binding with temp snapshots that prove stale schema refs, missing
+   schema refs, and digest mismatches fail before policy-derived rules can be
+   treated as usable. Keep live policy authority in `system-config`; HCS owns
+   only snapshot compatibility and binding checks.
 3. **Infisical tool-resolution fixture planning.** Model Infisical as an
    installed-tool/help-output/secret-reference evidence source only. If fixtures
    are added, capture installed `infisical export --help` behavior and preserve

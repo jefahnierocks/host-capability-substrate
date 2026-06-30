@@ -1,0 +1,37 @@
+# HCS help-output fixture
+# tool: infisical
+# observed_path: /opt/homebrew/bin/infisical
+# observed_version: infisical version 0.43.99
+# command: infisical export --help
+# observed_at: 2026-06-30
+# authority: observed_runtime
+# source: system-config relay plus local installed CLI help output
+
+Used to export environment variables to a file
+
+Usage:
+  infisical export
+
+Examples:
+infisical export --env=prod --format=json > secrets.json
+infisical export --env=prod --format=json --output-file=secrets.json
+
+Flags:
+  -e, --env string           Set the environment (dev, prod, etc.) from which your secrets should be pulled from (default "dev")
+      --expand               Parse shell parameter expansions in your secrets (default true)
+  -f, --format string        Set the format of the output file (dotenv, dotenv-export, dotenv-eval, json, csv, yaml) (default "dotenv")
+  -h, --help                 help for export
+      --include-imports      Imported linked secrets (default true)
+  -o, --output-file string   The path to write the output file to. Can be a full file path, directory, or filename. If not specified, output will be printed to stdout
+      --path string          get secrets within a folder path (default "/")
+      --projectId string     manually set the projectId to export secrets from
+      --secret-overriding    Prioritizes personal secrets, if any, with the same name over shared secrets (default true)
+  -t, --tags string          filter secrets by tag slugs
+      --template string      The path to the template file used to render secrets
+      --token string         Fetch secrets using service token or machine identity access token
+
+Global Flags:
+      --domain string      Point the CLI to your Infisical instance (e.g., https://eu.infisical.com for EU Cloud, or https://your-instance.com for self-hosted). Can also set via INFISICAL_DOMAIN environment variable or the 'domain' field in .infisical.json. Required for non-US Cloud users. (default "https://app.infisical.com/api")
+  -l, --log-level string   log level (trace, debug, info, warn, error, fatal)
+      --silent             Disable output of tip/info messages. Useful when running in scripts or CI/CD pipelines.
+      --telemetry          Infisical collects non-sensitive telemetry data to enhance features and improve user experience. Participation is voluntary (default true)

@@ -3,8 +3,8 @@ title: HCS Workstation Surface Contract
 category: contract
 component: host_capability_substrate
 status: active
-version: 0.2.0
-last_updated: 2026-05-28
+version: 0.3.0
+last_updated: 2026-06-30
 tags: [workstation, authority, agent-contract, mcp, oauth, cloudflare]
 priority: high
 ---
@@ -108,14 +108,39 @@ reason locally.
 
 | Interface | HCS consumes | HCS does not own |
 |-----------|--------------|------------------|
-| `system-config` | current host config deployment records, live policy source, generated-policy snapshot source binding, MCP config baseline evidence | live policy authoring, host deployment mutation from this repo, resolved secrets |
+| `system-config` | current host config deployment records, live policy source, generated-policy snapshot source binding, MCP config baseline evidence, managed workstation CLI/tool baselines such as Infisical | live policy authoring, host deployment mutation from this repo, resolved secrets |
 | `HomeNetOps` | LAN and router state evidence when an operation needs it | LAN topology, router configuration, appliance lifecycle |
 | `cloudflare-dns` or successor family-home Cloudflare project | provider object references, zone/project state evidence, identity-transition notes | Cloudflare resource provisioning, Pulumi/OpenTofu project flow, provider writes |
+| `infisical` management repo / project repos | installed CLI path/version/help output, command syntax evidence, and `SecretReference`-shaped project references when a consuming project supplies them | Infisical server/org policy, secret templates, project `.infisical.json`, project `.envrc`, CI/runtime secret loading, or resolved secret values |
 | Parent-org secure control plane (org/cloud scope; documentation-only, non-authorizing) | workload-identity claim shape; decision-receipt and audit-envelope shapes — kept congruent with, not adopted as schema | org secret authority, OpenBao, cloud IAM, OpenTofu state, GitHub-OIDC federation, the org PEP |
 
 References to project paths or names that are known to be moving should be kept
 easy to replace. HCS should depend on typed interfaces and evidence shapes, not
 on a sibling project's current filesystem name.
+
+## Managed Secret-Tool CLI Boundary
+
+Infisical CLI is a managed workstation tool supplied by system-config. The
+current host baseline, as relayed on 2026-06-30, is:
+
+- binary path: `/opt/homebrew/bin/infisical`
+- install/update source: Homebrew core formula `infisical`, updated through
+  system-config `system-update` `brew-formulae`
+- observed version: `infisical version 0.43.99`
+- health surface: `ng-doctor tools` includes `infisical_installed`
+
+HCS consumes this as tool-resolution, command-help, and secret-reference
+evidence. It is not a secret authority or value broker. Resolved secret values
+stay outside HCS. Infisical server/org/policy/template work belongs in the
+Infisical management repo; dev-machine CLI guardrails live in system-config;
+project `.infisical.json`, `.envrc`, runtime loaders, and CI secret flows stay
+in the consuming project repo.
+
+Tool-resolution fixtures must validate installed CLI help before using syntax.
+Current guardrails: use `--projectId` when explicit project selection is needed,
+do not use `--project-slug`, valid `infisical export --format` values include
+`dotenv`, `dotenv-export`, `dotenv-eval`, `json`, `csv`, and `yaml`, and shell
+sourcing should prefer `dotenv-export` rather than `--format shell`.
 
 ### Parent-Org Control-Plane Congruence (integration restatement, 2026-05-28)
 

@@ -8,10 +8,10 @@ live HCS policy lane.
 - Snapshot file: `policies/generated-snapshot/tiers.yaml`
 - Binding manifest: `policies/generated-snapshot/snapshot-binding.json`
 - Source repository: `jefahnierocks/system-config`
-- Source commit: `136dbaa`
+- Source commit: `551419064422d00a9bcac3e58aa3e41287c6b6c8`
 - Source path: `policies/host-capability-substrate/tiers.yaml`
 - Source policy SHA-256:
-  `sha256:e06442e02db50604e8ae8cbc1572a4ecec91ae87bfac6705e52161fd450ae68b`
+  `sha256:7e30b768700a479464d1fb3af363764ca42f6d1249f5f4f7100cc745dae10a9d`
 
 The vendored `tiers.yaml` must remain byte-for-byte identical to the live
 policy file at the recorded source commit. HCS-specific binding metadata lives

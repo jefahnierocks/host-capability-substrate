@@ -57,6 +57,7 @@ fixtures_recipes=(
   shell-logger-fixture
   env-inspect-fixture
   provenance-snapshot-fixture
+  policy-loader-rejection-fixture
 )
 # Host-coupled probe fixtures inspect the dev workstation (direnv/mise trust
 # markers, Codex/Claude config) and are not meaningful on a clean CI runner.

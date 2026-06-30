@@ -20,7 +20,8 @@ policy, snapshot, audit, lease, and approval prerequisites are explicit. The
 HCS-local agent-facing workstation contract restatement reached usable
 documentation state on 2026-05-17; see
 `docs/host-capability-substrate/usable-state-readout-2026-05-17.md`. The current
-post-merge housekeeping readout is
+post-merge housekeeping readout, including the 2026-06-30 system-config relay
+addendum, is
 `docs/host-capability-substrate/housekeeping-readout-2026-06-29.md`.
 
 ## Local Contract

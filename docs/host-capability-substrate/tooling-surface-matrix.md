@@ -3,8 +3,8 @@ title: HCS Tooling Surface Matrix
 category: reference
 component: host_capability_substrate
 status: active
-version: 1.5.6
-last_updated: 2026-06-29
+version: 1.5.7
+last_updated: 2026-06-30
 tags: [tooling, ide, claude-code, codex, cursor, warp, windsurf, vscode, iterm2, mcp, skills, integration, isolation]
 priority: high
 ---
@@ -184,6 +184,12 @@ and remote execution as one authority class.
 | iTerm2 Dynamic Profiles | `system-config/iterm2/profiles/` | user (via system-config) | canonical (presentation) | no | yes (shell integration: cwd, host, username, exit codes) | no | no | no | system-config/iterm2-authority | **no new profile**; use existing `agentic-zsh` / `dev-zsh` | unchanged | unchanged |
 | iTerm2 Shell Integration | shell-rendered | session | generated | no | yes (prompt boundaries, command history, return codes) | no | no | no | existing zsh config (chezmoi) | respected — HCS does not interfere | respected | respected |
 
+### Managed workstation CLIs
+
+| Surface | Config path | Scope | Canonical or generated | Can enforce | Can observe | Can call MCP | Can define skills | Allowed to contain policy | Owner | Phase 0a | Phase 3 | Phase 4 |
+|---------|-------------|-------|------------------------|-------------|-------------|--------------|-------------------|---------------------------|-------|----------|---------|---------|
+| Infisical CLI | `/opt/homebrew/bin/infisical`; system-config doc `docs/infisical-cli.md` | host/user | external canonical (system-config-managed Homebrew formula) | no | yes (path, version, help output, project-local command shape) | no | no | no | system-config for dev-machine CLI baseline; project repos for project secret flows | observe as `ToolInstallation` / `ResolvedTool` / command-help evidence only; no secret reads | add help-output/tool-resolution fixtures if needed; preserve syntax guardrails (`--projectId`, no `--project-slug`, `dotenv-export`, no `--format shell`) | same; any broker/value handling requires a future ADR |
+
 ### Runtime (not in repo)
 
 | Surface | Config path | Scope | Canonical or generated | Can enforce | Can observe | Can call MCP | Can define skills | Allowed to contain policy | Owner | Phase 0a | Phase 3 | Phase 4 |
@@ -219,6 +225,7 @@ WARP.md                    absent at Phase 0a
 .copilot/                  absent at Phase 0a
 .github/workflows/verify.yml  CI status check for `just verify` — present; not branch-required
 system-config policies     LIVE AUTHORITY for runtime policy — canonical
+Infisical CLI              system-config-managed tool baseline — observe only, never a secret authority
 ~/Library/Application Support/host-capability-substrate/   runtime state — not in repo
 ~/Library/Logs/host-capability-substrate/                  logs — not in repo
 ~/Library/LaunchAgents/com.jefahnierocks.host-capability-substrate.plist   service lifecycle
@@ -231,6 +238,9 @@ When adding X to the repo, route by type:
 - **New skill / workflow**: `.agents/skills/<name>/SKILL.md`. Only if Claude Code fails to discover it, add a thin wrapper at `.claude/skills/<name>/SKILL.md` that references the canonical.
 - **New forbidden operation or literal guardrail**: canonical live policy belongs in `system-config/policies/host-capability-substrate/`; Claude permission-layer deny entries may be added to `.claude/settings.json` only as tool-native guardrails. Do **not** copy deny tables into hook bodies, `.cursor/rules/`, `.vscode/`, `WARP.md`, or AGENTS.md.
 - **New tier classification for a tool**: `system-config/policies/host-capability-substrate/tiers.yaml`. Never inline in `.claude/`, hooks, adapters, or Skills.
+- **New managed workstation CLI evidence**: record as tool-resolution/help-output
+  evidence, then route ownership to the host config repo or consuming project.
+  Do not turn an installed CLI such as Infisical into HCS secret authority.
 - **New architectural decision**: `docs/host-capability-substrate/adr/<next-number>-<slug>.md`. Record accepted state in `DECISIONS.md`.
 - **New ontology entity or field**: `packages/schemas/src/entities/`. Simultaneous: `docs/host-capability-substrate/ontology.md`, tests, generated JSON Schema. One PR.
 - **New regression trap**: `packages/evals/regression/<trap-name>.md`. Add to seed tracker; run in CI subset.
@@ -244,6 +254,9 @@ When adding X to the repo, route by type:
 - **Creating `WARP.md` in Phase 0a** — Warp prioritizes `WARP.md` over `AGENTS.md`; creating one before the contract stabilizes risks fork.
 - **Creating `.windsurf/skills/`** — redundant with `.agents/skills/`; Windsurf already discovers the cross-tool location.
 - **Putting policy tier data in Cursor rules or AGENTS.md** — these are pointers; the live tier file is in system-config.
+- **Treating Infisical CLI as a secret broker** — HCS can model its installed
+  binary/help output and `SecretReference` shapes, but not secret values or
+  Infisical org/server policy.
 - **Adding `.copilot/` stubs speculatively** — only add when Copilot is actually part of HCS workflow.
 - **Scoping HCS subagents to `~/.claude/agents/`** — project-scope keeps them invisible outside HCS work.
 - **Using `sonnet` or `haiku` models during early-phase HCS work** — the early-phase baseline is the `opus` alias for Claude and the HCS-compatible profiles for Codex; the resolved model/profile names live in `AGENTS.md` §Tool baseline.
@@ -272,6 +285,7 @@ When adding X to the repo, route by type:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.5.7 | 2026-06-30 | Added Infisical CLI as a system-config-managed workstation CLI surface that HCS observes only for tool-resolution/help-output/SecretReference evidence; explicitly excludes secret values and Infisical provider policy from HCS authority. |
 | 1.5.6 | 2026-06-29 | Housekeeping currentness pass: added `.github/workflows/verify.yml` as the CI gate surface, distinguishing the existing `verify` status check from branch-required ruleset authority. No policy, hook, adapter, runtime, or tool-baseline change. |
 | 1.5.5 | 2026-06-28 | Currentness pass for agent discoverability: refreshed the `packages/schemas/` surface row from the stale "20 entities populated" posture to the actual 22 canonical M1 entities plus post-M1 Model/model-attribution schema slices, and repointed the internal charter reference to current v1.6.0. No tool-baseline, policy, hook, adapter, or runtime posture change. |
 | 1.5.4 | 2026-06-22 | ADR 0075 / D-076 Facet 1 (single-source the model identity): de-named the model/profile in §Tool baseline (`Opus 4.7` → `opus` alias; GPT-5.5/5.4 profiles → "HCS-compatible model profiles") and the `sonnet`/`haiku` anti-pattern row, repointing both to `AGENTS.md` §Tool baseline as the single source charter invariant 12 binds. The matrix is a reference doc, not a second baseline authority. Floors (`2.1.120`/`0.125.0`) unchanged. |

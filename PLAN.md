@@ -39,18 +39,22 @@ doc-pointer and shared-state-naming gates, the D-071/D-072 Fable 5 re-baseline +
 settings pin, and the accepted ADR 0073 charter amendment; the operator selected
 **Milestone 2** as the next lane.
 
-**2026-06-29 housekeeping update.** Post-merge state has been re-verified:
-local `main` and `origin/main` both resolve to
-`ca09aafbe62f56d88a7f190b6f7dccf328bab855` (PR #86 merge commit), the remote
-`feat/adr-0078-model-ref-schema` branch is absent after prune, and the latest
-GitHub Actions `verify` run on `main` succeeded. The current housekeeping
-readout is
-`docs/host-capability-substrate/housekeeping-readout-2026-06-29.md`. This does
-not change the milestone: M2 remains the next lane, and the first prepared
-workflow should be the `Decision` / `ApprovalGrant` boundary-evidence
-consumption slice, followed by the policy-loader stale-schema/digest rejection
-gate. No Ring-1 runtime, execution path, dashboard, adapter, live-policy
-authoring, or meta-inventory edit is authorized by this status refresh.
+**2026-06-30 system-config relay/currentness update.** Post-merge state has
+been re-verified: local `main` and `origin/main` both resolve to
+`616dbbdbd863feb4e3b0f2fa2be7b5331ac33fc0` (PR #87 housekeeping merge commit),
+the worktree is clean, and `just verify` passed locally (`node-tools`,
+`static-gates`, `fixtures`). The current housekeeping readout remains
+`docs/host-capability-substrate/housekeeping-readout-2026-06-29.md`, now with a
+2026-06-30 relay addendum. This does not change the milestone: M2 remains the
+next lane. The first prepared workflow should be the `Decision` /
+`ApprovalGrant` boundary-evidence consumption slice, followed by the
+policy-loader stale-schema/digest rejection gate. The system-config relay also
+adds Infisical CLI as a managed workstation tool baseline for HCS to consume as
+tool-resolution / command-help / `SecretReference` evidence only, not as a
+secret authority, value broker, live-policy source, or provider-management
+surface. No Ring-1 runtime, execution path, dashboard, adapter, live-policy
+authoring, provider mutation, secret read, or meta-inventory edit is authorized
+by this status refresh.
 
 **The canonical 22 (all present at source):** HostProfile, WorkspaceContext,
 Principal, AgentClient, Session, ToolProvider, ToolInstallation, ResolvedTool,

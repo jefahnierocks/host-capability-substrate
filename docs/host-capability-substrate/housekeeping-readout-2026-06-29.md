@@ -3,8 +3,8 @@ title: HCS Housekeeping Readout
 category: status
 component: host_capability_substrate
 status: active
-version: 0.1.0
-last_updated: 2026-06-29
+version: 0.2.0
+last_updated: 2026-06-30
 tags: [housekeeping, status, agent-contract, workflow-prep, validation]
 priority: high
 ---
@@ -16,17 +16,36 @@ status and workflow-prep artifact. It does not authorize live policy authoring,
 provider mutation, Ring 1 runtime work, adapter work, dashboard work,
 meta-inventory edits, or execution-path implementation.
 
+## 2026-06-30 Relay Addendum
+
+The system-config relay re-confirmed HCS at
+`616dbbdbd863feb4e3b0f2fa2be7b5331ac33fc0` on clean `main`, with `just verify`
+passing (`node-tools`, `static-gates`, `fixtures`). This supersedes the PR #86
+commit as the current head proof without changing the milestone queue.
+
+Infisical CLI is now a system-config-managed workstation tool baseline. HCS may
+consume it as tool-resolution, command-help, and `SecretReference` evidence. HCS
+does not treat Infisical as a secret authority, value broker, live-policy
+source, provider-management surface, or project runtime owner. Current syntax
+guardrails to preserve for future tool-resolution fixtures: validate installed
+help output, do not use `--project-slug`, do not use `--format shell`, and
+prefer `dotenv-export` when a shell needs sourceable exports.
+
 ## Reverified State
 
 - Repo state: `main` and `origin/main` resolve to
-  `ca09aafbe62f56d88a7f190b6f7dccf328bab855`, the PR #86 merge commit.
+  `616dbbdbd863feb4e3b0f2fa2be7b5331ac33fc0`, the PR #87 housekeeping merge
+  commit.
 - Branch cleanup: remote `feat/adr-0078-model-ref-schema` is absent after
   prune; the stale local branch was deleted after tree equality was confirmed.
-- Remote CI: latest GitHub Actions `verify` run on `main` at `ca09aaf` succeeded.
+- Validation: local `just verify` passed on 2026-06-30 (`node-tools`,
+  `static-gates`, `fixtures`). The latest known GitHub Actions `verify` run on
+  `main` at the earlier PR #86 merge commit succeeded; treat remote check
+  freshness as a separate GitHub surface when publishing new branches.
 - Local status: housekeeping starts from a clean `main`; any follow-on branch
   should be cut from this point.
 - Hub header: `project.yaml` mirrors this recheck with quoted
-  `status.as_of: "2026-06-29"`; `PLAN.md` remains the status of record.
+  `status.as_of: "2026-06-30"`; `PLAN.md` remains the status of record.
 
 ## Current Authority
 
@@ -51,10 +70,15 @@ meta-inventory edits, or execution-path implementation.
    `policy-lint`, `snapshot-binding-check`, generated snapshot binding, and
    policy fixtures. Keep live policy authority in `system-config`; HCS owns only
    snapshot compatibility and binding checks.
-3. **ADR 0064 contract-Zod / AuditEvent envelope design-interface slice.** Keep
+3. **Infisical tool-resolution fixture planning.** Model Infisical as an
+   installed-tool/help-output/secret-reference evidence source only. If fixtures
+   are added, capture installed `infisical export --help` behavior and preserve
+   the current syntax guardrails (`--projectId`, not `--project-slug`;
+   `dotenv-export`, not `--format shell`). Do not read secrets.
+4. **ADR 0064 contract-Zod / AuditEvent envelope design-interface slice.** Keep
    implementation class-I work M4-gated. This lane is contract/interface-only
    until approval grants, dashboard review, audit, and leases exist together.
-4. **Permission-posture as queryable fact.** Future ADR candidate, not a
+5. **Permission-posture as queryable fact.** Future ADR candidate, not a
    milestone blocker. Use it to make tightened harness gate-1 posture discoverable
    to incoming agents before they propose config changes.
 

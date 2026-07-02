@@ -15,8 +15,10 @@
 #   {"session_id": "...", "cwd": "...", "hook_event_name": "PreToolUse",
 #    "tool_name": "Bash", "tool_input": {"command": "...", "description": "..."}}
 #
-# On stdout: JSON decision with `continue` always true in Phase 0b.
-#   {"continue": true, "suppressOutput": true,
+# On stdout: JSON decision with `continue` always true in Phase 0b. Keep this
+# to the common Claude/Codex subset; Codex rejects Claude-only fields such as
+# `suppressOutput`.
+#   {"continue": true,
 #    "hookSpecificOutput": {"hookEventName": "PreToolUse",
 #                           "permissionDecision": "allow",
 #                           "permissionDecisionReason": "phase-0b log-only"}}
@@ -48,7 +50,7 @@ fi
 # still return allow (log-only contract).
 if ! command -v jq >/dev/null 2>&1; then
   jsonl_append "$OUT" "{\"ts\":\"$(iso_now)\",\"hook_error\":\"jq-missing\"}"
-  printf '%s\n' '{"continue":true,"suppressOutput":true}'
+  printf '%s\n' '{"continue":true}'
   exit 0
 fi
 
@@ -56,7 +58,7 @@ fi
 # minimally valid decision. Never crash.
 if ! printf '%s' "$input_json" | jq -e '.' >/dev/null 2>&1; then
   jsonl_append "$OUT" "{\"ts\":\"$(iso_now)\",\"hook_error\":\"malformed-input\",\"input_len\":${#input_json}}"
-  printf '%s\n' '{"continue":true,"suppressOutput":true,"hookSpecificOutput":{"hookEventName":"unknown","permissionDecision":"allow","permissionDecisionReason":"phase-0b malformed-input"}}'
+  printf '%s\n' '{"continue":true,"hookSpecificOutput":{"hookEventName":"unknown","permissionDecision":"allow","permissionDecisionReason":"phase-0b malformed-input"}}'
   exit 0
 fi
 
@@ -109,7 +111,7 @@ printf '%s\n' "$record" >> "$OUT_DIR/$OUT"
 # Phase 0b contract: always allow. Future phases add deny/ask based on class.
 jq -cn \
   --arg hook "$hook_event" \
-  '{continue: true, suppressOutput: true,
+  '{continue: true,
     hookSpecificOutput: {hookEventName: $hook,
       permissionDecision: "allow",
       permissionDecisionReason: "phase-0b log-only"}}'

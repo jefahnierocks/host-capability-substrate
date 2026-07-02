@@ -46,10 +46,13 @@ for fx in "$FIX_DIR"/*.json; do
   if ! hook_stdout=$("$HOOK" < "$fx" 2>/dev/null); then
     hook_exit=$?
   fi
-
-  # Hook does not include the classification in stdout (always "allow" in
-  # Phase 0b). Read it from the hook-decisions.jsonl tail instead.
-  actual=$(tail -1 "$OUT_DIR/hook-decisions.jsonl" 2>/dev/null | jq -r '.classified_class // "parser-error"' 2>/dev/null || printf 'parser-error')
+  if printf '%s' "$hook_stdout" | jq -e 'has("suppressOutput")' >/dev/null 2>&1; then
+    actual="unsupported-suppressOutput"
+  else
+    # Hook does not include the classification in stdout (always "allow" in
+    # Phase 0b). Read it from the hook-decisions.jsonl tail instead.
+    actual=$(tail -1 "$OUT_DIR/hook-decisions.jsonl" 2>/dev/null | jq -r '.classified_class // "parser-error"' 2>/dev/null || printf 'parser-error')
+  fi
 
   if [ "$actual" = "$expected" ]; then
     ok=true
@@ -83,7 +86,11 @@ for wrapper in ".claude/hooks/hcs-hook" ".codex/hooks/hcs-hook"; do
   if ! hook_stdout=$("$HCS_ROOT/$wrapper" pre-bash < "$wrapper_fixture" 2>/dev/null); then
     hook_exit=$?
   fi
-  permission=$(printf '%s' "$hook_stdout" | jq -r '.hookSpecificOutput.permissionDecision // "missing"')
+  if printf '%s' "$hook_stdout" | jq -e 'has("suppressOutput")' >/dev/null 2>&1; then
+    permission="unsupported-suppressOutput"
+  else
+    permission=$(printf '%s' "$hook_stdout" | jq -r '.hookSpecificOutput.permissionDecision // "missing"')
+  fi
   if [ "$hook_exit" -eq 0 ] && [ "$permission" = "allow" ]; then
     ok=true
     pass=$((pass + 1))

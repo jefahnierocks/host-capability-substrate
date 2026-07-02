@@ -3,8 +3,8 @@ title: HCS Hook Contracts
 category: reference
 component: host_capability_substrate
 status: stub
-version: 0.5.0
-last_updated: 2026-05-12
+version: 0.5.1
+last_updated: 2026-07-01
 tags: [hooks, claude-code, codex, policy, contracts]
 priority: medium
 ---
@@ -30,6 +30,9 @@ The shared delegated hook (`scripts/dev/hcs-hook-cli.sh`):
 - Classifies shell commands with `scripts/dev/classify.py`
 - Writes decision records to `.logs/phase-0/<YYYY-MM-DD>/hook-decisions.jsonl`
 - Always returns `allow` in Phase 0b; it is measurement-only, never the enforcement boundary
+- Emits a Claude/Codex-compatible common stdout schema. Do not add Claude-only
+  response fields such as `suppressOutput`; Codex rejects unsupported hook
+  response keys.
 - Exists to collect measurement evidence, not to replace substrate policy
 
 The interim classifier is a temporary measurement backstop only. It is
@@ -97,6 +100,7 @@ boundary.
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.5.1 | 2026-07-01 | Removed `suppressOutput` from the shared hook stdout schema after Codex rejected it as unsupported; hook fixtures now guard against reintroducing the field. |
 | 0.5.0 | 2026-05-12 | Removed hook-local literal-block posture from the contract. `.claude/hooks/hcs-hook` and `.codex/hooks/hcs-hook` are now thin wrappers around the Phase 0b measurement CLI; any future hard-decision cache must be Ring 1 managed or generated/hash-bound from system-config live policy. |
 | 0.4.0 | 2026-05-01 | Added project-scoped `.codex/` hook contract notes and clarified that Codex hooks are trusted-project advisory guardrails, not the enforcement boundary. |
 | 0.3.0 | 2026-04-26 | Added Phase 0b closeout note for trap #18 secret-safe env-inspection parity in the interim classifier and repo-local hook. |

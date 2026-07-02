@@ -33,14 +33,17 @@ run_case() {
     exit_code=$?
   fi
 
-  # Valid decision shape check: must be valid JSON with a "continue" boolean.
+  # Valid decision shape check: must be valid JSON with a "continue" boolean and
+  # no Codex-unsupported Claude-only fields.
   local ok="false"
   local decision_json
   decision_json=$(printf '%s' "$stdout" | jq -c '.' 2>/dev/null || true)
   if [ -n "$decision_json" ]; then
     local cont
     cont=$(printf '%s' "$decision_json" | jq -r '.continue // empty' 2>/dev/null)
-    if [ "$cont" = "true" ] || [ "$cont" = "false" ]; then
+    local has_suppress
+    has_suppress=$(printf '%s' "$decision_json" | jq -r 'has("suppressOutput")' 2>/dev/null)
+    if { [ "$cont" = "true" ] || [ "$cont" = "false" ]; } && [ "$has_suppress" = "false" ]; then
       ok="true"
     fi
   fi
@@ -91,6 +94,7 @@ tick run_case "compound-pipeline" "$(payload_valid_bash "find . -name '*.log' | 
 tick run_case "bad-sed-delimiter" "$(payload_valid_bash "sed -e 's#foo#bar#g' file.txt")"
 # String contains a '$(' subshell as LITERAL command text the hook will see —
 # jq quoting prevents bash from evaluating it here.
+# shellcheck disable=SC2016
 tick run_case "subshell-forbidden-inside" "$(payload_valid_bash 'echo "before $(spctl --master-disable) after"')"
 
 echo "  — $pass passed, $fail failed (of $total cases)"

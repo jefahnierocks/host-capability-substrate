@@ -1,8 +1,35 @@
 # host-capability-substrate
 
-**Host Capability Substrate (HCS)** — a horizontal operations kernel for this macOS workstation. Provides host ground-truth, toolchain resolution, capability exposure, policy/gateway, approval grants, audited runs, and human control for every agent on the host.
+**Host Capability Substrate (HCS)** — a typed governance layer and operations
+kernel for host-level AI agents on a single macOS workstation. It gives every
+agent on the host one substrate for host ground-truth and toolchain resolution,
+capability exposure, policy and gateway decisions, provenance-typed evidence,
+scoped and expiring authorization grants, and tamper-evident audited runs under
+human control.
 
-HCS is infrastructure. It is the substrate on which every agent's actions compose, not a feature of any one agent.
+HCS is infrastructure, not a feature of any one agent — the substrate on which
+every agent's actions compose. It is a self-directed, single-operator substrate;
+nothing here is a production-scale or commercial claim.
+
+## What's built (verified 2026-07-08)
+
+- **46** Zod entity schemas (`packages/schemas/src/entities/`) compiled to **67**
+  generated JSON Schemas — see `packages/schemas/generated/` for the concrete,
+  inspectable artifact.
+- **~500** tests (vitest) across the schema suite.
+- **19** non-negotiable invariants in the implementation charter (v1.6.0).
+- **Four-ring** layered architecture — Ring 0 (schemas) imports from nowhere
+  above it; enforced by CI from the first commit.
+- **One merge gate** — `.github/workflows/verify.yml` → `scripts/ci/verify.sh`
+  composes a dozen static scanners (policy-lint, boundary-check, no-live-secrets,
+  schema-drift, forbidden-string-scan, shellcheck, and more).
+
+Ring 0 (the ontology) is complete — the 22 canonical entities plus supplemental
+sub-schemas and evidence envelopes make up the 46 modules above. Kernel,
+adapters, and dashboard code are intentionally unimplemented until their policy,
+snapshot, audit, lease, and approval prerequisites are explicit; the enforcing,
+advisory, and design-stage boundaries are labeled in the charter. Author /
+portfolio: [jvjohnson.dev](https://jvjohnson.dev).
 
 ## Status
 

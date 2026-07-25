@@ -39,7 +39,35 @@ PreToolUse hooks need to consult the HCS substrate without adding perceptible la
 - If Codex hook coverage improves, elevate Codex hooks.
 - If substrate sub-20ms becomes achievable reliably, tighten timeout.
 
+## Degraded-path constraint (added 2026-07-25, D-083)
+
+The blocking-RPC-with-cache-fallback design has a degraded path — timeout, cache
+miss, kernel unavailable, malformed input. That path is where this pattern's
+predecessor failed:
+
+> On timeout, cache miss, kernel unavailability, or malformed input, the hook
+> **emits no permission decision**. The degraded path is never more permissive
+> than the healthy path.
+
+Emitting `allow` on the degraded path is forbidden. It is an approval decision
+from an adapter (charter inv. 1), and a kernel outage silently disabling the
+operator's own deny list is the same fail-open shape as the five sites D-083
+enumerates.
+
+Empirically grounded rather than reasoned: a hook that exits 0 with empty stdout
+passes cleanly through to the permission system on CLI 2.1.220 (case 5 of
+`docs/host-capability-substrate/hook-permission-precedence-probe-2026-07-25.md`).
+"Emit nothing" is chosen over `permissionDecision: "defer"` because it asserts
+nothing at all and cannot be misparsed into permission, and because `defer`
+remains untested on this binary.
+
+Note the probe also establishes that hook `deny` DOES carry authority on 2.1.220
+while hook `allow` is inert. So the failure mode to design against is not a hook
+that wrongly permits — it is one that wrongly denies on kernel timeout and blocks
+legitimate work. Emitting nothing avoids both.
+
 ## References
+
 
 ### Internal
 

@@ -12,8 +12,8 @@ canonical Ring-0 entities are landed as Zod schemas + generated JSON Schema +
 `schema_version` + ontology/registry docs, with the final entity —
 **ResourceBudget** (ADR 0072 / D-070, schema **PR #44 merged**) — closing the set.
 Ontology **v1.34.0**, registry **v0.4.37**, charter **v1.6.0**; ADRs span
-**0001–0078** (0026 absent); decisions accepted through **D-081** (next-free
-**D-082**, no reserved gap after the ADR 0074 / D-074 accept-flip). ADR 0074 /
+**0001–0078** (0026 absent); decisions accepted through **D-082** (next-free
+**D-083**, no reserved gap after the ADR 0074 / D-074 accept-flip). ADR 0074 /
 D-074 is accepted and closes the operator-handoff record-class ledger thread.
 ADR 0078 / D-081 (AgentClient + Session model-attribution amendment) resolves
 the canonical-hash attribution-vs-identity fork ADR 0076 deferred by adding
@@ -56,6 +56,30 @@ secret authority, value broker, live-policy source, or provider-management
 surface. No Ring-1 runtime, execution path, dashboard, adapter, live-policy
 authoring, provider mutation, secret read, or meta-inventory edit is authorized
 by this status refresh.
+
+**2026-07-20 VS Code integration-relay restatement (docs-only, D-082).** The
+system-config VS Code managed-baseline relay was restated into HCS-owned docs:
+the tooling surface matrix (**v1.6.0**, §VS Code surfaces) and the workstation
+surface contract (**v0.4.0**, §VS Code Workstation Surface) now classify the VS
+Code app/CLI install, default/user + profile-specific settings + Settings Sync,
+extensions + publisher trust + extension-contributed agents, user-profile +
+project MCP, MCP-trust/OAuth/sandbox, editor command-adapter, and
+Copilot/nested-instruction surfaces, plus the eight VS Code execution contexts.
+Reconciled to ADR 0037 / Q-010 / D-013: **no new `ExecutionContext.surface`
+value** — VS Code is represented by the shipped `AgentClient.product_family:
+vscode_native` plus existing surfaces, matrix-only per Sub-decision (d). The
+incorrect `.vscode/settings.local.json` "local override" assumption is corrected
+(not a VS Code-native settings layer; absent on disk 2026-07-20). OS currentness
+corrected 26.5.1 → **26.5.2** (build 25F84, `sw_vers` 2026-07-20) in AGENTS.md
+§Tool baseline; the historical D-071/D-075 ledger rows are left as point-in-time
+observations. The **VS Code git-identity adapter is recorded ABSENT/planned**,
+not inherited from CLI adapter evidence — no VS Code hook exists and coverage is
+unverified. A narrow **Preview VS Code hook research spike** is an operator-gated
+candidate lane, non-authoritative until firing-verified; it is not scheduled.
+This does not change the milestone — **M2 remains the next lane**. No Ring-1
+runtime, execution path, adapter, live-policy authoring, provider mutation,
+secret read, live VS Code / system-config mutation, or meta-inventory edit is
+authorized by this restatement.
 
 **The canonical 22 (all present at source):** HostProfile, WorkspaceContext,
 Principal, AgentClient, Session, ToolProvider, ToolInstallation, ResolvedTool,

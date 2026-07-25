@@ -78,7 +78,7 @@ HCS boundaries:
 - Research plan — `system-config/docs/host-capability-substrate-research-plan.md` (v0.3.0+; lives in `system-config`, not this repo)
 - Implementation charter — `docs/host-capability-substrate/implementation-charter.md` (current v1.6.0) — copy vendored here at `docs/host-capability-substrate/implementation-charter.md`
 - Boundary decision — in-repo pointer: `docs/host-capability-substrate/adr/0001-repo-boundary.md` (v1.1.0+; source decision lives in `system-config`)
-- Tooling surface matrix — `docs/host-capability-substrate/tooling-surface-matrix.md` (current v1.5.6) — copy vendored here
+- Tooling surface matrix — `docs/host-capability-substrate/tooling-surface-matrix.md` (current v1.6.0) — copy vendored here
 - Live runtime policy — `~/Organizations/jefahnierocks/system-config/policies/host-capability-substrate/` (**canonical; not in this repo**)
 
 Per charter invariant 10: this repo contains source, schemas, test fixtures, docs, and ADRs. Live policy, runtime state, audit archives, and tokens live outside the repo.

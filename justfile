@@ -107,16 +107,25 @@ typecheck: (_require-node-tool "tsc")
 test target="": (_require-node-tool "vitest")
 	@echo "→ unit tests"
 	@if [ -n "{{target}}" ]; then \
-		if [ ! -d "packages/{{target}}/tests" ]; then \
-			echo "error: no test directory at packages/{{target}}/tests" >&2; \
+		dir=""; \
+		for d in packages/*/tests packages/*/*/tests; do \
+			[ -d "$d" ] || continue; \
+			[ "$(basename $(dirname $d))" = "{{target}}" ] && dir="$d"; \
+		done; \
+		if [ -z "$dir" ]; then \
+			echo "error: no test directory for target '{{target}}'" >&2; \
 			echo "       available scoped targets:" >&2; \
-			for d in packages/*/tests; do [ -d "$d" ] && echo "         - $(basename $(dirname $d))" >&2; done; \
+			for d in packages/*/tests packages/*/*/tests; do [ -d "$d" ] && echo "         - $(basename $(dirname $d))" >&2; done; \
 			exit 1; \
 		fi; \
-		node_modules/.bin/vitest run "packages/{{target}}/tests"; \
+		node_modules/.bin/vitest run "$dir"; \
 	else \
 		node_modules/.bin/vitest run; \
 	fi
+
+# Run the read-only CLI adapter. `just cli policy status`
+cli *args:
+	@node --experimental-strip-types packages/adapters/cli/src/main.ts {{args}}
 
 # Schema drift check
 generate-schemas-check:

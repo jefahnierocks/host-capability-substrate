@@ -99,7 +99,12 @@ describe('@hcs/kernel public API surface', () => {
     const api = await import('../src/api/index.ts');
     // Surface lock: adding an export without updating this turns the suite red,
     // so the public API cannot widen by accident.
-    expect(Object.keys(api).sort()).toEqual(['LOADER_CHECKPOINTS', 'loadPolicyRules']);
+    expect(Object.keys(api).sort()).toEqual([
+      'LOADER_CHECKPOINTS',
+      'loadBoundPolicyRules',
+      'loadPolicyRules',
+      'resolveBoundSnapshotPath',
+    ]);
   });
 
   it('exports no mint, append, consume, or revoke symbol', async () => {

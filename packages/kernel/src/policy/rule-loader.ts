@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   operationShapeOperationClassSchema,
   type PolicyRule,
@@ -88,6 +90,40 @@ function strictBoolean(value: unknown): boolean | undefined | 'invalid' {
 
 export interface LoadOptions {
   readonly snapshotPath: string;
+}
+
+/**
+ * The snapshot location, resolved by the kernel — never supplied by a caller.
+ *
+ * ADR 0079 §Out of scope made this a precondition on the first non-test caller:
+ * "before an adapter forwards a path argument, the public form must become
+ * kernel-resolved." `loadPolicyRules` keeps its parameterized form for tests,
+ * which need to stage mutated snapshots; adapters get this one, which cannot be
+ * pointed at an arbitrary file and therefore cannot be turned into a file-read
+ * oracle by a caller that forwards user input.
+ *
+ * `HCS_ROOT` is set by .mise.toml to the repo root. When it is absent — a GUI
+ * app, a launchd job, any context charter inv. 15 warns does not inherit shell
+ * env — resolution falls back to this module's own location, which is stable
+ * because the kernel package always sits at packages/kernel/src/policy/.
+ */
+export function resolveBoundSnapshotPath(): string {
+  const root = process.env.HCS_ROOT;
+  if (root !== undefined && root.length > 0) {
+    return join(root, SNAPSHOT_RELATIVE_PATH);
+  }
+  return fileURLToPath(new URL(`../../../../${SNAPSHOT_RELATIVE_PATH}`, import.meta.url));
+}
+
+const SNAPSHOT_RELATIVE_PATH = 'policies/generated-snapshot/tiers.yaml';
+
+/**
+ * Load the bound snapshot from its kernel-resolved location.
+ *
+ * This is the form adapters use. There is deliberately no path parameter.
+ */
+export function loadBoundPolicyRules(): LoadResult {
+  return loadPolicyRules({ snapshotPath: resolveBoundSnapshotPath() });
 }
 
 export function loadPolicyRules(options: LoadOptions): LoadResult {

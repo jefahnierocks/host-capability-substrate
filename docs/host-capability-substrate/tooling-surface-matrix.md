@@ -3,8 +3,8 @@ title: HCS Tooling Surface Matrix
 category: reference
 component: host_capability_substrate
 status: active
-version: 1.6.0
-last_updated: 2026-07-20
+version: 1.7.0
+last_updated: 2026-07-25
 tags: [tooling, ide, claude-code, codex, cursor, warp, windsurf, vscode, iterm2, mcp, skills, integration, isolation]
 priority: high
 ---
@@ -81,11 +81,11 @@ or host-authoritative runtime facts until reconciled through typed evidence.
 
 | Surface | Config path | Scope | Canonical or generated | Can enforce | Can observe | Can call MCP | Can define skills | Allowed to contain policy | Owner | Phase 0a | Phase 3 | Phase 4 |
 |---------|-------------|-------|------------------------|-------------|-------------|--------------|-------------------|---------------------------|-------|----------|---------|---------|
-| `.claude/settings.json` | repo root | project | canonical (Claude Code project policy) | **yes** (permissions + hooks) | yes (hook telemetry) | yes (allowlist) | no | Claude permission deny list + server allowlist only; not HCS live policy | human owns; hcs-security-reviewer audits | model=opus, deny list in Claude permission layer, hooks wired log-only | HCS MCP allowlisted | approval-mode managed |
+| `.claude/settings.json` | repo root | project | canonical (Claude Code project policy) | **yes** (permissions only — no hook registered since D-083) | no (hook telemetry withdrawn) | yes (allowlist) | no | Claude permission deny list + server allowlist only; not HCS live policy | human owns; hcs-security-reviewer audits | model=opus, deny list in Claude permission layer; **no `hooks` key** | HCS MCP allowlisted | approval-mode managed |
 | `.claude/settings.local.json` | repo root | local (not committed) | — | yes | yes | yes | no | no | individual dev | gitignored | gitignored | gitignored |
 | `.claude/agents/hcs-*.md` | repo | project | canonical (subagent behavior) | no (model-guided) | no | no (inherits project MCP) | no | no | human owns; hcs-architect reviews | 6 subagents | unchanged unless ontology evolves | unchanged |
 | `.claude/skills/` | repo | project | **Claude-specific wrappers only** | no | no | no | yes (Claude-specific) | no | hcs-architect + human | **empty at Phase 0a** | add only if Claude Code needs a wrapper for canonical `.agents/skills/` content | stable |
-| `.claude/hooks/hcs-hook` | repo | project | canonical (implementation-phase hook wrapper) | no in current Phase 0b; Phase 3 hard decisions via HCS RPC only | yes (delegates telemetry to `.logs/phase-0/`) | no | no | no | hcs-hook-integrator + human | thin wrapper to `scripts/dev/hcs-hook-cli.sh`; no hook-local policy | upgraded to RPC HCS gateway; 50ms timeout + Ring 1/generated hash-bound cache fallback | same |
+| `.claude/hooks/hcs-hook` | repo | project | canonical (Phase-3 attachment point; **unregistered** since D-083) | no — not registered on any runtime | no — reachable only from `scripts/dev/run-hook-fixtures.sh` | no | no | no | hcs-hook-integrator + human | thin wrapper to `scripts/dev/hcs-hook-cli.sh`; present on disk, wired to nothing | re-registered as RPC HCS gateway; 50ms timeout + Ring 1/generated hash-bound cache fallback | same |
 | `~/.claude/agents/` | user-global | user | — | no | no | yes | no | no | user | unchanged (existing 6 generic) | unchanged | unchanged |
 | `~/.claude.json` | user-global | user | generated per-machine | yes (permission precedence) | yes | yes (MCP baseline) | no | no (MCP config only) | user; `sync-mcp.sh` writes baseline | no HCS entry | no HCS entry | **decide via ADR** whether HCS joins baseline |
 | Claude Code Desktop settings UI | app-managed storage | user/app | generated/user-managed | yes (app posture) | yes | yes | no | no | user + Claude app | observe only | observe only; map to `ExecutionContext` facets after probes | observe only |
@@ -107,7 +107,7 @@ or host-authoritative runtime facts until reconciled through typed evidence.
 | Codex app Workspace Dependencies | app-managed bundle | user/app | generated | no | yes | no | no | no | Codex app | observe only | tool-resolution evidence only | tool-resolution evidence only |
 | Codex app local environments/actions | `.codex/` project folder | trusted project/app | canonical (worktree bootstrap + app actions) | limited | yes | no | no | no secrets, no startup auth | human owns | absent/minimal | bootstrap/actions only | bootstrap/actions only |
 | `~/.codex/skills/` | user-global | user | — | no | no | no | yes | no | user | unchanged (existing: codex-primary-runtime, pdf) | unchanged | unchanged |
-| Codex hooks (Bash-only coverage) | `~/.codex/config.toml` + project `.codex/hooks.json` | user/project | canonical | **advisory only** (not sufficient for hard enforcement — see §21.4 of plan) | yes | no | no | no HCS live policy; no hook-local forbidden arrays | user + hcs-hook-integrator | log + allow via thin wrapper | log + warn; future hard decisions remain substrate-side | same |
+| Codex hooks (Bash-only coverage) | `~/.codex/config.toml` + project `.codex/hooks.json` | user/project | canonical | **none — `.codex/hooks.json` registers no hook since D-083** | no | no | no | no HCS live policy; no hook-local forbidden arrays | user + hcs-hook-integrator | `{"hooks": {}}`; wrapper present but unregistered | log + warn; future hard decisions remain substrate-side | same |
 
 ### Cursor surfaces
 
@@ -247,7 +247,7 @@ usable-state-readout-2026-05-17.md  relayable restatement status, not authorizat
 .claude/agents/            project-scoped subagents — 6 at Phase 0a
 .claude/settings.json      Claude Code project policy — enforceable; forbidden literals only
 .claude/skills/            Claude-specific wrappers only — empty at Phase 0a
-.claude/hooks/hcs-hook     thin bash wrapper — no hook-local policy
+.claude/hooks/hcs-hook     thin bash wrapper — UNREGISTERED since D-083; no hook-local policy
 Claude Code Desktop UI     app permission/worktree/preview posture — observe only
 Claude Preview sessions    runtime browser state — never repo state
 Claude web automation      PR/comment side effects — GitHub authority model
@@ -326,6 +326,7 @@ When adding X to the repo, route by type:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.7.0 | 2026-07-25 | Phase-0b hook lane decommissioned (D-083). `.claude/settings.json` and `.codex/hooks.json` both register **no** `PreToolUse` hook; the two `hcs-hook` wrappers remain on disk as the Phase-3 attachment point but are wired to nothing. Corrected four cells that asserted an active hook: `.claude/settings.json` "can enforce" (was "permissions + hooks") and "can observe" (was "hook telemetry"), the `.claude/hooks/hcs-hook` row, the Codex hooks row, and the quick-reference block. No policy, adapter, schema, or runtime change. |
 | 1.6.0 | 2026-07-20 | VS Code integration-relay restatement (system-config 2026-07-20 relay, docs-only). Expanded §VS Code surfaces to classify VS Code app/CLI install, default/user + profile-specific settings + Settings Sync, extensions + publisher trust + extension-contributed agents, user-profile `mcp.json` (native top-level `servers`) + project `.vscode/mcp.json`, MCP trust/OAuth/SecretStorage/sandbox, editor `.vscode/*.json` command adapters, and Copilot/nested-instruction files. **Corrected** the `.vscode/settings.local.json` assumption (not a VS Code-native settings layer; removed as an active surface). Reconciled to ADR 0037 / Q-010 / D-013: **no new `ExecutionContext.surface` value** — VS Code is `AgentClient.product_family: vscode_native` + existing surfaces, matrix-only. Execution-context / approval-sandbox / git-identity (adapter ABSENT) posture routed to the workstation surface contract §VS Code Workstation Surface. Observed 2026-07-20 evidence recorded value-blind. No policy, hook, adapter, schema, runtime, or live VS Code / system-config change. |
 | 1.5.7 | 2026-06-30 | Added Infisical CLI as a system-config-managed workstation CLI surface that HCS observes only for tool-resolution/help-output/SecretReference evidence; explicitly excludes secret values and Infisical provider policy from HCS authority. |
 | 1.5.6 | 2026-06-29 | Housekeeping currentness pass: added `.github/workflows/verify.yml` as the CI gate surface, distinguishing the existing `verify` status check from branch-required ruleset authority. No policy, hook, adapter, runtime, or tool-baseline change. |

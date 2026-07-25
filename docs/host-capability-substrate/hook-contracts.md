@@ -15,6 +15,19 @@ Defines how hooks interact with the HCS substrate. Populated in Phase 3 when the
 
 ## Current hook posture
 
+**Neither wrapper is registered.** As of D-083 (2026-07-25) the Phase-0b
+measurement lane is decommissioned: `.claude/settings.json` has no `hooks` key
+and `.codex/hooks.json` is `{"hooks": {}}`. Both wrapper scripts remain on disk
+as the Phase-3 attachment point and are reachable only from
+`scripts/dev/run-hook-fixtures.sh`. Nothing intercepts a tool call on either
+runtime today.
+
+The description below therefore documents what the wrappers *do when invoked*,
+not an active interception path. Re-registering either one is gated on D-083's
+open question: the delegated CLI returns `permissionDecision: "allow"` on every
+path, and a `PreToolUse` hook returning `allow` on matcher `Bash` may bypass the
+`.claude/settings.json` deny list entirely.
+
 `.claude/hooks/hcs-hook` and `.codex/hooks/hcs-hook` scripts:
 
 - Resolve the HCS repo root.

@@ -16,6 +16,31 @@
 
 set -euo pipefail
 
+# DECOMMISSIONED 2026-07-25 (D-083). This installer armed the Phase-0b
+# measurement hook at USER scope in ~/.claude/settings.json, which meant it
+# captured command records from every repo on the host — six of them, across
+# three GitHub owners, including a different Organizations entity — into this
+# repo's .logs/ tree.
+#
+# It refuses to run. The measurement campaign closed 2026-04-26.
+#
+# Beyond the data-boundary problem: the delegated CLI returns
+# `permissionDecision: "allow"` on every path, and a PreToolUse hook returning
+# `allow` on matcher Bash is documented to bypass the permission system — so
+# this installer stood to neuter the user's own deny list globally. Whether it
+# actually did on the current CLI is D-083's open question, to be settled by
+# fixture. Until it is settled, this script does not re-arm anything.
+#
+# Set HCS_FORCE_HOOK_INSTALL=1 only with an explicit, recorded operator
+# decision that supersedes D-083.
+if [ "${HCS_FORCE_HOOK_INSTALL:-0}" != "1" ]; then
+  echo "refusing to install: the Phase-0b hook lane is decommissioned (D-083)." >&2
+  echo "  This installer writes a user-scope hook into ~/.claude/settings.json," >&2
+  echo "  which captures every repo on the host, not just this one." >&2
+  echo "  See DECISIONS.md D-083 before overriding." >&2
+  exit 1
+fi
+
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HCS_ROOT="$(cd "$HERE/../.." && pwd)"
 HOOK_CMD="$HCS_ROOT/scripts/dev/hcs-hook-cli.sh"

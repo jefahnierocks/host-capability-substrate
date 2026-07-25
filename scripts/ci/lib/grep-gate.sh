@@ -33,8 +33,23 @@
 grep_gate() {
   local stdout_file stderr_file rc=0
 
-  stdout_file="$(mktemp "${TMPDIR:-/tmp}/hcs-grep-gate.out.XXXXXX")"
-  stderr_file="$(mktemp "${TMPDIR:-/tmp}/hcs-grep-gate.err.XXXXXX")"
+  # `|| return 2` is load-bearing. Call sites invoke this as
+  # `out="$(grep_gate ...)" || rc=$?`, and bash suppresses errexit inside a
+  # function on the left of `||`. Without these guards an unwritable TMPDIR
+  # leaves the filenames empty, the redirection below fails, bash returns 1,
+  # and the helper's own contract reads that as "clean" — a fail-open path at
+  # the first statement of the helper written to abolish fail-open paths.
+  # A read-only TMPDIR is ordinary in sandboxes and hardened containers, and
+  # verify.sh runs four groups concurrently against the same TMPDIR.
+  stdout_file="$(mktemp "${TMPDIR:-/tmp}/hcs-grep-gate.out.XXXXXX")" || {
+    printf '  ✗ GATE ERROR — mktemp failed (TMPDIR=%s unwritable?)\n' "${TMPDIR:-/tmp}" >&2
+    return 2
+  }
+  stderr_file="$(mktemp "${TMPDIR:-/tmp}/hcs-grep-gate.err.XXXXXX")" || {
+    printf '  ✗ GATE ERROR — mktemp failed (TMPDIR=%s unwritable?)\n' "${TMPDIR:-/tmp}" >&2
+    rm -f "$stdout_file"
+    return 2
+  }
 
   if "$@" >"$stdout_file" 2>"$stderr_file"; then
     rc=0
@@ -52,6 +67,28 @@ grep_gate() {
 
   rm -f "$stdout_file" "$stderr_file"
   return "$rc"
+}
+
+# gate_filter <exclude-ERE> [input-on-stdin]
+#   Two-stage gates subtract allowed matches from stage 1's hits. Writing that
+#   as `... | grep -v X || true` reintroduces the exact defect this file
+#   exists to kill, one layer down: `|| true` collapses the filter's rc=2 into
+#   rc=1, so a filter that ERRORS silently discards a confirmed stage-1 hit.
+#
+#   Filters in bash instead of shelling out, so there is no second grep whose
+#   exit status can be lost, and no dependency on `grep -v "a\|b"` BRE
+#   alternation — another GNU extension that is inert under the BSD grep that
+#   CI's macos-latest runner provides.
+#
+#   Prints surviving lines. Returns 0 always; emptiness is the caller's signal.
+gate_filter() {
+  local exclude="$1" line
+  while IFS= read -r line; do
+    [ -z "$line" ] && continue
+    if ! printf '%s' "$line" | grep -qE "$exclude"; then
+      printf '%s\n' "$line"
+    fi
+  done
 }
 
 # gate_forbid <message> <argv...>

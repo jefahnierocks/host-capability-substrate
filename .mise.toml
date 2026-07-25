@@ -6,10 +6,16 @@ node = "24"
 shellcheck = "latest"
 shfmt = "latest"
 just = "latest"
-# Required by scripts/ci/no-live-secrets.sh. CI provisions tools solely through
-# mise-action, so omitting gitleaks here silently downgraded the secret gate to
-# its weaker regex fallback on every CI run.
-gitleaks = "latest"
+# Required by scripts/ci/no-live-secrets.sh, which now has no fallback. CI
+# provisions tools solely through mise-action, so omitting gitleaks here meant
+# the secret gate silently took its weaker regex path on every CI run.
+#
+# Pinned exactly, not "latest": this is an unreviewed supply-chain surface and
+# an unpinned scanner makes gate semantics drift between runs. 8.30.1 is the
+# observed installed version whose `--help` established that `git` (not the
+# legacy `detect`) is the current verb — see the invariant-11/14 note in
+# scripts/ci/no-live-secrets.sh.
+gitleaks = "8.30.1"
 
 [env]
 HCS_ROOT = "{{ config_root }}"

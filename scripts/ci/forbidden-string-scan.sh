@@ -85,14 +85,19 @@ if grep -rE '\b(sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|xoxb-[0-9]+-[A-Za-z0-9]
   fail=1
 fi
 
-# 3. Deprecated launchctl verbs in renderer code (not docs, not eval corpus, not comments)
+# 3. Deprecated launchctl verbs
+#    Exclusions carry rationale: install-launchd renders the modern verb;
+#    hcs-hook and the regression corpus quote the deprecated form as the thing
+#    being detected; verify-deny-rules.sh issues `launchctl load|unload` as
+#    PROBE COMMANDS whose expected outcome is that the deny rule blocks them —
+#    the literal must appear for the fixture to test anything. in renderer code (not docs, not eval corpus, not comments)
 # Allowed in:
 #   - docs/** (documentation may describe forbidden patterns)
 #   - packages/evals/regression/** (eval corpus documents what agents must NOT do)
 #   - install-launchd.sh and hook docs/scripts (historical warnings and telemetry)
 #   - plist template (comment-only mentions as "NEVER" warnings)
 if grep -rnE '\blaunchctl\s+(load|unload)\b' packages/ scripts/ 2>/dev/null \
-    | grep -v -E '(install-launchd|hcs-hook|packages/evals/regression/|/launchd/.*\.tmpl:\s*[^<]*NEVER)'; then
+    | grep -v -E '(install-launchd|hcs-hook|verify-deny-rules|packages/evals/regression/|/launchd/.*\.tmpl:\s*[^<]*NEVER)'; then
   echo "  ✗ deprecated launchctl verb in renderer/script code" >&2
   fail=1
 fi

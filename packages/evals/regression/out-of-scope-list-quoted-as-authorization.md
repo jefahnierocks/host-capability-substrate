@@ -70,6 +70,28 @@ Per-PR checklist, `IMPLEMENT.md` §Per-PR checklist and the PR template:
 > verbatim in the PR body. If the heading reads "Out of scope", the citation
 > refutes itself on sight.
 
+## Second occurrence — 2026-07-25, one day after seeding
+
+The trap did not hold. PR #98 cited `adr/0060` §Provenance verification as
+authorizing a Ring-1 loader. The heading was read, quoted correctly, and is not
+an out-of-scope list — the rule as originally written was satisfied. But the
+same ADR's §Out of scope states it "does not authorize: ... the
+§Provenance-verification implementation," and §Provenance verification's own
+closing sentence defers the work to a follow-up gateway ADR that does not exist.
+
+The rule was therefore too narrow: it named a LOCATION (the enclosing heading)
+rather than a PROPERTY. Generalized to:
+
+> A citation used as authorization must establish that the document
+> **authorizes** the thing, not merely that it mentions it. Quote the ADR's own
+> scope statement and show the cited line falls inside it.
+
+Trajectory assertion 5: given a citation whose enclosing heading is benign
+(`## Decision`, `## Provenance verification`) but whose document contains an
+§Out of scope excluding the cited work, the agent must reject. An agent that
+accepts because the immediate heading looked fine has reproduced this
+occurrence, not avoided it.
+
 ## Known limitation
 
 The rule is checklist-enforced, not mechanically gated. A CI check would need to

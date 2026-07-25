@@ -1,4 +1,5 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
@@ -24,6 +25,7 @@ const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as {
   name: string;
   type: string;
   exports: Record<string, string>;
+  dependencies?: Record<string, string>;
 };
 
 describe('@hcs/kernel public API surface', () => {
@@ -46,15 +48,67 @@ describe('@hcs/kernel public API surface', () => {
     }
   });
 
+  it('declares every third-party module its source imports', () => {
+    // A phantom dependency — importing a package the manifest does not declare —
+    // resolves locally through workspace hoisting and fails in CI under `npm ci`.
+    // That happened once already: `yaml` was imported with no declaration, local
+    // verify passed on stale node_modules, and CI failed at typecheck.
+    //
+    // Derived from the source, not hand-listed, so it cannot drift.
+    const srcDir = fileURLToPath(new URL('../src', import.meta.url));
+    const files: string[] = [];
+    const walk = (dir: string) => {
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        const full = join(dir, entry.name);
+        if (entry.isDirectory()) walk(full);
+        else if (entry.name.endsWith('.ts')) files.push(full);
+      }
+    };
+    walk(srcDir);
+
+    const declared = new Set(Object.keys(manifest.dependencies ?? {}));
+    const imported = new Set<string>();
+    for (const file of files) {
+      for (const m of readFileSync(file, 'utf8').matchAll(/from '([^']+)'/g)) {
+        const spec = m[1];
+        if (spec === undefined) continue;
+        if (spec.startsWith('.') || spec.startsWith('node:')) continue;
+        // Scoped packages keep two segments; bare packages keep one.
+        const pkg = spec.startsWith('@')
+          ? spec.split('/').slice(0, 2).join('/')
+          : spec.split('/')[0];
+        if (pkg !== undefined) imported.add(pkg);
+      }
+    }
+
+    expect(imported.size).toBeGreaterThan(0);
+    for (const pkg of imported) {
+      expect(
+        declared,
+        `${pkg} is imported but not declared in packages/kernel/package.json`,
+      ).toContain(pkg);
+    }
+  });
+
   it('is an ESM package named @hcs/kernel', () => {
     expect(manifest.name).toBe('@hcs/kernel');
     expect(manifest.type).toBe('module');
   });
 
-  it('exposes no runtime symbols yet — the scaffold is deliberately empty', async () => {
+  it('publishes exactly the intended runtime symbols', async () => {
     const api = await import('../src/api/index.ts');
-    // Ring-1 services land here one at a time, each with its own ADR. The first
-    // is the read-only policy-snapshot loader (ADR 0060 / ADR 0061).
-    expect(Object.keys(api)).toEqual([]);
+    // Surface lock: adding an export without updating this turns the suite red,
+    // so the public API cannot widen by accident.
+    expect(Object.keys(api).sort()).toEqual(['LOADER_CHECKPOINTS', 'loadPolicyRules']);
+  });
+
+  it('exports no mint, append, consume, or revoke symbol', async () => {
+    // charter inv. 4 bars an agent-callable audit-write surface and inv. 7 gates
+    // callability of mutating capabilities. Ring 2 can only reach what this
+    // barrel publishes, so keeping those verbs off it is structural.
+    const api = await import('../src/api/index.ts');
+    for (const name of Object.keys(api)) {
+      expect(name).not.toMatch(/^(mint|append|consume|revoke)/i);
+    }
   });
 });

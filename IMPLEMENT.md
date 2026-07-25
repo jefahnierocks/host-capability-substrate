@@ -41,11 +41,14 @@ Follow `PLAN.md` milestone by milestone.
 - [ ] `OperationShape` remains upstream of `CommandShape`
 - [ ] Evidence includes provenance/freshness where applicable
 - [ ] Dashboard impact considered
-- [ ] **Citation discipline** — every citation used as *authorization* quotes its
-      enclosing section heading verbatim in the PR body. If the heading reads
-      "Out of scope", the citation refutes itself on sight. (D-085: an
-      `adr/0057` line was quoted as a grant when it sat inside "This ADR
-      explicitly does not authorize:".)
+- [ ] **Citation discipline** — a citation used as *authorization* must establish
+      that the document **authorizes** the thing, not merely that it mentions it.
+      Quote the ADR's own scope statement and show the cited line falls inside
+      it. Checking the cited section's heading is NOT sufficient: D-085 quoted an
+      `adr/0057` line sitting under "This ADR explicitly does not authorize:",
+      and D-086 then cited `adr/0060` §Provenance verification — correct heading,
+      correct text — while that same ADR's §Out of scope declined to authorize
+      the implementation. Two failures, two different locations, one property.
 - [ ] **Precedence respected** — `AGENTS.md` §Source of truth ranks `adr/` above
       `IMPLEMENT.md`. A rule stated in an accepted ADR is not relieved by
       editing `IMPLEMENT.md`; amend the ADR, then restate below it.

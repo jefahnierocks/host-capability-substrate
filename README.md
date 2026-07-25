@@ -101,12 +101,14 @@ The current model/CLI baseline, the `opus` alias-pinning rule, and the public-CL
 ## Quick start
 
 ```bash
-mise install       # Node 24, shellcheck, shfmt, just
+mise install       # Node 24, shellcheck, shfmt, just, gitleaks
+npm install        # required — the gates now fail closed without node_modules
 just verify        # lint + typecheck + tests + all boundary checks
-just day1          # kickoff measurement battery (soak harness)
-just measure       # daily partition capture
-just measure-brief # consolidated measurement readout
 ```
+
+The Phase-0b measurement recipes (`just day1`, `just measure`, `just measure-brief`)
+are retained but no longer part of any active campaign; that window closed
+2026-04-26.
 
 ## Runtime layout (not in this repo)
 

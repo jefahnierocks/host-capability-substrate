@@ -6,7 +6,22 @@ set -euo pipefail
 tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/hcs-direnv-mise-fixture.XXXXXX")"
 trap 'rm -rf "$tmp_dir"' EXIT
 
-python_bin="$(command -v python3)"
+# Resolve the ACTUAL interpreter, dereferencing any mise/asdf shim. These steps
+# run python3 inside an isolated env (env -i + temp HOME) that intentionally lacks
+# the managed mise trust store; the first invocation also starts with cwd at the
+# repo root. Invoking a mise *shim* there makes mise re-resolve python3 and reject
+# the checkout's .mise.toml before the fixture reaches its synthetic trust step.
+# Resolve the real binary here, in the normal env, via sys.executable, and refuse a
+# shim path. Harness-only: no change to the isolated HOME/state contract,
+# trusted_config_paths, or any mise trust store.
+python_shim="$(command -v python3)"
+python_bin="$("$python_shim" -c 'import sys; print(sys.executable)')"
+case "$python_bin" in
+  ""|*/shims/*)
+    printf 'fixture harness error: could not resolve a non-shim python3 (got %s)\n' "${python_bin:-<empty>}" >&2
+    exit 1
+    ;;
+esac
 direnv_bin="$(command -v direnv)"
 mise_bin="$(command -v mise)"
 

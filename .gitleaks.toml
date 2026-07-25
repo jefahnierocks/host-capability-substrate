@@ -1,0 +1,45 @@
+# gitleaks configuration for host-capability-substrate.
+#
+# WHY THIS FILE EXISTS
+#
+# The previous allowlist mechanism was `.gitleaksignore`, which keys entries on
+# a `commit:file:rule:line` fingerprint. That is structurally unusable here:
+#
+#   - This repo squash-merges PRs, so every merge rewrites the commit SHA and
+#     invalidates every fingerprint pinned to it.
+#   - CI checks out at `fetch-depth: 1`, so gitleaks sees one synthetic commit
+#     whose SHA matches no fingerprint.
+#
+# The combination meant the single existing allowlist entry could never match
+# in CI. It went unnoticed only because gitleaks was absent from `.mise.toml`,
+# so the secret gate had been silently taking its weaker regex fallback on
+# every CI run since the workflow was created. The first CI run with gitleaks
+# actually installed failed on that stale fingerprint — which is the gate
+# working, not the gate breaking.
+#
+# Allowlists here key on CONTENT SHAPE, so they survive squash-merges,
+# rebases, and shallow clones.
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = """
+Documented SHA-256 content digests are not credentials.
+
+HCS records content digests throughout its docs and ledger: policy-snapshot
+bindings (policies/generated-snapshot/snapshot-binding.json), research-artifact
+integrity records, and audit chain-link hashes. A 64-hex digest introduced by a
+literal SHA-256 label is a published integrity value whose entire purpose is to
+be readable and comparable. It authorizes nothing and cannot be exchanged for
+access.
+
+Deliberately scoped to the LABELLED form via regexTarget = "line". A bare
+64-hex string is NOT allowlisted, so a credential that happens to be hex-shaped
+still trips the gate.
+"""
+regexTarget = "line"
+regexes = [
+  '''SHA-256:\s*`?[A-Fa-f0-9]{64}`?''',
+  '''sha256:[A-Fa-f0-9]{64}''',
+]

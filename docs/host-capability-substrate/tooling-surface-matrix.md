@@ -3,8 +3,8 @@ title: HCS Tooling Surface Matrix
 category: reference
 component: host_capability_substrate
 status: active
-version: 1.5.7
-last_updated: 2026-06-30
+version: 1.6.0
+last_updated: 2026-07-20
 tags: [tooling, ide, claude-code, codex, cursor, warp, windsurf, vscode, iterm2, mcp, skills, integration, isolation]
 priority: high
 ---
@@ -137,13 +137,50 @@ or host-authoritative runtime facts until reconciled through typed evidence.
 
 ### VS Code surfaces
 
+VS Code is a **system-config-managed** workstation surface as of the 2026-07-20
+integration relay (governed baseline in `system-config/vscode/*` plus
+`scripts/sync-vscode.sh`, `scripts/sync-mcp.sh`, and an `ng-doctor` VS Code
+category). Observed 2026-07-20 (method noted): VS Code Stable **1.129.1**
+(`code --version`; `/opt/homebrew/bin/code` → `/Applications/Visual Studio
+Code.app/…`), **76** installed extensions (`code --list-extensions | wc -l`; no
+automatic uninstall), and a populated user-profile `mcp.json` rendered to the
+**native top-level `servers`** shape (value-blind: 9 servers, no `inputs` block,
+GitHub server hard-disabled). `system-config` owns the live VS Code baseline
+(settings / profile / extension manifests, MCP rendering, `ng-doctor`); **HCS
+owns only** the typed value-blind evidence, execution-context semantics,
+approvals, and future gateway decisions. HCS does **not** own VS Code
+OAuth/SecretStorage values, publisher / workspace / MCP trust stores, profile
+associations, or project-local editor configuration. A system-config default is
+evidence/policy input; it becomes HCS session context only after restatement in
+an HCS-owned doc. Execution-context, approval/sandbox, and git-identity posture
+live in the **workstation surface contract** (§VS Code Workstation Surface); this
+matrix classifies the config/file surfaces.
+
 | Surface | Config path | Scope | Canonical or generated | Can enforce | Can observe | Can call MCP | Can define skills | Allowed to contain policy | Owner | Phase 0a | Phase 3 | Phase 4 |
 |---------|-------------|-------|------------------------|-------------|-------------|--------------|-------------------|---------------------------|-------|----------|---------|---------|
-| `.vscode/settings.json` | repo root | project | canonical (editor conveniences) | no | no | no | no | **no** — editor/task only | human; hcs-hook-integrator may edit | formatter = biome, format-on-save, TS SDK = workspace | unchanged | unchanged |
-| `.vscode/extensions.json` | repo root | project | canonical | no | no | no | no | no | human | recommended: biome, vitest | unchanged | unchanged |
-| `.vscode/tasks.json` | repo root | project | canonical | no | no | no | no | no | human | `just verify`, `just test`, `just boundary-check` | unchanged | unchanged |
-| `.vscode/launch.json` | repo root | project | canonical (debug configs) | no | no | no | no | no | human | empty at Phase 0a | added when debug is needed | expanded as broker FSM lands |
-| `.vscode/settings.local.json` | repo root | local | — | no | no | no | no | no | individual dev | gitignored | gitignored | gitignored |
+| VS Code app + `code` CLI install/update | `/Applications/Visual Studio Code.app`; `/opt/homebrew/bin/code` | host/user | external canonical (Homebrew cask + app self-update) | no | yes (version/commit/arch/path via `code --version`; cask receipt may lag self-updated app) | no | no | no | system-config (managed baseline) | observe as `ToolInstallation` / `ResolvedTool` evidence; `1.129.1` observed 2026-07-20 | same | same |
+| Default/user settings | `~/Library/Application Support/Code/User/settings.json` | user | external canonical (system-config value-blind drift/apply, atomic backups) | limited (editor posture, Workspace Trust, approvals) | yes (typed value-blind projection) | no | no | no HCS live policy | system-config owns; HCS observes | observe value-blind projection only; never scrape raw settings | same | same |
+| Profile-specific settings, profile definitions, workspace associations, UI layout, Settings Sync | VS Code profile store (app-managed) | user | external canonical | limited | yes (existence/shape) | no | no | no | user + system-config | observe existence/shape only; no custom profiles existed before this baseline | same | same |
+| Installed extensions (IDs/versions/enablement), publisher trust, extension-contributed agents/tools | `~/.vscode/extensions`; VS Code trust store | user | external canonical (reviewed manifests; no auto-uninstall) | limited (extension enablement, publisher trust) | yes (IDs/versions/enablement — names/versions only) | via extensions | no | no | system-config manifests; HCS observes | observe count/IDs/versions value-blind; **76** observed 2026-07-20 | same | same |
+| `.vscode/settings.json` | repo root | project | canonical (editor conveniences) | no | no | no | no | **no** — editor/command adapter only, never policy source | human; hcs-hook-integrator may edit | biome format-on-save, workspace TS SDK, files/search excludes | unchanged | unchanged |
+| `.vscode/extensions.json` | repo root | project | canonical (recommendations) | no | no | no | no | no | human | recommends biome/vitest/just/toml/yaml/mermaid; unwants eslint/prettier | unchanged | unchanged |
+| `.vscode/tasks.json` | repo root | project | canonical (command adapter) | no | no | no | no | no | human | tasks call `just verify` / `just test` / `just boundary-check` | unchanged | unchanged |
+| `.vscode/launch.json` | repo root | project | canonical (debug configs) | no | no | no | no | no | human | **absent at Phase 0a** | added when debug is needed | expanded as broker FSM lands |
+| User-profile `mcp.json` | `~/Library/Application Support/Code/User/mcp.json` | user | external canonical (native VS Code MCP, top-level `servers`; `sync-mcp.sh` renders and preserves unmanaged entries/inputs + GitHub hard-disable) | no | yes (server names/shape, value-blind) | yes | no | no | system-config renders; HCS observes | observe names-only/value-blind; 9 servers, no `inputs`, GitHub disabled (2026-07-20) | same | same |
+| Project `.vscode/mcp.json` | repo root | project | generated (project MCP) | no | no | yes | no | no | human | **absent at Phase 0a** — do not create unless HCS MCP becomes a project target | add when targeted | same |
+| MCP trust, OAuth/SecretStorage custody, server-process evidence, MCP sandbox receipts | VS Code trust + SecretStorage (app-managed) | user/app | app-managed | limited (per-server trust; discovery/autostart off) | yes (trust state + process existence, value-blind) | — | no | no | user + VS Code app | observe trust/process existence only; **never read SecretStorage values**; record sandbox receipts with full context (§Isolation vocabulary) | same | same |
+| Copilot/VS Code nested instruction + agent files | `.github/copilot-instructions.md`, `.github/instructions/*.instructions.md`, `.github/agents/`, `.github/prompts/`, Preview `.github/hooks/` | project | pointer-only (Copilot/VS Code-discovered) | no | no | no | no | **pointer-only; no policy/forbidden-list duplication** | human; hcs-architect reviews | **absent at Phase 0a**; if added, pointer to AGENTS.md; discovery-off while Preview/unadopted | decide on adoption | same |
+
+`AGENTS.md`, `CLAUDE.md`, and `.agents/skills/` that VS Code / Copilot also read
+are already classified under **Canonical cross-tool surfaces** above; they are not
+duplicated here.
+
+**Correction — `.vscode/settings.local.json` is not a VS Code settings layer.**
+The prior matrix row advertising `.vscode/settings.local.json` as a gitignored
+local override is **removed**: VS Code does not natively merge that filename as a
+settings layer (observed absent on disk 2026-07-20). Do not present it to
+downstream projects as a local-override mechanism; use user settings or
+profile-specific settings for per-developer overrides.
 
 ### Copilot CLI surfaces
 
@@ -219,7 +256,8 @@ Codex app settings UI      app posture and diagnostics — observe only
 Codex app local envs       worktree bootstrap/actions — not startup auth
 .cursor/rules/             thin pointer rules — no policy duplication
 .cursor/mcp.json           empty at Phase 0a
-.vscode/*.json             editor/task convenience only — no policy
+.vscode/*.json             editor/command adapters only — no policy; system-config-managed baseline; no settings.local.json layer
+VS Code MCP + trust         user mcp.json (native `servers`) + trust/OAuth/sandbox — value-blind observe; VS Code git-identity adapter ABSENT
 WARP.md                    absent at Phase 0a
 .windsurf/                 absent (no project scope)
 .copilot/                  absent at Phase 0a
@@ -271,6 +309,9 @@ When adding X to the repo, route by type:
 - `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`
 - `~/Organizations/jefahnierocks/system-config/docs/mcp-config.md`
 - `~/Organizations/jefahnierocks/system-config/docs/project-conventions.md`
+- `~/Organizations/jefahnierocks/system-config/docs/vscode-setup.md`
+- `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate/2026-07-20-vscode-integration-relay.md` (integration relay; external evidence)
+- [`adr/0037-q-010-cross-agent-isolation-and-compatibility-taxonomy.md`](./adr/0037-q-010-cross-agent-isolation-and-compatibility-taxonomy.md) (Sub-decision (d) / D-013 — specific agent products stay matrix-only)
 
 ### External
 
@@ -285,6 +326,7 @@ When adding X to the repo, route by type:
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.6.0 | 2026-07-20 | VS Code integration-relay restatement (system-config 2026-07-20 relay, docs-only). Expanded §VS Code surfaces to classify VS Code app/CLI install, default/user + profile-specific settings + Settings Sync, extensions + publisher trust + extension-contributed agents, user-profile `mcp.json` (native top-level `servers`) + project `.vscode/mcp.json`, MCP trust/OAuth/SecretStorage/sandbox, editor `.vscode/*.json` command adapters, and Copilot/nested-instruction files. **Corrected** the `.vscode/settings.local.json` assumption (not a VS Code-native settings layer; removed as an active surface). Reconciled to ADR 0037 / Q-010 / D-013: **no new `ExecutionContext.surface` value** — VS Code is `AgentClient.product_family: vscode_native` + existing surfaces, matrix-only. Execution-context / approval-sandbox / git-identity (adapter ABSENT) posture routed to the workstation surface contract §VS Code Workstation Surface. Observed 2026-07-20 evidence recorded value-blind. No policy, hook, adapter, schema, runtime, or live VS Code / system-config change. |
 | 1.5.7 | 2026-06-30 | Added Infisical CLI as a system-config-managed workstation CLI surface that HCS observes only for tool-resolution/help-output/SecretReference evidence; explicitly excludes secret values and Infisical provider policy from HCS authority. |
 | 1.5.6 | 2026-06-29 | Housekeeping currentness pass: added `.github/workflows/verify.yml` as the CI gate surface, distinguishing the existing `verify` status check from branch-required ruleset authority. No policy, hook, adapter, runtime, or tool-baseline change. |
 | 1.5.5 | 2026-06-28 | Currentness pass for agent discoverability: refreshed the `packages/schemas/` surface row from the stale "20 entities populated" posture to the actual 22 canonical M1 entities plus post-M1 Model/model-attribution schema slices, and repointed the internal charter reference to current v1.6.0. No tool-baseline, policy, hook, adapter, or runtime posture change. |

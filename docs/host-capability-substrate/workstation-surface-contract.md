@@ -3,9 +3,9 @@ title: HCS Workstation Surface Contract
 category: contract
 component: host_capability_substrate
 status: active
-version: 0.3.0
-last_updated: 2026-06-30
-tags: [workstation, authority, agent-contract, mcp, oauth, cloudflare]
+version: 0.4.0
+last_updated: 2026-07-20
+tags: [workstation, authority, agent-contract, mcp, oauth, cloudflare, vscode, execution-context]
 priority: high
 ---
 
@@ -185,6 +185,111 @@ existence-and-shape evidence only, never device identifiers, serials, or key
 material, and consistent with HCS's existence-only / names-only / classified /
 hashed inspection discipline. This is optional and not yet built; emitting any
 such typed evidence interface would require its own HCS ADR.
+
+## VS Code Workstation Surface (2026-07-20 integration relay)
+
+`system-config` implemented a governed VS Code baseline; this section restates the
+HCS-owned surface in HCS vocabulary. HCS does not copy or mutate the live VS Code
+configuration. Ownership boundary:
+
+- **HCS owns:** typed value-blind evidence, capability / execution-context
+  semantics, approvals, grants, leases, and future gateway decisions for VS Code
+  actions.
+- **`system-config` owns:** the live baseline — VS Code settings / profile /
+  extension manifests, native MCP rendering, `ng-doctor`, `sync-vscode.sh`,
+  `sync-mcp.sh`.
+- **HCS does not own:** VS Code OAuth/SecretStorage values, publisher / workspace
+  / MCP / domain trust stores, profile associations, provider resources, resolved
+  secrets, or project-local editor configuration.
+
+Observed 2026-07-20 (method noted): macOS Tahoe **26.5.2** (`sw_vers`, build
+25F84); VS Code Stable **1.129.1** (`code --version`); **76** installed extensions
+(`code --list-extensions`, un-rationalized — no auto-uninstall); user-profile
+`mcp.json` populated to the native top-level `servers` shape (value-blind: 9
+servers, no `inputs` block, GitHub server hard-disabled). Config/file-surface
+classification lives in the tooling surface matrix §VS Code surfaces; this section
+carries the execution-context, approval, and identity-gate posture. The observed
+counts above mirror the matrix §VS Code surfaces; re-snapshot both on the next
+relay so they cannot silently diverge.
+
+### Reconciliation — no new `ExecutionContext.surface` value
+
+VS Code being managed does not add a per-product `surface` enum value. Per ADR
+0037 Sub-decision (d) and the D-013 conservative posture, specific agent products
+stay matrix-level classifications. VS Code is already representable:
+`AgentClient.product_family: vscode_native` (shipped) names the actor; the
+structural `surface` uses the nearest existing value per context. A generic
+local-IDE-agent-host `surface` value is **not** added; whether one is ever needed
+is a deferred future-ADR question, gated (per D-013 / ADR 0037 first-class
+addition criteria) on an accepted Receipt subtype plus material incident history.
+
+### Execution contexts that stay distinct (seven agent contexts + one human-Principal baseline)
+
+A worktree, Restricted Mode, or sandbox is an execution **property** — none is by
+itself an HCS approval, grant, lease, custody proof, or operational acceptance,
+and none proves every edit / MCP / tool action ran in the same boundary. Classify
+these separately:
+
+| Execution context | `AgentClient.product_family` | Nearest structural `surface` | Note |
+|-------------------|------------------------------|------------------------------|------|
+| Built-in VS Code chat/agent on the open workspace | `vscode_native` | none dedicated → `unknown` (matrix-only) | IDE-hosted; shares Workspace Trust with the window |
+| VS Code Agents window sharing that Workspace Trust | `vscode_native` | none dedicated → `unknown` (matrix-only) | distinct window, same trust boundary; do not assume same sandbox |
+| Copilot CLI agent-host via VS Code terminal | `copilot` | `app_integrated_terminal` | terminal-surfaced; Copilot CLI adapter carries separate CLI evidence |
+| Claude Agent SDK sessions surfaced through VS Code | `claude_code` (nearest shipped family; not the `claude_code` CLI) | `app_integrated_terminal` / `claude_code_ide_ext` | per how the session is surfaced |
+| Background agents in worktrees / separate local contexts | per product | per surface | worktree is a property; compose with `WorkspaceContext` / `Lease` |
+| Cloud agents on remote branches / compute | per product | `remote_cloud_agent` | `derived` authority; external control-plane evidence |
+| Third-party extension agents (Roo, Cline) | `unknown` (matrix-only) | none dedicated → `unknown` | observe only; extension permission prompts are not OS containment |
+| Integrated-terminal human commands + repo tasks | n/a (human Principal) | `app_integrated_terminal` | not an agent execution context |
+
+### Trust, approval, and sandbox are separate evidence types
+
+Do not collapse Workspace Trust, publisher trust, MCP trust, domain trust, agent
+permission level, sensitive-file approvals, terminal/tool approvals, and sandbox
+state into one "trusted" bit. Current system-config baseline posture, restated as
+**observation, not HCS enforcement**:
+
+- Workspace Trust on; untrusted files open in a new Restricted Mode window; empty
+  windows are not implicitly trusted.
+- Default Approvals; no global or terminal auto-approval.
+- Explicit confirmation for sensitive files and hook/config JSON.
+- Agent sandbox off pending an evidence-backed pilot.
+- MCP discovery/autostart off; each server trusted explicitly.
+- Hooks / plugins / nested-instruction / parent-customization discovery off while
+  unadopted or Preview.
+- Git commit/push remains human-approved until a VS Code-specific identity gate is
+  verified.
+
+VS Code's terminal auto-approval parser uses Bash-oriented command analysis; this
+workstation's interactive shell contract is **zsh**. A textual allow rule is not a
+complete zsh command-policy boundary. Sandbox evidence, if HCS models it, records
+exact installed version, OS, settings, filesystem rules, network rules,
+command/tool class, observation method, and timestamp (charter inv. 8); Preview
+behavior is not promoted on docs alone.
+
+### Git-identity hook coverage — ABSENT for VS Code
+
+No VS Code hook adapter exists. Observed 2026-07-20: only `.claude/hooks/` and
+`.codex/hooks/` are present; there is no `.github/hooks/`; `git config
+core.hooksPath` is unset; `.git/hooks/` holds only samples. Existing HCS /
+system-config pretool evidence covers the installed Claude, Codex, Cursor, and
+Copilot **CLI** adapters per their runtime contracts. It does **not** prove that
+built-in VS Code agent edits, extension-contributed tools, VS Code tasks,
+background / cloud agents, or native MCP calls pass through the same pretool gate.
+**Do not claim VS Code adapter coverage until a dedicated adapter is implemented
+and firing-verified.** If a Preview VS Code hook is evaluated it must: call the
+shared identity / policy engine (not copy deny lists); be fixture-tested against
+the installed Stable build; declare fail-open / fail-closed behavior per action;
+protect agent write access to the hook and invoked script; name exact event types
+and execution contexts in any coverage claim; and pass `just verify` plus the
+existing hook-fixture / fault-injection suites. A narrow Preview-hook research
+spike remains an **operator-gated candidate**, non-authoritative until
+firing-verified; it is not scheduled by this restatement.
+
+### `ng-doctor vscode` projection (if consumed)
+
+If HCS consumes `ng-doctor vscode`, it defines a typed, value-blind evidence
+projection (existence / names / versions / classified posture). HCS does not
+scrape raw settings, secret stores, chat content, or extension databases.
 
 ## Historical Records
 

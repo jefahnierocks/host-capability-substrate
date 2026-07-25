@@ -1,13 +1,27 @@
 ---
 adr_number: 0008
 title: Dashboard authentication — short-lived token, localhost-bound
-status: proposed
+status: accepted
 date: 2026-04-22
 charter_version: 1.1.0
 tags: [dashboard, auth, localhost, 1password]
 ---
 
 # ADR 0008: Dashboard authentication — short-lived token, localhost-bound
+
+## Status
+
+`accepted` — 2026-07-25 (D-084).
+
+The ledger has listed this decision as accepted since 2026-04-22 (D-015); the
+ADR's frontmatter lagged and it carried no `## Status` section at all. This
+records the decision, not its construction: **no dashboard exists**, and Ring 3
+remains `.gitkeep`-only. Accepting the ADR states how dashboard auth *will* work
+when built; it authorizes no implementation and starts no milestone.
+
+## Date
+
+2026-04-22 (decision); status recorded 2026-07-25.
 
 ## Context
 

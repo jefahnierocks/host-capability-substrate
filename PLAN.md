@@ -12,8 +12,8 @@ canonical Ring-0 entities are landed as Zod schemas + generated JSON Schema +
 `schema_version` + ontology/registry docs, with the final entity —
 **ResourceBudget** (ADR 0072 / D-070, schema **PR #44 merged**) — closing the set.
 Ontology **v1.34.0**, registry **v0.4.37**, charter **v1.6.0**; ADRs span
-**0001–0078** (0026 absent); decisions accepted through **D-083** (next-free
-**D-084**, no reserved gap after the ADR 0074 / D-074 accept-flip). ADR 0074 /
+**0001–0078** (0026 absent); decisions accepted through **D-084** (next-free
+**D-085**, no reserved gap after the ADR 0074 / D-074 accept-flip). ADR 0074 /
 D-074 is accepted and closes the operator-handoff record-class ledger thread.
 ADR 0078 / D-081 (AgentClient + Session model-attribution amendment) resolves
 the canonical-hash attribution-vs-identity fork ADR 0076 deferred by adding

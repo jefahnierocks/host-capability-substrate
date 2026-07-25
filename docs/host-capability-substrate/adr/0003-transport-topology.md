@@ -1,7 +1,7 @@
 ---
 adr_number: 0003
 title: Transport topology — stdio + Streamable HTTP
-status: proposed
+status: accepted
 date: 2026-04-22
 charter_version: 1.1.0
 tags: [transport, mcp, stdio, http]
@@ -11,7 +11,17 @@ tags: [transport, mcp, stdio, http]
 
 ## Status
 
-`proposed` (awaits Phase 1 Thread B findings)
+`accepted` — 2026-07-25 (D-084).
+
+Accepted **as written**. Phase 1 Thread B was retired as a decision gate; no
+finding it could have produced would change a localhost-only topology, which is
+the conservative option in every direction and is already the operative posture
+across the repo (`PLAN.md` out-of-scope list names remote non-localhost MCP;
+charter invariant 10 keeps deployment private).
+
+The ledger has listed this decision as accepted since 2026-04-22 (D-009); only
+the ADR's own status field lagged. Remote transport, if ever wanted, remains a
+separate ADR as this one states.
 
 ## Context
 

@@ -96,7 +96,7 @@ never gains an `approval_required_for` path.
 
 - Charter: `docs/host-capability-substrate/implementation-charter.md` v1.2.0,
   invariants 1, 6, 13, 14, 15
-- Decision ledger: `DECISIONS.md` D-025, D-026, D-032
+- Decision ledger: **D-084** (this ADR had no ledger row; reference backfilled 2026-07-25). Related context: `DECISIONS.md` D-025, D-026, D-032
 - Regression seed corpus: `packages/evals/regression/seed.md`
 - Research plan: `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md` §18, §22
 

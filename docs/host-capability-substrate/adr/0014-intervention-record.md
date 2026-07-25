@@ -110,7 +110,7 @@ Minimum fields:
 
 - Charter: `docs/host-capability-substrate/implementation-charter.md` v1.2.0,
   invariants 4, 7, 8, 10
-- Decision ledger: `DECISIONS.md` D-025, D-026, D-032, Q-003
+- Decision ledger: **D-084** (this ADR had no ledger row; reference backfilled 2026-07-25). Related context: `DECISIONS.md` D-025, D-026, D-032, Q-003
 - Phase 0b closeout: `docs/host-capability-substrate/phase-0b-closeout.md`
 - Research plan: `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md` §2, §16, §18
 

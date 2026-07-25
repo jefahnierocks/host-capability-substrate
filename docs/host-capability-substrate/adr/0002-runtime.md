@@ -1,7 +1,7 @@
 ---
 adr_number: 0002
 title: Runtime — Node LTS
-status: proposed
+status: accepted
 date: 2026-04-22
 charter_version: 1.1.0
 tags: [runtime, node, bun]
@@ -11,7 +11,31 @@ tags: [runtime, node, bun]
 
 ## Status
 
-`proposed` (to be accepted at end of Phase 1 Thread B)
+`accepted` — 2026-07-25 (D-084).
+
+Accepted **as written**; the recommendation is unchanged. Phase 1 Thread B was
+retired as a decision gate rather than run: it existed to measure the SQLite and
+ecosystem-maturity axis, and the installed runtime now answers that axis
+directly.
+
+Observed on this host 2026-07-25 (charter invariant 14 — observed runtime is the
+top of the authority order, above vendor docs and above model memory):
+
+```
+$ node --version
+v24.18.0
+$ node -e "console.log(Object.keys(require('node:sqlite')))"
+DatabaseSync, StatementSync, Session, constants, backup
+$ node -e "console.log(process.versions.sqlite)"
+3.53.1
+```
+
+Node ships SQLite in-core at 3.53.1, with a synchronous API suited to the
+single-writer audit store ADR 0077 specifies. That settles the maturity question
+Thread B was scoped to measure, so the measurement is moot rather than pending.
+The ledger has listed this decision as accepted since 2026-04-22 (D-002); only
+the ADR's own status field lagged. Bun remains out of scope absent measured
+evidence, exactly as the decision states.
 
 ## Date
 

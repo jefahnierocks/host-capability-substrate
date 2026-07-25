@@ -61,38 +61,62 @@ codex-env-policy-probe-fixture:
 codex-mcp-startup-probe-fixture:
 	@bash scripts/dev/prepare-codex-mcp-startup-order.sh --fixture
 
+# A missing toolchain is a FAILED gate, not a passed one.
+#
+# These four recipes used to echo "(not installed yet)" and exit 0, so a
+# checkout without node_modules — a fresh clone, a new git worktree, a
+# misconfigured runner — produced a fully green `just verify` with zero checks
+# executed. Three months of "verify passed" claims were unfalsifiable on that
+# basis. scripts/ci/schema-drift.sh already hard-failed on this same condition,
+# so two gates in one run disagreed about whether a missing toolchain is OK.
+_require-node-tool bin:
+	@if [ ! -x "node_modules/.bin/{{bin}}" ]; then \
+		echo "error: node_modules/.bin/{{bin}} missing — run 'npm install'." >&2; \
+		echo "       Refusing to report a passing gate that did not execute." >&2; \
+		exit 1; \
+	fi
+
 # Format check (no writes)
-format-check:
+format-check: (_require-node-tool "biome")
 	@echo "→ format check"
-	@if [ -x node_modules/.bin/biome ]; then node_modules/.bin/biome format .; else echo "  (biome not installed yet — run 'npm install')"; fi
+	@node_modules/.bin/biome format .
 
 # Lint check
-lint:
+lint: (_require-node-tool "biome")
 	@echo "→ lint check"
-	@if [ -x node_modules/.bin/biome ]; then node_modules/.bin/biome check .; else echo "  (biome not installed yet — run 'npm install')"; fi
+	@node_modules/.bin/biome check .
 
 # Typecheck
-typecheck:
+typecheck: (_require-node-tool "tsc")
 	@echo "→ typecheck"
-	@if [ -x node_modules/.bin/tsc ]; then node_modules/.bin/tsc --noEmit; else echo "  (tsc not installed yet — run 'npm install')"; fi
+	@node_modules/.bin/tsc --noEmit
 
-# Unit tests. `just test` (no target) runs the full suite; `just test schemas`
-# limits Vitest to the schema package. No other scoped target exists yet —
-# unknown targets fail loudly instead of silently running the full suite.
-# Add a case below when a package gains its own test directory.
-test target="":
+# Unit tests. `just test` runs the full suite; `just test <pkg>` limits Vitest
+# to that package's tests/ directory.
+#
+# Scoped targets are DISCOVERED from packages/*/tests, not hardcoded. The old
+# hardcoded `case` accepted only "schemas", so every scoped target named in
+# PLAN's milestone blocks (storage, audit-chain, mcp, dashboard, evals, policy)
+# exited 1, and each new package required a justfile edit — a guaranteed merge
+# collision on a file every lane touches. A package gets its target the moment
+# it grows a tests/ directory.
+#
+# --passWithNoTests is deliberately absent: 36 test files exist, so a run that
+# matches zero tests is a bug, not a pass. (Regression trap #60,
+# packages/evals/regression/scoped-test-target-silent-green.md.)
+test target="": (_require-node-tool "vitest")
 	@echo "→ unit tests"
-	@case "{{target}}" in \
-		""|schemas) ;; \
-		*) echo "error: unknown test target '{{target}}' — the only scoped target today is 'schemas'; run 'just test' with no target for the full suite" >&2; exit 1 ;; \
-	esac
-	@if [ -x node_modules/.bin/vitest ]; then \
-		if [ "{{target}}" = "schemas" ]; then \
-			node_modules/.bin/vitest run packages/schemas/tests; \
-		else \
-			node_modules/.bin/vitest run --passWithNoTests; \
+	@if [ -n "{{target}}" ]; then \
+		if [ ! -d "packages/{{target}}/tests" ]; then \
+			echo "error: no test directory at packages/{{target}}/tests" >&2; \
+			echo "       available scoped targets:" >&2; \
+			for d in packages/*/tests; do [ -d "$d" ] && echo "         - $(basename $(dirname $d))" >&2; done; \
+			exit 1; \
 		fi; \
-	else echo "  (vitest not installed yet — run 'npm install')"; fi
+		node_modules/.bin/vitest run "packages/{{target}}/tests"; \
+	else \
+		node_modules/.bin/vitest run; \
+	fi
 
 # Schema drift check
 generate-schemas-check:

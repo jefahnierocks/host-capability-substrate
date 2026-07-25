@@ -6,6 +6,10 @@ node = "24"
 shellcheck = "latest"
 shfmt = "latest"
 just = "latest"
+# Required by scripts/ci/no-live-secrets.sh. CI provisions tools solely through
+# mise-action, so omitting gitleaks here silently downgraded the secret gate to
+# its weaker regex fallback on every CI run.
+gitleaks = "latest"
 
 [env]
 HCS_ROOT = "{{ config_root }}"

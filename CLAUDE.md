@@ -66,7 +66,8 @@ Harness-level enforcement (Claude Code settings) is layered with substrate-level
 
 - Managed/local settings deny broad unsafe patterns (see `.claude/settings.json`).
 - HCS MCP server will be allowlisted once it exists; other MCP servers behind explicit per-repo opt-in.
-- Hooks in this repo delegate to `.claude/hooks/hcs-hook` — a small helper. Hook bodies remain tiny because Claude command hooks run with full user permissions.
+- **No PreToolUse hook is registered in this repo today.** The `.claude/hooks/hcs-hook` wrapper still exists, but its registration was removed when the Phase-0b measurement campaign was decommissioned (closed 2026-04-26; the campaign kept collecting for 90 days past its own closeout). The wrapper only ever delegated to the measurement CLI, which has three `allow` paths and no `deny` — it recorded telemetry and was never an enforcement boundary, despite prose elsewhere that implied otherwise. Enforcement today is `.claude/settings.json` permission rules plus the CI gates; a hook that decides anything requires Ring-1 RPC or a hash-bound generated policy snapshot, neither of which exists yet.
+- If a hook is re-registered, bodies stay tiny — Claude command hooks run with full user permissions.
 
 ## Subagent table
 

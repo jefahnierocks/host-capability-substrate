@@ -45,7 +45,7 @@ PreToolUse hooks need to consult the HCS substrate without adding perceptible la
 
 - Research plan §§21.2, 21.3, 21.4, 22.8
 - Decision ledger: `DECISIONS.md` entries D-005, D-006, D-007
-- `.claude/hooks/hcs-hook` Phase 0a implementation
+- `.claude/hooks/hcs-hook` Phase 0a implementation *(present on disk but **unregistered** since D-083, 2026-07-25 — the Phase-0b measurement lane was decommissioned. This ADR's blocking-RPC-with-cache-fallback design is unchanged and remains the Phase-3 target; only the interim measurement wiring was withdrawn.)*
 
 ### External
 

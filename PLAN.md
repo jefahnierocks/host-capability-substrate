@@ -12,8 +12,8 @@ canonical Ring-0 entities are landed as Zod schemas + generated JSON Schema +
 `schema_version` + ontology/registry docs, with the final entity —
 **ResourceBudget** (ADR 0072 / D-070, schema **PR #44 merged**) — closing the set.
 Ontology **v1.34.0**, registry **v0.4.37**, charter **v1.6.0**; ADRs span
-**0001–0078** (0026 absent); decisions accepted through **D-082** (next-free
-**D-083**, no reserved gap after the ADR 0074 / D-074 accept-flip). ADR 0074 /
+**0001–0078** (0026 absent); decisions accepted through **D-083** (next-free
+**D-084**, no reserved gap after the ADR 0074 / D-074 accept-flip). ADR 0074 /
 D-074 is accepted and closes the operator-handoff record-class ledger thread.
 ADR 0078 / D-081 (AgentClient + Session model-attribution amendment) resolves
 the canonical-hash attribution-vs-identity fork ADR 0076 deferred by adding
@@ -1358,8 +1358,8 @@ Discipline for W2–W3: no changes to `classify.py`, `.claude/hooks/`, `just mea
 - `.agents/skills/` has the six canonical workflow skills (hcs-adr-review, hcs-draft-adr, hcs-regression-trap, hcs-operation-proof, hcs-policy-tier-entry, hcs-schema-change)
 - `.claude/agents/` has six subagents (architect, ontology-reviewer, policy-reviewer, security-reviewer, hook-integrator, eval-reviewer)
 - `.claude/skills/` empty at Phase 0a
-- `.claude/settings.json` present with model=opus, deny-list for forbidden literals, hook wiring
-- `.claude/hooks/hcs-hook` present in log-only mode
+- `.claude/settings.json` present with model=opus, deny-list for forbidden literals, and hook wiring *(hook wiring withdrawn 2026-07-25 per D-083; the M0 criterion was met at the time and is recorded here as satisfied-then-superseded, not as a live requirement)*
+- `.claude/hooks/hcs-hook` present *(present on disk but **unregistered** since D-083; it is the Phase-3 attachment point, not an active log-only hook)*
 - No `WARP.md`, no `.windsurf/`, no `.copilot/`
 - CI boundary checks wired (strict from M0): boundary-check, policy-lint, schema-drift, forbidden-string-scan, no-live-secrets, no-runtime-state-in-repo
 

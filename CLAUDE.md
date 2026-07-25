@@ -66,7 +66,10 @@ Harness-level enforcement (Claude Code settings) is layered with substrate-level
 
 - Managed/local settings deny broad unsafe patterns (see `.claude/settings.json`).
 - HCS MCP server will be allowlisted once it exists; other MCP servers behind explicit per-repo opt-in.
-- Hooks in this repo delegate to `.claude/hooks/hcs-hook` — a small helper. Hook bodies remain tiny because Claude command hooks run with full user permissions.
+- **No `PreToolUse` hook is registered on either runtime.** Both registrations — `.claude/settings.json` and `.codex/hooks.json` — were withdrawn when the Phase-0b measurement lane was decommissioned (D-083). The wrapper scripts `.claude/hooks/hcs-hook` and `.codex/hooks/hcs-hook` remain on disk, unregistered, as the Phase-3 attachment point.
+- **Do not re-register either one without reading D-083.** The delegated CLI returns `permissionDecision: "allow"` on every path and has no `deny`, so on matcher `Bash` it was an unconditional auto-approve. A `PreToolUse` hook that returns `allow` is documented to bypass the permission system, which means it stood to neuter the `deny` list in `.claude/settings.json` (`sudo`, `csrutil`, `launchctl load|unload`, `rm -rf /`). Whether it actually did on the current CLI is an **open question recorded in D-083**, to be settled by fixture, not by reasoning.
+- Enforcement today is the `.claude/settings.json` permission layer plus the CI gates. A hook that decides anything requires Ring-1 RPC or a hash-bound generated policy snapshot — neither exists yet (ADR 0007 remains the forward design).
+- If a hook is ever re-registered, bodies stay tiny: Claude command hooks run with full user permissions.
 
 ## Subagent table
 

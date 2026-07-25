@@ -106,7 +106,18 @@ fi
 # 5. Project hook bodies stay thin. Canonical policy lives in system-config
 # and hard decisions route through Ring 1 or an authorized generated/hash-bound
 # cache, never hook-local arrays or regex tables.
+#    The existence guard is load-bearing: on a missing file grep exits 2, and
+#    `if grep ...; then` reads rc=2 as "no match", so this stanza would report
+#    clean while checking nothing. D-083 unregistered both wrappers, which makes
+#    them look deletable — exactly the condition that would silently disarm this
+#    check. If a wrapper is intentionally retired, delete this loop entry in the
+#    same commit rather than letting the gate quietly stop scanning.
 for hook in .claude/hooks/hcs-hook .codex/hooks/hcs-hook; do
+  if [ ! -f "$hook" ]; then
+    echo "  ✗ expected hook wrapper missing: $hook (gate cannot scan what is not there)" >&2
+    fail=1
+    continue
+  fi
   if grep -nE 'forbidden_patterns=|forbidden_regexes=|grep -E[q]? .*(TOKEN|SECRET|API_KEY|PASSWORD|PASSWD|PAT)|spctl --|csrutil |rm -rf |launchctl (load|unload)' "$hook"; then
     echo "  ✗ hook-local forbidden policy pattern in $hook" >&2
     fail=1

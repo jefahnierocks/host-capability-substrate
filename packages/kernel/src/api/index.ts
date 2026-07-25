@@ -39,4 +39,9 @@ export type {
   LoadResult,
   RejectedRules,
 } from '../policy/rule-loader.ts';
-export { LOADER_CHECKPOINTS, loadPolicyRules } from '../policy/rule-loader.ts';
+export {
+  LOADER_CHECKPOINTS,
+  loadBoundPolicyRules,
+  loadPolicyRules,
+  resolveBoundSnapshotPath,
+} from '../policy/rule-loader.ts';

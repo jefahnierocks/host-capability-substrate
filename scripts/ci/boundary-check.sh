@@ -66,7 +66,11 @@ ring2_importers=()
 
 if [ ${#ring2_importers[@]} -gt 0 ]; then
   rule2_rc=0
-  rule2_hits="$(grep_gate grep -rE "(@hcs/kernel(/src)?/|[.][.]?/[^\"']*kernel/src/)" "${ring2_importers[@]}")" || rule2_rc=$?
+  # The specifier must be QUOTED. Every import form quotes it — `from "x"`,
+  # `import "x"`, `require("x")`, `await import("x")` — while prose that names
+  # the path in backticks does not. Without this anchor the rule flags its own
+  # documentation, which it did the first time it had a real subject.
+  rule2_hits="$(grep_gate grep -rE "['\"](@hcs/kernel(/src)?/|[.][.]?/[^'\"]*kernel/src/)" "${ring2_importers[@]}")" || rule2_rc=$?
 
   if [ "$rule2_rc" -ge 2 ]; then
     err "rule 2 could not execute (grep rc=$rule2_rc) — treating as FAILED"
@@ -75,7 +79,12 @@ if [ ${#ring2_importers[@]} -gt 0 ]; then
     # the legal path, so both @hcs/kernel/api/ and @hcs/kernel/src/api/ are
     # permitted — subtracting only the former would flag the charter's own
     # declared public path as a violation.
-    rule2_private="$(printf '%s\n' "$rule2_hits" | gate_filter "(@hcs/kernel(/src)?/api/|kernel/src/api/)")"
+    # The trailing-slash form alone is WRONG: charter:84 declares
+    # `@hcs/kernel/api` legal, and `/api/` only matches deeper paths like
+    # `@hcs/kernel/api/policy`. Anchoring on a quote, slash, or end-of-token
+    # accepts both the barrel and a deep public path while still rejecting
+    # `@hcs/kernel/apifoo`. Found the first time this rule had a real subject.
+    rule2_private="$(printf '%s\n' "$rule2_hits" | gate_filter "(@hcs/kernel(/src)?/api([\"'/]|\$)|kernel/src/api/)")"
     if [ -n "$rule2_private" ]; then
       printf '%s\n' "$rule2_private" >&2
       err "Ring 2 importing kernel private internals (use @hcs/kernel/api instead)"

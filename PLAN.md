@@ -14,7 +14,7 @@ readouts; decisions belong in `DECISIONS.md`. This section states status only.
   (ADR 0076 / D-077) and the ADR 0078 / D-081 `model_ref` slice.
 - **Versions:** ontology **v1.34.0** · registry **v0.4.37** · charter **v1.6.0** ·
   ADRs **0001–0078** (0026 absent, reserved — see `adr/0025` §Future amendments) ·
-  decisions through **D-085** (next-free **D-086**).
+  decisions through **D-086** (next-free **D-087**).
 - **M2 residue:** the ADR 0034 boundary-evidence consumption matrix
   (`Decision`/`ApprovalGrant` × {stale, missing, contradictory}) is the one
   acceptance bullet still open. PolicyRule schema ref (D-078), freshness windows

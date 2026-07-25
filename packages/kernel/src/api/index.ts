@@ -26,11 +26,19 @@
  *
  * Ring 1 imports Ring 0 (`@hcs/schemas`) and nothing above it.
  *
- * Empty by design at this commit: this is the workspace scaffold. The first
- * service to land here is the read-only policy-snapshot loader, assigned by
- * ADR 0060 §Ring-1 policy/gateway loader and with its checkpoint-level test
- * obligation specified by ADR 0061 (reject at the digest-verification step,
- * not merely at the final Decision).
+ * Published surface:
+ *   - the read-only policy-snapshot loader (ADR 0060 §Provenance verification,
+ *     ADR 0061 §Follow-up regression coverage).
  */
 
-export {};
+export type {
+  LoadedSnapshot,
+  LoaderCheckpoint,
+  LoadOptions,
+  LoadResult,
+  RejectedSnapshot,
+} from '../policy/snapshot-loader.ts';
+export {
+  LOADER_CHECKPOINTS,
+  loadPolicySnapshot,
+} from '../policy/snapshot-loader.ts';

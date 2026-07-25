@@ -51,10 +51,23 @@ describe('@hcs/kernel public API surface', () => {
     expect(manifest.type).toBe('module');
   });
 
-  it('exposes no runtime symbols yet — the scaffold is deliberately empty', async () => {
+  it('publishes exactly the intended runtime symbols', async () => {
     const api = await import('../src/api/index.ts');
-    // Ring-1 services land here one at a time, each with its own ADR. The first
-    // is the read-only policy-snapshot loader (ADR 0060 / ADR 0061).
-    expect(Object.keys(api)).toEqual([]);
+    // Ring-1 services land here one at a time, each with its own ADR. This
+    // assertion is a surface lock: adding an export without updating it turns
+    // the suite red, so the public API cannot widen by accident. (It did
+    // exactly that when the policy-snapshot loader landed.)
+    expect(Object.keys(api).sort()).toEqual(['LOADER_CHECKPOINTS', 'loadPolicySnapshot']);
+  });
+
+  it('exports no mint, append, consume, or revoke symbol', async () => {
+    // charter inv. 4 bars an agent-callable audit-write surface, and inv. 7
+    // gates callability of mutating capabilities. Ring 2 can only reach what
+    // this barrel publishes, so keeping those verbs off it is a structural
+    // guarantee rather than a review convention.
+    const api = await import('../src/api/index.ts');
+    for (const name of Object.keys(api)) {
+      expect(name).not.toMatch(/^(mint|append|consume|revoke)/i);
+    }
   });
 });

@@ -27,6 +27,17 @@ AGENTS.md hard boundary on body-bearing GitHub operations.
 - [ ] `OperationShape` remains upstream of `CommandShape`
 - [ ] Evidence includes provenance/freshness where applicable
 - [ ] Dashboard impact considered
+- [ ] **Citation discipline** — every citation used as *authorization* quotes its
+      enclosing section heading verbatim in the PR body. If the heading reads
+      "Out of scope", the citation refutes itself on sight. (D-085: an
+      `adr/0057` line was quoted as a grant when it sat inside "This ADR
+      explicitly does not authorize:".)
+- [ ] **Precedence respected** — `AGENTS.md` §Source of truth ranks `adr/` above
+      `IMPLEMENT.md`. A rule stated in an accepted ADR is not relieved by
+      editing `IMPLEMENT.md`; amend the ADR, then restate below it.
+- [ ] **Charter text quoted verbatim or untouched** — charter edits are their own
+      class and do not ride in another PR. (D-085: `charter:54`'s "is live" was
+      silently weakened to "exist".)
 
 ## Validation
 

@@ -6,5 +6,9 @@
   "exports": {
     ".": "./src/api/index.ts",
     "./api": "./src/api/index.ts"
+  },
+  "dependencies": {
+    "@hcs/schemas": "*",
+    "yaml": "2.9.0"
   }
 }

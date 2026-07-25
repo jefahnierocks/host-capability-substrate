@@ -1,4 +1,5 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
@@ -24,6 +25,7 @@ const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as {
   name: string;
   type: string;
   exports: Record<string, string>;
+  dependencies?: Record<string, string>;
 };
 
 describe('@hcs/kernel public API surface', () => {
@@ -43,6 +45,48 @@ describe('@hcs/kernel public API surface', () => {
     for (const specifier of Object.keys(manifest.exports)) {
       expect(specifier).not.toContain('*');
       expect(specifier).not.toContain('src');
+    }
+  });
+
+  it('declares every third-party module its source imports', () => {
+    // A phantom dependency — importing a package the manifest does not declare —
+    // resolves locally through workspace hoisting and fails in CI under `npm ci`.
+    // That happened once already: `yaml` was imported with no declaration, local
+    // verify passed on stale node_modules, and CI failed at typecheck.
+    //
+    // Derived from the source, not hand-listed, so it cannot drift.
+    const srcDir = fileURLToPath(new URL('../src', import.meta.url));
+    const files: string[] = [];
+    const walk = (dir: string) => {
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        const full = join(dir, entry.name);
+        if (entry.isDirectory()) walk(full);
+        else if (entry.name.endsWith('.ts')) files.push(full);
+      }
+    };
+    walk(srcDir);
+
+    const declared = new Set(Object.keys(manifest.dependencies ?? {}));
+    const imported = new Set<string>();
+    for (const file of files) {
+      for (const m of readFileSync(file, 'utf8').matchAll(/from '([^']+)'/g)) {
+        const spec = m[1];
+        if (spec === undefined) continue;
+        if (spec.startsWith('.') || spec.startsWith('node:')) continue;
+        // Scoped packages keep two segments; bare packages keep one.
+        const pkg = spec.startsWith('@')
+          ? spec.split('/').slice(0, 2).join('/')
+          : spec.split('/')[0];
+        if (pkg !== undefined) imported.add(pkg);
+      }
+    }
+
+    expect(imported.size).toBeGreaterThan(0);
+    for (const pkg of imported) {
+      expect(
+        declared,
+        `${pkg} is imported but not declared in packages/kernel/package.json`,
+      ).toContain(pkg);
     }
   });
 

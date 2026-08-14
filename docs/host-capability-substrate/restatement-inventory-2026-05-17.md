@@ -67,7 +67,7 @@ The first pass now covers:
 - local HCS work roles: design owner, implementer, reviewer, maintainer, and
   evidence gatherer;
 - Cloudflare operator identity transition:
-  `jeffreyverlynjohnson@gmail.com` now, `guardian@thenash.group` after the
+  `REDACTED-operator-google-account` now, `guardian@thenash.group` after the
   Phase 2 Cloudflare account email migration;
 - Cloudflare MCP OAuth baseline:
   `cloudflare-api` at `https://mcp.cloudflare.com/mcp`, per-agent OAuth, no

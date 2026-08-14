@@ -80,7 +80,7 @@ Coverage:
 - HCS work roles are restated locally: design owner, implementer, reviewer,
   maintainer, evidence gatherer.
 - Cloudflare operator identity transition is recorded locally:
-  jeffreyverlynjohnson@gmail.com interim, guardian@thenash.group target after
+  REDACTED-operator-google-account interim, guardian@thenash.group target after
   the Phase 2 account email migration.
 - Cloudflare MCP baseline is recorded locally: cloudflare-api at
   https://mcp.cloudflare.com/mcp, per-agent OAuth, no shared bearer,

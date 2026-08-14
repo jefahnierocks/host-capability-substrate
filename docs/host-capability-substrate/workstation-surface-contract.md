@@ -72,7 +72,7 @@ review burden and should usually split into smaller slices.
 HCS docs or local config that reference the operator's Cloudflare identity use
 this explicit transition:
 
-- Interim identity: `jeffreyverlynjohnson@gmail.com`
+- Interim identity: `REDACTED-operator-google-account`
 - Target identity after the Phase 2 Cloudflare account email migration:
   `guardian@thenash.group`
 - Target date for the migration: 2026-07-15

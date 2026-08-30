@@ -1,7 +1,7 @@
 ---
 adr_number: 0079
 title: Ring-1 policy-rule loader — rule shape only, provenance deferred
-status: proposed
+status: accepted
 version: v1
 date: 2026-07-25
 charter_version: 1.6.0
@@ -12,7 +12,7 @@ tags: [ring-1, kernel, policy, policy-rule, loader, adr-0060-followup, class-d]
 
 ## Status
 
-`proposed`
+`accepted`
 
 Ships in the same PR as the code it governs, per the successor rule recorded in
 D-085 §What to stop: an ADR is opened only when it unblocks a named PR in the

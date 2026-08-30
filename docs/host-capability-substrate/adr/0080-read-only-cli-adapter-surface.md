@@ -1,7 +1,7 @@
 ---
 adr_number: 0080
 title: Read-only CLI adapter surface
-status: proposed
+status: accepted
 version: v1
 date: 2026-07-25
 charter_version: 1.6.0
@@ -12,7 +12,7 @@ tags: [ring-2, adapter, cli, read-only, class-e, adr-0079-followup]
 
 ## Status
 
-`proposed`
+`accepted`
 
 Ships in the same PR as the code it governs, per D-085's successor rule.
 

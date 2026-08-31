@@ -498,3 +498,11 @@ This ADR does not authorize:
 - 2026-08-30: Accepted with its implementation after three design-objection
   rounds and two implementation-objection rounds were folded; the final
   architect re-review returned no blocking or non-blocking objections.
+- 2026-08-30: Follow-on rendering amendment adds a file-addressable successor
+  summary and a separate review-only exact-`gateway`-token rollup. The summary
+  aggregates only canonical ADR numbers and admitted repository paths, counts
+  each deferring ADR once, and excludes descriptive successors. The rollup
+  projects source spans from already parsed regular-block entries without
+  changing successor captures, ambiguity routing, resolution, or edge meaning.
+  The pre-implementation Class-J architect review returned no blockers and
+  confirmed both additions are rendering-only under this decision.

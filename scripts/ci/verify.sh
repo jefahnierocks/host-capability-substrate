@@ -49,6 +49,7 @@ run_group static-gates \
   no-runtime-state-in-repo \
   doc-link-check \
   doc-pointer-check \
+  adr-deferral-index-check \
   shellcheck-scan
 # Portable measurement fixtures — validate committed golden fixtures; clean-runner safe.
 fixtures_recipes=(

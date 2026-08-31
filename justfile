@@ -175,6 +175,10 @@ doc-link-check:
 doc-pointer-check:
 	@bash scripts/ci/doc-pointer-check.sh
 
+# Fail when the derived, non-authoritative ADR deferral index drifts
+adr-deferral-index-check:
+	@node scripts/ci/adr-deferral-index.js --check
+
 # Format-and-write (dev only)
 format-fix:
 	npx biome format --write .

@@ -134,6 +134,10 @@ function asciiLower(value) {
   return value.replace(/[A-Z]/g, (character) => character.toLowerCase());
 }
 
+function containsExactGatewayToken(value) {
+  return /(^|[^a-z0-9_])gateway(?=$|[^a-z0-9_])/.test(asciiLower(value));
+}
+
 function compareCodeUnits(left, right) {
   return left < right ? -1 : left > right ? 1 : 0;
 }
@@ -1050,20 +1054,26 @@ function validateDocuments(documents) {
   return byNumber;
 }
 
-function targetResolution(targetLiteral, documentsByNumber, fileKind) {
+function resolveTarget(targetLiteral, documentsByNumber, fileKind) {
   const normalized = targetLiteral.replace(/\s+/g, ' ').trim();
   const adr = normalized.match(/^ADR[ ]+(\d{4})$/i);
   if (adr !== null) {
-    return documentsByNumber.has(adr[1]) ? 'yes' : 'no';
+    return {
+      resolution: documentsByNumber.has(adr[1]) ? 'yes' : 'no',
+      fileAddressableTarget: `ADR ${adr[1]}`,
+    };
   }
   if (/^[QD]-\d{3}$/i.test(normalized) || /^class[ ]+[A-J]$/i.test(normalized)) {
-    return 'not-file-addressable';
+    return { resolution: 'not-file-addressable', fileAddressableTarget: null };
   }
   const pathResult = pathClassification(targetLiteral);
   if (pathResult.valid) {
-    return fileKind(pathResult.path) === 'file' ? 'yes' : 'no';
+    return {
+      resolution: fileKind(pathResult.path) === 'file' ? 'yes' : 'no',
+      fileAddressableTarget: pathResult.path,
+    };
   }
-  return 'not-file-addressable';
+  return { resolution: 'not-file-addressable', fileAddressableTarget: null };
 }
 
 function analyzeCorpus(documents, fileKind = () => 'absent') {
@@ -1075,6 +1085,7 @@ function analyzeCorpus(documents, fileKind = () => 'absent') {
     .sort((left, right) => compareCodeUnits(left.filename, right.filename));
   const documentsByNumber = validateDocuments(sortedDocuments);
   const regular = [];
+  const regularBlockEntries = [];
   const ambiguous = [];
   const irregular = [];
 
@@ -1094,17 +1105,19 @@ function analyzeCorpus(documents, fileKind = () => 'absent') {
           lineEnd: entry.endIndex + 1,
           payload: entry.payload,
         };
+        regularBlockEntries.push(source);
         if (result.ambiguousReasons.length > 0) {
           ambiguous.push({ ...source, reasons: result.ambiguousReasons });
           continue;
         }
         for (let successorIndex = 0; successorIndex < result.captures.length; successorIndex += 1) {
           const capture = result.captures[successorIndex];
+          const resolved = resolveTarget(capture.literal, documentsByNumber, fileKind);
           regular.push({
             ...source,
             successorNumber: successorIndex + 1,
             target: capture.literal,
-            resolution: targetResolution(capture.literal, documentsByNumber, fileKind),
+            ...resolved,
           });
         }
       }
@@ -1122,7 +1135,7 @@ function analyzeCorpus(documents, fileKind = () => 'absent') {
       });
     }
   }
-  return { regular, ambiguous, irregular };
+  return { regular, regularBlockEntries, ambiguous, irregular };
 }
 
 function collisionSafeFence(payload) {
@@ -1138,7 +1151,77 @@ function fencedPayload(payload) {
   return `${fence}\n${payload}\n${fence}`;
 }
 
+function fileAddressableSuccessorSummary(regular) {
+  const groups = new Map();
+  for (const item of regular) {
+    if (item.fileAddressableTarget === null) {
+      if (item.resolution !== 'not-file-addressable') {
+        throw new Error(`missing canonical identity for ${item.resolution} successor`);
+      }
+      continue;
+    }
+    if (item.resolution !== 'yes' && item.resolution !== 'no') {
+      throw new Error(
+        `invalid existence state for canonical successor ${item.fileAddressableTarget}`,
+      );
+    }
+    const existing = groups.get(item.fileAddressableTarget);
+    if (existing === undefined) {
+      groups.set(item.fileAddressableTarget, {
+        successor: item.fileAddressableTarget,
+        resolution: item.resolution,
+        adrNumbers: new Set([item.adrNumber]),
+      });
+      continue;
+    }
+    if (existing.resolution !== item.resolution) {
+      throw new Error(
+        `inconsistent existence resolution for canonical successor ${item.fileAddressableTarget}`,
+      );
+    }
+    existing.adrNumbers.add(item.adrNumber);
+  }
+
+  return [...groups.values()]
+    .map((group) => ({
+      successor: group.successor,
+      resolution: group.resolution,
+      adrNumbers: [...group.adrNumbers].sort(compareCodeUnits),
+    }))
+    .sort(
+      (left, right) =>
+        right.adrNumbers.length - left.adrNumbers.length ||
+        compareCodeUnits(left.successor, right.successor),
+    );
+}
+
+function gatewayReviewEntries(regularBlockEntries) {
+  return regularBlockEntries
+    .filter((entry) => containsExactGatewayToken(entry.payload))
+    .sort(
+      (left, right) =>
+        compareCodeUnits(left.adrNumber, right.adrNumber) ||
+        left.entryNumber - right.entryNumber ||
+        compareCodeUnits(left.relativePath, right.relativePath) ||
+        left.lineStart - right.lineStart ||
+        left.lineEnd - right.lineEnd,
+    );
+}
+
+function sourceSpanLink(item) {
+  const relativeTarget = path.posix.relative(path.posix.dirname(OUTPUT_PATH), item.relativePath);
+  const lineAnchor =
+    item.lineStart === item.lineEnd ? `L${item.lineStart}` : `L${item.lineStart}-L${item.lineEnd}`;
+  const label = `${item.relativePath}:${item.lineStart}-${item.lineEnd}`;
+  return `[\`${label}\`](${relativeTarget}?plain=1#${lineAnchor})`;
+}
+
 function renderIndex(analysis) {
+  const successorSummary = fileAddressableSuccessorSummary(analysis.regular);
+  const gatewayEntries = gatewayReviewEntries(analysis.regularBlockEntries);
+  const gatewayAdrNumbers = [...new Set(gatewayEntries.map((entry) => entry.adrNumber))].sort(
+    compareCodeUnits,
+  );
   const lines = [
     '# ADR Deferral Index — Derived and Non-Authoritative',
     '',
@@ -1148,9 +1231,64 @@ function renderIndex(analysis) {
     '',
     '<!-- doc-pointer-check: provenance-below -->',
     '',
-    '## Regular deferrals',
+    '## File-addressable successor summary — Derived and Non-Authoritative',
+    '',
+    '> This table includes only regular successor captures that resolve to a canonical',
+    '> ADR number or admitted repository path. Descriptive and other',
+    '> `not-file-addressable` targets are excluded. `Unique deferring ADRs` counts',
+    '> each ADR once per canonical successor even when that ADR emits repeated edges.',
+    '> Rows sort by that count descending, then by canonical successor in',
+    '> locale-independent code-unit order.',
     '',
   ];
+
+  if (successorSummary.length === 0) {
+    lines.push('_None._', '');
+  } else {
+    lines.push(
+      '| Successor | Successor file exists | Unique deferring ADRs | ADR numbers |',
+      '|---|---|---:|---|',
+    );
+    for (const row of successorSummary) {
+      lines.push(
+        `| \`${row.successor}\` | \`${row.resolution}\` | ${row.adrNumbers.length} | ${row.adrNumbers
+          .map((number) => `\`${number}\``)
+          .join(', ')} |`,
+      );
+    }
+    lines.push('');
+  }
+
+  lines.push(
+    '## Review only: Entries containing the exact token `gateway` — Derived and Non-Authoritative',
+    '',
+    '> Syntactic review rollup only. The selector ASCII-folds `A` through `Z` and',
+    '> matches `gateway` only when bounded by non-`[A-Za-z0-9_]` characters or a',
+    '> payload boundary. It scans exact payloads already parsed from recognized',
+    '> regular `Out of scope` blocks, including entries routed to ambiguous review.',
+    '> It assigns no successor identity, existence state, or edge claim; ambiguous',
+    '> entries remain review-only.',
+    '',
+    `- Unique ADR count: ${gatewayAdrNumbers.length}`,
+    `- ADR numbers: ${
+      gatewayAdrNumbers.length === 0
+        ? '_None._'
+        : gatewayAdrNumbers.map((number) => `\`${number}\``).join(', ')
+    }`,
+    '- Matching source spans:',
+    '',
+  );
+
+  if (gatewayEntries.length === 0) {
+    lines.push('  - _None._', '');
+  } else {
+    for (const item of gatewayEntries) {
+      lines.push(`  - ADR ${item.adrNumber}, entry ${item.entryNumber}: ${sourceSpanLink(item)}`);
+    }
+    lines.push('');
+  }
+
+  lines.push('## Regular deferrals', '');
 
   if (analysis.regular.length === 0) {
     lines.push('_None._', '');
@@ -1362,6 +1500,22 @@ function runFixtures() {
   // Sorting uses UTF-16 code-unit order and never ambient collation.
   assert.deepEqual(['z', 'A', 'ä'].sort(compareCodeUnits), ['A', 'z', 'ä']);
 
+  // The review-only gateway selector is one closed ASCII-folded token
+  // predicate. Word continuations do not match; punctuation does.
+  for (const positive of ['gateway', 'GATEWAY', 'gateway/policy', '(Gateway)', 'gateway-set']) {
+    assert.equal(containsExactGatewayToken(positive), true, positive);
+  }
+  for (const negative of [
+    'gateways',
+    'pregateway',
+    'gateway_id',
+    'kernel_gateway',
+    'gateway2',
+    'gäteway',
+  ]) {
+    assert.equal(containsExactGatewayToken(negative), false, negative);
+  }
+
   // Exact H2/H3 recognition; H4-H6 and qualified forms are review-only.
   for (const level of [2, 3]) {
     const analysis = fixtureAnalysis(`${'#'.repeat(level)} Out of scope\t \n\n- future schema PR.`);
@@ -1399,7 +1553,12 @@ function runFixtures() {
     const analysis = fixtureAnalysis(
       '### Option: Out of scope\n\nText.\n\n### Follow-up regression coverage\n\nText.',
     );
-    assert.deepEqual(analysis, { regular: [], ambiguous: [], irregular: [] });
+    assert.deepEqual(analysis, {
+      regular: [],
+      regularBlockEntries: [],
+      ambiguous: [],
+      irregular: [],
+    });
   }
 
   // Regular block termination, top-level item extent, wrapping, nesting, and
@@ -1693,6 +1852,155 @@ function runFixtures() {
         'not-file-addressable',
       ],
     );
+  }
+
+  // The addressable summary consumes canonical identities established during
+  // resolution, deduplicates repeated edges from one ADR, strips path locators,
+  // and sorts by unique-ADR count then canonical key.
+  {
+    const documents = [
+      fixtureDocument(
+        '0001',
+        [
+          '## Out of scope',
+          '',
+          '- Work deferred to ADR 9999.',
+          '- Work deferred to ADR 9999.',
+          '- Work deferred to `docs/existing.md:12`.',
+          '- future named service.',
+        ].join('\n'),
+      ),
+      fixtureDocument(
+        '0002',
+        [
+          '## Out of scope',
+          '',
+          '- Work deferred to ADR 9999.',
+          '- Work deferred to `docs/existing.md:20-24`.',
+          '- Work deferred to `README.md`.',
+        ].join('\n'),
+      ),
+      fixtureDocument('0003', '## Out of scope\n\n- Work deferred to ADR 8888.'),
+      fixtureDocument('9999', '# Existing target', 'target'),
+    ];
+    const kinds = new Map([
+      ['docs/existing.md', 'file'],
+      ['README.md', 'file'],
+    ]);
+    const analysis = analyzeCorpus(
+      documents,
+      (relativePath) => kinds.get(relativePath) ?? 'absent',
+    );
+    assert.deepEqual(fileAddressableSuccessorSummary(analysis.regular), [
+      {
+        successor: 'ADR 9999',
+        resolution: 'yes',
+        adrNumbers: ['0001', '0002'],
+      },
+      {
+        successor: 'docs/existing.md',
+        resolution: 'yes',
+        adrNumbers: ['0001', '0002'],
+      },
+      {
+        successor: 'ADR 8888',
+        resolution: 'no',
+        adrNumbers: ['0003'],
+      },
+      {
+        successor: 'README.md',
+        resolution: 'yes',
+        adrNumbers: ['0002'],
+      },
+    ]);
+    assert(
+      analysis.regular.every(
+        (entry) => entry.target !== 'future named service' || entry.fileAddressableTarget === null,
+      ),
+    );
+
+    const nonAddressable = fixtureAnalysis(
+      [
+        '## Out of scope',
+        '',
+        '- Work deferred to Q-123.',
+        '- Work deferred to D-456.',
+        '- Work deferred to class J.',
+        '- future named service.',
+      ].join('\n'),
+    );
+    assert.deepEqual(fileAddressableSuccessorSummary(nonAddressable.regular), []);
+
+    const ambiguous = fixtureAnalysis(
+      '## Out of scope\n\n- Work deferred to ADR 9998 and ADR 9999.',
+    );
+    assert.equal(ambiguous.regular.length, 0);
+    assert.deepEqual(fileAddressableSuccessorSummary(ambiguous.regular), []);
+  }
+
+  // The gateway rollup projects every entry from a recognized regular block
+  // once, including silent and ambiguous entries, while excluding irregular
+  // blocks and token continuations. It never changes successor classification.
+  {
+    const documents = [
+      fixtureDocument(
+        '0001',
+        [
+          '## Out of scope',
+          '',
+          '- Gateway behavior.',
+          '- GATEWAY/policy follows later.',
+          '- gateways and gateway_id are different tokens.',
+        ].join('\n'),
+      ),
+      fixtureDocument(
+        '0002',
+        '## Out of scope\n\n- Gateway work is deferred to ADR 9998 and ADR 9999; gateway review remains.',
+      ),
+      fixtureDocument('0003', '### Cross-scope follow-ups\n\nGateway behavior.'),
+      fixtureDocument('0004', '## Out of scope\n\nGateway paragraph form.'),
+    ];
+    const analysis = analyzeCorpus(documents);
+    const entries = gatewayReviewEntries(analysis.regularBlockEntries);
+    assert.deepEqual(
+      entries.map((entry) => [entry.adrNumber, entry.entryNumber]),
+      [
+        ['0001', 1],
+        ['0001', 2],
+        ['0002', 1],
+        ['0004', 1],
+      ],
+    );
+    assert(
+      !analysis.ambiguous.some((entry) => entry.adrNumber === '0001' && entry.entryNumber === 1),
+    );
+    assert(analysis.ambiguous.some((entry) => entry.adrNumber === '0002'));
+    assert(analysis.ambiguous.some((entry) => entry.adrNumber === '0004'));
+    assert.equal(analysis.irregular.length, 1);
+
+    const rendered = renderIndex(analysis);
+    const section = rendered.slice(
+      rendered.indexOf(
+        '## Review only: Entries containing the exact token `gateway` — Derived and Non-Authoritative',
+      ),
+      rendered.indexOf('## Regular deferrals'),
+    );
+    assert(section.includes('- Unique ADR count: 3'));
+    assert(section.includes('- ADR numbers: `0001`, `0002`, `0004`'));
+    assert(section.includes('?plain=1#L3'));
+    assert(section.includes('Derived and Non-Authoritative'));
+    assert(!section.includes('Successor file exists'));
+    assert(!section.includes('Named successor'));
+
+    const summarySection = rendered.slice(
+      rendered.indexOf('## File-addressable successor summary — Derived and Non-Authoritative'),
+      rendered.indexOf(
+        '## Review only: Entries containing the exact token `gateway` — Derived and Non-Authoritative',
+      ),
+    );
+    assert(summarySection.includes('Unique deferring ADRs'));
+    assert(summarySection.includes('each ADR once per canonical successor'));
+    assert(!summarySection.includes('blocked'));
   }
 
   // Unsafe, unadmitted, directory-traversing, and non-repository path forms

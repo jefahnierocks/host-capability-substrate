@@ -6,6 +6,54 @@
 
 <!-- doc-pointer-check: provenance-below -->
 
+## File-addressable successor summary — Derived and Non-Authoritative
+
+> This table includes only regular successor captures that resolve to a canonical
+> ADR number or admitted repository path. Descriptive and other
+> `not-file-addressable` targets are excluded. `Unique deferring ADRs` counts
+> each ADR once per canonical successor even when that ADR emits repeated edges.
+> Rows sort by that count descending, then by canonical successor in
+> locale-independent code-unit order.
+
+| Successor | Successor file exists | Unique deferring ADRs | ADR numbers |
+|---|---|---:|---|
+| `ADR 0026` | `no` | 7 | `0025`, `0027`, `0031`, `0033`, `0034`, `0035`, `0036` |
+
+## Review only: Entries containing the exact token `gateway` — Derived and Non-Authoritative
+
+> Syntactic review rollup only. The selector ASCII-folds `A` through `Z` and
+> matches `gateway` only when bounded by non-`[A-Za-z0-9_]` characters or a
+> payload boundary. It scans exact payloads already parsed from recognized
+> regular `Out of scope` blocks, including entries routed to ambiguous review.
+> It assigns no successor identity, existence state, or edge claim; ambiguous
+> entries remain review-only.
+
+- Unique ADR count: 20
+- ADR numbers: `0030`, `0057`, `0058`, `0059`, `0060`, `0061`, `0062`, `0063`, `0064`, `0065`, `0066`, `0067`, `0068`, `0069`, `0070`, `0071`, `0072`, `0077`, `0079`, `0080`
+- Matching source spans:
+
+  - ADR 0030, entry 7: [`docs/host-capability-substrate/adr/0030-q-006-stage-2-source-control-evidence-subtypes.md:696-701`](adr/0030-q-006-stage-2-source-control-evidence-subtypes.md?plain=1#L696-L701)
+  - ADR 0057, entry 2: [`docs/host-capability-substrate/adr/0057-ring-1-mint-audit-service.md:414-415`](adr/0057-ring-1-mint-audit-service.md?plain=1#L414-L415)
+  - ADR 0058, entry 10: [`docs/host-capability-substrate/adr/0058-depth-overflow-reason-kind-promotion.md:330-332`](adr/0058-depth-overflow-reason-kind-promotion.md?plain=1#L330-L332)
+  - ADR 0059, entry 10: [`docs/host-capability-substrate/adr/0059-agentclient-canonical-hash-amendment.md:361-362`](adr/0059-agentclient-canonical-hash-amendment.md?plain=1#L361-L362)
+  - ADR 0060, entry 1: [`docs/host-capability-substrate/adr/0060-policy-rule-ring-0-entity.md:426-436`](adr/0060-policy-rule-ring-0-entity.md?plain=1#L426-L436)
+  - ADR 0061, entry 10: [`docs/host-capability-substrate/adr/0061-decision-rule-attribution-amendment.md:299-301`](adr/0061-decision-rule-attribution-amendment.md?plain=1#L299-L301)
+  - ADR 0062, entry 9: [`docs/host-capability-substrate/adr/0062-capability-ring-0-entity.md:313-314`](adr/0062-capability-ring-0-entity.md?plain=1#L313-L314)
+  - ADR 0063, entry 8: [`docs/host-capability-substrate/adr/0063-command-shape-ring-0-entity.md:339-340`](adr/0063-command-shape-ring-0-entity.md?plain=1#L339-L340)
+  - ADR 0064, entry 4: [`docs/host-capability-substrate/adr/0064-ring-1-mint-audit-service-contracts.md:481-482`](adr/0064-ring-1-mint-audit-service-contracts.md?plain=1#L481-L482)
+  - ADR 0065, entry 6: [`docs/host-capability-substrate/adr/0065-secret-reference-ring-0-entity.md:355-356`](adr/0065-secret-reference-ring-0-entity.md?plain=1#L355-L356)
+  - ADR 0066, entry 6: [`docs/host-capability-substrate/adr/0066-host-profile-ring-0-entity.md:295-296`](adr/0066-host-profile-ring-0-entity.md?plain=1#L295-L296)
+  - ADR 0067, entry 7: [`docs/host-capability-substrate/adr/0067-tool-provider-ring-0-entity.md:288-289`](adr/0067-tool-provider-ring-0-entity.md?plain=1#L288-L289)
+  - ADR 0068, entry 6: [`docs/host-capability-substrate/adr/0068-tool-installation-ring-0-entity.md:291-292`](adr/0068-tool-installation-ring-0-entity.md?plain=1#L291-L292)
+  - ADR 0069, entry 5: [`docs/host-capability-substrate/adr/0069-resolved-tool-ring-0-entity.md:291-292`](adr/0069-resolved-tool-ring-0-entity.md?plain=1#L291-L292)
+  - ADR 0070, entry 6: [`docs/host-capability-substrate/adr/0070-artifact-ring-0-entity.md:264-265`](adr/0070-artifact-ring-0-entity.md?plain=1#L264-L265)
+  - ADR 0071, entry 6: [`docs/host-capability-substrate/adr/0071-lock-ring-0-entity.md:245-246`](adr/0071-lock-ring-0-entity.md?plain=1#L245-L246)
+  - ADR 0072, entry 5: [`docs/host-capability-substrate/adr/0072-resource-budget-ring-0-entity.md:254-255`](adr/0072-resource-budget-ring-0-entity.md?plain=1#L254-L255)
+  - ADR 0077, entry 1: [`docs/host-capability-substrate/adr/0077-audit-events-storage.md:312-319`](adr/0077-audit-events-storage.md?plain=1#L312-L319)
+  - ADR 0079, entry 1: [`docs/host-capability-substrate/adr/0079-ring-1-policy-rule-loader.md:108-113`](adr/0079-ring-1-policy-rule-loader.md?plain=1#L108-L113)
+  - ADR 0079, entry 3: [`docs/host-capability-substrate/adr/0079-ring-1-policy-rule-loader.md:119-120`](adr/0079-ring-1-policy-rule-loader.md?plain=1#L119-L120)
+  - ADR 0080, entry 4: [`docs/host-capability-substrate/adr/0080-read-only-cli-adapter-surface.md:90-92`](adr/0080-read-only-cli-adapter-surface.md?plain=1#L90-L92)
+
 ## Regular deferrals
 
 ### 1. ADR 0019 — entry 2, successor 1

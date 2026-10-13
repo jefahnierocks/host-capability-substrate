@@ -41,7 +41,7 @@ Canonical research plan sketch: `~/Organizations/jefahnierocks/system-config/doc
 
 ```
 HostProfile          canonical host identity + stable facts
-WorkspaceContext     project/workspace identity (workspace.toml-derived)
+WorkspaceContext     execution-context-bound identity for a diagnosed worktree (ADR 0050)
 Principal            a human or automated actor with an identity
 AgentClient          connected MCP/A2A/hook client with version + identity
 Session              one agent-client connection with declared/measured context

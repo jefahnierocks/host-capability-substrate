@@ -5,7 +5,7 @@ Milestone-by-milestone implementation plan. Follow in order. Each milestone has 
 
 Research plan (canonical): `~/Organizations/jefahnierocks/system-config/docs/host-capability-substrate-research-plan.md`.
 
-## Current Focus — M1 complete; policy-snapshot loader is the next lane
+## Current Focus — M1 complete; M2 boundary-evidence matrix remains open
 
 **Capped at 20 lines by D-085.** Narrative belongs in the dated housekeeping
 readouts; decisions belong in `DECISIONS.md`. This section states status only.
@@ -13,15 +13,15 @@ readouts; decisions belong in `DECISIONS.md`. This section states status only.
 - **M1 COMPLETE** — 22/22 canonical Ring-0 entities, plus post-M1 `Model`
   (ADR 0076 / D-077) and the ADR 0078 / D-081 `model_ref` slice.
 - **Versions:** ontology **v1.34.0** · registry **v0.4.37** · charter **v1.6.0** ·
-  ADRs **0001–0080** (0026 absent, reserved — see `adr/0025` §Future amendments) ·
-  decisions through **D-087** (next-free **D-088**).
+  ADRs **0001–0081** (0026 absent, reserved — see `adr/0025` §Future amendments) ·
+  decisions through **D-090** (next-free **D-091**).
 - **M2 residue:** the ADR 0034 boundary-evidence consumption matrix
   (`Decision`/`ApprovalGrant` × {stale, missing, contradictory}) is the one
   acceptance bullet still open. PolicyRule schema ref (D-078), freshness windows
   (D-079) and the loader-rejection fixtures all landed.
-- **Next lane:** policy-snapshot loader, read-only, class D — `adr/0060:325-331`
-  assigns it and `adr/0061:371` specifies its checkpoint-level test obligation,
-  so no new ADR is required. Then `hcs policy status`, one read-only CLI verb.
+- **Landed:** read-only policy-rule loader (D-086), `hcs policy status` (D-087),
+  and the derived ADR-deferral index (ADR 0081 / D-088–D-089).
+- **Next lane:** remaining M2 boundary-evidence consumption matrix.
 - **Gates:** `just verify` fails closed as of #93 — a missing toolchain or an
   unexecutable grep is a FAILED gate, not a passed one.
 - **Stopped:** the Phase-0b measurement lane, both runtimes (D-083).

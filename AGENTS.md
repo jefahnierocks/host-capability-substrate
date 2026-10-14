@@ -109,9 +109,13 @@ For implementation:
 
 ```bash
 just verify             # runs lint + typecheck + tests + boundary check
-just test schemas       # schema tests only — the only scoped target that exists today
-just test kernel        # future target — fails loudly until kernel tests land
-just test mcp           # future target — fails loudly until MCP adapter tests land
+# Default just verify above also runs workstation-coupled probes.
+HCS_SKIP_HOST_FIXTURES=1 just verify # existing CI source lane; excludes those probes
+# A source-lane pass does not establish host acceptance. Scopes are discovered.
+just test schemas       # currently discovered schema scope
+just test kernel        # currently discovered kernel scope
+just test cli           # currently discovered CLI adapter scope
+just test mcp           # future scope; no matching test directory yet; fails loudly
 just generate-schemas --check   # confirms JSON Schema matches Zod
 just policy-lint        # checks policy files are well-formed and schema-valid
 just boundary-check     # enforces charter §Package boundary enforcement

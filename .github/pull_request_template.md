@@ -45,13 +45,16 @@ AGENTS.md hard boundary on body-bearing GitHub operations.
 ## Validation
 
 ```
-just verify
+HCS_SKIP_HOST_FIXTURES=1 just verify # existing CI source lane; excludes host probes
+just verify                       # default also runs workstation-coupled probes
 just test <package>
 ```
 
-<!-- State the outcome. Scoped test targets exist only as listed in the
-justfile `test` recipe (`schemas` today); unknown targets fail loudly. If a
-scoped target does not exist yet, name the command that actually ran. -->
+<!-- State the chosen lane and outcome. Source-lane success does not establish
+host acceptance. The justfile discovers scopes from packages/*/tests and
+packages/*/*/tests; current scopes are schemas/kernel/cli. Unknown targets fail
+loudly. If a scoped target does not exist yet, name the command that actually
+ran. -->
 
 ## Charter compliance
 

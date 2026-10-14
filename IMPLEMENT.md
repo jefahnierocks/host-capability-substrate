@@ -59,14 +59,20 @@ Follow `PLAN.md` milestone by milestone.
 **Validation:**
 
 ```
-just verify
+HCS_SKIP_HOST_FIXTURES=1 just verify # existing CI source lane; excludes host probes
+just verify                       # default also runs workstation-coupled probes
 just test <package>
 ```
 
-Scoped test targets exist only as listed in the justfile `test` recipe
-(`schemas` today); unknown targets fail loudly rather than silently running the
-full suite. If a scoped target does not exist yet, name the command that
+Scoped targets are discovered from `packages/*/tests` and `packages/*/*/tests`
+by the justfile `test` recipe; current scopes are `schemas`, `kernel` and `cli`.
+Unknown targets fail loudly rather than silently running the full suite.
+If a scoped target does not exist yet, name the command that
 actually ran.
+
+Choose the existing CI source lane for source-only checks. Default `just verify`
+also runs workstation-coupled probes; a source-lane pass does not establish host
+acceptance.
 
 **Agent use:**
 

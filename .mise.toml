@@ -3,6 +3,9 @@
 
 [tools]
 node = "24"
+# Portable verification fixtures require Python >=3.11 (datetime.UTC).
+# Selected version matches the prepared interpreter in source-gate receipts.
+python = "3.13.16"
 shellcheck = "latest"
 shfmt = "latest"
 just = "latest"

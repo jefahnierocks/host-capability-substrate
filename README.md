@@ -105,8 +105,13 @@ Review `.mise.toml`, the dependency manifests/lock, and the setup task before
 trusting the configuration or installing anything. Preparation is separate
 from ordinary commands; use a prepared checkout for the checks below.
 
+Portable verification fixtures require Python `>=3.11` for `datetime.UTC`.
+`.mise.toml` pins Python `3.13.16`, the prepared version used in completed
+source-gate receipts. The dated setup receipt below describes the source before
+this pin.
+
 ```bash
-mise install       # Node 24, shellcheck, shfmt, just, gitleaks
+mise install       # Node 24, Python 3.13.16, shellcheck, shfmt, just, gitleaks
 npm install        # required — the gates now fail closed without node_modules
 HCS_SKIP_HOST_FIXTURES=1 just verify  # source checks, matching the CI profile
 ```

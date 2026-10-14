@@ -5,16 +5,31 @@
 
 set -euo pipefail
 
+# ShellCheck is a required verify gate. Refuse before any external command so
+# the missing-tool regression can exercise this entrypoint with an empty PATH.
+if ! command -v shellcheck >/dev/null 2>&1; then
+  echo "→ shellcheck-scan" >&2
+  echo "  ✗ shellcheck not installed — run: mise install during reviewed setup" >&2
+  exit 1
+fi
+
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$repo_root"
 
-if ! command -v shellcheck >/dev/null 2>&1; then
-  echo "→ shellcheck-scan"
-  echo "  ⏸  shellcheck not installed — run: mise install"
-  exit 0
-fi
-
 echo "→ shellcheck-scan"
+
+# Exercise the real missing-tool branch on every gate run. The hermetic child
+# exits above before root resolution or this self-test; no bypass flag is needed.
+missing_tool_refusal_self_test() {
+  local fixture_output fixture_status=0
+  fixture_output="$(env -i PATH=/dev/null "$BASH" \
+    "$repo_root/scripts/ci/shellcheck-scan.sh" 2>&1)" || fixture_status=$?
+  if [ "$fixture_status" -ne 1 ] || [[ "$fixture_output" != *"shellcheck not installed"* ]]; then
+    echo "  ✗ shellcheck missing-tool self-test failed: expected refusal, got exit $fixture_status" >&2
+    return 1
+  fi
+}
+missing_tool_refusal_self_test
 
 # Find all shell scripts by extension AND shebang
 targets=()

@@ -25,10 +25,10 @@ nothing here is a production-scale or commercial claim.
   schema-drift, forbidden-string-scan, shellcheck, and more).
 
 Ring 0 (the ontology) is complete — the 22 canonical entities plus supplemental
-sub-schemas and evidence envelopes make up the 46 modules above. Kernel,
-adapters, and dashboard code are intentionally unimplemented until their policy,
-snapshot, audit, lease, and approval prerequisites are explicit; the enforcing,
-advisory, and design-stage boundaries are labeled in the charter. Author /
+sub-schemas and evidence envelopes make up the 46 modules above. Source also
+includes the read-only policy-rule loader (ADR 0079) and CLI (ADR 0080).
+The dashboard and execution lane remain unimplemented; their policy, audit,
+lease, and approval prerequisites remain binding. Author /
 portfolio: [jvjohnson.dev](https://jvjohnson.dev).
 
 ## Status
@@ -41,9 +41,10 @@ PR #78) plus the ADR 0078 / D-081 `AgentClient.model_ref` and
 `Session.model_ref` schema slice. Milestone 2 is open: the PolicyRule
 live-policy schema ref and per-boundary-dimension freshness windows are
 byte-identically re-vendored from `system-config`, while the remaining
-Decision/ApprovalGrant boundary-evidence consumption work is still ahead. Kernel,
-adapters, and dashboard code are still intentionally unimplemented until their
-policy, snapshot, audit, lease, and approval prerequisites are explicit. The
+Decision/ApprovalGrant boundary-evidence consumption work is still ahead.
+The read-only loader and `hcs policy status` CLI have landed; they do not register
+capabilities, construct decisions, or execute mutations. `PLAN.md` is the current
+status of record. The
 HCS-local agent-facing workstation contract restatement reached usable
 documentation state on 2026-05-17; see
 `docs/host-capability-substrate/usable-state-readout-2026-05-17.md`. The current
@@ -100,11 +101,72 @@ The current model/CLI baseline, the `opus` alias-pinning rule, and the public-CL
 
 ## Quick start
 
+Review `.mise.toml`, the dependency manifests/lock, and the setup task before
+trusting the configuration or installing anything. Preparation is separate
+from ordinary commands; use a prepared checkout for the checks below.
+
 ```bash
 mise install       # Node 24, shellcheck, shfmt, just, gitleaks
 npm install        # required — the gates now fail closed without node_modules
-just verify        # lint + typecheck + tests + all boundary checks
+HCS_SKIP_HOST_FIXTURES=1 just verify  # source checks, matching the CI profile
 ```
+
+`just bootstrap` runs both preparation commands. The mise `bootstrap` task runs
+only `npm install`, after tools have been prepared. CI deliberately uses
+`npm ci` with the committed lockfile. These existing setup choices are unchanged.
+The full `just verify` also runs workstation-coupled probe fixtures; review that
+lane separately before using it. ShellCheck is required in either profile: a
+missing executable fails the gate, and each scan exercises that refusal branch.
+
+### Native command roles
+
+| Role | Existing command / scope |
+| --- | --- |
+| Setup | `just bootstrap` — tool installation and Node dependency preparation; review before running |
+| Source check | `HCS_SKIP_HOST_FIXTURES=1 just verify`; `npm run verify` and the mise `verify` task call the same `just verify` implementation |
+| Test | `just test`; scoped targets currently include `schemas`, `kernel`, and `cli` |
+| Test watch | `npm run test:watch`; a source-test loop, not an HCS service |
+| Build | No application build command; `just typecheck` and `just generate-schemas --check` validate source; `just generate-schemas` writes generated source separately |
+| Local read path | `just cli policy status` — one-shot, read-only policy-rule inspection; no service start/stop or live-policy authority |
+| Format check | `just format-check` |
+| Format/lint write | `just format-fix`, `just lint-fix`, or the existing npm write scripts; source-changing operations in a prepared checkout |
+
+VS Code tasks call the same `just` recipes; CI also calls `just verify` after
+its explicit preparation. None of these wrappers proves that a fresh GUI/agent
+process selects the intended executables or refuses every fallback. The `npx`
+write recipes and prepared-dependency consistency still need that qualification.
+
+### Native setup receipt — source review, 2026-10-13
+
+Reviewed HCS source at `5bbcc1dc85f645cf4f11cae9ae9bf7c07ce53bce` and the
+authorized system-config setup guide v1.1.2 / consumer contract v2.4.2 at
+`a2fe15fcbe1b84f797812efb6110db9f01a91d4e`. This repository carries its own
+commands and requirements; the private guidance is not a runtime or CI dependency.
+
+- **Tools and preparation:** `.mise.toml` owns Node `24`, Gitleaks `8.30.1`, and
+  the existing `latest` channels for ShellCheck, shfmt, and just. Node dependencies
+  are recorded in `package-lock.json` v3. Gate scripts also require Git, npm,
+  Ruby and modern Bash (4+; CI provisions Bash 5). Tool updates remain a project
+  review decision; this receipt changes no pin or installation policy.
+- **Environment:** `.mise.toml` owns the non-secret `HCS_ROOT`, `HCS_POLICY_DIR`,
+  `HCS_STATE_DIR`, `HCS_LOG_DIR`, and `HCS_LAUNCH_LABEL` declarations. Entry still
+  uses the retained legacy `.envrc` / `use mise` lane. Source checks require no
+  credential delivery. D-028/D-090's secret seam, shared helpers and admission
+  records are preserved; environment migration is a separate owner-started task.
+- **Dated checks:** PR #108's local CI-profile gate and hosted
+  [PR verification](https://github.com/jefahnierocks/host-capability-substrate/actions/runs/38351720005)
+  passed; the exact-head
+  [main verification](https://github.com/jefahnierocks/host-capability-substrate/actions/runs/38352463899)
+  succeeded on 2026-10-13 UTC. Host-coupled fixtures were excluded. These are prior
+  source results, not verification of this amendment or current host readiness.
+- **Remaining acceptance:** exact tool/version selection and missing/different-tool
+  refusal in a fresh process; prepared dependencies matching the lock; ordinary
+  runs not preparing tools or rewriting declarations; editor/agent command paths;
+  environment entry/exit/re-entry if changed. Resolved executable/version evidence
+  has not been collected for this receipt. No runtime, provider or admission
+  acceptance follows from the dated gates. No new task runner, MCP server,
+  container, workspace enrollment or manifest migration is needed for this source
+  workflow.
 
 The Phase-0b measurement recipes (`just day1`, `just measure`, `just measure-brief`)
 are retained but no longer part of any active campaign; that window closed

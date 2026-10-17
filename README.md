@@ -99,6 +99,13 @@ No lower ring may import from a higher ring. Enforced by CI from commit 1.
 
 The current model/CLI baseline, the `opus` alias-pinning rule, and the public-CLI-semver/app-build split are recorded once in the **single source** — see `AGENTS.md` §Tool baseline, anchored to its `DECISIONS.md` re-baseline row. This README does not restate the model name, observed CLI version, or re-baseline `D-0NN`. Subsequent minor updates acceptable; re-baseline after material version changes.
 
+The repository's `project.yaml` uses Specification 1. Its pinned Release 1
+consumer, native command mappings and declaration/status checks are documented
+in [project-manifest adoption](docs/host-capability-substrate/project-manifest-adoption.md).
+`just manifest-check` validates the declaration; `just manifest-status` reads its
+declared status. Both require prepared Python and native Git `>=2.56.0` and prove
+no host readiness, live service, producer acceptance or substrate admission.
+
 ## Quick start
 
 Review `.mise.toml`, the dependency manifests/lock, and the setup task before

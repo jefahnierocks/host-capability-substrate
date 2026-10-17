@@ -13,6 +13,19 @@ default:
 verify:
 	@bash scripts/ci/verify.sh
 
+# Specification 1 declaration, using one approved released observation.
+# Explicit native Git >=2.56.0; linked worktrees need HCS_MANIFEST_COMMON_DIR.
+manifest-check:
+	@python3 -I -S -B scripts/ci/project-manifest.py
+
+# Declared status from the same observation; no HCS runtime/admission claim.
+manifest-status:
+	@python3 -I -S -B scripts/ci/project-manifest.py --status
+
+# Consumer-only byte binding, refusal and Git observation fixtures.
+project-manifest-fixture:
+	@bash scripts/dev/run-project-manifest-fixtures.sh
+
 # Shellcheck — covers all .sh scripts + shebang-detected files
 shellcheck-scan:
 	@bash scripts/ci/shellcheck-scan.sh

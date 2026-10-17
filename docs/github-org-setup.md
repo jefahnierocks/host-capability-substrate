@@ -3,8 +3,8 @@ title: GitHub Org Configuration
 category: reference
 component: github_org
 status: active
-version: 1.0.1
-last_updated: 2026-06-29
+version: 1.0.2
+last_updated: 2026-10-17
 tags: [github, org, ruleset, branch-protection, codeowners, teams]
 priority: high
 ---
@@ -31,9 +31,11 @@ substitute and the canonical recipe for recreating the setup via `gh`.
 
 Team id: `17459475`. Membership is managed at the org level. Today: `verlyn13` as `maintainer`.
 
-## Branch ruleset on `main`
+## Branch ruleset on `main` (recorded 2026-06-29)
 
-Active ruleset enforces three rules on the default branch:
+This is the recorded recreation recipe, not a fresh GitHub API readback.
+Recheck live rules before publication or repository administration. At that
+check, the active ruleset enforced three rules on the default branch:
 
 | Rule | Effect |
 |------|--------|
@@ -46,17 +48,28 @@ can override the rules when needed for emergencies).
 
 Ruleset id: `16161078`, active on `~DEFAULT_BRANCH`.
 
-No required PR review or branch-required status checks today - single-developer
-direct-push workflow is preserved. The `verify` GitHub Actions workflow exists
-and publishes a status check, but the branch ruleset does not yet require it.
+At that recorded check there were no required PR reviews or branch-required
+status checks, preserving the single-developer direct-push workflow. The
+`verify` GitHub Actions workflow publishes a status check; that recorded
+ruleset did not require it.
 Add required checks or reviews when the contributor set or workflow demands it.
 
 ## GitHub Actions
 
-`.github/workflows/verify.yml` runs `just verify` on pull requests, pushes to
-`main`, and manual `workflow_dispatch` runs. It uses `macos-latest`,
-`jdx/mise-action`, `npm ci`, and `HCS_SKIP_HOST_FIXTURES=1` for the host-coupled
-fixtures that are local-workstation probes rather than clean-runner tests.
+`.github/workflows/verify.yml` runs for push and pull_request without branch
+or path filters or job conditions, plus manual workflow_dispatch. The verify
+job/check identity and ref cancellation behavior are preserved. It uses
+macos-latest, jdx/mise-action and npm ci. After Homebrew updates PATH, it binds
+the prepared mise Python3.13.16, then uses that absolute interpreter to prepare
+checksum-pinned native Git2.56.0 in a temporary CI prefix. The source gate runs
+`mise exec -- just verify` with automatic installation disabled and
+`HCS_SKIP_HOST_FIXTURES=1`; the excluded fixtures probe the developer workstation.
+
+The Specification1 migration passed 23 focused fixtures and the actual native
+`mise run verify` task in the prepared source-only profile on 2026-10-17. That
+is local source evidence. Hosted macOS qualification of the new Git-preparation
+recipe remains pending; source success establishes no runtime or adoption
+acceptance. See [the HCS adoption contract](./host-capability-substrate/project-manifest-adoption.md).
 
 Latest observed `main` run during the 2026-06-29 housekeeping pass:
 `verify` succeeded for

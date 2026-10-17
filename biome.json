@@ -12,7 +12,8 @@
       "!**/node_modules",
       "!**/.turbo",
       "!packages/schemas/generated",
-      "!policies/generated-snapshot"
+      "!policies/generated-snapshot",
+      "!vendor/project-manifest/release-1/release.json"
     ]
   },
   "formatter": {

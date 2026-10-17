@@ -15,3 +15,7 @@
 # Generated files (mark for reviewers)
 packages/schemas/dist/** linguist-generated=true
 policies/generated-snapshot/** linguist-generated=true
+# Specification 1 transport: no ambient filters or encoding transformations.
+/project.yaml text eol=lf -filter -ident -working-tree-encoding
+/vendor/project-manifest/bootstrap.py -text -filter -ident -working-tree-encoding
+/vendor/project-manifest/release-1/** -text -filter -ident -working-tree-encoding

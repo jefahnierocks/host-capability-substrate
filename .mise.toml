@@ -38,3 +38,14 @@ run = "just test"
 [tasks.bootstrap]
 description = "Install Node dependencies after mise install"
 run = "npm install"
+[tasks.setup]
+description = "Explicit owner-invoked tool and Node dependency installation"
+run = "just bootstrap"
+
+[tasks.format-check]
+description = "Check source formatting without writes"
+run = "just format-check"
+
+[tasks.format-write]
+description = "Write source formatting in a prepared checkout"
+run = "just format-fix"

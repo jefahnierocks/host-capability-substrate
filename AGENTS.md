@@ -177,7 +177,7 @@ Update `AGENTS.md` after repeated agent mistakes; do not stuff it upfront. Keep 
 
 ## Hub interop header
 
-When posture/phase/peers/visibility change, update `project.yaml` (hub interop header; contract: `/Users/verlyn13/Repos/verlyn13/meta-inventory/docs/decisions/0002-project-intelligence-spec.md` §D3). It is a derived lookup header consumed by the meta-inventory hub — `PLAN.md` §Current Focus remains the status of record; never treat `project.yaml` as a competing status authority, and never present HCS as employment, client work, or a commercial product.
+When posture/phase/peers/visibility or declared development roles change, update `project.yaml` under Specification 1. The HCS-owned contract and pinned Release 1 consumer are documented in [project-manifest adoption](docs/host-capability-substrate/project-manifest-adoption.md); run `just manifest-check` with prepared tools and explicit linked-worktree common storage when applicable. `just manifest-status` projects declared status from that same observation. This is a derived lookup declaration consumed by the meta-inventory hub: `PLAN.md` §Current Focus remains the status of record, and declaration validity establishes no runtime readiness or substrate admission. Never present HCS as employment, client work, or a commercial product.
 
 ## Ecosystem awareness — agentic-coding-lab
 

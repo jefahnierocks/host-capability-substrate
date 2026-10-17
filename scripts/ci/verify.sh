@@ -38,6 +38,7 @@ echo "→ verify (parallel groups)"
 
 run_group node-tools format-check lint typecheck test
 run_group static-gates \
+  manifest-check \
   generate-schemas-check \
   boundary-check \
   policy-lint \
@@ -59,6 +60,7 @@ fixtures_recipes=(
   env-inspect-fixture
   provenance-snapshot-fixture
   policy-loader-rejection-fixture
+  project-manifest-fixture
 )
 # Host-coupled probe fixtures inspect the dev workstation (direnv/mise trust
 # markers, Codex/Claude config) and are not meaningful on a clean CI runner.

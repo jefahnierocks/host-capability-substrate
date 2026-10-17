@@ -1,40 +1,47 @@
-# Hub interop header for the meta-inventory project-spec (contract: ADR 0002 §D3
-# in meta-inventory, docs/decisions/0002-project-intelligence-spec.md; enum
-# registry: docs/ontology/dimensions.yaml there). Standardizes the lookup only —
-# HCS status authority remains PLAN.md §Current Focus (authority.status_of_record).
-# Maintenance rule: AGENTS.md §Hub interop header.
-spec_version: 0.1
+# HCS derived lookup declaration. Status authority: PLAN.md Current Focus.
+# Specification 1 declaration; runtime/admission acceptance is separate.
+spec_version: "1"
 project:
   id: host-capability-substrate
-  display_name: Host Capability Substrate (HCS)
+  display_name: "Host Capability Substrate (HCS)"
   owner_entity: jefahnierocks
 role: canonical
+canonical: null
 peers: []
 status:
   posture: working-prototype
-  local_phase: "Milestone 1 complete — Ring-0 ontology landed 22/22 (ADRs through
-    0078; decisions through D-081, with D-074 accepted/closed); Milestone 2
-    (policy snapshot + decision package) open, with PolicyRule live-policy
-    schema-ref activation (system-config 426843252e80) and per-boundary-dimension
-    freshness windows (system-config 551419064422) byte-identically re-vendored
-    into the HCS generated snapshot; first post-M1 schema slice landed via ADR
-    0076 / PR #78 - the model-as-object typed lane; ADR 0078 / D-081 now extends
-    AgentClient + Session with model_ref attribution FKs in the schema tree; the
-    Ring-1 design lane opened with ADR 0077 / D-080 (audit-events store,
-    design-only, M4-gated impl); 2026-06-30 relay/currentness pass re-verified
-    local and remote main through PR #88 merge commit a9de32e with `just verify`
-    green and incorporated Infisical CLI as a system-config-managed workstation
-    tool consumed by HCS only as tool-resolution / command-help /
-    SecretReference evidence; current class-J work is limited to policy-loader
-    rejection fixtures over HCS generated-snapshot checks; kernel/adapters/
-    dashboard intentionally unbuilt"
-  as_of: "2026-06-30"
+  operational_state: active-build
+  local_phase: "M1 complete; M2 boundary-evidence consumption matrix remains open."
+  as_of: "2026-10-17"
 authority:
-  status_of_record: PLAN.md
+  status_of_record: "PLAN.md"
 presentation:
   visibility: public-available
   public_alias: null
   link_policy: link-ok
-  # Standing framing constraint (operator-stated): HCS is personal host
-  # infrastructure exploration — never present it as employment, client work,
-  # or a commercial product.
+development:
+  platforms: []
+  commands:
+    setup:
+      runner: mise
+      target: "setup"
+    check:
+      runner: mise
+      target: "verify"
+    test:
+      runner: mise
+      target: "test"
+    build: null
+    dev: null
+    format_check:
+      runner: mise
+      target: "format-check"
+    format_write:
+      runner: mise
+      target: "format-write"
+  environment:
+    owner: mise
+    template: null
+    secret_launcher: null
+  stacks: {}
+  host_requirements: []

@@ -16,7 +16,6 @@ name: verify
 on:
   pull_request:
   push:
-    branches: [main]
   workflow_dispatch:
 
 # Cancel superseded runs on the same ref (saves macOS minutes).
@@ -49,6 +48,26 @@ jobs:
           echo "$(brew --prefix)/bin" >> "$GITHUB_PATH"
           bash --version | head -1
 
+      # mise which bypasses PATH/shims; check mise exec selection after brew's
+      # PATH update, then retain the absolute prepared interpreter for Git prep.
+      - name: Bind prepared Python after runner PATH setup
+        id: manifest_python
+        env:
+          MISE_EXEC_AUTO_INSTALL: "0"
+        run: |
+          python_path="$(mise which python)"
+          HCS_MANIFEST_EXPECTED_PYTHON="$python_path" mise exec -- python3 -I -S -B scripts/ci/prepare-manifest-git.py --check-runtime
+          printf 'python=%s\n' "$python_path" >> "$GITHUB_OUTPUT"
+
+      # Pinned source/checksum; isolated prefix under RUNNER_TEMP. The helper
+      # requires existing macOS system make/clang and the HCS Python pin.
+      # Qualification is this job's actual result, not a portability claim.
+      - name: Prepare native Git 2.56 for manifest observation
+        id: manifest_git
+        env:
+          HCS_MANIFEST_PYTHON: ${{ steps.manifest_python.outputs.python }}
+        run: '"$HCS_MANIFEST_PYTHON" -I -S -B scripts/ci/prepare-manifest-git.py'
+
       - name: Install Node dependencies (npm ci)
         run: npm ci
 
@@ -57,4 +76,6 @@ jobs:
           # Skip host-coupled direnv/mise/Codex probe fixtures — they inspect the
           # dev workstation, not a clean runner. See scripts/ci/verify.sh.
           HCS_SKIP_HOST_FIXTURES: "1"
-        run: just verify
+          HCS_MANIFEST_GIT: ${{ steps.manifest_git.outputs.git }}
+          MISE_EXEC_AUTO_INSTALL: "0"
+        run: mise exec -- just verify

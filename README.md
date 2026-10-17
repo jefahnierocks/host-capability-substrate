@@ -112,8 +112,8 @@ this pin.
 
 ```bash
 mise install       # Node 24, Python 3.13.16, shellcheck, shfmt, just, gitleaks
-npm install        # required — the gates now fail closed without node_modules
-HCS_SKIP_HOST_FIXTURES=1 just verify  # source checks, matching the CI profile
+MISE_EXEC_AUTO_INSTALL=0 mise exec -- npm install  # explicit dependency preparation
+MISE_EXEC_AUTO_INSTALL=0 HCS_SKIP_HOST_FIXTURES=1 mise exec -- just verify
 ```
 
 `just bootstrap` runs both preparation commands. The mise `bootstrap` task runs
@@ -124,6 +124,26 @@ lane separately before using it. ShellCheck is required in either profile: a
 missing executable fails the gate, and each scan exercises that refusal branch.
 
 ### Native command roles
+
+Run ordinary commands from the checkout root through prepared mise, for example:
+
+```bash
+MISE_EXEC_AUTO_INSTALL=0 mise exec -- just test
+```
+
+Use the same entry for the ordinary commands below, including editor and agent
+processes. `.mise.toml` owns tool selection and the five non-secret `HCS_ROOT`,
+`HCS_POLICY_DIR`, `HCS_STATE_DIR`, `HCS_LOG_DIR`, and `HCS_LAUNCH_LABEL` values;
+its pins, latest channels and values are unchanged. HCS no longer has a project
+`.envrc`. An explicit invocation supplies the child process environment; it does
+not export those values into the caller. Interactive entry/exit/re-entry through
+the workstation's native mise hook needs separate qualification.
+
+`MISE_EXEC_AUTO_INSTALL=0` disables mise exec's missing-tool installation; it does
+not prove exact executable selection or constrain arbitrary project code. Review
+configuration and prepare tools/dependencies separately. D-028/D-056/D-090's
+`host_secret_*`, `use_host_secrets`, and `HCS_SECRET_*` seam stays unchanged;
+this project transition retires no shared helper or workstation hook.
 
 | Role | Existing command / scope |
 | --- | --- |
@@ -136,10 +156,12 @@ missing executable fails the gate, and each scan exercises that refusal branch.
 | Format check | `just format-check` |
 | Format/lint write | `just format-fix`, `just lint-fix`, or the existing npm write scripts; source-changing operations in a prepared checkout |
 
-VS Code tasks call the same `just` recipes; CI also calls `just verify` after
-its explicit preparation. None of these wrappers proves that a fresh GUI/agent
-process selects the intended executables or refuses every fallback. The `npx`
-write recipes and prepared-dependency consistency still need that qualification.
+Ordinary VS Code tasks invoke `mise exec -- just ...` as processes from the
+workspace root with missing-tool installation disabled; the explicit bootstrap
+task keeps its existing setup command. CI still calls `just verify` after its
+explicit preparation. Fresh GUI/agent executable selection, missing/different-tool
+refusal, the `npx` write recipes and prepared-dependency consistency still need
+qualification. The dated receipt below records the earlier legacy entry.
 
 ### Native setup receipt — source review, 2026-10-13
 

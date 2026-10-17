@@ -107,6 +107,10 @@ For implementation:
 
 ## Validation commands
 
+Run the recipes below from the checkout root through the prepared native-mise
+entry in `README.md` §Native command roles. Editor and agent processes use that
+entry explicitly; terminal environment inheritance is not acceptance evidence.
+
 ```bash
 just verify             # runs lint + typecheck + tests + boundary check
 # Default just verify above also runs workstation-coupled probes.
